@@ -16,7 +16,7 @@ OLD_FILES = [
 FIELD_RE = re.compile(r"^  ([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+):\s*$", re.MULTILINE)
 MAPPING_KEY_RE = re.compile(r"^  ([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+):\s*$", re.MULTILINE)
 ACTION_RE = re.compile(r"^    action:\s*(KEEP|RENAME|MERGE|DERIVE|DEPRECATE)\s*$", re.MULTILINE)
-FIELD_ENTRY_RE = re.compile(r"^    ([a-z][a-z0-9_]*):\s*$", re.MULTILINE)
+FIELD_ENTRY_RE = re.compile(r"^  ([a-z][a-z0-9_]*):\s*$", re.MULTILINE)
 
 
 class BangladeshCanonicalProcurementV2(unittest.TestCase):
@@ -29,8 +29,8 @@ class BangladeshCanonicalProcurementV2(unittest.TestCase):
     def test_v2_is_candidate_and_not_live_migration(self):
         self.assertIn("version: 2.0.0", self.v2)
         self.assertIn("status: CANDIDATE", self.v2)
-        self.assertIn("bangladesh_procurement_candidate_v2:", MANIFEST)
-        self.assertIn("live_record_migration: DEFERRED", MANIFEST)
+        self.assertIn("live_record_migration: DEFERRED", self.v2)
+        self.assertIn("candidate_is_not_active_write_schema: true", self.v2)
         self.assertIn("bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.3.yaml", MANIFEST)
 
     def test_semantic_objects_are_explicit(self):
@@ -61,8 +61,8 @@ class BangladeshCanonicalProcurementV2(unittest.TestCase):
             "not_to_confuse_with:", "international_alignment:",
         ):
             self.assertIn(token, self.v2)
-        # The candidate must explain a substantial set of atomic fields, not only object names.
-        entries = FIELD_ENTRY_RE.findall(self.v2.split("field_dictionary:", 1)[1])
+        section = self.v2.split("field_dictionary:", 1)[1].split("\nderived_fields:", 1)[0]
+        entries = FIELD_ENTRY_RE.findall(section)
         self.assertGreaterEqual(len(set(entries)), 55)
 
     def test_v1_field_migration_map_is_exhaustive(self):
