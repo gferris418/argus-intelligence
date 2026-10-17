@@ -70,7 +70,7 @@ class BangladeshIdentifierInstitutionPursuit(unittest.TestCase):
         self.assertIn("ppr 2025", pursuit_lower)
 
     def test_manifest_wires_new_contracts(self):
-        self.assertIn("bangladesh_procurement_standard_version: 1.2.0", MANIFEST)
+        self.assertIn("bangladesh_data_standard_version: 1.2.0", MANIFEST)
         self.assertIn("bangladesh_institution_standard: profiles/bangladesh-institution-standard.yaml", MANIFEST)
         self.assertIn("bangladesh_pursuit_activation: profiles/bangladesh-pursuit-activation.yaml", MANIFEST)
         self.assertIn("egp_system_id_reference_no_separation: PASS", MANIFEST)
