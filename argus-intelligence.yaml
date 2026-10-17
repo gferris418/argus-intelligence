@@ -13,6 +13,9 @@ authority:
   atlas_alignment: alignments/atlas-os.md
   country_profiles:
     bangladesh: profiles/bangladesh.md
+  bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
+  bangladesh_source_mappings: profiles/bangladesh-source-mappings.yaml
+  bangladesh_observation_schema: schemas/bangladesh-observation.schema.json
   domain_result_schema: schemas/domain-result.schema.json
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
 
@@ -37,7 +40,6 @@ atlas_compatibility:
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
   atlas_domain_context_contract_version: 1.0.0
-  atlas_domain_context_contract_sha256: 57a0054b78754b91346206553c95bbef1211fa84df6e8c34f9542704870b8e30
   atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
   handoff_required_in_access_asia_production: true
   accepted_handoff_states:
@@ -58,6 +60,17 @@ operating_loop:
   - Decide
   - Promote_or_Monitor
   - Learn
+
+bangladesh_standardization:
+  canonical_data_standard: profiles/bangladesh-data-standard.yaml
+  source_mappings: profiles/bangladesh-source-mappings.yaml
+  observation_schema: schemas/bangladesh-observation.schema.json
+  rule: Source-specific Bangladesh labels normalize into one canonical field vocabulary before route, reconciliation, maturity or commercial assessment.
+  preserve_raw_labels_and_values: true
+  sparse_observations_allowed: true
+  fabricate_missing_fields: false
+  source_observation_is_registry_record_type: false
+  atlas_domain_context_precedes_argus_normalization: true
 
 360_intelligence_collection:
   doctrine: 360_degree_breadth_decision_driven_depth
@@ -240,3 +253,4 @@ release_gates:
   - cross-fiscal-year project lineage test passes: PASS
   - promotion-before-live-tender test passes: PASS
   - ATLAS domain-context handoff pin and return-correlation contract: PASS_PENDING_CI
+  - Bangladesh cross-source canonical data standard and observation contract: PASS_PENDING_CI
