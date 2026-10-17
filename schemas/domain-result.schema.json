@@ -6,6 +6,7 @@
   "type": "object",
   "additionalProperties": true,
   "required": [
+    "governance_mode",
     "objective",
     "candidate_or_opportunity",
     "decision",
@@ -15,6 +16,23 @@
     "next_recommended_action"
   ],
   "properties": {
+    "governance_mode": {
+      "type": "string",
+      "enum": ["ATLAS_GOVERNED", "STANDALONE"]
+    },
+    "upstream_handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_version", "handoff_id", "payload_sha256", "consumer", "status", "received_at"],
+      "properties": {
+        "contract_version": {"const": "1.0.0"},
+        "handoff_id": {"type": "string", "pattern": "^HANDOFF-[A-Z0-9][A-Z0-9-]{2,95}$"},
+        "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "consumer": {"const": "ARGUS"},
+        "status": {"const": "ACCEPTED"},
+        "received_at": {"type": "string", "format": "date-time"}
+      }
+    },
     "objective": {
       "type": "string",
       "minLength": 1
@@ -214,5 +232,14 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"governance_mode": {"const": "ATLAS_GOVERNED"}},
+        "required": ["governance_mode"]
+      },
+      "then": {"required": ["upstream_handoff"]}
+    }
+  ]
 }

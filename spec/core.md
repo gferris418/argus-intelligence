@@ -53,24 +53,33 @@ A formal tender is one evidence event in a longer lifecycle:
 
 ARGUS works forward and backward across that chain and across related institutions, suppliers, consultants, financiers, technologies and historical procurements.
 
-## 4. Production governance
+## 4. Production governance and ATLAS handoff
 
 Within the Access Asia governed environment, ATLAS OS is the execution-governance backbone.
 
-ARGUS is independently specified and portable, but its production domain method executes inside the current ATLAS plan and execution spine. ARGUS does not create a second plan, scheduler, approval system, persistence model or output-delivery mechanism.
+ATLAS owns the generic domain classification, taxonomy references, material risk flags, and domain-framework/standards alignment. Before substantive ARGUS execution, ATLAS transfers that context through the governed domain-context handoff contract.
+
+ARGUS must not redefine ATLAS taxonomy or standards conclusions. ARGUS may enrich them only for government-opportunity intelligence: terminology, aliases, solution adjacency, local context, installed base, supplier/competitor relationships, procurement routes, commercial meaning and discovery semantics.
+
+The handoff is mandatory in Access Asia production. ARGUS must validate the pinned ATLAS handoff schema, preserve unresolved facets and risk flags, reject `BLOCKED` handoffs for dependent execution, and return the exact `handoff_id`, contract version and `payload_sha256` in the domain result.
 
 Canonical flow:
 
-`ATLAS plan → ARGUS domain method → ARGUS domain result + proposed domain actions → ATLAS verification/approval → authorized action(s) → ATLAS task-artifact persistence → ATLAS delivery`
+`ATLAS classification/alignment → ATLAS Domain Context → ARGUS Contextualize → ARGUS domain method → ARGUS domain result + handoff receipt + proposed domain actions → ATLAS correlation verification/approval → authorized action(s) → ATLAS delivery`
 
 Standalone ARGUS execution is reserved for portability, testing, recovery or non-Access-Asia implementations.
 
 ## 5. Canonical operating loop
 
-`Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
+`Contextualize → Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
+
+### Contextualize
+Consume the governed ATLAS Domain Context and translate it into an ARGUS opportunity-intelligence context without changing ATLAS-owned classifications or standards conclusions. Contextualization may add domain terminology, aliases, related solution classes, capability-to-solution relationships, jurisdiction-specific interpretation, search expansion and commercial meaning.
+
+A `PARTIAL` ATLAS handoff may be used only with unresolved material preserved explicitly. A `BLOCKED` handoff cannot authorize dependent ARGUS execution.
 
 ### Discover
-Find relevant signals through one or more discovery vectors and materially relevant 360° collection lenses.
+Find relevant signals through one or more discovery vectors and materially relevant 360° collection lenses, using the contextualized taxonomy/product/capability vocabulary to improve recall and avoid category errors.
 
 ### Extract
 Convert evidence into structured candidate facts, identifiers, actors, dates, values, scope and source references.
@@ -136,16 +145,17 @@ Minimum envelope:
 
 Use one canonical owner per information class:
 
-- ARGUS Master Registry — structured intelligence truth;
+- ARGUS Master Registry semantics — structured intelligence truth;
+- current physical implementation — governed GitHub `data/registry/` JSON/JSONL lineage;
 - communication system — communication truth;
-- document repository — original document/evidence truth;
-- CRM — active post-PX commercial-pursuit truth;
+- external document repository/source system — original document/evidence truth;
+- CRM — active post-PX commercial-pursuit truth when activated;
 - governed framework repository / ATLAS Library — framework, alignment, decision and task artifacts;
 - analytical engines — derived projections only;
 - research tools — evidence sources, not canonical truth;
 - monitoring tools — change detection, not opportunity authority.
 
-**Rule:** store each item once in its natural canonical home and link elsewhere.
+**Rule:** store each item once in its natural canonical home and link elsewhere. Raw tender/source documents do not belong in the ARGUS GitHub canonical data store.
 
 ## 9. Discovery vectors
 
@@ -158,6 +168,8 @@ ARGUS supports converging discovery vectors, including:
 - funding-led;
 - ecosystem-led;
 - trigger-event.
+
+Contextualization expands governed ATLAS classifications into search/discovery vocabulary such as aliases, abbreviations, adjacent solution classes, mission terms and local terminology. These enrichments are ARGUS discovery semantics, not replacement taxonomy authority.
 
 Independent convergence raises confidence but does not automatically establish procurement.
 
@@ -341,7 +353,7 @@ The 360° coverage matrix exposes gaps; the Research Frontier decides which gaps
 
 Stop expanding a research branch when additional evidence is unlikely to change the next decision.
 
-When ATLAS governs execution, the Research Frontier proposes the domain research priority; ATLAS owns work-unit creation, routing and execution timing.
+When ATLAS governs execution, the Research Frontier proposes the domain research priority; ATLAS owns work-unit creation, routing and execution timing. If new authoritative evidence materially changes the ATLAS-owned classification or framework alignment, ARGUS returns that finding to ATLAS and waits for a new handoff rather than silently modifying the upstream context.
 
 ## 15. Domain decisions
 
@@ -362,8 +374,11 @@ A decision is analytical. Any state mutation is a separate proposed domain actio
 
 ARGUS returns a structured domain result to the governing runtime. It is not automatically the final user-facing answer.
 
+In `ATLAS_GOVERNED` mode, the result must contain the exact accepted upstream handoff receipt so ATLAS can verify `contract_version`, `handoff_id`, `payload_sha256` and consumer identity before accepting the result.
+
 The result contains, proportionately:
 
+- governance mode and upstream handoff receipt where applicable;
 - objective;
 - candidate/opportunity;
 - domain decision;
@@ -382,22 +397,23 @@ The result contains, proportionately:
 
 The machine-readable contract is defined in `schemas/domain-result.schema.json`.
 
-## 17. Domain actions and persistence
+## 17. Domain actions and current persistence
 
-ARGUS structured-intelligence writes occur through the governed `RegistryStoreAdapter` / Registry API.
+ARGUS structured intelligence is currently canonicalized through the governed GitHub-first store under `data/registry/`, with JSON/JSONL as the preferred machine representation. Database/API materialization is deferred and remains an implementation option rather than a Core dependency.
 
-An ARGUS Registry mutation is a domain action, not ATLAS task-library persistence.
+An ARGUS canonical mutation is a domain action, not ATLAS task-library persistence.
 
 Under ATLAS governance:
 
-1. ARGUS produces the domain result and proposed action.
-2. ATLAS performs authorization/approval and pre-action checks.
-3. The governed adapter executes the domain mutation.
-4. ATLAS verifies the action result.
-5. ATLAS separately persists the task report/decision/receipt under its own persistence contract.
-6. ATLAS delivers the verified result.
+1. ATLAS provides the validated domain-context handoff.
+2. ARGUS validates and accepts the handoff, then contextualizes it without redefining ATLAS-owned semantics.
+3. ARGUS produces the domain result, exact upstream handoff receipt and any proposed action.
+4. ATLAS verifies the return correlation, material claims, authorization and approval requirements.
+5. An authorized canonical mutation is executed through the current governed store/adapter.
+6. ATLAS verifies the mutation result and separately persists its own task artifact/receipt where required.
+7. ATLAS delivers the verified result.
 
-Saving a report to a Library never proves that the Master Registry changed.
+Saving a report never proves that the ARGUS canonical structured state changed. A canonical structured mutation never substitutes for required ATLAS task-artifact persistence.
 
 ## 18. PX promotion and downstream handoff
 
@@ -415,7 +431,7 @@ Monitoring detects changes; it does not create opportunities directly.
 
 Monitoring should be event- and lens-aware. Triggers may target funding changes, project approvals, procurement notices, technical obsolescence, institutional changes, consultant appointments, supplier moves, policy changes or other material events.
 
-A detected event re-enters normal ARGUS resolution, reconciliation, validation, assessment and decision logic.
+A detected event re-enters normal ARGUS contextualization, resolution, reconciliation, validation, assessment and decision logic. If the event changes ATLAS-owned domain classification/framework context materially, ATLAS must issue a new domain-context handoff before dependent analysis continues.
 
 ## 20. Portability
 
@@ -433,7 +449,7 @@ Before adding any feature, tool, database, workflow or application, ask:
 4. Will identifiers and data remain portable?
 5. Does it materially improve opportunity intelligence or a commercial decision?
 6. Does it belong pre-PX or downstream?
-7. Is ARGUS the correct owner?
-8. Does the feature improve 360° coverage, evidence quality, reconciliation or decision quality without encouraging indiscriminate collection?
+7. Is ARGUS the correct owner, or is the capability already owned by ATLAS?
+8. Does the feature improve contextualization, 360° coverage, evidence quality, reconciliation or decision quality without encouraging indiscriminate collection?
 
 If not, keep it outside ARGUS Core.

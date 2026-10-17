@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas-os.local/schemas/domain-context-handoff.schema.json",
+  "title": "ATLAS domain-context handoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "handoff_id",
+    "source_task_id",
+    "producer",
+    "consumer",
+    "created_at",
+    "state",
+    "domain_classification",
+    "domain_alignment",
+    "unresolved_material",
+    "risk_flags",
+    "payload_sha256"
+  ],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "handoff_id": {"type": "string", "pattern": "^HANDOFF-[A-Z0-9][A-Z0-9-]{2,95}$"},
+    "source_task_id": {"type": "string", "pattern": "^TASK-[A-Z0-9][A-Z0-9-]{2,63}$"},
+    "producer": {"const": "ATLAS_OS"},
+    "consumer": {"type": "string", "minLength": 1, "maxLength": 80},
+    "created_at": {"type": "string", "format": "date-time"},
+    "state": {"enum": ["READY", "PARTIAL", "BLOCKED"]},
+    "domain_classification": {"$ref": "#/$defs/domainClassification"},
+    "domain_alignment": {"$ref": "#/$defs/domainAlignment"},
+    "unresolved_material": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "risk_flags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "domainClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "facets", "taxonomy_references", "risk_flags", "unresolved_facets", "conditional_candidates", "evidence", "next_action"],
+      "properties": {
+        "status": {"enum": ["CLASSIFIED", "PARTIAL", "RESEARCH_REQUIRED", "NOT_REQUIRED"]},
+        "facets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "taxonomy", "code", "label", "version", "source"],
+              "properties": {
+                "id": {"type": "string"},
+                "taxonomy": {"type": "string", "pattern": "^taxonomy\\."},
+                "code": {"type": "string"},
+                "label": {"type": "string"},
+                "version": {"type": "string"},
+                "source": {"type": ["string", "null"]}
+              }
+            }
+          }
+        },
+        "taxonomy_references": {"type": "array", "items": {"type": "string", "pattern": "^taxonomy\\."}, "uniqueItems": true},
+        "risk_flags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "unresolved_facets": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "conditional_candidates": {"type": "array"},
+        "evidence": {"type": "array"},
+        "next_action": {"type": ["string", "null"]}
+      }
+    },
+    "domainAlignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domains", "status", "frameworks", "applicability", "deviations", "compliance", "evidence"],
+      "properties": {
+        "domains": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "status": {"enum": ["ALIGNED", "RESEARCH_REQUIRED", "NOT_APPLICABLE"]},
+        "frameworks": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "applicability": {"type": "object"},
+        "deviations": {"type": "array"},
+        "compliance": {"enum": ["VERIFIED", "SUPPORTED", "UNVERIFIED", "NOT_CLAIMED"]},
+        "evidence": {"type": "array"}
+      }
+    }
+  }
+}

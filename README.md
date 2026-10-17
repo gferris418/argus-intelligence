@@ -6,13 +6,17 @@ Its purpose is to identify credible business before formal tender publication, c
 
 ## Production relationship with ATLAS OS
 
-Within the Access Asia governed environment, **ATLAS OS is the unchanged execution-governance backbone**. ARGUS is a nested domain method and does not create a second execution spine.
+Within the Access Asia governed environment, **ATLAS OS is the execution-governance backbone**. ARGUS is a nested specialist domain method and does not create a second execution spine.
+
+ATLAS owns generic domain classification, taxonomy/product/service/capability context, material risk flags, and applicable law/standards/framework alignment. Before ARGUS executes, ATLAS transfers that context through the governed **Domain Context Handoff v1**.
 
 Canonical execution flow:
 
-`User objective → ATLAS OS → ARGUS domain method → ARGUS domain result + proposed domain actions → ATLAS verification/approval → authorized domain action(s) → ATLAS delivery`
+`User objective → ATLAS classification/alignment → ATLAS Domain Context handoff → ARGUS Contextualize → ARGUS domain method → ARGUS domain result + exact handoff receipt + proposed actions → ATLAS correlation verification/approval → authorized action(s) → ATLAS delivery`
 
-ARGUS remains independently specified and portable. Standalone execution is reserved for portability, testing, recovery, or non-Access-Asia implementations.
+ARGUS may enrich the ATLAS context for opportunity discovery—aliases, local terminology, adjacent solution classes, installed-base interpretation, supplier/competitor relevance, Bangladesh route implications—but it must not silently redefine ATLAS taxonomy or standards conclusions.
+
+In Access Asia production, ARGUS rejects dependent execution on a `BLOCKED` handoff and returns the exact `handoff_id`, contract version and `payload_sha256` in every `ATLAS_GOVERNED` domain result. Standalone execution remains available for portability, testing, recovery, or non-Access-Asia implementations.
 
 ## Current persistence model: GitHub-first
 
@@ -33,7 +37,9 @@ See [`docs/architecture/github-first-canonical-store.md`](docs/architecture/gith
 
 ## Core operating loop
 
-`Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
+`Contextualize → Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
+
+`Contextualize` is the first ARGUS operation in ATLAS-governed execution. It converts the governed ATLAS domain context into opportunity-intelligence search and interpretation context without changing upstream authority.
 
 ## 360° intelligence collection
 
@@ -75,6 +81,7 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 - Manifest: [`argus-intelligence.yaml`](argus-intelligence.yaml)
 - Core: [`spec/core.md`](spec/core.md)
 - ATLAS alignment: [`alignments/atlas-os.md`](alignments/atlas-os.md)
+- Pinned ATLAS handoff contract: [`contracts/atlas/domain-context-handoff-v1.schema.json`](contracts/atlas/domain-context-handoff-v1.schema.json)
 - Bangladesh profile: [`profiles/bangladesh.md`](profiles/bangladesh.md)
 - Domain result schema: [`schemas/domain-result.schema.json`](schemas/domain-result.schema.json)
 - GitHub-first persistence architecture: [`docs/architecture/github-first-canonical-store.md`](docs/architecture/github-first-canonical-store.md)
@@ -86,4 +93,4 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 
 `2.0.0-rc.2` — candidate.
 
-The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, and representative Bangladesh lifecycle gates have passed. Operational database deployment is deferred for the current phase; GitHub is the interim canonical persistence layer while ARGUS usage and integration requirements mature.
+The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, and governed ATLAS domain-context handoff are under CI validation. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical persistence layer while ARGUS usage and integration requirements mature.

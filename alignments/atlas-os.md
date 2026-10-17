@@ -1,20 +1,20 @@
 # ARGUS ↔ ATLAS OS Alignment Contract
 
-**ARGUS version:** 2.0.0-rc.1  
-**Validated ATLAS baseline:** 2.0.0-rc.7  
+**ARGUS version:** 2.0.0-rc.2  
+**Validated ATLAS baseline:** 2.0.0-rc.7 + Domain Context Handoff v1  
 **Status:** Candidate
 
 ## 1. Governing rule
 
-ATLAS OS is the unchanged execution-governance backbone for Access Asia production execution.
+ATLAS OS is the execution-governance backbone for Access Asia production execution.
 
 ARGUS is independently specified and portable as a government opportunity-intelligence framework, but every ARGUS execution inside the Access Asia governed environment runs under the current ATLAS OS execution contract.
 
-If ARGUS conflicts with an existing ATLAS execution-governance contract, ARGUS or this alignment layer must change. ARGUS does not require changes to ATLAS Core, runtime, execution spine, classification, evidence model, approvals, persistence semantics, output profiles, routing or surface adapters.
+ATLAS owns generic domain classification, taxonomy references, material risk flags, and domain-framework/standards alignment. ARGUS consumes that context through the governed ATLAS Domain Context handoff and must not silently redefine it.
 
 ## 2. Production chain
 
-`User objective → ATLAS OS governance → ARGUS domain method → ARGUS domain result + proposed domain actions → ATLAS verification/approval → authorized domain action(s) → ATLAS task-artifact persistence → ATLAS delivery`
+`User objective → ATLAS task/domain classification → ATLAS framework alignment → schema-valid domain-context handoff → ATLAS Domain Context → ARGUS Contextualize → ARGUS domain method → ARGUS domain result + exact handoff receipt + proposed domain actions → ATLAS return-correlation verification/approval → authorized domain action(s) → ATLAS delivery`
 
 ATLAS remains the only user-visible execution spine and plan.
 
@@ -24,22 +24,28 @@ ATLAS remains the only user-visible execution spine and plan.
 
 - intent/context preservation;
 - task classification;
-- generic domain classification;
+- domain classification;
+- taxonomy and industry/product/service/capability references;
+- cross-taxonomy classification context;
 - information-sensitivity and authorization controls;
+- applicable law/regulation/framework/standards alignment;
 - execution depth;
 - one canonical plan and atomic work units;
 - capability/tool/skill routing;
-- applicable-law/framework alignment;
 - evidence assurance;
 - generic approval gates;
 - independent verification;
 - task/library persistence and receipts;
 - output-profile selection;
 - observability/dashboard;
-- final delivery.
+- final delivery;
+- production of the governed domain-context handoff.
 
 ### ARGUS owns
 
+- contextualization of the ATLAS domain context for government opportunity intelligence;
+- terminology/alias/search expansion that does not redefine ATLAS taxonomy authority;
+- capability-to-solution and adjacent-product discovery relationships;
 - government/public-sector opportunity-intelligence semantics;
 - discovery vectors;
 - entity resolution and procurement reconciliation;
@@ -54,26 +60,74 @@ ATLAS remains the only user-visible execution spine and plan.
 - PX promotion recommendation;
 - standalone portability semantics.
 
-## 4. Stage mapping
+## 4. Mandatory domain-context handoff
+
+Before dependent ARGUS execution in Access Asia production, ARGUS must receive a **schema-valid domain-context handoff** conforming to the pinned ATLAS contract in `contracts/atlas/domain-context-handoff-v1.schema.json`.
+
+The handoff must include and preserve:
+
+- `contract_version`;
+- `handoff_id`;
+- `source_task_id`;
+- `producer`;
+- `consumer`;
+- `created_at`;
+- handoff `state`;
+- exact `domain_classification` snapshot;
+- exact `domain_alignment` snapshot;
+- `unresolved_material`;
+- `risk_flags`;
+- `payload_sha256`.
+
+Rules:
+
+1. `READY` may proceed normally.
+2. `PARTIAL` may proceed only with unresolved facets/risk flags carried forward explicitly and never guessed away.
+3. `BLOCKED` cannot authorize dependent ARGUS execution.
+4. ARGUS may enrich the context for opportunity intelligence but must not redefine ATLAS taxonomy or standards conclusions.
+5. If new evidence materially changes ATLAS-owned classification/alignment, ARGUS returns that finding to ATLAS; ATLAS must issue a new handoff.
+6. ARGUS returns an upstream handoff receipt in every `ATLAS_GOVERNED` domain result.
+7. ATLAS must reject mismatched, missing, mutated, stale or rejected handoff correlation before accepting the ARGUS result.
+8. `handoff_id`, contract version, consumer and `payload_sha256` must match exactly end-to-end.
+
+## 5. Stage mapping
 
 | ATLAS stage | ARGUS interaction |
 |---|---|
 | INTAKE | Receive opportunity seed/objective |
 | CONTEXT_PRESERVATION | Preserve names, identifiers, product/service, institution, jurisdiction and constraints |
-| NORMALIZATION | ATLAS normalizes task representation; ARGUS later resolves domain aliases/entities |
-| COMPLETENESS_CHECK | Unknown opportunity facts become research questions unless a missing user decision/authorization blocks work |
+| NORMALIZATION | ATLAS normalizes task representation |
+| COMPLETENESS_CHECK | Material missing execution context is resolved or exposed |
 | TASK_CLASSIFICATION | ARGUS is a domain method, not a task class |
-| DOMAIN_CLASSIFICATION | Provides jurisdiction/industry/product/capability/lifecycle/sensitivity context; does not replace country-route classification |
-| DOMAIN_FRAMEWORK_ALIGNMENT | ATLAS resolves/revalidates current binding law, regulation and applicable frameworks when material |
+| DOMAIN_CLASSIFICATION | ATLAS resolves material jurisdiction/industry/product/service/capability/lifecycle/stakeholder/sensitivity context |
+| DOMAIN_FRAMEWORK_ALIGNMENT | ATLAS resolves/revalidates applicable law, standards, professional frameworks and authoritative guidance |
 | PLANNING | ATLAS creates the one canonical plan and atomic work units |
-| ROUTING | ATLAS selects Registry, communications, documents, research and monitoring capabilities |
-| EVIDENCE_ACQUISITION | ARGUS supplies internal-first/domain-specific evidence priorities |
-| EXECUTION | ARGUS runs Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Learn |
-| VERIFICATION | ATLAS verifies material claims, reconciliation conclusions and proposed actions |
-| PERSISTENCE | ATLAS persists task/library artifacts and receipts; it is not the ARGUS Registry write destination |
+| ROUTING | ATLAS produces/validates the specialist domain-context handoff before delegation |
+| EVIDENCE_ACQUISITION | ARGUS supplies domain-specific evidence priorities from the contextualized handoff |
+| EXECUTION | ARGUS runs Contextualize → Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Learn |
+| VERIFICATION | ATLAS first verifies handoff correlation, then material claims, reconciliation conclusions and proposed actions |
+| PERSISTENCE | ATLAS persists task/library artifacts/receipts; ARGUS canonical state uses its governed current store |
 | DELIVERY | ATLAS selects the final output profile and delivers; ARGUS domain result is an input |
 
-## 5. Planning and Research Frontier seam
+## 6. Contextualization seam
+
+`ATLAS Domain Context → ARGUS Contextualize`
+
+Contextualization translates governed ATLAS classification/alignment into specialist opportunity-intelligence semantics such as:
+
+- preferred domain terminology and aliases;
+- search/retrieval expansion;
+- related/adjacent solution classes;
+- capability-to-solution relationships;
+- Bangladesh/local terminology;
+- installed-base interpretation;
+- supplier/competitor relevance;
+- procurement/project/funding discovery implications;
+- commercial meaning.
+
+Contextualization does not replace the ATLAS classification record. Any ARGUS-added taxonomy-like term is an enrichment/reference unless and until ATLAS independently classifies it.
+
+## 7. Planning and Research Frontier seam
 
 ARGUS Research Frontier identifies the next unresolved question most likely to change the commercial decision.
 
@@ -81,11 +135,11 @@ It does not self-schedule or create a competing plan.
 
 When more research is required:
 
-`ARGUS Research Frontier → ATLAS plan/work-unit update → ATLAS routing/evidence acquisition → ARGUS analysis`
+`ARGUS Research Frontier → ATLAS plan/work-unit update → ATLAS routing/evidence acquisition → (new handoff if ATLAS context changed materially) → ARGUS analysis`
 
 Safe read-only evidence acquisition may be batched within the active ATLAS work unit when allowed. A materially new dependent objective becomes the next ATLAS work unit.
 
-## 6. Evidence seam
+## 8. Evidence seam
 
 ARGUS claim type:
 
@@ -114,32 +168,24 @@ ATLAS evidence health remains independent.
 
 `ARGUS FACT` never implies `ATLAS VERIFIED` automatically.
 
-## 7. Domain result seam
+## 9. Domain result seam
 
 ARGUS returns a domain-result object to ATLAS; it is not automatically the final user-facing answer.
 
-The result may include:
+In `ATLAS_GOVERNED` mode the result must include `upstream_handoff` containing the exact receipt fields:
 
-- objective;
-- candidate/opportunity;
-- country route and confidence where applicable;
-- domain decision;
-- I0–I9 maturity;
-- institutional chain;
-- project/budget/funding state;
-- procurement planning/package state;
-- procurement state/horizon;
-- commercial relevance;
-- claim types/conditions and evidence references;
-- unknowns/conflicts;
-- Research Frontier;
-- next material trigger;
-- next recommended action;
-- `proposed_domain_actions` / `proposed_registry_actions`.
+- `contract_version`;
+- `handoff_id`;
+- `payload_sha256`;
+- `consumer` = `ARGUS`;
+- `status` = `ACCEPTED`;
+- `received_at`.
 
-ATLAS then chooses the final output profile, verifies material claims, applies approvals, persists task artifacts and delivers.
+The result may additionally include objective, candidate/opportunity, country route and confidence, domain decision, I0–I9 maturity, institutional chain, project/budget/funding state, procurement state/horizon, commercial relevance, evidence, unknowns/conflicts, Research Frontier, next trigger/action and proposed domain actions.
 
-## 8. Domain action seam
+ATLAS verifies the receipt correlation before using the result, then chooses the final output profile, verifies material claims, applies approvals and delivers.
+
+## 10. Domain action seam
 
 ARGUS analytical decisions and domain mutations are separate.
 
@@ -153,55 +199,55 @@ The decision is analytical. The action is governed execution.
 Under ATLAS:
 
 1. ARGUS proposes the action.
-2. ATLAS evaluates authorization, sensitivity and applicable approval requirements.
-3. The governed adapter executes the authorized action.
+2. ATLAS verifies the originating handoff receipt and evaluates authorization/sensitivity/approval requirements.
+3. The governed current canonical-store mechanism executes the authorized action.
 4. ATLAS verifies the outcome.
 
-Routine reversible research and preparation can proceed autonomously within authorization. Permanent PX creation, destructive/high-impact merges and other major canonical-state changes map to the existing ATLAS approval controls.
+Permanent PX creation, destructive merge, identity reassignment, or another **major canonical-state change** remains subject to the existing ATLAS approval controls. ARGUS does not create a separate approval framework.
 
-ARGUS does not create a separate approval framework.
-
-## 9. Registry mutation vs ATLAS persistence seam
+## 11. Canonical-state vs ATLAS persistence seam
 
 This distinction is mandatory.
 
-### ARGUS domain mutation
+### ARGUS canonical domain mutation
 
-`ARGUS result → proposed registry action → ATLAS authorization/approval → RegistryStoreAdapter / Registry API → ARGUS Master Registry`
+`ARGUS result → exact handoff correlation → proposed canonical action → ATLAS authorization/approval → governed ARGUS canonical store`
+
+Current physical canonical store: private GitHub `data/registry/` JSON/JSONL lineage. Future database materialization is an implementation change.
 
 ### ATLAS persistence
 
 `ATLAS verified task result → ATLAS PERSISTENCE → task-fit Library collection / durable artifact / execution receipt`
 
-A Library save never proves a Registry mutation. A Registry mutation never substitutes for required ATLAS task-artifact persistence.
+An ATLAS Library save never proves an ARGUS canonical-state mutation. An ARGUS canonical-state mutation never substitutes for required ATLAS task-artifact persistence.
 
-## 10. Current-law/currency seam
+## 12. Current-law/currency seam
 
 Country profiles may maintain dated legal/institutional baselines as operational knowledge.
 
 They are not the runtime authority for current law.
 
-When law, regulation, procurement rules, financing rules or authoritative guidance can materially change the result, ATLAS DOMAIN_FRAMEWORK_ALIGNMENT must revalidate the current binding requirements before relying on cached profile text.
+When law, regulation, procurement rules, financing rules, taxonomy editions, standards or authoritative guidance can materially change the result, ATLAS must revalidate them before producing the domain-context handoff used by ARGUS.
 
-## 11. Classification seam
+## 13. Classification seam
 
-ATLAS generic domain classification and ARGUS country-route classification are complementary.
+ATLAS classification and ARGUS opportunity contextualization are complementary, not competing.
 
-ATLAS answers contextual questions such as jurisdiction, operator industry, supplier industry, product/service, capability, lifecycle, stakeholder and information sensitivity.
+ATLAS answers: what jurisdiction, operator/supplier industry, product/service, capability, lifecycle, stakeholder, sensitivity, taxonomy references and applicable frameworks govern the task?
 
-ARGUS answers domain-specific questions such as which procurement/acquisition route currently best explains the opportunity.
+ARGUS answers: what do those governed classifications mean for opportunity discovery, local terminology, solution adjacency, installed base, supplier/competitor intelligence, route interpretation, commercial relevance and opportunity development?
 
-Country-route classification does not require an ATLAS taxonomy extension.
+Country-route classification remains ARGUS domain analysis; it does not replace ATLAS taxonomy classification.
 
-## 12. Persistence and history
+## 14. Persistence and history
 
 ATLAS Library retention governs ATLAS-controlled artifacts.
 
-ARGUS procurement, opportunity, relationship, installed-base, reconciliation and audit history remains governed by ARGUS domain retention requirements.
+ARGUS procurement, opportunity, relationship, installed-base, reconciliation and audit history remains governed by ARGUS domain retention requirements and the current canonical Git lineage.
 
-ATLAS retention must not be used to truncate ARGUS canonical history.
+ATLAS retention must not truncate ARGUS canonical history.
 
-## 13. Source authority
+## 15. Source authority
 
 Source authority is claim-specific.
 
@@ -212,20 +258,20 @@ Source authority is claim-specific.
 
 ARGUS must use the strongest relevant source for each material claim within ATLAS routing/evidence controls.
 
-## 14. Standalone mode
+## 16. Standalone mode
 
 Standalone ARGUS execution remains permitted for portability, testing, recovery or non-Access-Asia implementations.
 
-Inside Access Asia production, ARGUS does not bypass ATLAS startup, planning, sensitivity, authorization, verification, persistence or delivery.
+Inside Access Asia production, ARGUS does not bypass ATLAS classification, framework alignment, handoff, planning, sensitivity, authorization, verification, persistence or delivery.
 
-`ATLAS INIT | CURRENT` is not a required ARGUS technical command. ARGUS executes within the already-active ATLAS control plane.
+## 17. Acceptance invariant
 
-## 15. Acceptance invariant
+For every governed ARGUS execution:
 
-For every ARGUS capability ask:
-
-> Can this capability operate correctly under ATLAS OS exactly as it exists?
-
-- **Yes:** retain the ARGUS design.
-- **No:** redesign ARGUS or its adapter/alignment layer.
-- Do not change ATLAS solely to accommodate ARGUS.
+1. ATLAS classification/alignment exists.
+2. ATLAS emits a schema-valid handoff.
+3. ARGUS validates the pinned contract before Contextualize.
+4. ARGUS preserves unresolved/risk information and does not redefine ATLAS authority.
+5. ARGUS returns the exact handoff correlation in its domain result.
+6. ATLAS verifies the receipt before accepting the result.
+7. Any material upstream-context change triggers a new handoff rather than silent mutation.

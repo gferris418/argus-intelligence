@@ -1,0 +1,352 @@
+document_id: ARGUS-BD-SOURCE-MAP-001
+version: 1.0.0
+status: CANDIDATE
+country_code: BD
+purpose: >-
+  Map common Bangladesh public-sector source families and their source-specific
+  labels into the canonical Bangladesh Data Standard. The catalog describes
+  what is usually available; it does not imply every source record contains
+  every listed datapoint.
+
+mapping_rules:
+  - Preserve source label/value before normalization.
+  - A field mapping means the source label may populate the canonical field when actually observed.
+  - Do not create a datapoint merely because a source family normally contains that field.
+  - Use source IDs/typed identifiers before fuzzy name matching.
+  - When the same concept appears in multiple sources, retain source-specific observations and reconcile downstream.
+  - Official source fields do not automatically become ATLAS VERIFIED; ATLAS assurance remains separate.
+
+source_profiles:
+  BPPA_EGP_APP:
+    authority: official_procurement_plan
+    typical_layers: [INSTITUTION, PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PROCUREMENT_PACKAGE]
+    typical_available_data:
+      - ministry/division/organization/procuring entity and district
+      - financial year and budget type
+      - project name
+      - APP ID and APP code
+      - procurement nature/type
+      - package number and description
+      - estimated cost
+      - procurement method
+      - category
+    field_mappings:
+      - {source_label: Ministry, canonical_field: institution.ministry_name}
+      - {source_label: Division, canonical_field: institution.division_name}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Procuring Entity, canonical_field: institution.pe_name}
+      - {source_label: PE Office, canonical_field: institution.pe_name}
+      - {source_label: District, canonical_field: institution.district}
+      - {source_label: Financial Year, canonical_field: procurement.financial_year}
+      - {source_label: Budget Type, canonical_field: funding.budget_type}
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: APP ID, canonical_field: procurement.app_id}
+      - {source_label: APP Code, canonical_field: procurement.app_code}
+      - {source_label: Procurement Nature, canonical_field: procurement.nature}
+      - {source_label: Procurement Type, canonical_field: procurement.type}
+      - {source_label: Package No., canonical_field: procurement.package_no}
+      - {source_label: Package Description, canonical_field: procurement.package_description}
+      - {source_label: Estimated Cost, canonical_field: procurement.estimated_cost}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: Category, canonical_field: procurement.category_label}
+
+  BPPA_EGP_SOLICITATION:
+    authority: official_procurement_event
+    typical_layers: [INSTITUTION, PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PACKAGE, SOLICITATION]
+    typical_available_data:
+      - ministry/division/organization/PE/PE code/district
+      - procurement nature/type/event type/invitation type
+      - invitation reference, APP ID and tender/proposal ID
+      - tender/proposal public status
+      - procurement method, budget type, source of funds and development partner
+      - project code/name and package number/description
+      - category
+      - publication, document-sale/download, pre-bid, closing/opening and security deadlines
+      - eligibility/qualification text
+    field_mappings:
+      - {source_label: Ministry, canonical_field: institution.ministry_name}
+      - {source_label: Division, canonical_field: institution.division_name}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Procuring Entity Name, canonical_field: institution.pe_name}
+      - {source_label: Procuring Entity Code, canonical_field: institution.pe_code}
+      - {source_label: Procuring Entity District, canonical_field: institution.district}
+      - {source_label: Procurement Nature, canonical_field: procurement.nature}
+      - {source_label: Procurement Type, canonical_field: procurement.type}
+      - {source_label: Event Type, canonical_field: solicitation.event_type}
+      - {source_label: Invitation for, canonical_field: solicitation.invitation_for}
+      - {source_label: Invitation Reference No., canonical_field: solicitation.reference_no}
+      - {source_label: App ID, canonical_field: procurement.app_id}
+      - {source_label: Tender/Proposal ID, canonical_field: solicitation.id}
+      - {source_label: Tender/Proposal Status, canonical_field: solicitation.status_raw}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: Budget Type, canonical_field: funding.budget_type}
+      - {source_label: Source of Funds, canonical_field: funding.source}
+      - {source_label: Development Partner, canonical_field: funding.development_partner}
+      - {source_label: Project Code, canonical_field: project.code}
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Tender/Proposal Package No., canonical_field: procurement.package_no}
+      - {source_label: Tender/Proposal Package Description, canonical_field: procurement.package_description}
+      - {source_label: Category, canonical_field: procurement.category_label}
+      - {source_label: Scheduled Tender/Proposal Publication Date and Time, canonical_field: solicitation.publication_at}
+      - {source_label: Document last selling/downloading Date and Time, canonical_field: solicitation.document_sale_end_at}
+      - {source_label: Pre-Tender/Proposal meeting Start Date and Time, canonical_field: solicitation.prebid_start_at}
+      - {source_label: Pre-Tender/Proposal meeting End Date and Time, canonical_field: solicitation.prebid_end_at}
+      - {source_label: Tender/Proposal Closing Date and Time, canonical_field: solicitation.closing_at}
+      - {source_label: Tender/Proposal Opening Date and Time, canonical_field: solicitation.opening_at}
+      - {source_label: Last Date and Time for Tender/Proposal Security Submission, canonical_field: solicitation.security_deadline_at}
+      - {source_label: Eligibility of Tenderer, canonical_field: solicitation.eligibility}
+
+  BPPA_EGP_AWARD:
+    authority: official_contract_award
+    typical_layers: [INSTITUTION, PROCUREMENT_PACKAGE, SOLICITATION, AWARD_CONTRACT, SUPPLIER_MARKET]
+    typical_available_data:
+      - ministry/division/organization/PE
+      - tender/proposal ID and reference
+      - procurement method
+      - advertisement date
+      - notification of award date
+      - awarded supplier/consultant
+      - contract value and currency/equivalent BDT
+      - contract number and contract signing date where published
+      - framework agreement indicator
+      - beneficial ownership where published under current rules
+    field_mappings:
+      - {source_label: Ministry, canonical_field: institution.ministry_name}
+      - {source_label: Division, canonical_field: institution.division_name}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Procuring Entity, canonical_field: institution.pe_name}
+      - {source_label: Tender/Proposal ID, canonical_field: solicitation.id}
+      - {source_label: Tender/Proposal Ref. No, canonical_field: solicitation.reference_no}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: Advertisement Date, canonical_field: solicitation.publication_at}
+      - {source_label: Date of Notification of Award, canonical_field: award.noa_date}
+      - {source_label: Contract Award to, canonical_field: award.supplier_name}
+      - {source_label: Value, canonical_field: award.value}
+      - {source_label: Contract No, canonical_field: award.contract_no}
+      - {source_label: Contract Sign Date, canonical_field: contract.sign_date}
+      - {source_label: Framework Agreement, canonical_field: procurement.framework_agreement}
+      - {source_label: Beneficial Owner, canonical_field: award.beneficial_owner}
+
+  BPPA_ECMS:
+    authority: official_contract_execution
+    typical_layers: [INSTITUTION, AWARD_CONTRACT, CONTRACT_EXECUTION, SUPPLIER_MARKET]
+    typical_available_data:
+      - ministry/division/organization/PE
+      - procurement nature/type/method
+      - tender/proposal ID/ref/title
+      - awarded supplier/company identifier
+      - contract amount
+      - contract start/end date
+      - work status
+      - experience certificate information
+    field_mappings:
+      - {source_label: Ministry, canonical_field: institution.ministry_name}
+      - {source_label: Division, canonical_field: institution.division_name}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Procuring Entity, canonical_field: institution.pe_name}
+      - {source_label: Procurement Nature, canonical_field: procurement.nature}
+      - {source_label: Procurement Type, canonical_field: procurement.type}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: Tender/Proposal ID, canonical_field: solicitation.id}
+      - {source_label: Ref No., canonical_field: solicitation.reference_no}
+      - {source_label: Contract Awarded To, canonical_field: award.supplier_name}
+      - {source_label: Company Unique ID, canonical_field: award.supplier_id}
+      - {source_label: Contract Amount, canonical_field: award.value}
+      - {source_label: Contract Start Date, canonical_field: contract.start_date}
+      - {source_label: Contract End Date, canonical_field: contract.end_date}
+      - {source_label: Work Status, canonical_field: contract.work_status}
+
+  IMED_ADP:
+    authority: official_project_monitoring
+    typical_layers: [INSTITUTION, PROGRAMME_PROJECT, FUNDING]
+    typical_available_data:
+      - ministry/division and implementing agency
+      - project list by fiscal year
+      - project name/code where published
+      - approved/revised implementation period and cost
+      - GoB/project-aid/own-fund components
+      - annual ADP/RADP allocation
+      - monthly/periodic physical and financial implementation progress
+    field_mappings:
+      - {source_label: Ministry/Division, canonical_field: institution.ministry_name}
+      - {source_label: Implementing Agency, canonical_field: institution.organization_name}
+      - {source_label: Project Code, canonical_field: project.code}
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Project Status, canonical_field: project.status}
+      - {source_label: Implementation Start, canonical_field: project.start_date}
+      - {source_label: Implementation End, canonical_field: project.end_date}
+      - {source_label: Total Project Cost, canonical_field: project.total_cost}
+      - {source_label: GoB, canonical_field: project.gob_cost}
+      - {source_label: Project Aid, canonical_field: project.project_aid_cost}
+      - {source_label: Own Fund, canonical_field: project.own_fund_cost}
+      - {source_label: ADP Allocation, canonical_field: project.current_fy_allocation}
+      - {source_label: Physical Progress, canonical_field: project.physical_progress_pct}
+      - {source_label: Financial Progress, canonical_field: project.financial_progress_pct}
+
+  PLANNING_DPP_TAPP:
+    authority: official_project_design_approval
+    typical_layers: [POLICY_STRATEGY, INSTITUTION, PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PROCUREMENT_PACKAGE]
+    typical_available_data:
+      - sponsoring ministry/division and implementing agency
+      - project title/objectives/location
+      - implementation period
+      - year-wise estimated cost and financing plan
+      - cost summary and MTBF/resource context
+      - procurement plan by goods/works/services package
+      - year-wise targets/activities and implementation schedule
+    field_mappings:
+      - {source_label: Sponsoring Ministry/Division, canonical_field: institution.ministry_name}
+      - {source_label: Implementing Agency, canonical_field: institution.organization_name}
+      - {source_label: Project Code, canonical_field: project.code}
+      - {source_label: Project Title, canonical_field: project.name}
+      - {source_label: Project Type, canonical_field: project.type}
+      - {source_label: Date of Approval, canonical_field: project.approval_date}
+      - {source_label: Date of Revision, canonical_field: project.revision_date}
+      - {source_label: Implementation Period Start, canonical_field: project.start_date}
+      - {source_label: Implementation Period End, canonical_field: project.end_date}
+      - {source_label: Estimated Cost Summary, canonical_field: project.total_cost}
+      - {source_label: GoB Financing, canonical_field: project.gob_cost}
+      - {source_label: Project Aid, canonical_field: project.project_aid_cost}
+      - {source_label: Own Fund, canonical_field: project.own_fund_cost}
+      - {source_label: Procurement Package No., canonical_field: procurement.package_no}
+      - {source_label: Procurement Package Description, canonical_field: procurement.package_description}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: Estimated Package Cost, canonical_field: procurement.estimated_cost}
+      - {source_label: Procurement Strategy, canonical_field: procurement.strategy_reference}
+
+  ERD_AIMS:
+    authority: official_external_financing
+    typical_layers: [INSTITUTION, PROGRAMME_PROJECT, FUNDING]
+    typical_available_data:
+      - project and aid-agreement titles
+      - development partner
+      - agreement type
+      - implementing organization
+      - commitment amount/currency/date
+      - disbursement/financing information where available
+    field_mappings:
+      - {source_label: Project Title, canonical_field: project.name}
+      - {source_label: Implementing Organization, canonical_field: institution.organization_name}
+      - {source_label: Development Partner, canonical_field: funding.development_partner}
+      - {source_label: Agreement Type, canonical_field: funding.agreement_type}
+      - {source_label: Aid Agreement Title, canonical_field: funding.agreement_title}
+      - {source_label: Commitments, canonical_field: funding.commitment_amount}
+      - {source_label: Commitment Currency, canonical_field: funding.currency}
+      - {source_label: Commitment Date, canonical_field: funding.commitment_date}
+
+  PPP_AUTHORITY:
+    authority: official_ppp_pipeline
+    typical_layers: [POLICY_STRATEGY, INSTITUTION, PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN]
+    typical_available_data:
+      - PPP project title/sector
+      - contracting authority/implementing institution
+      - project stage/status
+      - project description and estimated investment where published
+      - transaction adviser/consultant
+      - approval and procurement milestones
+      - private partner/concession outcome when awarded
+    field_mappings:
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Contracting Authority, canonical_field: institution.organization_name}
+      - {source_label: Project Status, canonical_field: project.status}
+      - {source_label: Estimated Project Cost, canonical_field: project.total_cost}
+      - {source_label: Funding Source, canonical_field: funding.source}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+
+  DGDP_EDP:
+    authority: official_defence_procurement
+    typical_layers: [INSTITUTION, PROCUREMENT_PACKAGE, SOLICITATION, AMENDMENT_PREBID]
+    typical_available_data:
+      - tender number
+      - DGDP section
+      - tender name
+      - tender type
+      - opening date
+      - tender selling period
+      - notice/amendment/specification availability
+      - updated-on date
+      - pre-bid notices and corrigenda
+    field_mappings:
+      - {source_label: Tender No, canonical_field: solicitation.reference_no}
+      - {source_label: Tender Name, canonical_field: procurement.package_description}
+      - {source_label: Tender Type, canonical_field: procurement.type}
+      - {source_label: Date of Opening, canonical_field: solicitation.opening_at}
+      - {source_label: Tender Selling From, canonical_field: solicitation.publication_at}
+      - {source_label: Tender Selling To, canonical_field: solicitation.document_sale_end_at}
+      - {source_label: Amendment/Corrigendum, canonical_field: amendment.summary}
+      - {source_label: Updated On, canonical_field: amendment.date}
+
+  AGENCY_WEBSITE:
+    authority: official_agency_primary
+    typical_layers: [POLICY_STRATEGY, INSTITUTION, PROGRAMME_PROJECT, PROCUREMENT_PLAN, SOLICITATION, AMENDMENT_PREBID, AWARD_CONTRACT]
+    typical_available_data:
+      - institution notices/circulars/plans
+      - projects/programmes
+      - procurement notices or manual tender references
+      - amendments/pre-bid notices
+      - award/contract announcements
+    field_mappings:
+      - {source_label: Ministry, canonical_field: institution.ministry_name}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Tender Reference, canonical_field: solicitation.reference_no}
+      - {source_label: Tender Title, canonical_field: procurement.package_description}
+      - {source_label: Publication Date, canonical_field: solicitation.publication_at}
+      - {source_label: Closing Date, canonical_field: solicitation.closing_at}
+      - {source_label: Awarded To, canonical_field: award.supplier_name}
+
+  INTERNAL_EMAIL:
+    authority: internal_communication_truth
+    typical_layers: [INTERNAL_INTELLIGENCE]
+    typical_available_data:
+      - sender/recipients/date/subject
+      - project/tender/product references
+      - stated status, relationship, meeting and requested action
+      - attachments referenced but not duplicated into GitHub
+    field_mappings:
+      - {source_label: Subject, canonical_field: internal.subject}
+      - {source_label: Date, canonical_field: internal.date}
+      - {source_label: Participants, canonical_field: internal.participants}
+      - {source_label: Channel, canonical_field: internal.channel}
+      - {source_label: Intelligence Claim, canonical_field: internal.claim}
+      - {source_label: Next Action, canonical_field: internal.next_action}
+
+  INTERNAL_DOCUMENT:
+    authority: internal_document_truth
+    typical_layers: [INTERNAL_INTELLIGENCE, PROGRAMME_PROJECT, PROCUREMENT_PACKAGE, INSTALLED_BASE, SUPPLIER_MARKET]
+    typical_available_data:
+      - internal reports/proposals/technical notes
+      - project/package/tender identifiers
+      - product/technical/installed-base intelligence
+      - supplier/OEM/partner information
+      - commercial decisions and follow-up
+    field_mappings:
+      - {source_label: Document Title, canonical_field: internal.subject}
+      - {source_label: Document Date, canonical_field: internal.date}
+      - {source_label: Intelligence Claim, canonical_field: internal.claim}
+      - {source_label: Project Code, canonical_field: project.code}
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Package No, canonical_field: procurement.package_no}
+      - {source_label: Asset Name, canonical_field: installed_base.asset_name}
+      - {source_label: OEM, canonical_field: installed_base.oem}
+      - {source_label: Model, canonical_field: installed_base.model}
+      - {source_label: Supplier, canonical_field: supplier.name}
+
+  MEETING_NOTE:
+    authority: internal_interaction_truth
+    typical_layers: [INTERNAL_INTELLIGENCE, INSTITUTION, PROGRAMME_PROJECT, SUPPLIER_MARKET]
+    typical_available_data:
+      - meeting date and participants
+      - institutions/roles
+      - requirement/project/product discussion
+      - claims, commitments, next action and trigger
+    field_mappings:
+      - {source_label: Meeting Title, canonical_field: internal.subject}
+      - {source_label: Meeting Date, canonical_field: internal.date}
+      - {source_label: Participants, canonical_field: internal.participants}
+      - {source_label: Channel, canonical_field: internal.channel}
+      - {source_label: Intelligence Claim, canonical_field: internal.claim}
+      - {source_label: Next Action, canonical_field: internal.next_action}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Project, canonical_field: project.name}
+      - {source_label: Supplier, canonical_field: supplier.name}
