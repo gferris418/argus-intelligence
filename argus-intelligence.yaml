@@ -220,7 +220,7 @@ release_gates:
   - representative Bangladesh route compatibility tests pass: PASS
   - claim type and claim condition candidate schema contract: PASS
   - GitHub-first canonical storage policy is defined and testable: PASS
-  - initial GitHub structured canonical baseline is committed and integrity-tested: PASS_PENDING_CI
+  - initial GitHub structured canonical baseline is committed and integrity-tested: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
   - 360-degree collection contract test passes: PASS
   - APP/tender/amendment/award reconciliation avoids duplicate opportunities: PASS
