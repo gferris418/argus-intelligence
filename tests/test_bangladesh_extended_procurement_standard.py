@@ -88,7 +88,7 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
 
     def test_manifest_preserves_v110_foundation_under_newer_active_standard(self):
         self.assertIn("Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS", MANIFEST)
-        self.assertIn("bangladesh_procurement_standard_version: 1.2.0", MANIFEST)
+        self.assertIn("bangladesh_data_standard_version: 1.2.0", MANIFEST)
         self.assertIn("development_partner_procurement_normalization: PASS", MANIFEST)
 
 
