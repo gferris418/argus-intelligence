@@ -1,5 +1,5 @@
 document_id: ARGUS-BD-PURSUIT-001
-version: 1.0.0
+version: 1.1.0
 status: CANDIDATE
 country: Bangladesh
 purpose: >-
@@ -83,6 +83,42 @@ activation_modes:
       A tender is published before ARGUS has prior intelligence. ARGUS immediately reconciles it against existing
       records, searches probable suppliers, engages qualified suppliers, constructs a compliance matrix and supports participation.
 
+live_procurement_event_response:
+  submission_deadline_extension:
+    trigger: SUBMISSION_DEADLINE_EXTENSION
+    identity_effect: same_procurement_and_same_underlying_opportunity_lineage
+    actions:
+      - update current effective closing/opening/selling dates while retaining the original dates and append-only event history
+      - recalculate internal bid plan and remaining preparation window
+      - re-engage suppliers/OEMs where the additional time changes availability or bid feasibility
+      - refresh quotation-validity, bid-security and document-validity assumptions where relevant
+      - re-check all corrigendum/addendum changes before submission
+      - preserve the prior deadline as evidence; never silently overwrite history
+
+  tender_validity_extension:
+    trigger: TENDER_VALIDITY_EXTENSION
+    identity_effect: same_procurement_and_same_underlying_opportunity_lineage
+    actions:
+      - verify new tender validity date and any corresponding tender-security validity requirement
+      - confirm supplier/OEM quotation and authorization validity
+      - obtain required internal/supplier consent or approvals
+      - do not alter the submitted tender unless the governing procurement process expressly permits it
+      - append the validity-extension event and preserve the prior validity period
+
+  retender:
+    trigger: RETENDER_ISSUED
+    identity_effect: new_procurement_cycle_same_underlying_opportunity_lineage_by_default
+    actions:
+      - reconcile the re-tender against the predecessor using project, package, lot, PE, title, requirement and typed identifiers
+      - preserve the predecessor procurement record and link the successor with replaces when established
+      - re-engage previously considered suppliers/OEMs and identify any new probable suppliers
+      - reconfirm supplier interest, authorization, commercial route and local-partner structure
+      - compare the new tender with the predecessor specification, eligibility, method, security, dates and commercial terms
+      - rebuild or refresh the compliance matrix and bid/no-bid decision
+      - refresh pricing, quotations, lead times, validity, logistics and submission plan
+      - record the official re-tender reason when stated; otherwise keep the reason UNKNOWN
+      - do not create a new commercial opportunity unless reconciliation proves a genuinely different underlying requirement
+
 supplier_engagement_common_fields:
   - supplier_candidate_id
   - manufacturer_or_service_provider
@@ -128,5 +164,7 @@ specification_influence_controls:
 lineage_transition:
   EARLY_REQUIREMENT_DEVELOPMENT_to_PLANNED_PROCUREMENT_CAPTURE: update_same_candidate_or_opportunity
   PLANNED_PROCUREMENT_CAPTURE_to_LIVE_TENDER_RESPONSE: reconcile_tender_to_same_underlying_requirement
+  LIVE_TENDER_RESPONSE_submission_deadline_extension: update_same_procurement_and_append_event
+  LIVE_TENDER_RESPONSE_retender: create_or_reconcile_successor_procurement_cycle_keep_same_opportunity_by_default
   LIVE_TENDER_RESPONSE_without_prior_record: create_candidate_then_reconcile_before_new_px
   rule: one underlying opportunity lineage
