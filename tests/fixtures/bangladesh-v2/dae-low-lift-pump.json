@@ -1,0 +1,100 @@
+{
+  "fixture_type": "v1_to_v2_semantic_validation",
+  "target_standard": "2.0.0-candidate",
+  "live_registry_mutation": false,
+  "source_basis": {
+    "current_record": "data/registry/current/PROC-DAE-1318662.json",
+    "primary_source_system": "USER_PROVIDED_EGP_NOTICE",
+    "primary_source_locator": "TenderNotice (77).pdf",
+    "as_of": "2026-10-18"
+  },
+  "linked_context": {
+    "project": {
+      "argus_id": "PRJ-BD-DAE-224385000",
+      "identifiers": [{"scheme": "PROJECT_CODE", "value": "224385000"}],
+      "title": "Extension of Modern Agricultural Technologies in Char Areas of Bangladesh Project"
+    },
+    "entity_refs": ["ENT-BD-MOA", "ENT-BD-DAE", "ENT-BD-DAE-CHAR-224385000-PE"]
+  },
+  "v2_candidate": {
+    "argus_id": "PROC-DAE-1318662",
+    "requirement_ref": "REQ-DAE-224385000-CHAR28-LLP",
+    "title": "Irrigation Equipment: LLP (Low Lift Pump) Set",
+    "record_state": "SUPERSEDED_OR_CLOSED",
+    "record_revision": 1,
+    "identifiers": [
+      {"scheme": "SYSTEM_TENDER_ID", "value": "1318662", "scope": "PROCESS", "source_system": "BPPA_EGP", "source_label": "Tender/Proposal ID"},
+      {"scheme": "TENDER_REFERENCE_NO", "value": "12.01.0000.981.07.005.26-143", "scope": "PROCESS", "source_system": "BPPA_EGP", "source_label": "Invitation Reference No."},
+      {"scheme": "EGP_APP_ID", "value": "229930", "scope": "PLAN", "source_system": "BPPA_EGP", "source_label": "APP ID"},
+      {"scheme": "PACKAGE_NO", "value": "GD/DAE/CHAR-28", "scope": "PACKAGE", "source_system": "BPPA_EGP", "source_label": "Package No."}
+    ],
+    "related_record_refs": [
+      {"argus_id": "PRJ-BD-DAE-224385000", "relation_type": "PART_OF_PROJECT"},
+      {"argus_id": "PROC-DAE-CHAR28-R2", "relation_type": "PROBABLE_PREDECESSOR_OF"}
+    ],
+    "party_role_links": [
+      {"party_id": "ENT-BD-MOA", "role": "SPONSORING_MINISTRY", "source_role_label": "Ministry of Agriculture", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-DAE", "role": "IMPLEMENTING_AGENCY", "source_role_label": "Department of Agricultural Extension", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-DAE-CHAR-224385000-PE", "role": "PROCURING_ENTITY", "source_role_label": "Project-level Procuring Entity", "unit_label": null, "effective_from": null, "effective_to": null}
+    ],
+    "budget": {"type": "DEVELOPMENT"},
+    "financing_entries": [
+      {"instrument": "GOVERNMENT_ALLOCATION", "reference": null, "amount": null, "currency": null, "status": null, "conditions": [], "scope": "PROCUREMENT", "source_raw": "GOVERNMENT"}
+    ],
+    "process": {
+      "category": "GOODS",
+      "method_normalized": "OPEN",
+      "method_source_code": "OTM",
+      "method_source_label": "Open Tendering Method",
+      "competition_scope": "NATIONAL",
+      "status_raw": "closed_or_superseded_original_cycle",
+      "status_normalized": "CLOSED"
+    },
+    "lots": [
+      {"lot_id": "01", "lot_reference": "Irrigation Equipment: LLP (Low Lift Pump)", "title": "Irrigation Equipment: LLP (Low Lift Pump)", "description": null, "estimated_value": null, "currency": null, "delivery_location": "Project Area"}
+    ],
+    "items": [
+      {"item_id": "ITEM-1", "description": "Low Lift Pump (LLP) Set", "quantity": null, "unit": null, "lot_ref": "01", "classifications": []}
+    ],
+    "notices": [
+      {"notice_id": "EGP-1318662", "notice_type": "TENDER_NOTICE", "version": 1, "published_at": "2026-08-20T15:00:00+06:00", "source_system": "BPPA_EGP", "source_locator": "TenderNotice (77).pdf"}
+    ],
+    "milestones": [
+      {"milestone_id": "MS-DOC-SALE-END", "type": "DOCUMENT_SALE_END", "due_at": "2026-09-13T13:00:00+06:00", "original_due_at": "2026-09-13T13:00:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-SECURITY-DEADLINE", "type": "SECURITY_DEADLINE", "due_at": "2026-09-13T14:30:00+06:00", "original_due_at": "2026-09-13T14:30:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-SUBMISSION", "type": "SUBMISSION_DEADLINE", "due_at": "2026-09-13T15:30:00+06:00", "original_due_at": "2026-09-13T15:30:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-OPENING", "type": "OPENING", "due_at": "2026-09-13T15:30:00+06:00", "original_due_at": "2026-09-13T15:30:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-VALIDITY", "type": "VALIDITY_END", "due_at": "2027-01-11", "original_due_at": "2027-01-11", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-SECURITY-VALIDITY", "type": "SECURITY_VALIDITY_END", "due_at": "2027-02-08", "original_due_at": "2027-02-08", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-START", "type": "DELIVERY", "due_at": "2026-10-22", "original_due_at": "2026-10-22", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": "01", "source_ref": "EGP-1318662"},
+      {"milestone_id": "MS-COMPLETION", "type": "COMPLETION", "due_at": "2027-04-08", "original_due_at": "2027-04-08", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": "01", "source_ref": "EGP-1318662"}
+    ],
+    "events": [],
+    "requirements": [
+      {"requirement_id": "REQ-ELIG-1", "type": "OTHER", "text": "As per TDS", "normalized_value": null, "mandatory": true, "scope": "PROCESS", "lot_ref": "01", "source_ref": "EGP-1318662"}
+    ],
+    "fees": [
+      {"fee_id": "FEE-DOC-1", "type": "TENDER_DOCUMENT", "amount": 5000, "currency": "BDT", "raw_text": "BDT 5,000", "refundable": null, "lot_ref": "01", "source_ref": "EGP-1318662"}
+    ],
+    "securities": [
+      {"security_id": "SEC-TENDER-1", "type": "TENDER_SECURITY", "amount": 3900000, "currency": "BDT", "raw_text": "BDT 3,900,000", "validity_until": "2027-02-08", "lot_ref": "01", "source_ref": "EGP-1318662"}
+    ],
+    "observations": [
+      {"observation_id": "OBS-DAE-SYSTEM-ID", "field_path": "identifiers[SYSTEM_TENDER_ID]", "value": "1318662", "raw_label": "Tender/Proposal ID", "raw_value": "1318662", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_system": "USER_PROVIDED_EGP_NOTICE", "source_locator": "TenderNotice (77).pdf", "observed_at": "2026-10-18", "published_at": "2026-08-20T15:00:00+06:00", "claim_type": "FACT", "condition": "CURRENT", "assurance": "VERIFIED_SOURCE"}
+    ],
+    "intelligence": {
+      "maturity": "I9",
+      "activation_mode": "LIVE_TENDER_RESPONSE",
+      "commercial_fit": null,
+      "supplier_discovery_state": "PENDING_TECHNICAL_SCHEDULE",
+      "material_unknowns": ["Detailed technical specification", "Successor authoritative e-GP Tender/Proposal ID", "Explicit official re-tender status"],
+      "research_frontier": "Resolve the authoritative October successor e-GP notice and its technical/commercial mechanics.",
+      "next_action": "Retrieve authoritative successor e-GP record."
+    }
+  },
+  "preservation_assessment": {
+    "material_information_loss": 0,
+    "duplicate_or_derived_fields_removed": ["repeated project/institution strings", "legacy status duplication"],
+    "semantic_equivalence": "PASS"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "fixture_type": "v1_to_v2_semantic_validation",
+  "target_standard": "2.0.0-candidate",
+  "live_registry_mutation": false,
+  "source_basis": {
+    "current_record": "data/registry/current/PROC-BCG-LT001.json",
+    "primary_source_system": "BPPA",
+    "primary_source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html",
+    "as_of": "2026-10-18"
+  },
+  "linked_context": {
+    "project_ref": "PRJ-BCG-CPV-WD2",
+    "entity_refs": ["ENT-BD-MOHA", "ENT-BD-COAST-GUARD", "ENT-BD-BCG-PD-224392800"]
+  },
+  "v2_candidate": {
+    "argus_id": "PROC-BCG-LT001",
+    "title": "Construction and Delivery of 4 (Four) Coastal Patrol Vessels (CPV)",
+    "record_state": "CURRENT",
+    "record_revision": 2,
+    "identifiers": [
+      {"scheme": "TENDER_REFERENCE_NO", "value": "44.08.2680.033.02.106.26.160", "scope": "PROCESS", "source_system": "BPPA", "source_label": "Invitation Reference No."},
+      {"scheme": "LOT_REFERENCE", "value": "WD-2", "scope": "LOT", "source_system": "BPPA", "source_label": "Lot Identification"}
+    ],
+    "related_record_refs": [
+      {"argus_id": "PRJ-BCG-CPV-WD2", "relation_type": "PART_OF_PROJECT"}
+    ],
+    "party_role_links": [
+      {"party_id": "ENT-BD-MOHA", "role": "SPONSORING_MINISTRY", "source_role_label": "Ministry", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-BCG-PD-224392800", "role": "PROCURING_ENTITY", "source_role_label": "Project Director", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-COAST-GUARD", "role": "END_USER", "source_role_label": "Bangladesh Coast Guard Force", "unit_label": null, "effective_from": null, "effective_to": null}
+    ],
+    "budget": {"type": "DEVELOPMENT"},
+    "financing_entries": [
+      {"instrument": "GOVERNMENT_ALLOCATION", "reference": null, "amount": null, "currency": null, "status": null, "conditions": [], "scope": "PROCUREMENT", "source_raw": "Development Budget GOB"}
+    ],
+    "process": {
+      "category": "WORKS",
+      "method_source_label": "ICT One Stage & Two envelope Tendering Method",
+      "competition_scope": "INTERNATIONAL",
+      "configuration": "ONE_STAGE_TWO_ENVELOPE",
+      "status_raw": "ACTIVE_CORRIGENDUM",
+      "status_normalized": "OPEN"
+    },
+    "lots": [
+      {"lot_id": "1", "lot_reference": "WD-2", "title": "Construction and Delivery of 4 (Four) Coastal Patrol Vessels (CPV)", "description": null, "estimated_value": null, "currency": null, "delivery_location": null}
+    ],
+    "items": [
+      {"item_id": "ITEM-1", "description": "Coastal Patrol Vessel (CPV)", "quantity": 4, "unit": "vessels", "lot_ref": "1", "classifications": []}
+    ],
+    "notices": [
+      {"notice_id": "BPPA-98162-INITIAL", "notice_type": "TENDER_NOTICE", "version": 1, "published_at": "2026-08-18", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html"},
+      {"notice_id": "BPPA-98162-CORR-1", "notice_type": "CORRIGENDUM", "version": 2, "published_at": "2026-09-20", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html"},
+      {"notice_id": "BPPA-98162-CORR-2", "notice_type": "CORRIGENDUM", "version": 3, "published_at": "2026-10-01", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html"}
+    ],
+    "milestones": [
+      {"milestone_id": "MS-SALE-END", "type": "DOCUMENT_SALE_END", "original_due_at": "2026-09-28", "due_at": "2026-10-24", "date_met": null, "date_modified": "2026-10-01", "status": "SCHEDULED", "lot_ref": "1", "source_ref": "BPPA-98162-CORR-2"},
+      {"milestone_id": "MS-SUBMISSION", "type": "SUBMISSION_DEADLINE", "original_due_at": "2026-09-29T12:00:00+06:00", "due_at": "2026-10-25T12:00:00+06:00", "date_met": null, "date_modified": "2026-10-01", "status": "SCHEDULED", "lot_ref": "1", "source_ref": "BPPA-98162-CORR-2"},
+      {"milestone_id": "MS-OPENING", "type": "OPENING", "original_due_at": "2026-09-29T12:30:00+06:00", "due_at": "2026-10-25T12:30:00+06:00", "date_met": null, "date_modified": "2026-10-01", "status": "SCHEDULED", "lot_ref": "1", "source_ref": "BPPA-98162-CORR-2"},
+      {"milestone_id": "MS-PREBID", "type": "PREBID_MEETING", "due_at": "2026-09-08T11:00:00+06:00", "original_due_at": "2026-09-08T11:00:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": "1", "source_ref": "BPPA-98162-INITIAL"}
+    ],
+    "events": [
+      {"event_id": "EV-EXT-1", "type": "DEADLINE_EXTENSION", "occurred_at": "2026-09-20", "notice_ref": "BPPA-98162-CORR-1", "reason_raw": null, "changes": [
+        {"field": "DOCUMENT_SALE_END", "previous_value": "2026-09-28", "new_value": "2026-10-13"},
+        {"field": "SUBMISSION_DEADLINE", "previous_value": "2026-09-29T12:00:00+06:00", "new_value": "2026-10-14T12:00:00+06:00"},
+        {"field": "OPENING", "previous_value": "2026-09-29T12:30:00+06:00", "new_value": "2026-10-14T12:30:00+06:00"}
+      ], "source_ref": "BPPA-98162-CORR-1"},
+      {"event_id": "EV-EXT-2", "type": "DEADLINE_EXTENSION", "occurred_at": "2026-10-01", "notice_ref": "BPPA-98162-CORR-2", "reason_raw": null, "changes": [
+        {"field": "DOCUMENT_SALE_END", "previous_value": "2026-10-13", "new_value": "2026-10-24"},
+        {"field": "SUBMISSION_DEADLINE", "previous_value": "2026-10-14T12:00:00+06:00", "new_value": "2026-10-25T12:00:00+06:00"},
+        {"field": "OPENING", "previous_value": "2026-10-14T12:30:00+06:00", "new_value": "2026-10-25T12:30:00+06:00"}
+      ], "source_ref": "BPPA-98162-CORR-2"}
+    ],
+    "requirements": [
+      {"requirement_id": "REQ-EXP-1", "type": "EXPERIENCE", "text": "Minimum 10 years of shipbuilding experience and experience delivering combat vessels/patrol crafts; other qualifications are in the tender document.", "normalized_value": null, "mandatory": true, "scope": "PROCESS", "lot_ref": "1", "source_ref": "BPPA-98162-INITIAL"}
+    ],
+    "fees": [
+      {"fee_id": "FEE-DOC-1", "type": "TENDER_DOCUMENT", "amount": 100000, "currency": "BDT", "raw_text": "BDT 100,000", "refundable": false, "lot_ref": "1", "source_ref": "BPPA-98162-INITIAL"}
+    ],
+    "securities": [
+      {"security_id": "SEC-TENDER-1", "type": "TENDER_SECURITY", "amount": 230000000, "currency": "BDT", "raw_text": "BDT 230,000,000", "validity_until": null, "lot_ref": "1", "source_ref": "BPPA-98162-INITIAL"}
+    ],
+    "observations": [
+      {"observation_id": "OBS-BCG-REF", "field_path": "identifiers[TENDER_REFERENCE_NO]", "value": "44.08.2680.033.02.106.26.160", "raw_label": "Invitation Reference No.", "raw_value": "44.08.2680.033.02.106.26.160", "source_id": "44.08.2680.033.02.106.26.160", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html", "observed_at": "2026-10-18", "published_at": "2026-08-18", "claim_type": "FACT", "condition": "CURRENT", "assurance": "SUPPORTED"}
+    ],
+    "intelligence": {
+      "maturity": "I9",
+      "activation_mode": "LIVE_TENDER_RESPONSE",
+      "commercial_fit": null,
+      "supplier_discovery_state": "IN_PROGRESS",
+      "material_unknowns": ["e-GP Tender/Proposal system ID if one exists", "Full technical specification and detailed eligibility requirements", "Confirmed bidder/tender purchaser list", "Exact CPV package/contract value"],
+      "research_frontier": "Determine commercially viable supplier/participation route and obtain authorized technical/tender-document details before the current closing date.",
+      "next_action": "Obtain authorized tender-document detail and confirm viable supplier participation route."
+    }
+  },
+  "preservation_assessment": {
+    "material_information_loss": 0,
+    "duplicate_or_derived_fields_removed": ["extension_count", "repeated institution names"],
+    "semantic_equivalence": "PASS"
+  }
+}
