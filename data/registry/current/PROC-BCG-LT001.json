@@ -1,0 +1,159 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "PROC-BCG-LT001",
+  "record_type": "PROCUREMENT",
+  "canonical_name_or_title": "Construction and Delivery of 4 (Four) Coastal Patrol Vessels (CPV)",
+  "status": "live_active_corrigendum",
+  "aliases": [
+    "BCG-LT001",
+    "WD-2",
+    "44.08.2680.033.02.106.26.160"
+  ],
+  "related_argus_ids": [
+    "ENT-BD-COAST-GUARD",
+    "PRJ-BCG-CPV-WD2"
+  ],
+  "relationships": [
+    {
+      "target_argus_id": "ENT-BD-COAST-GUARD",
+      "relation_type": "related_to",
+      "evidence_refs": []
+    },
+    {
+      "target_argus_id": "PRJ-BCG-CPV-WD2",
+      "relation_type": "related_to",
+      "evidence_refs": []
+    }
+  ],
+  "evidence_refs": [
+    {
+      "source_system": "BPPA",
+      "source_id": "44.08.2680.033.02.106.26.160",
+      "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html",
+      "title": "Construction and Delivery of 4 (Four) Coastal Patrol Vessels (CPV)",
+      "as_of": "2026-10-18",
+      "claim_type": "FACT",
+      "claim_condition": "CURRENT",
+      "notes": "Official BPPA notice and two published corrigenda establish the current invitation reference, method, funding, lot identity, security, completion period and effective closing/opening dates."
+    },
+    {
+      "source_system": "DEW_PUBLIC_EOI",
+      "source_id": "06.02.6758.165.44.407.26.1886",
+      "source_locator": "https://dewbn.gov.bd/public/eoi",
+      "title": "Construction and delivery of 4 in No Coastal Patrol Vessel (CPV)",
+      "as_of": "2026-10-18",
+      "claim_type": "FACT",
+      "claim_condition": "CURRENT",
+      "notes": "DEW publicly lists a directly related CPV procurement/sourcing notice and corrigenda. This supports material ecosystem/competitor relevance but does not establish DEW as a confirmed bidder in the BCG solicitation."
+    },
+    {
+      "source_system": "ISPR",
+      "source_id": "DEW-BCG-IPV-HSB-2022",
+      "source_locator": "https://ispr.gov.bd/en/dockyard-and-engineering-works-ltd-bangladesh-navy-narayanganj-has-delivered-01-inshore-patrol-vessel-ipv-and-06-high-speed-boat-large-to-bangladesh-coast-guard/",
+      "title": "DEW delivered patrol vessels/boats to Bangladesh Coast Guard",
+      "as_of": "2022-01-10",
+      "claim_type": "FACT",
+      "claim_condition": "CURRENT",
+      "notes": "Historical official evidence of DEW's Bangladesh Coast Guard patrol-vessel delivery experience; relevant to ecosystem/competitive assessment, not proof of current bid participation."
+    }
+  ],
+  "external_refs": [
+    {
+      "system": "BPPA",
+      "external_id": "44.08.2680.033.02.106.26.160",
+      "label": "Invitation Reference No"
+    },
+    {
+      "system": "DTIF_DB001",
+      "external_id": "BCG-LT001",
+      "label": "Legacy ARGUS/DTIF lineage reference"
+    }
+  ],
+  "information_classification": "internal",
+  "revision": 2,
+  "created_at": "2026-10-16T01:48:17+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {
+    "procurement_type": "works_shipbuilding_procurement",
+    "buyer_entity_id": "ENT-BD-COAST-GUARD",
+    "procuring_entity_id": "ENT-BD-COAST-GUARD",
+    "procuring_entity_name_raw": "Project Director",
+    "procuring_entity_code": "224392800",
+    "project_id": "PRJ-BCG-CPV-WD2",
+    "project_code": "224392800",
+    "sponsoring_ministry": "Ministry of Home Affairs",
+    "agency": "Bangladesh Coast Guard Force",
+    "solicitation_reference_no": "44.08.2680.033.02.106.26.160",
+    "invitation_date": "2026-08-17",
+    "publication_date": "2026-08-18",
+    "lot_no": "1",
+    "lot_identification": "WD-2",
+    "procurement_method": "ICT_ONE_STAGE_TWO_ENVELOPE",
+    "procurement_method_raw": "ICT One Stage & Two envelope Tendering Method",
+    "funding_source_raw": "Development Budget GOB",
+    "currency": "BDT",
+    "quantity": {
+      "unit": "vessels",
+      "value": 4
+    },
+    "maturity": "I9",
+    "maturity_condition": "CURRENT",
+    "procurement_state": "LIVE",
+    "solicitation_status": "ACTIVE_CORRIGENDUM",
+    "original_document_sale_end_at": "2026-09-28",
+    "document_sale_end_at": "2026-10-24",
+    "original_closing_at": "2026-09-29T12:00:00+06:00",
+    "closing_at": "2026-10-25T12:00:00+06:00",
+    "original_opening_at": "2026-09-29T12:30:00+06:00",
+    "opening_at": "2026-10-25T12:30:00+06:00",
+    "pre_tender_meeting_at": "2026-09-08T11:00:00+06:00",
+    "extension_count": 2,
+    "tender_document_price_bdt": 100000,
+    "tender_security_bdt": 230000000,
+    "completion_period": "36 months after signing the contract",
+    "public_eligibility_summary": "Minimum 10 years of shipbuilding experience and experience delivering combat vessels/patrol crafts; other qualifications are in the tender document.",
+    "procurement_events": [
+      {
+        "event_type": "SUBMISSION_DEADLINE_EXTENSION",
+        "corrigendum_date": "2026-09-15",
+        "publication_date": "2026-09-20",
+        "previous_document_sale_end_at": "2026-09-28",
+        "new_document_sale_end_at": "2026-10-13",
+        "previous_closing_at": "2026-09-29T12:00:00+06:00",
+        "new_closing_at": "2026-10-14T12:00:00+06:00",
+        "previous_opening_at": "2026-09-29T12:30:00+06:00",
+        "new_opening_at": "2026-10-14T12:30:00+06:00",
+        "source_system": "BPPA"
+      },
+      {
+        "event_type": "SUBMISSION_DEADLINE_EXTENSION",
+        "corrigendum_date": "2026-10-01",
+        "publication_date": "2026-10-01",
+        "previous_document_sale_end_at": "2026-10-13",
+        "new_document_sale_end_at": "2026-10-24",
+        "previous_closing_at": "2026-10-14T12:00:00+06:00",
+        "new_closing_at": "2026-10-25T12:00:00+06:00",
+        "previous_opening_at": "2026-10-14T12:30:00+06:00",
+        "new_opening_at": "2026-10-25T12:30:00+06:00",
+        "source_system": "BPPA"
+      }
+    ],
+    "ecosystem_signals": [
+      {
+        "entity": "Dockyard and Engineering Works Limited",
+        "signal_type": "COMPETITOR_OR_BIDDER_SIGNAL",
+        "confidence": "SUPPORTED",
+        "exact_role": "UNKNOWN",
+        "basis": "DEW publicly lists a matching four-CPV procurement/sourcing notice and corrigenda and has prior BCG patrol-vessel delivery experience. This does not prove current BCG bid participation."
+      }
+    ],
+    "material_unknowns": [
+      "e-GP Tender/Proposal system ID if one exists for this non-e-GP/public BPPA notice",
+      "Full technical specification and detailed eligibility requirements",
+      "Confirmed bidder/tender purchaser list",
+      "DEW's exact commercial role in the current four-CPV procurement",
+      "Exact CPV package/contract value"
+    ],
+    "research_frontier": "Determine commercially viable supplier/participation route and obtain authorized technical/tender-document details before the current closing date."
+  }
+}
