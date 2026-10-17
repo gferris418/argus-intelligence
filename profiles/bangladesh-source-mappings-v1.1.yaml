@@ -1,0 +1,366 @@
+document_id: ARGUS-BD-SOURCE-MAP-002
+version: 1.1.0
+status: CANDIDATE
+country_code: BD
+extends:
+  document_id: ARGUS-BD-SOURCE-MAP-001
+  version: 1.0.0
+base_mapping: profiles/bangladesh-source-mappings.yaml
+canonical_extension: profiles/bangladesh-canonical-procurement-standard-v1.1.yaml
+purpose: >-
+  Normalize recurring procurement datapoints across Bangladesh public procurement,
+  defence procurement, multilateral/bilateral development-partner systems and UN
+  procurement sources into the same ARGUS canonical concepts.
+
+mapping_rules:
+  - Preserve raw source labels and values before normalization.
+  - Direct field mappings are applied only when the observed source meaning is materially equivalent.
+  - Structured tables such as lots, financing references and milestone schedules remain structured arrays.
+  - Do not map source labels into a canonical field merely because the labels look similar.
+  - Project ID, financing reference, activity reference, APP ID, package number, lot identity and solicitation reference remain separate typed identifiers.
+  - Source status is preserved raw and normalized separately.
+  - Official source data remains subject to ATLAS assurance; official does not automatically mean VERIFIED.
+  - Development-partner controls supplement rather than replace Bangladesh institutional/project/procurement context.
+
+source_profiles:
+  BPPA_EGP_SOLICITATION:
+    authority: official_bangladesh_procurement_notice
+    supplements_base_profile: BPPA_EGP_SOLICITATION
+    typical_layers: [INSTITUTION, PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PACKAGE, SOLICITATION, AMENDMENT_PREBID]
+    additional_typical_available_data:
+      - tender document price
+      - pre-tender/pre-bid meeting date/time and place
+      - lot number, identification, location, security and completion period
+      - official inviting tender contact
+      - corrigendum dates and revised deadlines
+    field_mappings:
+      - {source_label: Tender Document Price, canonical_field: solicitation.document_price_text}
+      - {source_label: Name of Official Inviting Tender, canonical_field: solicitation.contact_name}
+      - {source_label: Designation of Official Inviting Tender, canonical_field: solicitation.contact_designation}
+      - {source_label: Address of Official Inviting Tender, canonical_field: solicitation.contact_address}
+      - {source_label: Phone, canonical_field: solicitation.contact_phone}
+      - {source_label: Email, canonical_field: solicitation.contact_email}
+    structured_extractions:
+      tender_lot_information:
+        canonical_field: procurement.lots
+        source_columns:
+          Lot No: lot_no
+          Identification: identification
+          Location: location
+          Security Amount: tender_security_text
+          Completion Time in Weeks/Months: completion_period_text
+        rule: Preserve one structured element per published row; do not flatten multi-lot notices.
+      pre_tender_meeting:
+        source_label: Place/Date/Time of Tender Meeting (Optional)
+        canonical_fields:
+          date_time: solicitation.prebid_at
+          place: solicitation.prebid_location
+
+  DGDP_EDP:
+    authority: official_defence_procurement
+    supplements_base_profile: DGDP_EDP
+    typical_layers: [INSTITUTION, PROCUREMENT_PACKAGE, SOLICITATION, AMENDMENT_PREBID]
+    field_mappings:
+      - {source_label: Tender No, canonical_field: solicitation.reference_no}
+      - {source_label: Tender Name, canonical_field: procurement.package_description}
+      - {source_label: Tender Type, canonical_field: procurement.type}
+      - {source_label: Date of Opening, canonical_field: solicitation.opening_at}
+      - {source_label: Tender Selling From, canonical_field: solicitation.publication_at}
+      - {source_label: Tender Selling To, canonical_field: solicitation.document_sale_end_at}
+      - {source_label: Updated On, canonical_field: amendment.date}
+    retained_source_only_labels:
+      - Section
+      - Notice
+      - Amendment
+      - Specification
+    rule: Section/wing is retained as source context unless independently resolved to an institutional canonical role.
+
+  DGDP_PREPROCUREMENT:
+    authority: official_defence_preprocurement
+    typical_layers: [INSTITUTION, PRE_PROCUREMENT]
+    typical_available_data:
+      - evaluation, re-evaluation or standardization notice title
+      - wing
+      - publish date
+      - downloadable notice/reference
+    field_mappings:
+      - {source_label: Name, canonical_field: preproc.title}
+      - {source_label: Wing, canonical_field: preproc.wing_or_unit}
+      - {source_label: Publish Date, canonical_field: preproc.publication_at}
+    derived_mapping_rules:
+      - source_label: Name
+        derive: preproc.event_type
+        values:
+          contains_evaluation: EVALUATION
+          contains_re-evaluation: RE_EVALUATION
+          contains_standardization: STANDARDIZATION
+    guardrail: A DGDP evaluation/re-evaluation/standardization notice is PRE_PROCUREMENT and must not be normalized as a live tender without separate solicitation evidence.
+
+  WORLD_BANK_PROCUREMENT_PLAN:
+    authority: official_development_partner_procurement_plan
+    system: World Bank STEP / disclosed procurement plan
+    typical_layers: [INSTITUTION, PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PROCUREMENT_PACKAGE, PRE_PROCUREMENT]
+    typical_available_data:
+      - Project ID and project name
+      - Loan / Credit No.
+      - Executing Agency(ies)
+      - Activity Reference No. / Description
+      - Component
+      - Review Type
+      - Method
+      - Market Approach
+      - Procurement Process
+      - Prequalification (Y/N)
+      - Estimated Amount and Actual Amount
+      - Process Status
+      - planned and actual milestone dates
+    field_mappings:
+      - {source_label: Executing Agency(ies), canonical_field: institution.organization_name}
+      - {source_label: Component, canonical_field: project.component}
+      - {source_label: Activity Reference No., canonical_field: procurement.activity_reference_no}
+      - {source_label: Review Type, canonical_field: procurement.review_type}
+      - {source_label: Method, canonical_field: procurement.method}
+      - {source_label: Market Approach, canonical_field: procurement.market_approach}
+      - {source_label: Procurement Process, canonical_field: procurement.process}
+      - {source_label: Prequalification, canonical_field: procurement.prequalification_required}
+      - {source_label: Process Status, canonical_field: procurement.status_raw}
+      - {source_label: Bank’s Approval Date of the Original Procurement Plan, canonical_field: procurement.plan_date}
+    structured_extractions:
+      project_identifiers:
+        source_label: Project ID
+        canonical_field: project.external_ids
+        item_template: {scheme: WORLD_BANK_PROJECT_ID, value_from_source: true}
+      financing:
+        source_label: Loan / Credit No.
+        canonical_field: funding.financing_references
+        item_template: {partner: World Bank, type: loan_or_credit, value_from_source: true}
+      activity_description:
+        source_label: Activity Reference No. / Description
+        split_to:
+          reference: procurement.activity_reference_no
+          description: procurement.package_description
+      estimated_amount:
+        source_label: Estimated Amount (US$)
+        split_to:
+          amount: procurement.estimated_cost
+          currency_constant: USD
+      actual_amount:
+        source_label: Actual Amount (US$)
+        split_to:
+          amount: procurement.actual_amount
+          currency_constant: USD
+      milestone_schedule:
+        canonical_field: procurement.milestones
+        source_milestones:
+          - Draft Pre-qualification Documents
+          - Prequalification Evaluation Report
+          - Draft Bidding Document / Justification
+          - Specific Procurement Notice / Invitation
+          - Bidding Documents as Issued
+          - Proposal Submission / Opening / Minutes
+          - Bid Evaluation Report and Recommendation for Award
+          - Signed Contract
+          - Contract Completion
+        rule: Preserve Planned and Actual dates separately for every milestone.
+
+  WORLD_BANK_PROCUREMENT_NOTICE:
+    authority: official_development_partner_procurement_notice
+    system: World Bank Projects & Operations procurement notices
+    typical_layers: [PROGRAMME_PROJECT, PROCUREMENT_PACKAGE, PRE_PROCUREMENT, SOLICITATION]
+    field_mappings:
+      - {source_label: notice_type, canonical_field: solicitation.notice_type}
+      - {source_label: publication_date, canonical_field: solicitation.publication_at}
+      - {source_label: bid_description, canonical_field: procurement.package_description}
+      - {source_label: procurement_category, canonical_field: procurement.nature}
+      - {source_label: procurement_method, canonical_field: procurement.method}
+      - {source_label: deadline_date, canonical_field: solicitation.closing_at}
+    structured_extractions:
+      project_id:
+        source_label: project_id
+        canonical_field: project.external_ids
+        item_template: {scheme: WORLD_BANK_PROJECT_ID, value_from_source: true}
+    notice_routing:
+      general_procurement_notice: PRE_PROCUREMENT
+      advance_notice: PRE_PROCUREMENT
+      invitation_for_bids: SOLICITATION
+      request_for_bids: SOLICITATION
+      request_for_expression_of_interest: SOLICITATION
+      request_for_proposals: SOLICITATION
+
+  ADB_PROJECT_PROCUREMENT:
+    authority: official_development_partner_project_procurement
+    system: Asian Development Bank project procurement
+    typical_layers: [PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PROCUREMENT_PACKAGE, PRE_PROCUREMENT, SOLICITATION, AWARD_CONTRACT]
+    typical_available_data:
+      - project number, project title and country
+      - loan/grant approval references
+      - procurement plan contract description, method, cost estimate and ADB review procedure
+      - Expected Advertisement Date
+      - tender title, type, status, posting date and deadline
+      - contract title, approval number, contract date, contractor, address, executing agency
+      - total contract amount and Contract Amount Financed by ADB
+    field_mappings:
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Contract Description, canonical_field: procurement.package_description}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: ADB Review Procedure, canonical_field: procurement.review_type}
+      - {source_label: Expected Advertisement Date, canonical_field: procurement.expected_advertisement_date}
+      - {source_label: Tender Title, canonical_field: procurement.package_description}
+      - {source_label: Type, canonical_field: solicitation.notice_type}
+      - {source_label: Status, canonical_field: solicitation.status_raw}
+      - {source_label: Posting Date, canonical_field: solicitation.publication_at}
+      - {source_label: Deadline, canonical_field: solicitation.closing_at}
+      - {source_label: Approval Number, canonical_field: award.approval_reference}
+      - {source_label: Contract Date, canonical_field: contract.sign_date}
+      - {source_label: Contractor, canonical_field: award.supplier_name}
+      - {source_label: Address, canonical_field: award.supplier_address}
+      - {source_label: Executing Agency, canonical_field: institution.organization_name}
+      - {source_label: Total Contract Amount, canonical_field: award.value}
+      - {source_label: Contract Amount Financed by ADB, canonical_field: award.financier_financed_amount}
+    structured_extractions:
+      project_number:
+        source_label: Project Number
+        canonical_field: project.external_ids
+        item_template: {scheme: ADB_PROJECT_NUMBER, value_from_source: true}
+      loan_grant_reference:
+        source_label: Loan / Grant No.
+        canonical_field: funding.financing_references
+        item_template: {partner: Asian Development Bank, type: loan_or_grant, value_from_source: true}
+    notice_routing:
+      Advance Notice: PRE_PROCUREMENT
+      Invitation for Bids: SOLICITATION
+      Request for Expression of Interest: SOLICITATION
+
+  AIIB_PROJECT_PROCUREMENT:
+    authority: official_development_partner_project_procurement
+    system: Asian Infrastructure Investment Bank
+    typical_layers: [PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PRE_PROCUREMENT, SOLICITATION, AWARD_CONTRACT]
+    field_mappings:
+      - {source_label: ISSUE DATE, canonical_field: solicitation.publication_at}
+      - {source_label: PROJECT, canonical_field: project.name}
+      - {source_label: CONTRACT DESCRIPTION, canonical_field: procurement.package_description}
+      - {source_label: CONTRACTOR / SUPPLIER / CONSULTANT, canonical_field: award.supplier_name}
+      - {source_label: CONTRACT PRICE, canonical_field: award.value}
+      - {source_label: CONTRACT SIGNING DATE, canonical_field: contract.sign_date}
+      - {source_label: TYPE, canonical_field: solicitation.notice_type}
+    retained_source_only_labels:
+      - MEMBER
+      - SECTOR
+      - CATEGORY
+    notice_routing:
+      General Procurement Notice: PRE_PROCUREMENT
+      Procurement Plan: PROCUREMENT_PLAN
+      Invitation for Bids: SOLICITATION
+      Contract Award: AWARD_CONTRACT
+
+  JICA_ODA_PROCUREMENT:
+    authority: official_bilateral_oda_procurement
+    system: Japan International Cooperation Agency
+    typical_layers: [PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PRE_PROCUREMENT, SOLICITATION]
+    typical_available_data:
+      - project title and executing agency
+      - Japanese ODA loan reference
+      - Procurement package title
+      - Release date
+      - Conditions for Procurement
+      - Eligible Source Countries
+      - invitation/prequalification procedure under JICA standard documents
+    field_mappings:
+      - {source_label: Project title, canonical_field: project.name}
+      - {source_label: Executing Agency, canonical_field: institution.organization_name}
+      - {source_label: Procurement package title, canonical_field: procurement.package_description}
+      - {source_label: Release date, canonical_field: procurement.expected_advertisement_date}
+      - {source_label: Conditions for Procurement, canonical_field: funding.procurement_conditions}
+      - {source_label: Eligible Source Countries, canonical_field: solicitation.source_country_eligibility}
+      - {source_label: Invitation for Bids, canonical_field: solicitation.notice_type}
+      - {source_label: Invitation for Prequalification, canonical_field: solicitation.notice_type}
+    structured_extractions:
+      financing_reference:
+        source_label: Loan No.
+        canonical_field: funding.financing_references
+        item_template: {partner: JICA, type: oda_loan, value_from_source: true}
+
+  UNGM_NOTICE:
+    authority: official_un_procurement_notice
+    system: United Nations Global Marketplace
+    typical_layers: [INSTITUTION, PROCUREMENT_PACKAGE, PRE_PROCUREMENT, SOLICITATION]
+    typical_available_data:
+      - Title
+      - Reference
+      - Beneficiary countries or territories
+      - Published on and Deadline on
+      - Organization
+      - Type of opportunity
+      - Registration level
+      - UNSPSC classification
+      - pre-bid/site-visit details
+      - submission portal/channel
+      - Sustainable opportunity indicators
+      - procurement contact
+    field_mappings:
+      - {source_label: Title, canonical_field: procurement.package_description}
+      - {source_label: Reference, canonical_field: solicitation.reference_no}
+      - {source_label: Published on, canonical_field: solicitation.publication_at}
+      - {source_label: Deadline on, canonical_field: solicitation.closing_at}
+      - {source_label: Organization, canonical_field: institution.organization_name}
+      - {source_label: Type of opportunity, canonical_field: solicitation.notice_type}
+      - {source_label: Registration level, canonical_field: solicitation.registration_requirement}
+      - {source_label: Sustainable opportunity, canonical_field: solicitation.sustainability_requirements}
+      - {source_label: Email address, canonical_field: solicitation.contact_email}
+      - {source_label: Submission portal, canonical_field: solicitation.submission_locator}
+      - {source_label: Submission method, canonical_field: solicitation.submission_channel}
+      - {source_label: Pre-bid meeting, canonical_field: solicitation.prebid_at}
+      - {source_label: Pre-bid location, canonical_field: solicitation.prebid_location}
+      - {source_label: UNSPSC, canonical_field: procurement.category_code}
+    retained_source_only_labels:
+      - Beneficiary countries or territories
+    rule: Bangladesh beneficiary is jurisdiction context; UN organization remains the procuring organization and must not be replaced by a Bangladesh government entity.
+
+  DEVELOPMENT_PARTNER_OTHER:
+    authority: development_partner_or_bilateral_procurement
+    typical_layers: [PROGRAMME_PROJECT, FUNDING, PROCUREMENT_PLAN, PRE_PROCUREMENT, SOLICITATION, AWARD_CONTRACT]
+    common_field_mappings:
+      - {source_label: Project ID, canonical_field: project.external_ids}
+      - {source_label: Project Name, canonical_field: project.name}
+      - {source_label: Loan/Credit/Grant No., canonical_field: funding.financing_references}
+      - {source_label: Executing Agency, canonical_field: institution.organization_name}
+      - {source_label: Procurement Reference, canonical_field: procurement.activity_reference_no}
+      - {source_label: Package/Contract Description, canonical_field: procurement.package_description}
+      - {source_label: Procurement Method, canonical_field: procurement.method}
+      - {source_label: Review Type, canonical_field: procurement.review_type}
+      - {source_label: Notice Type, canonical_field: solicitation.notice_type}
+      - {source_label: Publication Date, canonical_field: solicitation.publication_at}
+      - {source_label: Deadline, canonical_field: solicitation.closing_at}
+      - {source_label: Awarded Supplier, canonical_field: award.supplier_name}
+      - {source_label: Contract Amount, canonical_field: award.value}
+    rule: Use only after confirming no dedicated source profile better represents the source.
+
+source_research_basis:
+  BPPA:
+    verified_patterns:
+      - ministry/agency/PE/reference/method/funding/project/package/dates
+      - tender document price
+      - lot table with security and completion
+      - inviting official contact
+  DGDP:
+    verified_patterns:
+      - tender number/section/name/type/opening/selling/notice/amendment/specification/updated-on
+      - separate evaluation/re-evaluation/standardization notice stream
+  WORLD_BANK:
+    verified_patterns:
+      - project/loan/executing agency/activity/component/review/method/market approach/process/prequalification/amount/status/milestones
+      - notice type/project ID/description/category/method/deadline
+  ADB:
+    verified_patterns:
+      - procurement plan description/method/cost/review/expected advertisement
+      - tender title/type/status/posting/deadline
+      - award approval/contractor/executing agency/amount/ADB-financed amount
+  AIIB:
+    verified_patterns:
+      - issue date/member/project/contract description/contractor/price/signing date/sector/category/type
+  JICA:
+    verified_patterns:
+      - executing agency/project/package/release schedule/conditions for procurement/eligible source countries
+  UNGM:
+    verified_patterns:
+      - title/reference/beneficiary/published/deadline/organization/type/registration/UNSPSC/pre-bid/submission/sustainability/contact
