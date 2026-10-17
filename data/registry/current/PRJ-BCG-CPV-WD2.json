@@ -15,7 +15,7 @@
   "relationships": [
     {
       "target_argus_id": "ENT-BD-COAST-GUARD",
-      "relation_type": "implemented_by",
+      "relation_type": "related_to",
       "evidence_refs": []
     },
     {
