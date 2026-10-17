@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "effective_date": "2026-10-18",
+  "rule": "When an argus_id is listed here, the referenced current record supersedes the same argus_id in the immutable initial baseline for current-state reads. Historical baseline records remain authoritative for provenance of the initial migration state.",
+  "records": {
+    "PRJ-BCG-CPV-WD2": "data/registry/current/PRJ-BCG-CPV-WD2.json",
+    "PROC-BCG-LT001": "data/registry/current/PROC-BCG-LT001.json"
+  }
+}
