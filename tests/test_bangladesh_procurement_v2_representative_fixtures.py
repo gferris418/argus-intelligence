@@ -129,9 +129,11 @@ class BangladeshProcurementV2RepresentativeFixtures(unittest.TestCase):
         self.assertEqual(r["financing_entries"][0]["reference"], "IDA / 78280")
         self.assertEqual(r["process"]["status_raw"], "Pending Implementation")
         self.assertTrue(V2_ADDENDUM.exists())
-        self.assertIn("EXPECTED_PUBLICATION", V2_ADDENDUM.read_text())
+        addendum = V2_ADDENDUM.read_text()
+        self.assertIn("EXPECTED_PUBLICATION", addendum)
+        self.assertIn("PROCUREMENT_DOCUMENT_READY", addendum)
         ms = milestones(r)
-        for milestone_type in ("EXPECTED_PUBLICATION", "SUBMISSION_DEADLINE", "EXPECTED_AWARD", "CONTRACT_SIGNING", "COMPLETION"):
+        for milestone_type in ("PROCUREMENT_DOCUMENT_READY", "EXPECTED_PUBLICATION", "SUBMISSION_DEADLINE", "EVALUATION_COMPLETE", "CONTRACT_SIGNING", "COMPLETION"):
             self.assertIn(milestone_type, ms)
             self.assertEqual(ms[milestone_type]["status"], "PLANNED")
 
