@@ -13,6 +13,12 @@
     "ENT-BD-DAE-CHAR-224385000-PE": "data/registry/current/ENT-BD-DAE-CHAR-224385000-PE.json",
     "PRJ-BD-DAE-224385000": "data/registry/current/PRJ-BD-DAE-224385000.json",
     "PROC-DAE-1318662": "data/registry/current/PROC-DAE-1318662.json",
-    "PROC-DAE-CHAR28-R2": "data/registry/current/PROC-DAE-CHAR28-R2.json"
+    "PROC-DAE-CHAR28-R2": "data/registry/current/PROC-DAE-CHAR28-R2.json",
+    "ENT-BD-MOD": "data/registry/current/ENT-BD-MOD.json",
+    "ENT-BD-DGDP": "data/registry/current/ENT-BD-DGDP.json",
+    "ENT-BD-NAVY": "data/registry/current/ENT-BD-NAVY.json",
+    "PROC-DGDP-248-07-075-26": "data/registry/current/PROC-DGDP-248-07-075-26.json",
+    "PROC-DGDP-248-07-076-26": "data/registry/current/PROC-DGDP-248-07-076-26.json",
+    "PROC-DGDP-248-07-078-26": "data/registry/current/PROC-DGDP-248-07-078-26.json"
   }
 }

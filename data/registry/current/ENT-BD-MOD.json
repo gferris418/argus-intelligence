@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "ENT-BD-MOD",
+  "record_type": "ENTITY",
+  "canonical_name_or_title": "Ministry of Defence",
+  "status": "current_official_institution",
+  "aliases": ["MOD"],
+  "related_argus_ids": ["ENT-BD-DGDP"],
+  "relationships": [
+    {"target_argus_id": "ENT-BD-DGDP", "relation_type": "parent_of", "evidence_refs": []}
+  ],
+  "evidence_refs": [
+    {"source_system": "USER_PROVIDED_DGDP_NOTICE", "source_id": "file_00000000377c8208a0ee09a6a4b4bb9c", "source_locator": "tender_20261014114803.pdf", "title": "DGDP tender notice for Bangladesh Navy", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "The uploaded notice identifies Directorate General Defence Purchase under the Ministry of Defence."},
+    {"source_system": "DGDP_PUBLIC_NAVY_WING", "source_id": "NAVY_WING", "source_locator": "https://www.dgdp.gov.bd/navy-wing", "title": "DGDP Navy Wing", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "Official DGDP page identifies DGDP as Directorate General Defence Purchase, Ministry of Defence."}
+  ],
+  "external_refs": [],
+  "information_classification": "internal",
+  "revision": 1,
+  "created_at": "2026-10-18T00:00:00+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {"country_code": "BD", "entity_type": "MINISTRY"}
+}

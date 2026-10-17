@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "PROC-DGDP-248-07-078-26",
+  "record_type": "PROCUREMENT",
+  "canonical_name_or_title": "Twin Cylinder Open Circuit (SCUBA) Diving Set Complete",
+  "status": "live_open",
+  "aliases": ["248.07.078.26"],
+  "related_argus_ids": ["ENT-BD-MOD", "ENT-BD-DGDP", "ENT-BD-NAVY"],
+  "relationships": [
+    {"target_argus_id": "ENT-BD-DGDP", "relation_type": "procured_by", "evidence_refs": []},
+    {"target_argus_id": "ENT-BD-NAVY", "relation_type": "for_end_user", "evidence_refs": []}
+  ],
+  "evidence_refs": [
+    {"source_system": "USER_PROVIDED_DGDP_NOTICE", "source_id": "file_00000000377c8208a0ee09a6a4b4bb9c", "source_locator": "tender_20261014114803.pdf", "title": "DGDP tender notice for Bangladesh Navy", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "Primary source for tender number, item, quantity, selling dates, opening time, schedule price, foreign-currency basis and DGDP-enlisted supplier eligibility."},
+    {"source_system": "DGDP_PUBLIC_NAVY_WING", "source_id": "248.07.078.26", "source_locator": "https://www.dgdp.gov.bd/navy-wing", "title": "DGDP Navy Wing tender listing", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "Official listing shows tender 248.07.078.26 as Open under NP-8, selling 2026-10-15 through 2026-11-25, opening 2026-11-26, updated 2026-10-14, with a specification download listed."}
+  ],
+  "external_refs": [{"system": "DGDP_TENDER_NUMBER", "external_id": "248.07.078.26", "label": "Tender Number"}],
+  "information_classification": "internal",
+  "revision": 1,
+  "created_at": "2026-10-18T00:00:00+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {
+    "bangladesh_route": "BD-DEF-DGDP",
+    "solicitation_reference_no": "248.07.078.26",
+    "solicitation_reference_date": "2026-10-08",
+    "procurement_nature": "GOODS",
+    "tender_type": "OPEN",
+    "procurement_state": "OPEN",
+    "maturity": "I9",
+    "maturity_condition": "CURRENT",
+    "ministry_entity_id": "ENT-BD-MOD",
+    "procuring_organization_entity_id": "ENT-BD-DGDP",
+    "end_user_entity_id": "ENT-BD-NAVY",
+    "wing": "Navy Wing",
+    "section": "NP-8",
+    "quantity": {"value": 50, "unit": "Set"},
+    "configuration_raw": "Twin Cylinder Open Circuit (SCUBA) Diving Set Complete",
+    "selling_from": "2026-10-15",
+    "selling_to": "2026-11-25",
+    "submission_deadline_at": "2026-11-26T12:00:00+06:00",
+    "opening_at": "2026-11-26T12:05:00+06:00",
+    "tender_schedule_price_bdt": 5000,
+    "tender_currency_basis": "FOREIGN_CURRENCY",
+    "supplier_eligibility_raw": "Bona fide Manufacturer/Dealer/Suppliers/Importers enlisted with DGDP",
+    "dgdp_enlistment_required": true,
+    "schedule_purchase_non_refundable": true,
+    "schedule_selling_office_hours": "08:00-13:00",
+    "technical_specification_public_listing": "AVAILABLE_DOWNLOAD_NOT_REVIEWED",
+    "supplier_discovery_state": "PENDING_TECHNICAL_SCHEDULE",
+    "material_unknowns": ["Detailed SCUBA set component/configuration requirements", "Applicable diving/safety standards", "Delivery schedule/location", "Tender security and performance-security requirements", "Warranty/training/spares requirements", "Country-of-origin or source restrictions if any", "Specific DGDP enlistment category"],
+    "research_frontier": "Obtain and review the DGDP SCUBA technical tender schedule/specification before supplier shortlisting or compliance assessment."
+  }
+}
