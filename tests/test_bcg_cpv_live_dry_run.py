@@ -4,6 +4,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIO = json.loads((ROOT / "tests" / "scenarios" / "bd-bcg-cpv-live-2026.json").read_text())
+STANDARD = (ROOT / "profiles" / "bangladesh-data-standard.yaml").read_text()
+MAPPINGS = (ROOT / "profiles" / "bangladesh-source-mappings.yaml").read_text()
 
 
 class BCGCPVLiveDryRun(unittest.TestCase):
@@ -25,10 +27,20 @@ class BCGCPVLiveDryRun(unittest.TestCase):
     def test_bangladesh_normalization_preserves_typed_identifiers(self):
         canonical = SCENARIO["normalized_state"]
         self.assertEqual(canonical["project.code"], "224392800")
-        self.assertEqual(canonical["procurement.package_no"], "WD-2")
+        self.assertEqual(canonical["institution.pe_code"], "224392800")
+        self.assertEqual(canonical["procurement.lot_no"], "1")
+        self.assertEqual(canonical["procurement.lot_identification"], "WD-2")
         self.assertEqual(canonical["solicitation.reference_no"], "44.08.2680.033.02.106.26.160")
-        self.assertNotEqual(canonical["project.code"], canonical["procurement.package_no"])
-        self.assertNotEqual(canonical["procurement.package_no"], canonical["solicitation.reference_no"])
+        self.assertNotIn("procurement.package_no", canonical)
+        self.assertNotEqual(canonical["procurement.lot_identification"], canonical["solicitation.reference_no"])
+
+    def test_standard_models_lot_number_and_lot_identification_separately(self):
+        self.assertIn("procurement.lot_no:", STANDARD)
+        self.assertIn("procurement.lot_identification:", STANDARD)
+        self.assertIn("source_label: Lot No", MAPPINGS)
+        self.assertIn("canonical_field: procurement.lot_no", MAPPINGS)
+        self.assertIn("source_label: Identification", MAPPINGS)
+        self.assertIn("canonical_field: procurement.lot_identification", MAPPINGS)
 
     def test_current_official_evidence_updates_stale_registry_state_without_duplicate(self):
         result = SCENARIO["reconciliation_result"]
