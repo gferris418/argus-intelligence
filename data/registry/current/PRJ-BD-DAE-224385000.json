@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "PRJ-BD-DAE-224385000",
+  "record_type": "PROJECT",
+  "canonical_name_or_title": "Extension of Modern Agricultural Technologies in Char Areas of Bangladesh Project",
+  "status": "active_procurement_linked_project",
+  "aliases": [],
+  "related_argus_ids": ["ENT-BD-MOA", "ENT-BD-DAE", "ENT-BD-DAE-CHAR-224385000-PE", "PROC-DAE-1318662", "PROC-DAE-CHAR28-R2"],
+  "relationships": [
+    {"target_argus_id": "ENT-BD-MOA", "relation_type": "sponsored_by", "evidence_refs": []},
+    {"target_argus_id": "ENT-BD-DAE", "relation_type": "implemented_by", "evidence_refs": []},
+    {"target_argus_id": "ENT-BD-DAE-CHAR-224385000-PE", "relation_type": "procured_by", "evidence_refs": []},
+    {"target_argus_id": "PROC-DAE-1318662", "relation_type": "contains", "evidence_refs": []},
+    {"target_argus_id": "PROC-DAE-CHAR28-R2", "relation_type": "contains", "evidence_refs": []}
+  ],
+  "evidence_refs": [{"source_system": "USER_PROVIDED_EGP_NOTICE", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_locator": "TenderNotice (77).pdf", "title": "e-GP tender notice for Tender/Proposal ID 1318662", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "The uploaded notice identifies project code 224385000, the project name, Ministry of Agriculture and DAE."}],
+  "external_refs": [{"system": "EGP_PROJECT_CODE", "external_id": "224385000", "label": "Project Code"}],
+  "information_classification": "internal",
+  "revision": 1,
+  "created_at": "2026-10-18T00:00:00+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {
+    "project_code": "224385000",
+    "sponsoring_ministry_entity_id": "ENT-BD-MOA",
+    "implementing_agency_entity_id": "ENT-BD-DAE",
+    "procuring_entity_id": "ENT-BD-DAE-CHAR-224385000-PE",
+    "funding_source": "GOVERNMENT",
+    "budget_type": "DEVELOPMENT",
+    "country_code": "BD"
+  }
+}
