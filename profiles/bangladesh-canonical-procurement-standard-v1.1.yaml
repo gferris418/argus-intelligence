@@ -1,0 +1,279 @@
+document_id: ARGUS-BD-PROC-STD-001
+version: 1.1.0
+status: CANDIDATE
+country: Bangladesh
+country_code: BD
+extends:
+  document_id: ARGUS-BD-DATA-STD-001
+  version: 1.0.1
+purpose: >-
+  Extend the Bangladesh canonical data standard with institution-neutral procurement
+  concepts observed across BPPA/e-GP, DGDP, development-partner procurement systems,
+  bilateral ODA procurement, UN procurement portals and agency-specific notices.
+  Source-specific labels remain evidence aliases; canonical field meaning does not change
+  by institution, portal, financier or procurement route.
+
+architecture:
+  model: composed_canonical_vocabulary
+  base_standard: profiles/bangladesh-data-standard.yaml
+  extension_role: procurement_and_financier_normalization
+  registry_record_types_changed: false
+  observation_record_type_created: false
+  raw_source_documents_in_github: prohibited
+
+canonical_layers_additions:
+  - PRE_PROCUREMENT
+
+lifecycle_position:
+  after: PROCUREMENT_PACKAGE
+  before: SOLICITATION
+  purpose: >-
+    Capture advance procurement signals that are neither a procurement plan nor a live
+    solicitation, including general procurement notices, advance notices, market engagement,
+    evaluation, re-evaluation, standardization and other source-defined pre-procurement events.
+
+canonical_modules:
+  - PROJECT_EXTERNAL_IDENTITY
+  - FINANCIER_CONTEXT
+  - PROCUREMENT_CONTROL
+  - MULTI_LOT
+  - PRE_PROCUREMENT
+  - SOLICITATION_COMMERCIAL
+  - PARTICIPATION_REQUIREMENTS
+  - CONTACT
+  - PROCUREMENT_MILESTONES
+  - AWARD_FINANCING
+
+normalization_principles:
+  - Domestic and development-partner procurement use the same canonical concepts when the meaning is the same.
+  - Financier-specific control concepts remain separate from Bangladesh route, funding source and procurement method.
+  - A source-specific project number, loan number, grant number, credit number or financing reference is typed and never merged solely because its string equals another identifier.
+  - Prior/post review, market approach, procurement process and prequalification are independent concepts and must not be collapsed into procurement method.
+  - Notice type, procurement method, procurement nature, procurement type and source portal are independent concepts.
+  - Multi-lot notices must not be collapsed into one lot value; preserve each lot as a structured entry or create a lot-scoped normalized observation.
+  - Multi-currency document prices and securities remain raw text unless a currency/amount pair is unambiguous.
+  - Procurement-plan milestone schedules must not be collapsed into one date; planned and actual dates remain separate by milestone.
+  - General Procurement Notices, Advance Notices and DGDP evaluation/standardization events are PRE_PROCUREMENT unless the source is itself a formal solicitation.
+  - Tender/security/completion/contact data may be operationally important even when not required for opportunity identity; preserve it when available.
+  - Portal registration, source-country eligibility, local participation and sustainability conditions are participation requirements, not generic bidder identity.
+  - A financier or portal field being usually available never permits fabrication when absent.
+
+structured_types:
+  project_external_id:
+    fields: [scheme, value, label, source_system]
+  financing_reference:
+    fields: [partner, type, value, label]
+  procurement_lot:
+    fields:
+      - lot_no
+      - identification
+      - description
+      - location
+      - document_price_text
+      - tender_security_amount
+      - tender_security_currency
+      - tender_security_text
+      - completion_period_text
+      - estimated_cost
+      - currency
+  procurement_milestone:
+    fields: [name, planned_at, actual_at, status, notes]
+
+canonical_fields:
+  project.external_ids:
+    layer: PROGRAMME_PROJECT
+    type: array
+    meaning: Typed external project identifiers such as World Bank P-number, ADB project number, AIIB project identifier or other financier/project-system identifier.
+  project.component:
+    layer: PROGRAMME_PROJECT
+    type: string
+    meaning: Project component, subcomponent or investment component associated with a procurement activity.
+
+  funding.financing_references:
+    layer: FUNDING
+    type: array
+    meaning: Typed loan, credit, grant, financing agreement or other development-partner financing references.
+  funding.procurement_conditions:
+    layer: FUNDING
+    type: string
+    meaning: Financing-specific procurement condition such as tied, untied, eligible-source-country or other stated condition of finance.
+
+  procurement.activity_reference_no:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Financier/project-system procurement activity reference distinct from project, APP, package, lot and solicitation identifiers.
+  procurement.review_type:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Financier review/control type such as Prior, Post or source-equivalent review status.
+  procurement.market_approach:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Market approach such as Open-International, Open-National, Limited or other source-defined approach.
+  procurement.process:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Procurement process structure such as single-stage one-envelope, single-stage two-envelope or two-stage process.
+  procurement.prequalification_required:
+    layer: PROCUREMENT_PLAN
+    type: boolean
+    meaning: Whether formal prequalification is required for the procurement activity when stated.
+  procurement.status_raw:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Exact source-defined procurement activity/process status.
+  procurement.status_normalized:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: ARGUS normalized procurement activity state derived from the source while preserving procurement.status_raw.
+  procurement.plan_date:
+    layer: PROCUREMENT_PLAN
+    type: date
+    meaning: Procurement plan date, cover date or current plan version date.
+  procurement.expected_advertisement_date:
+    layer: PROCUREMENT_PLAN
+    type: date
+    meaning: Planned/expected advertisement or invitation date before publication.
+  procurement.actual_amount:
+    layer: PROCUREMENT_PACKAGE
+    type: number
+    meaning: Source-published actual procurement/contract amount attached to a procurement activity when distinct from the planned estimate.
+  procurement.actual_currency:
+    layer: PROCUREMENT_PACKAGE
+    type: currency
+    meaning: Currency applying to procurement.actual_amount.
+  procurement.lots:
+    layer: PROCUREMENT_PACKAGE
+    type: array
+    meaning: Structured lot rows for multi-lot or lot-specific procurement data; each lot preserves identity, location, security, price and completion information when available.
+  procurement.milestones:
+    layer: PROCUREMENT_PLAN
+    type: array
+    meaning: Structured planned/actual procurement milestones such as prequalification, bidding document, notice, opening, evaluation, award, signed contract and completion.
+
+  preproc.event_type:
+    layer: PRE_PROCUREMENT
+    type: string
+    meaning: Source-defined or normalized pre-procurement event type such as GPN, advance notice, evaluation, re-evaluation, standardization or market engagement.
+  preproc.reference_no:
+    layer: PRE_PROCUREMENT
+    type: string
+    meaning: Reference number or identifier for the pre-procurement event when published.
+  preproc.title:
+    layer: PRE_PROCUREMENT
+    type: string
+    meaning: Official title/name of the pre-procurement event or requirement.
+  preproc.wing_or_unit:
+    layer: PRE_PROCUREMENT
+    type: string
+    meaning: Source organizational wing, section, procurement unit or equivalent responsible for the pre-procurement event.
+  preproc.publication_at:
+    layer: PRE_PROCUREMENT
+    type: datetime
+    meaning: Publication timestamp/date for the pre-procurement event.
+  preproc.deadline_at:
+    layer: PRE_PROCUREMENT
+    type: datetime
+    meaning: Submission/response deadline for the pre-procurement event when applicable.
+  preproc.status:
+    layer: PRE_PROCUREMENT
+    type: string
+    meaning: Source or normalized pre-procurement status.
+
+  solicitation.notice_type:
+    layer: SOLICITATION
+    type: string
+    meaning: Formal notice type such as IFB, RFB, ITB, RFP, RFQ, REOI, PQ, Call for Consultant or source-equivalent notice.
+  solicitation.document_price_text:
+    layer: SOLICITATION
+    type: string
+    meaning: Source-published tender/proposal document price retained as text to preserve multi-currency or lot-specific expressions.
+  solicitation.prebid_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Date/time of a pre-bid, pre-tender, pre-proposal meeting or site visit when one event is stated.
+  solicitation.prebid_location:
+    layer: SOLICITATION
+    type: string
+    meaning: Location or online channel for pre-bid/pre-tender/pre-proposal meeting or site visit.
+  solicitation.submission_channel:
+    layer: SOLICITATION
+    type: string
+    meaning: Required submission channel such as e-GP, UNGM, Quantum, physical delivery or other portal/method.
+  solicitation.submission_locator:
+    layer: SOLICITATION
+    type: string
+    meaning: Portal, address, system or source locator through which submissions are made.
+  solicitation.registration_requirement:
+    layer: SOLICITATION
+    type: string
+    meaning: Required portal/vendor registration level or enlistment condition when published.
+  solicitation.source_country_eligibility:
+    layer: SOLICITATION
+    type: string
+    meaning: Eligible source-country or nationality condition imposed by financing/procurement rules when stated.
+  solicitation.local_participation_requirement:
+    layer: SOLICITATION
+    type: string
+    meaning: Local labor, local content, JV, subcontracting or other local-participation requirement stated by the source.
+  solicitation.sustainability_requirements:
+    layer: SOLICITATION
+    type: string
+    meaning: Published sustainability, ESG, climate, environmental/social or similar procurement requirement/indicator.
+  solicitation.contact_name:
+    layer: SOLICITATION
+    type: string
+    meaning: Name of official procurement contact or inviting official when published.
+  solicitation.contact_designation:
+    layer: SOLICITATION
+    type: string
+    meaning: Designation/role of procurement contact or inviting official.
+  solicitation.contact_address:
+    layer: SOLICITATION
+    type: string
+    meaning: Official procurement contact/submission address when published.
+  solicitation.contact_phone:
+    layer: SOLICITATION
+    type: string
+    meaning: Procurement contact phone number when published.
+  solicitation.contact_email:
+    layer: SOLICITATION
+    type: string
+    meaning: Procurement contact email when published.
+
+  award.approval_reference:
+    layer: AWARD_CONTRACT
+    type: string
+    meaning: Financier or approving-authority approval/reference number associated with the contract award.
+  award.supplier_address:
+    layer: AWARD_CONTRACT
+    type: string
+    meaning: Published address of awarded contractor, supplier or consultant.
+  award.financier_financed_amount:
+    layer: AWARD_CONTRACT
+    type: number
+    meaning: Portion of contract amount explicitly financed by the development partner/financier.
+  award.financier_financed_currency:
+    layer: AWARD_CONTRACT
+    type: currency
+    meaning: Currency of award.financier_financed_amount.
+
+compatibility:
+  existing_base_fields_remain_valid: true
+  existing_registry_records_require_migration: false
+  extension_fields_store_under_existing_attributes: true
+  PRE_PROCUREMENT_maps_to_existing_registry_types:
+    - INTELLIGENCE
+    - PROCUREMENT
+  no_new_master_registry_record_type: true
+
+quality_gates:
+  - typed_identifiers_remain_distinct_even_if_values_match
+  - multi_lot_data_not_flattened
+  - planned_and_actual_milestones_not_collapsed
+  - source_notice_type_not_conflated_with_procurement_method
+  - financier_review_not_conflated_with_procurement_method
+  - financing_reference_not_conflated_with_project_or_tender_id
+  - preprocurement_event_not_misreported_as_live_solicitation
+  - raw_source_label_and_value_preserved
+  - sparse_observation_allowed_without_fabrication
