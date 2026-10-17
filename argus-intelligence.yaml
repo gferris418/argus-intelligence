@@ -1,0 +1,125 @@
+schema_version: 1
+product:
+  id: argus-intelligence
+  name: ARGUS Intelligence
+  version: 2.0.0-rc.1
+  release_channel: candidate
+  status: CANDIDATE
+  classification: internal
+
+authority:
+  manifest: argus-intelligence.yaml
+  core: spec/core.md
+  atlas_alignment: alignments/atlas-os.md
+  country_profiles:
+    bangladesh: profiles/bangladesh.md
+  domain_result_schema: schemas/domain-result.schema.json
+
+scope:
+  primary: pre-bid government and public-sector opportunity intelligence
+  principle: Access Asia shall not wait for a tender to define an opportunity.
+
+production_runtime:
+  access_asia:
+    governance_backbone: ATLAS OS
+    atlas_change_required: false
+    standalone_argus: false
+  standalone_mode:
+    permitted_for:
+      - portability
+      - testing
+      - recovery
+      - non_access_asia_implementation
+
+atlas_compatibility:
+  validated_against: 2.0.0-rc.7
+  relationship: nested_domain_method
+  rule: ARGUS conforms to existing ATLAS contracts; ARGUS does not require ATLAS changes.
+
+operating_loop:
+  - Discover
+  - Extract
+  - Resolve
+  - Reconcile
+  - Validate
+  - Assess
+  - Prioritize
+  - Decide
+  - Promote_or_Monitor
+  - Learn
+
+master_registry:
+  record_types:
+    - ENTITY
+    - PROJECT
+    - PROCUREMENT
+    - INTELLIGENCE
+    - OPPORTUNITY
+    - SUPPLIER_PRODUCT
+    - KNOWLEDGE
+  canonical_store: ARGUS Master Registry
+  write_boundary: RegistryStoreAdapter
+
+canonical_ownership:
+  structured_intelligence: ARGUS Master Registry
+  communications: communication system
+  original_documents: document repository
+  post_px_commercial_pursuit: CRM
+  framework_and_governance_artifacts: ATLAS/ChatGPT Library or governed framework repository
+
+maturity:
+  scale:
+    I0: Signal
+    I1: Hypothesis
+    I2: Validated Need
+    I3: Institutional Path
+    I4: Delivery/Funding Path
+    I5: Actionable Context
+    I6: Procurement Planning
+    I7: Pre-Procurement
+    I8: Procurement Imminent
+    I9: Live
+  independent_dimensions:
+    - project_state
+    - funding_state
+    - procurement_state
+    - evidence_confidence
+    - commercial_attractiveness
+    - procurement_horizon
+    - strategic_fit
+    - blockers_and_unknowns
+
+evidence:
+  claim_types:
+    - FACT
+    - DERIVED
+    - INFERENCE
+    - ASSUMPTION
+    - UNKNOWN
+  claim_conditions:
+    - CURRENT
+    - STALE
+    - CONFLICT
+  atlas_assurance_is_independent: true
+
+decisions:
+  - MONITOR
+  - INVESTIGATE
+  - PROMOTE_TO_PX
+  - MERGE_EXISTING
+  - HOLD
+  - REJECT
+
+domain_result:
+  contract: schemas/domain-result.schema.json
+  final_user_output_owner: ATLAS OS
+  may_propose_domain_actions: true
+
+release_gates:
+  - Registry API can represent route/profile fields without breaking existing records
+  - claim type and claim condition can be represented separately
+  - representative Bangladesh route tests pass
+  - APP/tender/amendment/award reconciliation avoids duplicate opportunities
+  - defence pre-procurement signal test passes
+  - cross-fiscal-year project lineage test passes
+  - promotion-before-live-tender test passes
