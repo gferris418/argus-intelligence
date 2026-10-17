@@ -2,7 +2,7 @@ schema_version: 1
 product:
   id: argus-intelligence
   name: ARGUS Intelligence
-  version: 2.0.0-rc.1
+  version: 2.0.0-rc.2
   release_channel: candidate
   status: CANDIDATE
   classification: internal
@@ -48,6 +48,36 @@ operating_loop:
   - Promote_or_Monitor
   - Learn
 
+360_intelligence_collection:
+  doctrine: 360_degree_breadth_decision_driven_depth
+  breadth: all_materially_relevant_lenses
+  depth: decision_driven_by_research_frontier
+  exhaustive_collection_required: false
+  single_source_dependence_prohibited_when_material: true
+  lenses:
+    - need_mission
+    - policy_strategy
+    - institution_stakeholders
+    - programme_project
+    - budget_funding
+    - procurement_acquisition
+    - technical_installed_base
+    - supplier_competitor
+    - ecosystem_influence
+    - commercial_participation
+    - timing_triggers
+    - internal_intelligence
+  coverage_states:
+    - NOT_APPLICABLE
+    - UNASSESSED
+    - INSUFFICIENT
+    - PARTIAL
+    - ADEQUATE
+  convergence:
+    distinguish_source_count_from_independent_lineages: true
+    copied_or_derivative_sources_do_not_add_independent_confirmation: true
+  stopping_rule: stop when additional collection is unlikely to change the domain decision or next action
+
 master_registry:
   record_types:
     - ENTITY
@@ -59,6 +89,7 @@ master_registry:
     - KNOWLEDGE
   canonical_store: ARGUS Master Registry
   write_boundary: RegistryStoreAdapter
+  new_record_type_for_collection: false
 
 canonical_ownership:
   structured_intelligence: ARGUS Master Registry
@@ -88,6 +119,7 @@ maturity:
     - procurement_horizon
     - strategic_fit
     - blockers_and_unknowns
+    - collection_coverage
 
 evidence:
   claim_types:
@@ -114,11 +146,15 @@ domain_result:
   contract: schemas/domain-result.schema.json
   final_user_output_owner: ATLAS OS
   may_propose_domain_actions: true
+  may_report_collection_coverage: true
+  may_report_collection_gaps: true
 
 release_gates:
   - Registry API can represent route/profile fields without breaking existing records
   - claim type and claim condition can be represented separately
+  - collection coverage can be represented without creating a new canonical record type
   - representative Bangladesh route tests pass
+  - 360-degree collection contract test passes
   - APP/tender/amendment/award reconciliation avoids duplicate opportunities
   - defence pre-procurement signal test passes
   - cross-fiscal-year project lineage test passes
