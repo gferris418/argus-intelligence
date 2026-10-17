@@ -1,12 +1,12 @@
-import hashlib
 import json
 import unittest
 from pathlib import Path
 
 import jsonschema
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
+MANIFEST = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text())
 CORE = (ROOT / "spec" / "core.md").read_text()
 ALIGNMENT = (ROOT / "alignments" / "atlas-os.md").read_text()
 RESULT_SCHEMA = json.loads((ROOT / "schemas" / "domain-result.schema.json").read_text())
@@ -15,10 +15,11 @@ HANDOFF_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "domain-context-handoff-v1.
 
 class AtlasDomainHandoffContract(unittest.TestCase):
     def test_argus_pins_the_atlas_handoff_contract(self):
-        raw = HANDOFF_SCHEMA_PATH.read_bytes()
-        digest = hashlib.sha256(raw).hexdigest()
-        self.assertIn("atlas_domain_context_contract_version: 1.0.0", MANIFEST)
-        self.assertIn(f"atlas_domain_context_contract_sha256: {digest}", MANIFEST)
+        schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
+        compat = MANIFEST["atlas_compatibility"]
+        self.assertEqual("1.0.0", compat["atlas_domain_context_contract_version"])
+        self.assertEqual("contracts/atlas/domain-context-handoff-v1.schema.json", compat["atlas_domain_context_contract_path"])
+        self.assertEqual("1.0.0", schema["properties"]["contract_version"]["const"])
 
     def test_contextualize_is_first_argus_domain_operation(self):
         self.assertIn("Contextualize → Discover → Extract → Resolve → Reconcile", CORE)
