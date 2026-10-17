@@ -50,8 +50,10 @@ class RegistryCompatibilityContract(unittest.TestCase):
         self.assertIn("CONFLICT", evidence["analytical_label_enum"])
         self.assertIn("STALE", evidence["analytical_label_enum"])
 
-    def test_manifest_keeps_evidence_split_as_release_gate(self):
-        self.assertIn("claim type and claim condition can be represented separately", MANIFEST)
+    def test_manifest_tracks_candidate_fix_and_runtime_gate_separately(self):
+        self.assertIn("claim type and claim condition candidate schema/physical migration contract: PASS", MANIFEST)
+        self.assertIn("Registry API v0.1.1 source + live persistence support Registry v0.2.1: PENDING", MANIFEST)
+        self.assertIn("evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS_RUNTIME_PATCH_PENDING", MANIFEST)
 
 
 if __name__ == "__main__":
