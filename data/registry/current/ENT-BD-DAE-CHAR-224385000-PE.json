@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "ENT-BD-DAE-CHAR-224385000-PE",
+  "record_type": "ENTITY",
+  "canonical_name_or_title": "Extension of Modern Agricultural Technologies in Char Areas of Bangladesh Project — Procuring Entity",
+  "status": "current_project_procuring_entity",
+  "aliases": ["Extension of Modern Agricultural Technologies in Char Areas of Bangladesh Project"],
+  "related_argus_ids": ["ENT-BD-DAE", "PRJ-BD-DAE-224385000"],
+  "relationships": [
+    {"target_argus_id": "ENT-BD-DAE", "relation_type": "part_of", "evidence_refs": []},
+    {"target_argus_id": "PRJ-BD-DAE-224385000", "relation_type": "procuring_entity_for", "evidence_refs": []}
+  ],
+  "evidence_refs": [{"source_system": "USER_PROVIDED_EGP_NOTICE", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_locator": "TenderNotice (77).pdf", "title": "e-GP tender notice for Tender/Proposal ID 1318662", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "The uploaded notice names the project as the Procuring Entity and identifies Md. Ziaur Rahman, Project Director, as the official inviting the tender."}],
+  "external_refs": [],
+  "information_classification": "internal",
+  "revision": 1,
+  "created_at": "2026-10-18T00:00:00+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {
+    "country_code": "BD",
+    "entity_type": "PROJECT_OR_PROGRAMME_PE",
+    "parent_entity_id": "ENT-BD-DAE",
+    "project_code": "224385000",
+    "inviting_official_name": "Md. Ziaur Rahman",
+    "inviting_official_designation": "Project Director",
+    "district": "Dhaka"
+  }
+}
