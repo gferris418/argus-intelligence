@@ -203,7 +203,7 @@ Under ATLAS:
 3. The governed current canonical-store mechanism executes the authorized action.
 4. ATLAS verifies the outcome.
 
-ARGUS does not create a separate approval framework.
+Permanent PX creation, destructive merge, identity reassignment, or another **major canonical-state change** remains subject to the existing ATLAS approval controls. ARGUS does not create a separate approval framework.
 
 ## 11. Canonical-state vs ATLAS persistence seam
 
