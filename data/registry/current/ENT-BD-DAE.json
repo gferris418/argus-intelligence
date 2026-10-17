@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "ENT-BD-DAE",
+  "record_type": "ENTITY",
+  "canonical_name_or_title": "Department of Agricultural Extension",
+  "status": "current_official_institution",
+  "aliases": ["DAE"],
+  "related_argus_ids": ["ENT-BD-MOA", "ENT-BD-DAE-CHAR-224385000-PE", "PRJ-BD-DAE-224385000"],
+  "relationships": [
+    {"target_argus_id": "ENT-BD-MOA", "relation_type": "child_of", "evidence_refs": []},
+    {"target_argus_id": "ENT-BD-DAE-CHAR-224385000-PE", "relation_type": "contains", "evidence_refs": []}
+  ],
+  "evidence_refs": [{"source_system": "USER_PROVIDED_EGP_NOTICE", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_locator": "TenderNotice (77).pdf", "title": "e-GP tender notice for Tender/Proposal ID 1318662", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "The uploaded notice identifies Department of Agricultural Extension (DAE) as the organization."}],
+  "external_refs": [],
+  "information_classification": "internal",
+  "revision": 1,
+  "created_at": "2026-10-18T00:00:00+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {"country_code": "BD", "entity_type": "DEPARTMENT", "parent_entity_id": "ENT-BD-MOA"}
+}
