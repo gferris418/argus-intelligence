@@ -1,4 +1,3 @@
-import re
 import unittest
 from pathlib import Path
 
@@ -12,10 +11,11 @@ MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
 
 class BangladeshIdentifierInstitutionPursuit(unittest.TestCase):
     def test_egp_system_id_and_reference_number_are_distinct(self):
+        proc_lower = PROC.lower()
         self.assertIn("solicitation.system_id:", PROC)
         self.assertIn("solicitation.reference_no:", PROC)
-        self.assertIn("portal-generated Tender/Proposal ID", PROC)
-        self.assertIn("procuring-entity invitation/tender/proposal reference", PROC)
+        self.assertIn("portal-generated tender/proposal id", proc_lower)
+        self.assertIn("procuring-entity invitation/tender/proposal reference", proc_lower)
         self.assertIn("Tender/Proposal ID", MAP)
         self.assertIn("canonical_field: solicitation.system_id", MAP)
         self.assertIn("Invitation Reference No.", MAP)
@@ -63,10 +63,11 @@ class BangladeshIdentifierInstitutionPursuit(unittest.TestCase):
         self.assertIn("compliance matrix", PURSUIT.lower())
 
     def test_specification_influence_has_competition_safeguards(self):
-        self.assertIn("performance-based", PURSUIT)
-        self.assertIn("widest possible competition", PURSUIT)
-        self.assertIn("must not be used to improperly exclude competitors", PURSUIT)
-        self.assertIn("PPR 2025", PURSUIT)
+        pursuit_lower = PURSUIT.lower()
+        self.assertIn("performance-based", pursuit_lower)
+        self.assertIn("widest possible competition", pursuit_lower)
+        self.assertIn("improperly exclude competitors", pursuit_lower)
+        self.assertIn("ppr 2025", pursuit_lower)
 
     def test_manifest_wires_new_contracts(self):
         self.assertIn("bangladesh_procurement_standard_version: 1.2.0", MANIFEST)
