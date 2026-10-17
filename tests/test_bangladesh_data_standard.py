@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STANDARD_PATH = ROOT / "profiles" / "bangladesh-data-standard.yaml"
 MAPPINGS_PATH = ROOT / "profiles" / "bangladesh-source-mappings.yaml"
 OBS_SCHEMA_PATH = ROOT / "schemas" / "bangladesh-observation.schema.json"
-PROFILE = (ROOT / "profiles" / "bangladesh.md").read_text()
+MANIFEST = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text())
 
 
 class BangladeshDataStandardTests(unittest.TestCase):
@@ -132,10 +132,11 @@ class BangladeshDataStandardTests(unittest.TestCase):
         jsonschema.validate(observation, self.schema, format_checker=jsonschema.FormatChecker())
         self.assertNotIn("project.code", {item["field_id"] for item in observation["data_points"]})
 
-    def test_profile_declares_standardization_before_route_and_research(self):
-        self.assertIn("Bangladesh Data Standard", PROFILE)
-        self.assertIn("normalize available source data", PROFILE)
-        self.assertIn("source-specific labels must map to canonical fields", PROFILE)
+    def test_manifest_wires_the_bangladesh_standard_and_source_mappings(self):
+        authority = MANIFEST["authority"]
+        self.assertEqual("profiles/bangladesh-data-standard.yaml", authority["bangladesh_data_standard"])
+        self.assertEqual("profiles/bangladesh-source-mappings.yaml", authority["bangladesh_source_mappings"])
+        self.assertEqual("schemas/bangladesh-observation.schema.json", authority["bangladesh_observation_schema"])
 
     def test_standard_declares_multiple_identification_approaches(self):
         approaches = set(self.standard["identification_and_normalization_approaches"])
