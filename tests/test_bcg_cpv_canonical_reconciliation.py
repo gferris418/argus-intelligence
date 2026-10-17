@@ -3,20 +3,33 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RECORDS = {
-    r["argus_id"]: r
-    for r in (
-        json.loads(line)
-        for line in (ROOT / "data" / "registry" / "records.jsonl").read_text().splitlines()
-        if line.strip()
-    )
-}
+
+
+def load_current_records():
+    records = {
+        r["argus_id"]: r
+        for r in (
+            json.loads(line)
+            for line in (ROOT / "data" / "registry" / "records.jsonl").read_text().splitlines()
+            if line.strip()
+        )
+    }
+    index = json.loads((ROOT / "data" / "registry" / "current-index.json").read_text())
+    for argus_id, relative_path in index["records"].items():
+        current = json.loads((ROOT / relative_path).read_text())
+        assert current["argus_id"] == argus_id
+        records[argus_id] = current
+    return records
+
+
+RECORDS = load_current_records()
 
 
 class BCGCPVCanonicalReconciliation(unittest.TestCase):
     def test_project_is_linked_to_current_official_project_identity(self):
         project = RECORDS["PRJ-BCG-CPV-WD2"]
         attrs = project["attributes"]
+        self.assertEqual(project["revision"], 2)
         self.assertEqual(attrs["project_code"], "224392800")
         self.assertEqual(attrs["project_status"], "APPROVED")
         self.assertEqual(attrs["funding_source"], "GOB")
@@ -25,9 +38,10 @@ class BCGCPVCanonicalReconciliation(unittest.TestCase):
     def test_procurement_uses_reference_and_lot_identification_correctly(self):
         proc = RECORDS["PROC-BCG-LT001"]
         attrs = proc["attributes"]
+        self.assertEqual(proc["revision"], 2)
         self.assertEqual(attrs["solicitation_reference_no"], "44.08.2680.033.02.106.26.160")
-        self.assertIsNone(attrs["solicitation_system_id"])
-        self.assertIsNone(attrs["package_reference"])
+        self.assertIsNone(attrs.get("solicitation_system_id"))
+        self.assertIsNone(attrs.get("package_reference"))
         self.assertEqual(attrs["lot_no"], "1")
         self.assertEqual(attrs["lot_identification"], "WD-2")
         self.assertNotEqual(attrs["solicitation_reference_no"], attrs["lot_identification"])
@@ -45,7 +59,10 @@ class BCGCPVCanonicalReconciliation(unittest.TestCase):
         self.assertEqual(attrs["extension_count"], 2)
         events = attrs["procurement_events"]
         self.assertEqual(len(events), 2)
-        self.assertEqual([e["event_type"] for e in events], ["SUBMISSION_DEADLINE_EXTENSION", "SUBMISSION_DEADLINE_EXTENSION"])
+        self.assertEqual(
+            [e["event_type"] for e in events],
+            ["SUBMISSION_DEADLINE_EXTENSION", "SUBMISSION_DEADLINE_EXTENSION"],
+        )
 
     def test_verified_commercial_mechanics_are_preserved(self):
         attrs = RECORDS["PROC-BCG-LT001"]["attributes"]
@@ -61,6 +78,20 @@ class BCGCPVCanonicalReconciliation(unittest.TestCase):
         self.assertEqual(dew["signal_type"], "COMPETITOR_OR_BIDDER_SIGNAL")
         self.assertEqual(dew["exact_role"], "UNKNOWN")
         self.assertNotEqual(dew["exact_role"], "CONFIRMED_BIDDER")
+
+    def test_initial_baseline_remains_immutable_provenance(self):
+        baseline = {
+            r["argus_id"]: r
+            for r in (
+                json.loads(line)
+                for line in (ROOT / "data" / "registry" / "records.jsonl").read_text().splitlines()
+                if line.strip()
+            )
+        }
+        self.assertEqual(baseline["PROC-BCG-LT001"]["revision"], 1)
+        self.assertEqual(baseline["PRJ-BCG-CPV-WD2"]["revision"], 1)
+        self.assertEqual(RECORDS["PROC-BCG-LT001"]["revision"], 2)
+        self.assertEqual(RECORDS["PRJ-BCG-CPV-WD2"]["revision"], 2)
 
 
 if __name__ == "__main__":
