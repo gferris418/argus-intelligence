@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "effective_date": "2026-10-18",
+  "rule": "When an argus_id is listed here, the referenced current record supersedes the same argus_id in the immutable initial baseline for current-state reads. New argus_ids listed here are current canonical records even when no baseline predecessor exists. Historical baseline records remain authoritative for provenance of the initial migration state.",
+  "records": {
+    "ENT-BD-MOHA": "data/registry/current/ENT-BD-MOHA.json",
+    "ENT-BD-COAST-GUARD": "data/registry/current/ENT-BD-COAST-GUARD.json",
+    "ENT-BD-BCG-PD-224392800": "data/registry/current/ENT-BD-BCG-PD-224392800.json",
+    "PRJ-BCG-CPV-WD2": "data/registry/current/PRJ-BCG-CPV-WD2.json",
+    "PROC-BCG-LT001": "data/registry/current/PROC-BCG-LT001.json"
+  }
+}

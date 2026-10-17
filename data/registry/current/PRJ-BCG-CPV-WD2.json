@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "PRJ-BCG-CPV-WD2",
+  "record_type": "PROJECT",
+  "canonical_name_or_title": "Acquisition of Replacement Vessel to Increase the Capacity of Bangladesh Coast Guard (1st Revised)",
+  "status": "approved_implementing_live_procurement_linked",
+  "aliases": [
+    "BCG WD-2 Coastal Patrol Vessel procurement",
+    "Construction and Delivery of 4 Coastal Patrol Vessels (CPV)"
+  ],
+  "related_argus_ids": [
+    "ENT-BD-MOHA",
+    "ENT-BD-COAST-GUARD",
+    "PROC-BCG-LT001"
+  ],
+  "relationships": [
+    {
+      "target_argus_id": "ENT-BD-MOHA",
+      "relation_type": "related_to",
+      "evidence_refs": []
+    },
+    {
+      "target_argus_id": "ENT-BD-COAST-GUARD",
+      "relation_type": "related_to",
+      "evidence_refs": []
+    },
+    {
+      "target_argus_id": "PROC-BCG-LT001",
+      "relation_type": "contains",
+      "evidence_refs": []
+    }
+  ],
+  "evidence_refs": [
+    {
+      "source_system": "BANGLADESH_PLANNING_COMMISSION_ADP",
+      "source_id": "224392800",
+      "source_locator": "https://adp.plancomm.gov.bd/exp/press-book.php?action=allocation&ceiling_for=0&fiscal_year=2025&group=sector&lang=en&ministry=0&pageno=1&project_type=1&sector=0&sub_sector=0&view=html",
+      "title": "Annual Development Programme 2025-2026 — Coast Guard project 224392800",
+      "as_of": "2026-10-18",
+      "claim_type": "FACT",
+      "claim_condition": "CURRENT",
+      "notes": "Official Planning Commission ADP lists project 224392800, approved, GoB funded, implementing agency Coast Guard, implementation period 2023-11-01 to 2027-06-30."
+    },
+    {
+      "source_system": "BPPA",
+      "source_id": "44.08.2680.033.02.106.26.160",
+      "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html",
+      "title": "Construction and Delivery of 4 Coastal Patrol Vessels (CPV)",
+      "as_of": "2026-10-18",
+      "claim_type": "FACT",
+      "claim_condition": "CURRENT",
+      "notes": "Official BPPA notice confirms a live procurement for four CPVs under Bangladesh Coast Guard with Development Budget GoB funding."
+    }
+  ],
+  "external_refs": [
+    {
+      "system": "BANGLADESH_PLANNING_COMMISSION_ADP",
+      "external_id": "224392800",
+      "label": "Official project code"
+    },
+    {
+      "system": "DTIF_DB001",
+      "external_id": "BCG-LT001",
+      "label": "Legacy ARGUS/DTIF lineage reference"
+    }
+  ],
+  "information_classification": "internal",
+  "revision": 2,
+  "created_at": "2026-10-16T01:48:17+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {
+    "project_type": "capital_acquisition_project",
+    "project_code": "224392800",
+    "project_status": "APPROVED",
+    "project_start_date": "2023-11-01",
+    "project_end_date": "2027-06-30",
+    "funding_source": "GOB",
+    "funding_sources": ["Development Budget GOB"],
+    "implementing_agency": "Bangladesh Coast Guard",
+    "sponsoring_ministry_entity_id": "ENT-BD-MOHA",
+    "sponsoring_ministry": "Ministry of Home Affairs",
+    "owner_entity_ids": ["ENT-BD-COAST-GUARD"],
+    "linked_procurement_ids": ["PROC-BCG-LT001"],
+    "legacy_value_note": "Exact CPV package budget remains unverified; parent project cost and tender security are not package value."
+  }
+}
