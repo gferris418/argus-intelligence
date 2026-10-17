@@ -8,11 +8,28 @@ Its purpose is to identify credible business before formal tender publication, c
 
 Within the Access Asia governed environment, **ATLAS OS is the unchanged execution-governance backbone**. ARGUS is a nested domain method and does not create a second execution spine.
 
-Canonical production flow:
+Canonical execution flow:
 
-`User objective → ATLAS OS → ARGUS domain method → ARGUS domain result + proposed domain actions → ATLAS verification/approval → authorized domain action(s) → ATLAS task-artifact persistence → ATLAS delivery`
+`User objective → ATLAS OS → ARGUS domain method → ARGUS domain result + proposed domain actions → ATLAS verification/approval → authorized domain action(s) → ATLAS delivery`
 
 ARGUS remains independently specified and portable. Standalone execution is reserved for portability, testing, recovery, or non-Access-Asia implementations.
+
+## Current persistence model: GitHub-first
+
+For the current candidate phase, this private repository is the **interim physical canonical store** for ARGUS structured intelligence, synthesized intelligence, and database-related artifacts.
+
+The logical ARGUS Master Registry remains platform-neutral. GitHub is the current storage implementation so the system can later shift to PostgreSQL, Supabase, Airtable, or another runtime without changing ARGUS identities or semantics.
+
+Repository storage:
+
+- `data/registry/` — canonical structured records, preferably JSON/JSONL;
+- `data/syntheses/` — synthesized intelligence in Markdown/JSON;
+- `data/exports/` — derived CSV/XLSX/JSON review and interchange views;
+- `registry/` — Registry contracts, schemas, mappings, SQL migrations and future database materialization artifacts.
+
+**Raw tender/source documents are not stored in GitHub.** GitHub stores only structured facts, synthesized intelligence, provenance, source references/locators, hashes where useful, reconciliation decisions, and commercial assessments. Original tender documents, email payloads, scans, attachments and other source files remain in their authorized source systems/document repositories.
+
+See [`docs/architecture/github-first-canonical-store.md`](docs/architecture/github-first-canonical-store.md).
 
 ## Core operating loop
 
@@ -60,12 +77,13 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 - ATLAS alignment: [`alignments/atlas-os.md`](alignments/atlas-os.md)
 - Bangladesh profile: [`profiles/bangladesh.md`](profiles/bangladesh.md)
 - Domain result schema: [`schemas/domain-result.schema.json`](schemas/domain-result.schema.json)
+- GitHub-first persistence architecture: [`docs/architecture/github-first-canonical-store.md`](docs/architecture/github-first-canonical-store.md)
+- Registry schema candidate: [`registry/schema/argus-master-registry-v0.2.1.json`](registry/schema/argus-master-registry-v0.2.1.json)
 - End-to-end validation: [`docs/validation/atlas-argus-bd-e2e.md`](docs/validation/atlas-argus-bd-e2e.md)
-- 360° collection validation: [`docs/validation/360-intelligence-collection.md`](docs/validation/360-intelligence-collection.md)
-- 360° contract test: [`tests/test_360_collection_contract.py`](tests/test_360_collection_contract.py)
+- Bangladesh lifecycle validation: [`docs/validation/bangladesh-lifecycle-release-gates-rc2.md`](docs/validation/bangladesh-lifecycle-release-gates-rc2.md)
 
 ## Current status
 
 `2.0.0-rc.2` — candidate.
 
-The system-level architecture has passed the ATLAS OS → ARGUS Bangladesh → result-path review. The rc.2 candidate adds governed 360° collection coverage while preserving the ATLAS boundary, seven-record Registry model and decision-driven Research Frontier. Canonical promotion remains gated by Registry API/schema compatibility checks and representative Bangladesh route tests.
+The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, and representative Bangladesh lifecycle gates have passed. Operational database deployment is deferred for the current phase; GitHub is the interim canonical persistence layer while ARGUS usage and integration requirements mature.
