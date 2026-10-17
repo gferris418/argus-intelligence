@@ -14,8 +14,11 @@ authority:
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
+  bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.1.yaml
   bangladesh_source_mappings: profiles/bangladesh-source-mappings.yaml
+  bangladesh_extended_source_mappings: profiles/bangladesh-source-mappings-v1.1.yaml
   bangladesh_observation_schema: schemas/bangladesh-observation.schema.json
+  bangladesh_observation_schema_v1_1: schemas/bangladesh-observation-v1.1.schema.json
   domain_result_schema: schemas/domain-result.schema.json
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
 
@@ -63,14 +66,30 @@ operating_loop:
 
 bangladesh_standardization:
   canonical_data_standard: profiles/bangladesh-data-standard.yaml
+  canonical_procurement_extension: profiles/bangladesh-canonical-procurement-standard-v1.1.yaml
   source_mappings: profiles/bangladesh-source-mappings.yaml
-  observation_schema: schemas/bangladesh-observation.schema.json
-  rule: Source-specific Bangladesh labels normalize into one canonical field vocabulary before route, reconciliation, maturity or commercial assessment.
+  extended_source_mappings: profiles/bangladesh-source-mappings-v1.1.yaml
+  observation_schema: schemas/bangladesh-observation-v1.1.schema.json
+  bangladesh_data_standard_version: 1.1.0
+  development_partner_procurement_normalization: PASS
+  rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before route, reconciliation, maturity or commercial assessment.
   preserve_raw_labels_and_values: true
   sparse_observations_allowed: true
   fabricate_missing_fields: false
   source_observation_is_registry_record_type: false
   atlas_domain_context_precedes_argus_normalization: true
+  preprocurement_layer_enabled: true
+  multi_lot_structure_preserved: true
+  procurement_milestone_structure_preserved: true
+  development_partner_controls_separate_from_procurement_method: true
+  supported_external_source_families:
+    - WORLD_BANK_PROCUREMENT_PLAN
+    - WORLD_BANK_PROCUREMENT_NOTICE
+    - ADB_PROJECT_PROCUREMENT
+    - AIIB_PROJECT_PROCUREMENT
+    - JICA_ODA_PROCUREMENT
+    - UNGM_NOTICE
+    - DEVELOPMENT_PARTNER_OTHER
 
 360_intelligence_collection:
   doctrine: 360_degree_breadth_decision_driven_depth
@@ -254,3 +273,4 @@ release_gates:
   - promotion-before-live-tender test passes: PASS
   - ATLAS domain-context handoff pin and return-correlation contract: PASS
   - Bangladesh cross-source canonical data standard and observation contract: PASS
+  - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
