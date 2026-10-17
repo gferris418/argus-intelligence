@@ -75,6 +75,7 @@ bangladesh_standardization:
   pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
   observation_schema: schemas/bangladesh-observation-v1.1.schema.json
   bangladesh_data_standard_version: 1.3.0
+  bangladesh_procurement_standard_version: 1.3.0
   development_partner_procurement_normalization: PASS
   egp_system_id_reference_no_separation: PASS
   institution_graph_normalization: PASS
