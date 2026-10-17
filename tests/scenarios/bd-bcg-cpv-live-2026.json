@@ -1,0 +1,221 @@
+{
+  "scenario_id": "ARGUS-BD-BCG-CPV-LIVE-2026",
+  "as_of": "2026-10-18",
+  "seed": "Coastal Patrol Vessel for Bangladesh Coast Guard",
+  "purpose": "Trace a real Bangladesh Coast Guard CPV requirement from ATLAS domain classification through ARGUS normalization, reconciliation, assessment, research frontier and structured persistence.",
+  "process_flow": [
+    "ATLAS_INTAKE",
+    "ATLAS_TASK_CLASSIFICATION",
+    "ATLAS_DOMAIN_CLASSIFICATION",
+    "ATLAS_DOMAIN_ALIGNMENT",
+    "ATLAS_DOMAIN_HANDOFF",
+    "ARGUS_CONTEXTUALIZE",
+    "ARGUS_REGISTRY_LOOKUP",
+    "ARGUS_NORMALIZE_OBSERVATIONS",
+    "ARGUS_RESOLVE_RECONCILE",
+    "ARGUS_360_COVERAGE",
+    "ARGUS_ASSESS",
+    "ARGUS_RESEARCH_FRONTIER",
+    "ARGUS_DOMAIN_RESULT",
+    "ATLAS_RETURN_RECEIPT",
+    "ATLAS_VERIFY_AUTHORIZE",
+    "GITHUB_SYNTHESIZED_PERSISTENCE",
+    "ATLAS_DELIVERY"
+  ],
+  "atlas_domain_context": {
+    "handoff_contract_version": "1.0.0",
+    "handoff_state": "PARTIAL",
+    "jurisdiction": "Bangladesh",
+    "operator_context": {
+      "organization": "Bangladesh Coast Guard Force",
+      "mission_domain": "maritime security and coast-guard operations"
+    },
+    "supplier_industry": {
+      "taxonomy": "ISIC Rev.4",
+      "isic_code": "3011",
+      "label": "Building of ships and floating structures",
+      "source": "UN Statistics Division"
+    },
+    "product_classification": {
+      "taxonomy": "CPC Ver.2.1",
+      "cpc_code": "49319",
+      "label": "Other vessels including warships and other vessels under CPC 49319",
+      "manufacturing_service_cpc": "88821",
+      "manufacturing_service_label": "Ship building services",
+      "hs_candidates": ["890690", "890610"],
+      "hs_resolution_rule": "Do not select warship vs other-vessel HS subheading without authoritative product/customs evidence."
+    },
+    "capability_context": [
+      "coastal maritime patrol",
+      "maritime law enforcement",
+      "surveillance",
+      "interdiction",
+      "search and rescue"
+    ],
+    "unresolved_material": [
+      "hs_subheading",
+      "technical_classification_society_rules",
+      "product_specific_mandatory_standards"
+    ],
+    "handoff_rule": "ARGUS may contextualize and discover using this governed classification, but may not silently resolve or replace ATLAS-owned taxonomy/standards fields."
+  },
+  "argus_contextualization": {
+    "canonical_concept": "Coastal Patrol Vessel",
+    "aliases": ["CPV", "coastal patrol craft", "patrol vessel", "patrol craft"],
+    "adjacent_classes": ["fast patrol vessel", "offshore patrol vessel"],
+    "bangladesh_operator": "Bangladesh Coast Guard Force",
+    "registry_search_terms": [
+      "Coastal Patrol Vessel",
+      "CPV",
+      "Bangladesh Coast Guard",
+      "WD-2",
+      "44.08.2680.033.02.106.26.160"
+    ]
+  },
+  "source_observations": {
+    "planning_adp": {
+      "source_family": "IMED_ADP",
+      "source_system": "Bangladesh Planning Commission ADP",
+      "source_locator": "https://adp.plancomm.gov.bd/exp/press-book.php?action=allocation&fiscal_year=2025&view=html",
+      "authority": "official_project_programming",
+      "data_points": [
+        {"field_id": "institution.organization_name", "raw_label": "Implementing Agency", "raw_value": "Coast Guard", "value": "Bangladesh Coast Guard", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "project.code", "raw_label": "Project Code", "raw_value": "224392800", "value": "224392800", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "project.name", "raw_label": "Project Name", "raw_value": "Acquisition of Replacement Vessel to Increase the Capacity of Bangladesh Coast Guard (1st Revised)", "value": "Acquisition of Replacement Vessel to Increase the Capacity of Bangladesh Coast Guard (1st Revised)", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "project.status", "raw_label": "Project Status", "raw_value": "Approved", "value": "APPROVED", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "project.start_date", "raw_label": "Implementation Period Start", "raw_value": "01/11/2023", "value": "2023-11-01", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "project.end_date", "raw_label": "Implementation Period End", "raw_value": "30/06/2027", "value": "2027-06-30", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "funding.source", "raw_label": "Financing", "raw_value": "GoB", "value": "GOB", "claim_type": "FACT", "claim_condition": "CURRENT"}
+      ]
+    },
+    "bppa_solicitation": {
+      "source_family": "BPPA_EGP_SOLICITATION",
+      "source_system": "Bangladesh Public Procurement Authority",
+      "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html",
+      "authority": "official_procurement_event",
+      "data_points": [
+        {"field_id": "institution.ministry_name", "raw_label": "Ministry/Division", "raw_value": "Ministry of Home Affairs", "value": "Ministry of Home Affairs", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "institution.organization_name", "raw_label": "Agency", "raw_value": "Bangladesh Coast Guard Force", "value": "Bangladesh Coast Guard Force", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "institution.pe_name", "raw_label": "Procuring Entity Name", "raw_value": "Project Director", "value": "Project Director", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "institution.pe_code", "raw_label": "Procuring Entity Code", "raw_value": "224392800", "value": "224392800", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "institution.district", "raw_label": "Procuring Entity District", "raw_value": "Dhaka", "value": "Dhaka", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "procurement.nature", "raw_label": "Invitation For", "raw_value": "Works", "value": "Works", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "solicitation.reference_no", "raw_label": "Invitation Reference No", "raw_value": "44.08.2680.033.02.106.26.160", "value": "44.08.2680.033.02.106.26.160", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "procurement.method", "raw_label": "Procurement Method", "raw_value": "ICT One Stage & Two envelope Tendering Method", "value": "ICT One Stage & Two envelope Tendering Method", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "funding.budget_type", "raw_label": "Budget and Source of Funds", "raw_value": "Development Budget GOB", "value": "Development Budget", "claim_type": "DERIVED", "claim_condition": "CURRENT"},
+        {"field_id": "funding.source", "raw_label": "Budget and Source of Funds", "raw_value": "Development Budget GOB", "value": "GOB", "claim_type": "DERIVED", "claim_condition": "CURRENT"},
+        {"field_id": "procurement.package_description", "raw_label": "Tender Package Name", "raw_value": "Construction and Delivery of 4 (Four) in No. Coastal Patrol Vessel (CPV)", "value": "Construction and Delivery of 4 (Four) in No. Coastal Patrol Vessel (CPV)", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "procurement.lot_no", "raw_label": "Lot No", "raw_value": "1", "value": "1", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "procurement.lot_identification", "raw_label": "Identification", "raw_value": "WD-2", "value": "WD-2", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "solicitation.status_raw", "raw_label": "Latest Corrigendum Status", "raw_value": "Active", "value": "Active", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "solicitation.status_normalized", "raw_label": "ARGUS normalized status", "raw_value": "Active with future closing date", "value": "OPEN", "claim_type": "DERIVED", "claim_condition": "CURRENT"},
+        {"field_id": "solicitation.closing_at", "raw_label": "Tender Closing Date and Time (latest corrigendum)", "raw_value": "25/10/2026 12:00 PM", "value": "2026-10-25T12:00:00+06:00", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "solicitation.opening_at", "raw_label": "Tender Opening Date and Time (latest corrigendum)", "raw_value": "25/10/2026 12:30 PM", "value": "2026-10-25T12:30:00+06:00", "claim_type": "FACT", "claim_condition": "CURRENT"},
+        {"field_id": "solicitation.eligibility", "raw_label": "Eligibility of Tenderer", "raw_value": "Must have experience of at least 10 years of shipbuilding and delivering Combat vessels/Patrol crafts; other qualification as per tender document.", "value": "At least 10 years of shipbuilding experience and delivery of combat vessels/patrol craft; additional qualifications remain in tender documents.", "claim_type": "FACT", "claim_condition": "CURRENT"}
+      ],
+      "unmapped_material_datapoints": [
+        {"raw_label": "Tender Document Price", "raw_value": "BDT 1,00,000.00"},
+        {"raw_label": "Security Amount", "raw_value": "BDT 23,00,00,000.00"},
+        {"raw_label": "Completion Time", "raw_value": "36 Months after signing the contract"},
+        {"raw_label": "Pre-Tender Meeting", "raw_value": "08/09/2026 11:00 AM"}
+      ]
+    }
+  },
+  "normalized_state": {
+    "institution.ministry_name": "Ministry of Home Affairs",
+    "institution.organization_name": "Bangladesh Coast Guard Force",
+    "institution.pe_name": "Project Director",
+    "institution.pe_code": "224392800",
+    "institution.district": "Dhaka",
+    "project.code": "224392800",
+    "project.name": "Acquisition of Replacement Vessel to Increase the Capacity of Bangladesh Coast Guard (1st Revised)",
+    "project.status": "APPROVED",
+    "project.start_date": "2023-11-01",
+    "project.end_date": "2027-06-30",
+    "funding.budget_type": "Development Budget",
+    "funding.source": "GOB",
+    "bangladesh.route": "BD-DEV-GOB",
+    "procurement.nature": "Works",
+    "procurement.method": "ICT One Stage & Two envelope Tendering Method",
+    "procurement.package_description": "Construction and Delivery of 4 (Four) in No. Coastal Patrol Vessel (CPV)",
+    "procurement.lot_no": "1",
+    "procurement.lot_identification": "WD-2",
+    "solicitation.reference_no": "44.08.2680.033.02.106.26.160",
+    "solicitation.status_raw": "Active",
+    "solicitation.status_normalized": "OPEN",
+    "solicitation.closing_at": "2026-10-25T12:00:00+06:00",
+    "solicitation.opening_at": "2026-10-25T12:30:00+06:00"
+  },
+  "typed_identifier_note": "The PE code and Planning Commission project code both equal 224392800 in current official sources. They remain separate typed identifiers; equal string values are not merged or treated as the same field.",
+  "reconciliation_result": {
+    "existing_entity": "ENT-BD-COAST-GUARD",
+    "project_match": "PRJ-BCG-CPV-WD2",
+    "procurement_match": "PROC-BCG-LT001",
+    "decision": "MATCHED_EXISTING",
+    "create_new_opportunity": false,
+    "refresh_stale_procurement_state": true,
+    "basis": [
+      "same Bangladesh Coast Guard operator/procuring context",
+      "same four-CPV construction/delivery requirement",
+      "same WD-2 lot identification as legacy record",
+      "current official BPPA reference and dates supersede stale legacy workflow state",
+      "Planning Commission confirms an approved GoB replacement-vessel project with the same institutional context"
+    ]
+  },
+  "assessment": {
+    "maturity": "I9",
+    "maturity_condition": "CURRENT",
+    "as_of": "2026-10-18",
+    "procurement_state": "OPEN",
+    "closing_at": "2026-10-25T12:00:00+06:00",
+    "project_state": "APPROVED",
+    "funding_state": "GOB_DEVELOPMENT_BUDGET_EVIDENCED",
+    "route": "BD-DEV-GOB",
+    "decision": "INVESTIGATE",
+    "reason": "The requirement is live and authoritative, but a commercially viable participation path, full eligibility/specification compliance, supplier/OEM fit, representation/team structure and bid economics are not yet established from the synthesized evidence."
+  },
+  "collection_coverage": {
+    "need_mission": "ADEQUATE",
+    "policy_strategy": "PARTIAL",
+    "institution_stakeholders": "ADEQUATE",
+    "programme_project": "ADEQUATE",
+    "budget_funding": "ADEQUATE",
+    "procurement_acquisition": "ADEQUATE",
+    "technical_installed_base": "INSUFFICIENT",
+    "supplier_competitor": "INSUFFICIENT",
+    "ecosystem_influence": "PARTIAL",
+    "commercial_participation": "INSUFFICIENT",
+    "timing_triggers": "ADEQUATE",
+    "internal_intelligence": "PARTIAL"
+  },
+  "research_frontier": {
+    "priority": 1,
+    "question": "Does Access Asia have a commercially viable participation path before the 2026-10-25 closing date, considering full tender eligibility/specification requirements, suitable shipyard/OEM partners, representation/team structure, bid security and commercial economics?",
+    "decision_hinge": "A viable path before 2026-10-25 changes the next action from intelligence-only INVESTIGATE to an immediate governed pursuit/bid decision; absence of a viable path changes it to MONITOR/HOLD while preserving the live market intelligence.",
+    "next_evidence_groups": [
+      "authorized tender-document requirement synthesis without storing source bytes in GitHub",
+      "Access Asia internal correspondence and partner history",
+      "qualified shipyard/OEM candidate assessment",
+      "eligibility/compliance and bid-security requirements",
+      "commercial timeline and economics"
+    ]
+  },
+  "domain_result": {
+    "decision": "INVESTIGATE",
+    "maturity": "I9",
+    "current": true,
+    "new_opportunity": false,
+    "proposed_domain_actions": [
+      "REFRESH_EXISTING_PROCUREMENT_STATE",
+      "RETAIN_ONE_EXISTING_LINEAGE",
+      "OPEN_DECISION_DRIVEN_RESEARCH_FRONTIER"
+    ]
+  },
+  "persistence": {
+    "raw_tender_documents_in_github": false,
+    "structured_observations_only": true,
+    "source_locators_preserved": true,
+    "canonical_record_mutation_in_this_dry_run": false,
+    "reason": "This scenario validates architecture and normalization. A production canonical mutation should occur only through the governed ARGUS write path after the dry-run contract passes."
+  }
+}

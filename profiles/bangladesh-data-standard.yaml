@@ -1,5 +1,5 @@
 document_id: ARGUS-BD-DATA-STD-001
-version: 1.0.0
+version: 1.0.1
 status: CANDIDATE
 country: Bangladesh
 country_code: BD
@@ -14,14 +14,14 @@ governing_principles:
   - Canonical concepts are institution-neutral; source-specific labels are aliases, not new fields.
   - Preserve raw source labels and values for audit while storing normalized values separately.
   - Never infer a missing field solely because another source normally contains it.
-  - Typed identifiers remain distinct: project code, APP ID, package number, tender ID, tender reference and contract number are not interchangeable.
+  - Typed identifiers remain distinct: project code, APP ID, package number, lot number/identification, tender ID, tender reference and contract number are not interchangeable.
   - Ministry, division, organization and procuring entity are separate hierarchy levels and must not be collapsed into buyer.
   - Bangladesh route, budget type, source of funds, procurement nature, procurement type and procurement method are independent concepts.
   - ATLAS owns generic taxonomy, product/service/capability classification and standards alignment; ARGUS stores references and adds opportunity-intelligence context only.
   - Time-varying observations retain observation time, source publication time and source status; latest does not silently overwrite historical evidence.
   - Monetary values retain original amount/currency; any converted BDT or USD value requires rate/date/source metadata.
   - Conflicts are preserved and reconciled; conflicting source values are not silently merged.
-  - The same underlying requirement preserves one lineage across policy, project, APP, package, tender, amendment, award and installed-base evidence.
+  - The same underlying requirement preserves one lineage across policy, project, APP, package, lot, tender, amendment, award and installed-base evidence.
 
 defaults:
   country_code: BD
@@ -79,7 +79,7 @@ identification_and_normalization_approaches:
 
 approach_definitions:
   SOURCE_TEMPLATE: Use known source/form layouts such as e-GP APP/tender/award/eCMS, DPP, ADP, AIMS and DGDP to map labeled fields deterministically.
-  IDENTIFIER_FIRST: Prefer exact typed identifiers such as project code, APP ID, tender ID, reference number, package number and contract number before fuzzy matching.
+  IDENTIFIER_FIRST: Prefer exact typed identifiers such as project code, APP ID, tender ID, reference number, package number, lot identification and contract number before fuzzy matching.
   HIERARCHY_FIRST: Resolve ministry/division/organization/PE hierarchy and role before interpreting buyer/end-user relationships.
   ATLAS_DOMAIN_CONTEXT: Use ATLAS-owned industry/product/service/capability/taxonomy context to interpret and expand domain terms without redefining them.
   TEMPORAL_EVENT: Treat publication, amendment, NOA, contract signing, completion and revision as dated events in one lineage.
@@ -353,6 +353,14 @@ canonical_fields:
     layer: PROCUREMENT_PACKAGE
     type: string
     meaning: Official package title or description.
+  procurement.lot_no:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Published lot sequence/number within a solicitation or package, distinct from package number.
+  procurement.lot_identification:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Published lot identification/code/label, distinct from package number and solicitation reference.
   procurement.nature:
     layer: PROCUREMENT_PACKAGE
     type: string
@@ -661,6 +669,7 @@ quality_gates:
   - source_family_known_or_explicitly_OTHER
   - every_mapped_field_exists_in_canonical_dictionary
   - typed_identifiers_not_conflated
+  - lot_identification_not_coerced_to_package_number
   - raw_label_preserved_when_source_mapping_used
   - missing_fields_not_fabricated
   - material_datapoints_have_evidence_reference
