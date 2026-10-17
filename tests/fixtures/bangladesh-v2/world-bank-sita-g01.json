@@ -1,0 +1,91 @@
+{
+  "fixture_type": "v1_to_v2_semantic_validation",
+  "target_standard": "2.0.0-candidate",
+  "live_registry_mutation": false,
+  "source_basis": {
+    "source_family": "WORLD_BANK_PROCUREMENT_PLAN",
+    "source_system": "World Bank STEP / disclosed procurement plan",
+    "source_locator": "https://documents1.worldbank.org/curated/en/099030626071531136/pdf/P506691-8836fffc-9d21-4f8d-9f81-fbb0637065b9.pdf",
+    "source_snapshot_date": "2026-03-06",
+    "row_reference": "PMIPSD/G-01",
+    "source_status": "historical_plan_snapshot_for_validation"
+  },
+  "linked_context": {
+    "project": {
+      "argus_id": "FIXTURE-PRJ-WB-P506691",
+      "identifiers": [{"scheme": "WORLD_BANK_PROJECT_ID", "value": "P506691"}],
+      "title": "Strengthening Institutions for Transparency and Accountability (SITA)"
+    },
+    "parties": [
+      {"party_id": "FIXTURE-ENT-BD-BPPA", "name": "Bangladesh Public Procurement Authority", "source_role": "Executing Agency"}
+    ]
+  },
+  "v2_candidate": {
+    "argus_id": "FIXTURE-PROC-WB-SITA-PMIPSD-G-01",
+    "title": "Enhancement, Operation and Maintenance of Existing Data Centre at BPPA e-GP Data Centre, AMC, and Supply of New Hardware",
+    "record_state": "FIXTURE_ONLY",
+    "record_revision": 1,
+    "identifiers": [
+      {"scheme": "PROCUREMENT_ACTIVITY_ID", "value": "PMIPSD/G-01", "scope": "PROCESS", "source_system": "WORLD_BANK_STEP", "source_label": "Activity Reference No."}
+    ],
+    "related_record_refs": [
+      {"argus_id": "FIXTURE-PRJ-WB-P506691", "relation_type": "PART_OF_PROJECT"}
+    ],
+    "party_role_links": [
+      {"party_id": "FIXTURE-ENT-BD-BPPA", "role": "IMPLEMENTING_AGENCY", "source_role_label": "Executing Agency", "unit_label": null, "effective_from": null, "effective_to": null}
+    ],
+    "financing_entries": [
+      {"source_party_id": null, "instrument": "CREDIT", "reference": "IDA / 78280", "amount": null, "currency": null, "commitment_date": null, "status": null, "conditions": [], "scope": "PROJECT_PROCUREMENT"}
+    ],
+    "process": {
+      "route": "BD-DEV-WORLD-BANK",
+      "category": "GOODS",
+      "method_normalized": "OPEN",
+      "method_source_code": "RFB",
+      "method_source_label": "Request for Bids",
+      "competition_scope": "INTERNATIONAL",
+      "configuration": "ONE_STAGE_TWO_ENVELOPE",
+      "review_type": "PRIOR",
+      "status_raw": "Pending Implementation",
+      "status_normalized": "PLANNED",
+      "estimated_value": 3333333.0,
+      "currency": "USD"
+    },
+    "lots": [],
+    "items": [
+      {"item_id": "ITEM-1", "description": "Enhancement, operation and maintenance of existing data centre at BPPA e-GP Data Centre, AMC, and supply of new hardware", "quantity": null, "unit": null, "lot_ref": null, "classifications": []}
+    ],
+    "notices": [],
+    "milestones": [
+      {"milestone_id": "MS-DOC-READY", "type": "PROCUREMENT_DOCUMENT_READY", "due_at": "2026-04-01", "original_due_at": "2026-04-01", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": null, "source_ref": "WB-PLAN-P506691-2026-03-06"},
+      {"milestone_id": "MS-EXPECTED-PUBLICATION", "type": "EXPECTED_PUBLICATION", "due_at": "2026-04-06", "original_due_at": "2026-04-06", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": null, "source_ref": "WB-PLAN-P506691-2026-03-06"},
+      {"milestone_id": "MS-SUBMISSION", "type": "SUBMISSION_DEADLINE", "due_at": "2026-05-18", "original_due_at": "2026-05-18", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": null, "source_ref": "WB-PLAN-P506691-2026-03-06"},
+      {"milestone_id": "MS-EVALUATION", "type": "EVALUATION_COMPLETE", "due_at": "2026-07-31", "original_due_at": "2026-07-31", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": null, "source_ref": "WB-PLAN-P506691-2026-03-06"},
+      {"milestone_id": "MS-CONTRACT-SIGN", "type": "CONTRACT_SIGNING", "due_at": "2026-09-04", "original_due_at": "2026-09-04", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": null, "source_ref": "WB-PLAN-P506691-2026-03-06"},
+      {"milestone_id": "MS-COMPLETION", "type": "COMPLETION", "due_at": "2027-03-03", "original_due_at": "2027-03-03", "date_met": null, "date_modified": null, "status": "PLANNED", "lot_ref": null, "source_ref": "WB-PLAN-P506691-2026-03-06"}
+    ],
+    "events": [],
+    "requirements": [],
+    "fees": [],
+    "securities": [],
+    "observations": [
+      {"observation_id": "OBS-WB-ACTIVITY", "field_path": "identifiers[PROCUREMENT_ACTIVITY_ID]", "value": "PMIPSD/G-01", "raw_label": "Activity Reference No. / Description", "raw_value": "PMIPSD/G-01 / Enhancement, Operation and Maintenance of Existing Data Centre at BPPA e-GP Data Centre, AMC, and Supply of New Hardware", "source_id": "P506691-plan-2026-03-06", "source_system": "WORLD_BANK_PROCUREMENT_PLAN", "source_locator": "https://documents1.worldbank.org/curated/en/099030626071531136/pdf/P506691-8836fffc-9d21-4f8d-9f81-fbb0637065b9.pdf", "observed_at": "2026-10-18", "published_at": "2026-03-06", "claim_type": "FACT", "condition": "STALE", "assurance": "OFFICIAL_SOURCE_SNAPSHOT"},
+      {"observation_id": "OBS-WB-PROCESS", "field_path": "process", "value": {"review_type": "PRIOR", "method": "Request for Bids", "market_approach": "Open - International", "configuration": "Single Stage - Two Envelope", "estimated_value_usd": 3333333.0, "status": "Pending Implementation"}, "raw_label": "Procurement plan row", "raw_value": "Prior | Request for Bids | Open - International | Single Stage - Two Envelope | 3,333,333.00 | Pending Implementation", "source_id": "P506691-plan-2026-03-06", "source_system": "WORLD_BANK_PROCUREMENT_PLAN", "source_locator": "https://documents1.worldbank.org/curated/en/099030626071531136/pdf/P506691-8836fffc-9d21-4f8d-9f81-fbb0637065b9.pdf", "observed_at": "2026-10-18", "published_at": "2026-03-06", "claim_type": "FACT", "condition": "STALE", "assurance": "OFFICIAL_SOURCE_SNAPSHOT"}
+    ],
+    "intelligence": {
+      "maturity": "I6",
+      "activation_mode": "PLANNED_PROCUREMENT_CAPTURE",
+      "commercial_fit": null,
+      "supplier_discovery_state": "NOT_STARTED",
+      "material_unknowns": ["Current procurement-plan revision for PMIPSD/G-01", "Whether the planned notice was published and under what current solicitation identifier", "Current award/contract status"],
+      "research_frontier": "Reconcile the historical March 2026 procurement-plan row against the latest disclosed SITA procurement plan before any commercial action.",
+      "next_action": "Resolve current plan/process status from the latest official World Bank source."
+    }
+  },
+  "preservation_assessment": {
+    "material_information_loss": 0,
+    "duplicate_or_derived_fields_removed": ["project identity moved to linked PROJECT context", "financing reference structured separately from project and procurement identifiers"],
+    "semantic_equivalence": "PASS",
+    "new_schema_gap_found": ["PROCUREMENT_DOCUMENT_READY", "EXPECTED_PUBLICATION"]
+  }
+}
