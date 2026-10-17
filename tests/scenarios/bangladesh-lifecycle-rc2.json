@@ -1,0 +1,77 @@
+{
+  "suite": "ARGUS-BD-RC2-LIFECYCLE",
+  "version": "1.0.0",
+  "purpose": "Architecture-level conformance scenarios for ARGUS 2.0.0-rc.2 Bangladesh release gates.",
+  "scenarios": [
+    {
+      "id": "BD-APP-TENDER-AMENDMENT-AWARD",
+      "route": "BD-GEN-EGP",
+      "underlying_requirement_id": "REQ-BD-001",
+      "events": [
+        {"type": "APP_PACKAGE", "reference": "APP-001", "maturity": "I6"},
+        {"type": "TENDER", "reference": "TENDER-001", "maturity": "I9"},
+        {"type": "AMENDMENT", "reference": "TENDER-001-A1", "maturity": "I9"},
+        {"type": "AWARD", "reference": "AWARD-001", "maturity": "I9"}
+      ],
+      "expected": {
+        "canonical_opportunity_count": 1,
+        "new_opportunity_per_event": false,
+        "reconcile_to_same_underlying_requirement": true
+      }
+    },
+    {
+      "id": "BD-DEFENCE-PREPROC-EVALUATION",
+      "route": "BD-DEF-DGDP",
+      "seed": "public evaluation or standardization signal",
+      "events": [
+        {"type": "EVALUATION_STANDARDIZATION", "reference": "DGDP-EVAL-001", "live_solicitation": false}
+      ],
+      "expected": {
+        "maturity": "I7",
+        "decision": "INVESTIGATE",
+        "treat_as_live_tender": false,
+        "automatic_px_creation": false,
+        "sensitivity_governed_by_atlas": true
+      }
+    },
+    {
+      "id": "BD-CROSS-FISCAL-PROJECT-LINEAGE",
+      "route": "BD-DEV-GOB",
+      "stable_project_id": "PRJ-BD-001",
+      "appearances": [
+        {"fiscal_year": "2025-26", "document": "ADP", "title": "Project Alpha"},
+        {"fiscal_year": "2026-27", "document": "ADP", "title": "Project Alpha"},
+        {"fiscal_year": "2026-27", "document": "RADP", "title": "Project Alpha (Revised)"}
+      ],
+      "expected": {
+        "canonical_project_count": 1,
+        "canonical_opportunity_count": 1,
+        "revision_updates_lineage": true,
+        "new_opportunity_per_fiscal_year": false
+      }
+    },
+    {
+      "id": "BD-PROMOTION-BEFORE-LIVE-TENDER",
+      "route": "BD-DEV-GOB",
+      "maturity": "I5",
+      "live_tender": false,
+      "promotion_basis": {
+        "commercially_relevant": true,
+        "credible_public_requirement": true,
+        "institutional_path_understood": true,
+        "project_or_funding_path_plausible": true,
+        "duplicate_reconciliation_complete_enough": true,
+        "evidence_provenance_retained": true,
+        "clear_next_action": true,
+        "material_unknowns_recorded": true
+      },
+      "expected": {
+        "decision": "PROMOTE_TO_PX",
+        "promotion_can_precede_live_tender": true,
+        "permanent_px_created_by_decision_alone": false,
+        "proposed_domain_action": "CREATE_PX_OPPORTUNITY",
+        "atlas_approval_gate": "major_canonical_state_change"
+      }
+    }
+  ]
+}

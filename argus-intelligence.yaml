@@ -109,6 +109,15 @@ registry_compatibility:
   live_canonical_registry_mutated_by_this_validation: false
   validation_record: docs/validation/registry-schema-compatibility-rc2.md
 
+bangladesh_lifecycle_validation:
+  status: PASS
+  app_tender_amendment_award_reconciliation: PASS
+  defence_preproc_evaluation_standardization: PASS
+  cross_fiscal_adp_radp_lineage: PASS
+  promotion_before_live_tender: PASS
+  validation_record: docs/validation/bangladesh-lifecycle-release-gates-rc2.md
+  live_registry_mutation: false
+
 canonical_ownership:
   structured_intelligence: ARGUS Master Registry
   communications: communication system
@@ -174,7 +183,7 @@ release_gates:
   - claim type and claim condition candidate schema/physical migration contract: PASS
   - Registry API v0.1.1 source + live persistence support Registry v0.2.1: PENDING
   - 360-degree collection contract test passes: PASS
-  - APP/tender/amendment/award reconciliation avoids duplicate opportunities: PENDING
-  - defence pre-procurement signal test passes: PENDING
-  - cross-fiscal-year project lineage test passes: PENDING
-  - promotion-before-live-tender test passes: PENDING
+  - APP/tender/amendment/award reconciliation avoids duplicate opportunities: PASS
+  - defence pre-procurement signal test passes: PASS
+  - cross-fiscal-year project lineage test passes: PASS
+  - promotion-before-live-tender test passes: PASS
