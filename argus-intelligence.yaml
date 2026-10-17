@@ -14,9 +14,11 @@ authority:
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
-  bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.1.yaml
+  bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.2.yaml
   bangladesh_source_mappings: profiles/bangladesh-source-mappings.yaml
-  bangladesh_extended_source_mappings: profiles/bangladesh-source-mappings-v1.1.yaml
+  bangladesh_extended_source_mappings: profiles/bangladesh-source-mappings-v1.2.yaml
+  bangladesh_institution_standard: profiles/bangladesh-institution-standard.yaml
+  bangladesh_pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
   bangladesh_observation_schema: schemas/bangladesh-observation.schema.json
   bangladesh_observation_schema_v1_1: schemas/bangladesh-observation-v1.1.schema.json
   domain_result_schema: schemas/domain-result.schema.json
@@ -66,12 +68,17 @@ operating_loop:
 
 bangladesh_standardization:
   canonical_data_standard: profiles/bangladesh-data-standard.yaml
-  canonical_procurement_extension: profiles/bangladesh-canonical-procurement-standard-v1.1.yaml
+  canonical_procurement_extension: profiles/bangladesh-canonical-procurement-standard-v1.2.yaml
   source_mappings: profiles/bangladesh-source-mappings.yaml
-  extended_source_mappings: profiles/bangladesh-source-mappings-v1.1.yaml
+  extended_source_mappings: profiles/bangladesh-source-mappings-v1.2.yaml
+  institution_standard: profiles/bangladesh-institution-standard.yaml
+  pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
   observation_schema: schemas/bangladesh-observation-v1.1.schema.json
-  bangladesh_data_standard_version: 1.1.0
+  bangladesh_data_standard_version: 1.2.0
   development_partner_procurement_normalization: PASS
+  egp_system_id_reference_no_separation: PASS
+  institution_graph_normalization: PASS
+  pursuit_activation_modes: PASS
   rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before route, reconciliation, maturity or commercial assessment.
   preserve_raw_labels_and_values: true
   sparse_observations_allowed: true
@@ -82,6 +89,9 @@ bangladesh_standardization:
   multi_lot_structure_preserved: true
   procurement_milestone_structure_preserved: true
   development_partner_controls_separate_from_procurement_method: true
+  tender_portal_id_and_reference_are_distinct: true
+  institution_names_resolve_to_canonical_graph: true
+  officeholders_separate_from_institutions: true
   supported_external_source_families:
     - WORLD_BANK_PROCUREMENT_PLAN
     - WORLD_BANK_PROCUREMENT_NOTICE
@@ -90,6 +100,17 @@ bangladesh_standardization:
     - JICA_ODA_PROCUREMENT
     - UNGM_NOTICE
     - DEVELOPMENT_PARTNER_OTHER
+
+pursuit_activation:
+  modes:
+    - EARLY_REQUIREMENT_DEVELOPMENT
+    - PLANNED_PROCUREMENT_CAPTURE
+    - LIVE_TENDER_RESPONSE
+  identity_rule: stage changes commercial action, not underlying opportunity identity
+  supplier_engagement_can_begin_before_tender: true
+  customer_engagement_can_begin_before_tender_when_lawful: true
+  specification_input_must_preserve_competition: true
+  current_bangladesh_framework: PPR 2025
 
 360_intelligence_collection:
   doctrine: 360_degree_breadth_decision_driven_depth
@@ -274,3 +295,6 @@ release_gates:
   - ATLAS domain-context handoff pin and return-correlation contract: PASS
   - Bangladesh cross-source canonical data standard and observation contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
+  - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS
+  - Bangladesh institution graph and naming contract: PASS
+  - Bangladesh pursuit activation modes and specification-integrity controls: PASS
