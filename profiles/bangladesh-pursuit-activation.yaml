@@ -1,0 +1,132 @@
+document_id: ARGUS-BD-PURSUIT-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+purpose: >-
+  Define how ARGUS activates supplier and customer engagement at different stages of the same
+  underlying government requirement without creating duplicate opportunities.
+
+governing_rule: >-
+  Discovery stage changes the commercial action, not the identity of the requirement. A project
+  forecast, APP/DPP/procurement-plan signal and later live tender can all represent one underlying opportunity lineage.
+
+activation_modes:
+  EARLY_REQUIREMENT_DEVELOPMENT:
+    typical_entry_evidence:
+      - policy or strategy signal
+      - approved or processing project
+      - budget/funding trajectory
+      - project implementation schedule
+      - installed-base replacement signal
+      - credible internal customer intelligence
+    typical_maturity: I2-I5
+    objective: >-
+      Validate the future requirement early enough to identify suitable suppliers/OEMs, build
+      supplier relationships, understand customer needs and develop a lawful, technically sound
+      solution position before formal procurement planning is complete.
+    actions:
+      - supplier discovery and supplier capability validation
+      - identify likely OEM/integrator/local-partner structures
+      - engage customer/end user to understand mission and technical needs where lawful and appropriate
+      - arrange product demonstrations or technical briefings where permitted
+      - prepare standards-based, performance-based requirement inputs
+      - map funding, project milestones, institutional path and expected procurement horizon
+      - monitor transition into APP/procurement strategy/package/pre-procurement
+    example: >-
+      ARGUS identifies an approved project showing bridge simulators planned approximately one year later.
+      Access Asia engages credible simulator suppliers, validates fit, builds relationships, demonstrates
+      relevant capabilities to the customer and supports lawful technical requirement development while
+      monitoring the project toward procurement.
+
+  PLANNED_PROCUREMENT_CAPTURE:
+    typical_entry_evidence:
+      - APP
+      - DPP/RDPP/TAPP/RTAPP
+      - procurement plan
+      - package schedule
+      - development-partner procurement plan
+      - DGDP evaluation/re-evaluation/standardization or equivalent pre-procurement signal
+    typical_maturity: I5-I8
+    objective: >-
+      Convert a documented future procurement into a qualified capture plan before solicitation,
+      align with capable suppliers and ensure the customer understands compliant solution options.
+    actions:
+      - supplier discovery and supplier shortlist
+      - confirm supplier interest, territory, authorization and commercial route
+      - customer engagement and solution demonstration where lawful
+      - compare customer need with applicable standards and supplier capabilities
+      - prepare performance-based technical input and compliance concepts
+      - identify procurement method, eligibility, registration, local-participation and financing constraints
+      - monitor APP/package/tender publication and amendments
+      - prepare preliminary compliance and bid/no-bid readiness before launch
+    example: >-
+      ARGUS reads an APP, DPP or other authoritative plan showing Navy simulator procurement. Access Asia
+      engages simulator suppliers, demonstrates the opportunity and solution to the customer, provides lawful
+      performance-based technical input and prepares to participate when the solicitation is published.
+
+  LIVE_TENDER_RESPONSE:
+    typical_entry_evidence:
+      - published tender/RFB/RFP/RFQ/EOI/PQ or equivalent formal solicitation
+    typical_maturity: I9
+    objective: >-
+      Rapidly determine a compliant participation route, select capable suppliers/partners and execute the bid response.
+    actions:
+      - parse tender identifiers, dates, eligibility, lots, security and submission requirements
+      - supplier discovery and immediate supplier outreach
+      - supplier/OEM compliance screening
+      - build exact compliance matrix against published requirements
+      - select partner/OEM and commercial structure
+      - perform bid/no-bid decision
+      - identify clarification questions and amendment risk
+      - prepare technical/commercial submission under the applicable governed bid process
+    example: >-
+      A tender is published before ARGUS has prior intelligence. ARGUS immediately reconciles it against existing
+      records, searches probable suppliers, engages qualified suppliers, constructs a compliance matrix and supports participation.
+
+supplier_engagement_common_fields:
+  - supplier_candidate_id
+  - manufacturer_or_service_provider
+  - product_or_capability
+  - territory_or_authorization_status
+  - local_partner_requirement
+  - engagement_status
+  - supplier_interest
+  - compliance_fit
+  - commercial_fit
+  - contact_history_ref
+  - next_action
+
+customer_engagement_common_fields:
+  - institution_id
+  - stakeholder_role
+  - engagement_type
+  - subject
+  - date
+  - participants
+  - capability_need_discussed
+  - technical_material_shared
+  - demonstration_status
+  - customer_feedback
+  - procurement_integrity_notes
+  - source_ref
+
+specification_influence_controls:
+  principle: >-
+    Access Asia may support lawful pre-procurement market engagement by providing technical information,
+    demonstrations, standards, lifecycle data and performance-based specification input. This must not be used
+    to improperly exclude competitors, obtain confidential procurement information, create hidden discriminatory
+    requirements or otherwise undermine competition and procurement integrity.
+  Bangladesh_current_framework: PPR 2025
+  safeguards:
+    - Prefer performance-based and standards-based requirements over brand-specific wording unless legally justified.
+    - Technical specifications should permit the widest possible competition consistent with the legitimate requirement.
+    - Keep a record of material customer engagement and technical material provided.
+    - Do not represent supplier marketing claims as customer requirements without independent validation.
+    - Do not treat Access Asia or supplier draft specifications as approved government specifications until officially adopted.
+    - Conflicts of interest, confidential information and improper inducements are prohibited.
+
+lineage_transition:
+  EARLY_REQUIREMENT_DEVELOPMENT_to_PLANNED_PROCUREMENT_CAPTURE: update_same_candidate_or_opportunity
+  PLANNED_PROCUREMENT_CAPTURE_to_LIVE_TENDER_RESPONSE: reconcile_tender_to_same_underlying_requirement
+  LIVE_TENDER_RESPONSE_without_prior_record: create_candidate_then_reconcile_before_new_px
+  rule: one underlying opportunity lineage
