@@ -1,0 +1,666 @@
+document_id: ARGUS-BD-PROC-MIG-001
+version: 1.0.0
+status: CANDIDATE
+from_versions: [1.0.1, 1.1.0, 1.2.0, 1.3.0]
+to_version: 2.0.0
+allowed_actions: [KEEP, RENAME, MERGE, DERIVE, DEPRECATE]
+rule: >-
+  Every v1.x canonical field is accounted for before any live record migration. RENAME changes
+  the canonical home without changing meaning; MERGE consolidates multiple old fields into one
+  structured concept or linked canonical record; DERIVE means the value is computed from v2
+  canonical structures; DEPRECATE means the old field is semantically unsafe/redundant and must
+  not be written in v2 without source-semantic resolution.
+
+mappings:
+  bangladesh.route:
+    action: RENAME
+    target: process.route
+    rationale: Acquisition route is a process classification, not a planning identifier.
+  policy.title:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record
+    rationale: Policy facts belong once in a linked canonical knowledge/policy record.
+  policy.issuer_name:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record + ENTITY party
+    rationale: Do not copy issuing institutions into every procurement.
+  policy.publication_date:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record
+    rationale: Policy publication metadata belongs to the policy record.
+  policy.effective_date:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record
+    rationale: Policy effective date belongs to the policy record.
+  policy.horizon:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record
+    rationale: Policy horizon is contextual, not procurement-process state.
+  policy.objective:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record
+    rationale: Preserve once as policy/requirement context.
+  policy.target_institution:
+    action: MERGE
+    target: related_record_refs -> KNOWLEDGE policy record + party_role_links
+    rationale: Resolve institution canonically instead of repeating a name.
+  institution.ministry_name:
+    action: MERGE
+    target: party_role_links -> ENTITY with role SPONSORING_MINISTRY
+    rationale: Ministry identity is stored once in ENTITY.
+  institution.division_name:
+    action: MERGE
+    target: party_role_links -> ENTITY with role PARENT_DIVISION
+    rationale: Division identity/hierarchy belongs to ENTITY graph.
+  institution.organization_name:
+    action: MERGE
+    target: party_role_links -> ENTITY role determined by evidence
+    rationale: Organization identity is not a procurement scalar.
+  institution.pe_name:
+    action: MERGE
+    target: party_role_links -> ENTITY with role PROCURING_ENTITY
+    rationale: Procuring entity is a party role.
+  institution.pe_code:
+    action: MERGE
+    target: linked ENTITY identifiers
+    rationale: PE code identifies the party, not the procurement process.
+  institution.district:
+    action: MERGE
+    target: linked ENTITY address/location observation
+    rationale: District is usually institutional/location metadata.
+  institution.role:
+    action: RENAME
+    target: party_role_links.role
+    rationale: Roles are represented explicitly per linked party.
+  project.code:
+    action: MERGE
+    target: related_record_refs -> PROJECT identifiers
+    rationale: Project code belongs to canonical PROJECT.
+  project.name:
+    action: MERGE
+    target: related_record_refs -> PROJECT title
+    rationale: Project name is not repeated in every procurement.
+  project.type:
+    action: MERGE
+    target: related_record_refs -> PROJECT type
+    rationale: Project type belongs to PROJECT.
+  project.status:
+    action: MERGE
+    target: related_record_refs -> PROJECT status
+    rationale: Project status is independent of procurement status.
+  project.approval_date:
+    action: MERGE
+    target: related_record_refs -> PROJECT approval milestone
+    rationale: Project approval metadata belongs to PROJECT.
+  project.revision_date:
+    action: MERGE
+    target: related_record_refs -> PROJECT revision history
+    rationale: Project revision is not procurement amendment.
+  project.start_date:
+    action: MERGE
+    target: related_record_refs -> PROJECT period.start
+    rationale: Project period belongs to PROJECT.
+  project.end_date:
+    action: MERGE
+    target: related_record_refs -> PROJECT period.end
+    rationale: Project period belongs to PROJECT.
+  project.total_cost:
+    action: MERGE
+    target: related_record_refs -> PROJECT value
+    rationale: Total project cost must not be confused with procurement estimate.
+  project.currency:
+    action: MERGE
+    target: related_record_refs -> PROJECT value.currency
+    rationale: Currency accompanies project value.
+  project.gob_cost:
+    action: MERGE
+    target: related_record_refs -> PROJECT financing entries
+    rationale: GoB project financing is project-level unless procurement-specific.
+  project.project_aid_cost:
+    action: MERGE
+    target: related_record_refs -> PROJECT financing entries
+    rationale: Project-aid component belongs to PROJECT financing.
+  project.own_fund_cost:
+    action: MERGE
+    target: related_record_refs -> PROJECT financing entries
+    rationale: Own-fund component belongs to PROJECT financing.
+  project.current_fy_allocation:
+    action: MERGE
+    target: related_record_refs -> PROJECT budget allocation
+    rationale: Project-year allocation is not automatically procurement budget.
+  project.physical_progress_pct:
+    action: MERGE
+    target: related_record_refs -> PROJECT progress.physical_pct
+    rationale: Project progress is independent of contract implementation.
+  project.financial_progress_pct:
+    action: MERGE
+    target: related_record_refs -> PROJECT progress.financial_pct
+    rationale: Project progress is independent of contract implementation.
+  funding.budget_type:
+    action: RENAME
+    target: budget.type
+    rationale: Budget classification is separate from financing instrument.
+  funding.source:
+    action: MERGE
+    target: financing_entries.instrument + financing_entries.source_party_id
+    rationale: Split source identity from financing instrument.
+  funding.development_partner:
+    action: MERGE
+    target: financing_entries.source_party_id
+    rationale: Development partner is a financing party.
+  funding.agreement_type:
+    action: MERGE
+    target: financing_entries.instrument
+    rationale: Agreement/instrument semantics consolidate under financing.
+  funding.agreement_title:
+    action: MERGE
+    target: financing_entries.reference or related KNOWLEDGE financing-agreement record
+    rationale: Do not create a second agreement identity field.
+  funding.commitment_amount:
+    action: RENAME
+    target: financing_entries.amount
+    rationale: Amount belongs to one financing contribution.
+  funding.currency:
+    action: RENAME
+    target: financing_entries.currency
+    rationale: Currency belongs to financing amount.
+  funding.commitment_date:
+    action: RENAME
+    target: financing_entries.commitment_date
+    rationale: Commitment date belongs to financing entry.
+  funding.status:
+    action: RENAME
+    target: financing_entries.status
+    rationale: Financing state remains independent from procurement state.
+  procurement.app_id:
+    action: RENAME
+    target: identifiers[scheme=EGP_APP_ID]
+    rationale: APP ID is a typed planning identifier.
+  procurement.app_code:
+    action: RENAME
+    target: identifiers[scheme=APP_CODE]
+    rationale: APP code remains distinct from APP ID.
+  procurement.financial_year:
+    action: DEPRECATE
+    target: observations until semantic scope is resolved to budget or plan fiscal year
+    rationale: A source financial year can describe APP, budget or plan and must not be guessed.
+  procurement.package_no:
+    action: RENAME
+    target: identifiers[scheme=PACKAGE_NO]
+    rationale: Package number is a typed identifier.
+  procurement.package_description:
+    action: MERGE
+    target: title or lot.title depending source scope
+    rationale: Package description must be assigned to the object it actually describes.
+  procurement.lot_no:
+    action: RENAME
+    target: lots[].lot_id
+    rationale: Lot number is lot identity.
+  procurement.lot_identification:
+    action: RENAME
+    target: lots[].lot_reference
+    rationale: Lot identification remains distinct from package and process reference.
+  procurement.nature:
+    action: RENAME
+    target: process.category
+    rationale: Normalize to GOODS/WORKS/CONSULTING_SERVICES/NON_CONSULTING_SERVICES.
+  procurement.type:
+    action: RENAME
+    target: process.competition_scope
+    rationale: Bangladesh NCT/ICT describes market scope, not selection method.
+  procurement.method:
+    action: RENAME
+    target: process.method
+    rationale: Preserve source method code/label and normalize method independently.
+  procurement.category_code:
+    action: MERGE
+    target: classifications[].id
+    rationale: Category codes belong to typed classifications.
+  procurement.category_label:
+    action: MERGE
+    target: classifications[].description
+    rationale: Category label accompanies a classification scheme/code.
+  procurement.estimated_cost:
+    action: RENAME
+    target: process.estimated_value
+    rationale: Pre-award estimate belongs to the procurement process.
+  procurement.currency:
+    action: RENAME
+    target: process.currency
+    rationale: Currency accompanies process estimate.
+  procurement.framework_agreement:
+    action: RENAME
+    target: process.framework_agreement
+    rationale: Framework status is a process characteristic.
+  procurement.strategy_reference:
+    action: MERGE
+    target: identifiers[scheme=PROCUREMENT_STRATEGY_REFERENCE] or related KNOWLEDGE record
+    rationale: Strategy reference is an identifier/link, not a second strategy object.
+  solicitation.id:
+    action: DEPRECATE
+    target: identifiers after semantic resolution
+    rationale: Legacy field is ambiguous between portal/system ID and PE reference.
+  solicitation.reference_no:
+    action: RENAME
+    target: identifiers[scheme=TENDER_REFERENCE_NO]
+    rationale: PE-issued reference is a typed identifier.
+  solicitation.event_type:
+    action: MERGE
+    target: notices[].notice_type or process lifecycle event according to source semantics
+    rationale: Old field mixed publication type with process event semantics.
+  solicitation.invitation_for:
+    action: MERGE
+    target: title, lots[].title or items[].description according to source scope
+    rationale: Invitation descriptor is not a universal standalone concept.
+  solicitation.status_raw:
+    action: RENAME
+    target: process.status_raw
+    rationale: Raw source status remains separate from normalization.
+  solicitation.status_normalized:
+    action: RENAME
+    target: process.status_normalized
+    rationale: One normalized procurement-process status only.
+  solicitation.publication_at:
+    action: MERGE
+    target: notices[].published_at
+    rationale: Publication time belongs to a notice.
+  solicitation.document_sale_end_at:
+    action: RENAME
+    target: milestones[type=DOCUMENT_SALE_END].due_at
+    rationale: Deadline is a milestone, not a dedicated scalar.
+  solicitation.prebid_start_at:
+    action: MERGE
+    target: milestones[type=PREBID_START].due_at
+    rationale: Pre-bid window start is a milestone.
+  solicitation.prebid_end_at:
+    action: MERGE
+    target: milestones[type=PREBID_END].due_at
+    rationale: Pre-bid window end is a milestone.
+  solicitation.closing_at:
+    action: RENAME
+    target: milestones[type=SUBMISSION_DEADLINE].due_at
+    rationale: Submission closing is a milestone.
+  solicitation.opening_at:
+    action: RENAME
+    target: milestones[type=OPENING].due_at
+    rationale: Opening is a milestone.
+  solicitation.security_deadline_at:
+    action: RENAME
+    target: milestones[type=SECURITY_DEADLINE].due_at
+    rationale: Security submission deadline is a milestone.
+  solicitation.eligibility:
+    action: MERGE
+    target: requirements[]
+    rationale: Eligibility text is decomposed into typed requirements while raw text remains in observations.
+  amendment.sequence:
+    action: MERGE
+    target: notices[].version or events ordering metadata
+    rationale: Sequence belongs to the relevant notice/event, not a global amendment scalar.
+  amendment.reference_no:
+    action: MERGE
+    target: notices[].notice_id or identifiers[scheme=AMENDMENT_REFERENCE]
+    rationale: Preserve as notice/event identity.
+  amendment.date:
+    action: MERGE
+    target: notices[].published_at or events[].occurred_at
+    rationale: Date meaning depends on whether it is publication or effective event date.
+  amendment.summary:
+    action: MERGE
+    target: events[].changes + observations
+    rationale: Material change is structured; raw/source summary remains provenance.
+  award.noa_date:
+    action: RENAME
+    target: awards[].award_date
+    rationale: NOA/award date belongs to award decision.
+  award.contract_no:
+    action: RENAME
+    target: contract.contract_number
+    rationale: Contract number belongs to contract, not award.
+  award.supplier_name:
+    action: MERGE
+    target: awards[].supplier_party_ids -> linked ENTITY
+    rationale: Supplier identity is canonical party data.
+  award.supplier_id:
+    action: MERGE
+    target: linked ENTITY identifiers
+    rationale: Source supplier ID belongs to supplier party.
+  award.value:
+    action: RENAME
+    target: awards[].award_value
+    rationale: Award value remains distinct from signed contract/current values.
+  award.currency:
+    action: RENAME
+    target: awards[].award_currency
+    rationale: Currency belongs to award value.
+  award.beneficial_owner:
+    action: MERGE
+    target: linked supplier ENTITY beneficial-ownership evidence
+    rationale: Beneficial ownership belongs to the supplier party, not the award object.
+  contract.sign_date:
+    action: RENAME
+    target: contracts[].contract_signed_at
+    rationale: Signing date belongs to contract.
+  contract.start_date:
+    action: RENAME
+    target: contracts[].contract_period_start
+    rationale: Contract period start is not project start.
+  contract.end_date:
+    action: RENAME
+    target: contracts[].contract_period_end
+    rationale: Planned contract end is separate from actual completion.
+  contract.work_status:
+    action: RENAME
+    target: implementation.status
+    rationale: Work/delivery status belongs to implementation, not legal contract state.
+  contract.actual_completion_date:
+    action: RENAME
+    target: implementation.actual_completion_date
+    rationale: Actual completion is implementation outcome.
+  contract.final_value:
+    action: RENAME
+    target: implementation.current_value
+    rationale: Latest/final executed value belongs to implementation state.
+  contract.variation_count:
+    action: DERIVE
+    target: implementation.modifications
+    rationale: Count is derived from canonical modification records.
+  installed_base.asset_name:
+    action: MERGE
+    target: related_record_refs -> linked installed-base INTELLIGENCE/SUPPLIER_PRODUCT record
+    rationale: Installed base is reusable intelligence, not procurement-process data.
+  installed_base.product_class:
+    action: MERGE
+    target: linked installed-base record + ATLAS taxonomy refs
+    rationale: Product classification belongs to installed-base/domain context.
+  installed_base.oem:
+    action: MERGE
+    target: linked supplier ENTITY/SUPPLIER_PRODUCT record
+    rationale: OEM identity is canonical supplier data.
+  installed_base.model:
+    action: MERGE
+    target: linked installed-base/SUPPLIER_PRODUCT record
+    rationale: Model belongs to asset/product record.
+  installed_base.quantity:
+    action: MERGE
+    target: linked installed-base record
+    rationale: Installed quantity is asset-state evidence.
+  installed_base.commissioned_date:
+    action: MERGE
+    target: linked installed-base record
+    rationale: Commissioning is asset lifecycle, not procurement process.
+  installed_base.location:
+    action: MERGE
+    target: linked installed-base record
+    rationale: Deployment location belongs to asset record subject to information sensitivity.
+  installed_base.status:
+    action: MERGE
+    target: linked installed-base record
+    rationale: Asset operational state is independent of procurement state.
+  installed_base.replacement_signal:
+    action: MERGE
+    target: related requirement/opportunity intelligence
+    rationale: Replacement signal belongs to opportunity intelligence.
+  supplier.name:
+    action: MERGE
+    target: linked ENTITY/SUPPLIER_PRODUCT record
+    rationale: Supplier identity is canonical party/product data.
+  supplier.country:
+    action: MERGE
+    target: linked ENTITY jurisdiction
+    rationale: Supplier country belongs once on supplier entity.
+  supplier.role:
+    action: MERGE
+    target: party_role_links.role or linked commercial intelligence
+    rationale: Procurement role is represented by party-role link.
+  supplier.product_service:
+    action: MERGE
+    target: linked SUPPLIER_PRODUCT record
+    rationale: Product/service capability belongs to supplier-product intelligence.
+  internal.subject:
+    action: MERGE
+    target: related_record_refs -> INTELLIGENCE/communication synthesis
+    rationale: Internal source metadata is not duplicated into procurement facts.
+  internal.date:
+    action: MERGE
+    target: linked INTELLIGENCE observation timestamp
+    rationale: Preserve with internal evidence record.
+  internal.participants:
+    action: MERGE
+    target: linked INTELLIGENCE participants/party refs
+    rationale: Participants belong to the internal interaction record.
+  internal.channel:
+    action: MERGE
+    target: linked INTELLIGENCE source/channel metadata
+    rationale: Channel is provenance metadata.
+  internal.claim:
+    action: MERGE
+    target: observations or linked INTELLIGENCE claim
+    rationale: Decision-relevant internal claims remain evidence, not procurement scalars.
+  internal.next_action:
+    action: MERGE
+    target: intelligence.next_action
+    rationale: Action recommendation belongs to ARGUS intelligence layer.
+  project.external_ids:
+    action: MERGE
+    target: linked PROJECT identifiers
+    rationale: External project identities belong to PROJECT.
+  project.component:
+    action: MERGE
+    target: linked PROJECT component
+    rationale: Project component belongs to PROJECT.
+  funding.financing_references:
+    action: MERGE
+    target: financing_entries.reference
+    rationale: Financing references consolidate inside financing entries.
+  funding.procurement_conditions:
+    action: MERGE
+    target: financing_entries.conditions
+    rationale: Financing-imposed procurement conditions belong to financing entry.
+  procurement.activity_reference_no:
+    action: RENAME
+    target: identifiers[scheme=PROCUREMENT_ACTIVITY_ID]
+    rationale: Financier activity reference is a typed planning identifier.
+  procurement.review_type:
+    action: RENAME
+    target: process.review_type
+    rationale: Financier review remains independent from method.
+  procurement.market_approach:
+    action: MERGE
+    target: process.competition_scope + process.method after source-semantic normalization
+    rationale: Old market-approach labels can encode both competition scope and method.
+  procurement.process:
+    action: RENAME
+    target: process.configuration
+    rationale: One/two-stage and envelope structure is procedure configuration.
+  procurement.prequalification_required:
+    action: RENAME
+    target: process.prequalification_required
+    rationale: Prequalification remains an independent process control.
+  procurement.status_raw:
+    action: RENAME
+    target: process.status_raw
+    rationale: Consolidate to one source-status location.
+  procurement.status_normalized:
+    action: RENAME
+    target: process.status_normalized
+    rationale: Consolidate to one normalized process status.
+  procurement.plan_date:
+    action: MERGE
+    target: notices[type=PROCUREMENT_PLAN].published_at or observations
+    rationale: Plan version date belongs to the plan publication/evidence context.
+  procurement.expected_advertisement_date:
+    action: RENAME
+    target: milestones[type=EXPECTED_PUBLICATION].due_at
+    rationale: Expected advertisement is a planning milestone.
+  procurement.actual_amount:
+    action: DEPRECATE
+    target: awards[].award_value or contracts[].contract_value after source-semantic resolution
+    rationale: Old field is ambiguous between award and contract amount.
+  procurement.actual_currency:
+    action: DEPRECATE
+    target: awards[].award_currency or contracts[].contract_currency after source-semantic resolution
+    rationale: Currency follows the resolved amount concept.
+  procurement.lots:
+    action: KEEP
+    target: lots
+    rationale: Structured multi-lot model remains, with normalized v2 lot fields.
+  procurement.milestones:
+    action: KEEP
+    target: milestones
+    rationale: Structured milestone model remains and absorbs duplicate date scalars.
+  preproc.event_type:
+    action: RENAME
+    target: events[].event_type
+    rationale: Pre-procurement occurrence is a lifecycle event.
+  preproc.reference_no:
+    action: MERGE
+    target: identifiers[scheme=PREPROC_REFERENCE] or notices[].notice_id
+    rationale: Preserve according to whether it identifies the event or publication.
+  preproc.title:
+    action: MERGE
+    target: title or observations/linked requirement according to scope
+    rationale: Do not create duplicate title semantics.
+  preproc.wing_or_unit:
+    action: MERGE
+    target: party_role_links.unit_label
+    rationale: Operational unit belongs to responsible party role.
+  preproc.publication_at:
+    action: MERGE
+    target: notices[].published_at
+    rationale: Publication timestamp belongs to notice.
+  preproc.deadline_at:
+    action: MERGE
+    target: milestones[type=SUBMISSION_DEADLINE].due_at
+    rationale: Response deadline is a milestone.
+  preproc.status:
+    action: MERGE
+    target: process.status_raw/process.status_normalized when it describes the procurement process; otherwise event state in observations
+    rationale: Avoid second status axis for pre-procurement notices.
+  solicitation.notice_type:
+    action: RENAME
+    target: notices[].notice_type
+    rationale: Notice type belongs to notice object.
+  solicitation.document_price_text:
+    action: RENAME
+    target: fees[].fee_raw_text
+    rationale: Document/schedule charge is a fee.
+  solicitation.prebid_at:
+    action: RENAME
+    target: milestones[type=PREBID_MEETING].due_at
+    rationale: Pre-bid meeting time is a milestone.
+  solicitation.prebid_location:
+    action: MERGE
+    target: milestones[type=PREBID_MEETING].location
+    rationale: Location is property of the meeting milestone.
+  solicitation.submission_channel:
+    action: MERGE
+    target: requirements[type=REGISTRATION] and notice/submission provenance as applicable
+    rationale: Channel is operational submission instruction; retain as structured requirement/observation until v2 submission extension is activated.
+  solicitation.submission_locator:
+    action: MERGE
+    target: observations/source locator for submission instruction
+    rationale: Do not confuse submission portal/address with notice source URL.
+  solicitation.registration_requirement:
+    action: RENAME
+    target: requirements[type=REGISTRATION]
+    rationale: Registration/enlistment is a typed participation requirement.
+  solicitation.source_country_eligibility:
+    action: RENAME
+    target: requirements[type=SOURCE_COUNTRY]
+    rationale: Country eligibility is a typed requirement.
+  solicitation.local_participation_requirement:
+    action: RENAME
+    target: requirements[type=LOCAL_PARTICIPATION]
+    rationale: Local/JV/content condition is a typed requirement.
+  solicitation.sustainability_requirements:
+    action: RENAME
+    target: requirements[type=SUSTAINABILITY]
+    rationale: Sustainability criteria are typed requirements.
+  solicitation.contact_name:
+    action: RENAME
+    target: contacts[].contact_name
+    rationale: Contact information is structured once.
+  solicitation.contact_designation:
+    action: RENAME
+    target: contacts[].contact_designation
+    rationale: Contact designation belongs to contact point.
+  solicitation.contact_address:
+    action: RENAME
+    target: contacts[].contact_address
+    rationale: Contact address belongs to contact point.
+  solicitation.contact_phone:
+    action: RENAME
+    target: contacts[].contact_phone
+    rationale: Contact phone belongs to contact point.
+  solicitation.contact_email:
+    action: RENAME
+    target: contacts[].contact_email
+    rationale: Contact email belongs to contact point.
+  award.approval_reference:
+    action: RENAME
+    target: awards[].award_approval_reference
+    rationale: Approval/no-objection reference belongs to award decision.
+  award.supplier_address:
+    action: MERGE
+    target: linked supplier ENTITY address
+    rationale: Supplier address belongs once on canonical party.
+  award.financier_financed_amount:
+    action: MERGE
+    target: awards[].financing -> financing_entries.amount with scope AWARD
+    rationale: Financier-funded share reuses the financing structure.
+  award.financier_financed_currency:
+    action: MERGE
+    target: awards[].financing -> financing_entries.currency with scope AWARD
+    rationale: Currency accompanies the financing share.
+  solicitation.system_id:
+    action: RENAME
+    target: identifiers[scheme=SYSTEM_TENDER_ID]
+    rationale: Portal-generated tender/proposal ID remains distinct from PE reference.
+  procurement.events:
+    action: RENAME
+    target: events
+    rationale: Append-only lifecycle events remain first-class.
+  procurement.cycle_type:
+    action: MERGE
+    target: events[type=RETENDER or REISSUE] + related_record_refs predecessor relation
+    rationale: Cycle type is derivable from process lineage/events and need not be a duplicate scalar.
+  procurement.reissue_sequence:
+    action: DERIVE
+    target: predecessor lineage + events
+    rationale: Sequence can be calculated from linked predecessor cycles.
+  procurement.predecessor_argus_id:
+    action: RENAME
+    target: related_record_refs[relation_type=REPLACES]
+    rationale: Predecessor is a typed relationship.
+  procurement.reissue_reason_raw:
+    action: RENAME
+    target: events[type=RETENDER or REISSUE].reason_raw
+    rationale: Reissue reason belongs to the re-tender/reissue event.
+  solicitation.original_document_sale_end_at:
+    action: RENAME
+    target: milestones[type=DOCUMENT_SALE_END].original_due_at
+    rationale: Initial deadline lives with the milestone.
+  solicitation.original_closing_at:
+    action: RENAME
+    target: milestones[type=SUBMISSION_DEADLINE].original_due_at
+    rationale: Initial submission deadline lives with the milestone.
+  solicitation.original_opening_at:
+    action: RENAME
+    target: milestones[type=OPENING].original_due_at
+    rationale: Initial opening date lives with the milestone.
+  solicitation.extension_count:
+    action: DERIVE
+    target: events[type=DEADLINE_EXTENSION]
+    rationale: Count is derived; do not store duplicate authoritative state.
+  solicitation.original_validity_until:
+    action: RENAME
+    target: milestones[type=VALIDITY_END].original_due_at
+    rationale: Original validity date belongs to validity milestone.
+  solicitation.validity_until:
+    action: RENAME
+    target: milestones[type=VALIDITY_END].due_at
+    rationale: Current validity is a milestone.
+  solicitation.validity_extension_count:
+    action: DERIVE
+    target: events[type=VALIDITY_EXTENSION]
+    rationale: Count is derived from append-only events.
