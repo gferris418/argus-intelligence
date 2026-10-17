@@ -25,49 +25,24 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
     def test_extended_common_fields_exist(self):
         fields = set(FIELD_RE.findall(STANDARD))
         required = {
-            "project.external_ids",
-            "project.component",
-            "funding.financing_references",
-            "funding.procurement_conditions",
-            "procurement.activity_reference_no",
-            "procurement.review_type",
-            "procurement.market_approach",
-            "procurement.process",
-            "procurement.prequalification_required",
-            "procurement.status_raw",
-            "procurement.status_normalized",
-            "procurement.plan_date",
-            "procurement.expected_advertisement_date",
-            "procurement.actual_amount",
-            "procurement.actual_currency",
-            "procurement.lots",
-            "procurement.milestones",
-            "preproc.event_type",
-            "preproc.reference_no",
-            "preproc.title",
-            "preproc.wing_or_unit",
-            "preproc.publication_at",
-            "preproc.deadline_at",
-            "preproc.status",
-            "solicitation.notice_type",
-            "solicitation.document_price_text",
-            "solicitation.prebid_at",
-            "solicitation.prebid_location",
-            "solicitation.submission_channel",
-            "solicitation.submission_locator",
-            "solicitation.registration_requirement",
-            "solicitation.source_country_eligibility",
-            "solicitation.local_participation_requirement",
-            "solicitation.sustainability_requirements",
-            "solicitation.contact_name",
-            "solicitation.contact_designation",
-            "solicitation.contact_address",
-            "solicitation.contact_phone",
-            "solicitation.contact_email",
-            "award.approval_reference",
-            "award.supplier_address",
-            "award.financier_financed_amount",
-            "award.financier_financed_currency",
+            "project.external_ids", "project.component", "funding.financing_references",
+            "funding.procurement_conditions", "procurement.activity_reference_no",
+            "procurement.review_type", "procurement.market_approach", "procurement.process",
+            "procurement.prequalification_required", "procurement.status_raw",
+            "procurement.status_normalized", "procurement.plan_date",
+            "procurement.expected_advertisement_date", "procurement.actual_amount",
+            "procurement.actual_currency", "procurement.lots", "procurement.milestones",
+            "preproc.event_type", "preproc.reference_no", "preproc.title",
+            "preproc.wing_or_unit", "preproc.publication_at", "preproc.deadline_at",
+            "preproc.status", "solicitation.notice_type", "solicitation.document_price_text",
+            "solicitation.prebid_at", "solicitation.prebid_location",
+            "solicitation.submission_channel", "solicitation.submission_locator",
+            "solicitation.registration_requirement", "solicitation.source_country_eligibility",
+            "solicitation.local_participation_requirement", "solicitation.sustainability_requirements",
+            "solicitation.contact_name", "solicitation.contact_designation",
+            "solicitation.contact_address", "solicitation.contact_phone",
+            "solicitation.contact_email", "award.approval_reference", "award.supplier_address",
+            "award.financier_financed_amount", "award.financier_financed_currency",
         }
         self.assertTrue(required.issubset(fields), sorted(required - fields))
 
@@ -79,16 +54,10 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
 
     def test_domestic_and_development_partner_source_families_are_supported(self):
         required_sources = {
-            "BPPA_EGP_SOLICITATION",
-            "DGDP_EDP",
-            "DGDP_PREPROCUREMENT",
-            "WORLD_BANK_PROCUREMENT_PLAN",
-            "WORLD_BANK_PROCUREMENT_NOTICE",
-            "ADB_PROJECT_PROCUREMENT",
-            "AIIB_PROJECT_PROCUREMENT",
-            "JICA_ODA_PROCUREMENT",
-            "UNGM_NOTICE",
-            "DEVELOPMENT_PARTNER_OTHER",
+            "BPPA_EGP_SOLICITATION", "DGDP_EDP", "DGDP_PREPROCUREMENT",
+            "WORLD_BANK_PROCUREMENT_PLAN", "WORLD_BANK_PROCUREMENT_NOTICE",
+            "ADB_PROJECT_PROCUREMENT", "AIIB_PROJECT_PROCUREMENT",
+            "JICA_ODA_PROCUREMENT", "UNGM_NOTICE", "DEVELOPMENT_PARTNER_OTHER",
         }
         schema_sources = set(SCHEMA["properties"]["source_family"]["enum"])
         self.assertTrue(required_sources.issubset(schema_sources), sorted(required_sources - schema_sources))
@@ -102,34 +71,24 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
 
     def test_world_bank_controls_are_mapped(self):
         for token in (
-            "Activity Reference No.",
-            "Loan / Credit No.",
-            "Review Type",
-            "Market Approach",
-            "Procurement Process",
-            "Prequalification",
-            "Process Status",
+            "Activity Reference No.", "Loan / Credit No.", "Review Type", "Market Approach",
+            "Procurement Process", "Prequalification", "Process Status",
             "Specific Procurement Notice / Invitation",
         ):
             self.assertIn(token, MAPPINGS)
 
     def test_adb_aiib_jica_and_ungm_specifics_are_preserved(self):
         for token in (
-            "ADB Review Procedure",
-            "Expected Advertisement Date",
-            "Contract Amount Financed by ADB",
-            "CONTRACT SIGNING DATE",
-            "Conditions for Procurement",
-            "Eligible Source Countries",
-            "Registration level",
-            "Beneficiary countries or territories",
-            "Sustainable opportunity",
-            "UNSPSC",
+            "ADB Review Procedure", "Expected Advertisement Date",
+            "Contract Amount Financed by ADB", "CONTRACT SIGNING DATE",
+            "Conditions for Procurement", "Eligible Source Countries", "Registration level",
+            "Beneficiary countries or territories", "Sustainable opportunity", "UNSPSC",
         ):
             self.assertIn(token, MAPPINGS)
 
-    def test_manifest_declares_v110_cross_source_standard(self):
-        self.assertIn("bangladesh_data_standard_version: 1.1.0", MANIFEST)
+    def test_manifest_preserves_v110_foundation_under_newer_active_standard(self):
+        self.assertIn("Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS", MANIFEST)
+        self.assertIn("bangladesh_data_standard_version: 1.2.0", MANIFEST)
         self.assertIn("development_partner_procurement_normalization: PASS", MANIFEST)
 
 

@@ -1,0 +1,78 @@
+document_id: ARGUS-BD-SOURCE-MAP-001
+version: 1.2.0
+status: CANDIDATE
+extends:
+  - profiles/bangladesh-source-mappings.yaml
+  - profiles/bangladesh-source-mappings-v1.1.yaml
+purpose: >-
+  Correct typed solicitation identifiers and institution hierarchy mappings for Bangladesh
+  procurement sources.
+
+source_families:
+  BPPA_EGP_SOLICITATION:
+    identifier_mappings:
+      - raw_label: Tender/Proposal ID
+        canonical_field: solicitation.system_id
+        semantics: e-GP portal-generated system identifier
+      - raw_label: e-GP Tender/Proposal ID
+        canonical_field: solicitation.system_id
+        semantics: e-GP portal-generated system identifier
+      - raw_label: Invitation Reference No.
+        canonical_field: solicitation.reference_no
+        semantics: procuring-entity invitation/tender reference
+      - raw_label: Tender Ref. No.
+        canonical_field: solicitation.reference_no
+        semantics: procuring-entity tender reference
+      - raw_label: Tender Reference No.
+        canonical_field: solicitation.reference_no
+        semantics: procuring-entity tender reference
+    institution_mappings:
+      - raw_label: Ministry
+        canonical_field: institution.ministry_name
+      - raw_label: Division
+        canonical_field: institution.division_name
+      - raw_label: Agency
+        canonical_field: institution.organization_name
+      - raw_label: Organization
+        canonical_field: institution.organization_name
+      - raw_label: Procuring Entity Name
+        canonical_field: institution.pe_name
+      - raw_label: Procuring Entity Code
+        canonical_field: institution.pe_code
+
+  BPPA_ADVERTISEMENT_INDEX:
+    identifier_mappings:
+      - raw_label: Tender/Proposal ID
+        canonical_field: solicitation.system_id
+      - raw_label: Reference No.
+        canonical_field: solicitation.reference_no
+      - raw_label: Title & Reference No.
+        parse_rule: >-
+          Separate title, procuring-entity reference and any parenthetical Tender/Proposal ID;
+          never store the full rendered cell as one identifier.
+
+  DGDP_EDP:
+    identifier_mappings:
+      - raw_label: DGDP Tender No
+        canonical_field: solicitation.reference_no
+      - raw_label: Tender No
+        canonical_field: solicitation.reference_no
+        semantics: DGDP/defence purchase tender reference number
+      - raw_label: e-DP system ID
+        canonical_field: solicitation.system_id
+        condition: only_when_explicitly_exposed
+    organization_mappings:
+      - raw_label: Section
+        canonical_field: preproc.wing_or_unit
+      - raw_label: Wing
+        canonical_field: preproc.wing_or_unit
+      - fixed_parent: Directorate General Defence Purchase
+        canonical_role: procuring_organization
+      - fixed_parent_ministry: Ministry of Defence
+
+mapping_rules:
+  - Never map Tender/Proposal ID to solicitation.reference_no.
+  - Never map Invitation Reference No. or DGDP Tender No to solicitation.system_id.
+  - Preserve both values when both are published.
+  - If only one identifier is exposed, preserve its typed semantics and leave the other absent.
+  - Raw labels and raw values remain attached to the observation for audit.

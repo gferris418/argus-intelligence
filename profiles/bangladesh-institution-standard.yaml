@@ -1,0 +1,119 @@
+document_id: ARGUS-BD-INST-STD-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+country_code: BD
+purpose: >-
+  Maintain one canonical Bangladesh government-institution graph so ministry, division,
+  department/directorate, authority, corporation, force, project office and procuring entity
+  names do not drift between policy, project, APP, tender, award, internal and supplier records.
+
+authoritative_base_sources:
+  - name: Bangladesh National Portal
+    role: base government hierarchy and official office website references
+    source_locator: https://bangladesh.gov.bd/views/ministry-and-directorate-list/
+    current_snapshot_note: >-
+      The portal publishes the current ministry/division hierarchy and linked directorates/other
+      offices. The portal itself states that not every government office is necessarily included.
+  - name: BPPA/e-GP
+    role: procurement-observed ministry, division, organization, PE name and PE code enrichment
+  - name: DGDP/e-DP
+    role: defence procurement organization, wing/section and tender-owner enrichment
+  - name: Official institution website
+    role: canonical English/Bangla naming, organization mandate and current hierarchy confirmation
+
+organization_types:
+  - PRESIDENT_OFFICE
+  - PRIME_MINISTER_OFFICE
+  - MINISTRY
+  - DIVISION
+  - DIRECTORATE
+  - DEPARTMENT
+  - AUTHORITY
+  - BOARD
+  - CORPORATION
+  - COMMISSION
+  - FORCE
+  - SERVICE_HEADQUARTERS
+  - SOE
+  - UNIVERSITY
+  - LOCAL_GOVERNMENT
+  - PROJECT_OFFICE
+  - PROGRAMME_OFFICE
+  - PROCURING_ENTITY_OFFICE
+  - OTHER_PUBLIC_BODY
+
+canonical_entity_fields:
+  - institution_id
+  - official_name_bn
+  - official_name_en
+  - short_name
+  - aliases
+  - organization_type
+  - parent_institution_id
+  - supervising_institution_id
+  - official_domain
+  - procurement_system_ids
+  - valid_from
+  - valid_to
+  - active_status
+  - source_locator
+  - last_verified_at
+
+hierarchy_semantics:
+  ministry: stable top-level or ministry-equivalent government institution where applicable
+  division: administrative division under a ministry or ministry-equivalent structure
+  organization: department, directorate, authority, board, corporation, force, SOE or other public body
+  project_office: project/PIU office responsible for an approved programme/project
+  procuring_entity_office: office/unit legally or operationally acting as the Procuring Entity for a procurement event
+  end_user: institution/unit that operates or consumes the procured capability; may differ from the PE
+  approving_authority: authority responsible for applicable approval; may differ from sponsor, PE and end user
+
+identity_rules:
+  - institution_id is stable across spelling, transliteration and officeholder changes.
+  - official_name_bn is taken from an authoritative government source where available.
+  - official_name_en is taken from an authoritative English government source where available; do not invent a translation solely for canonical identity.
+  - abbreviations and historical spellings are aliases, not replacement canonical names.
+  - parent/child relationships are time-bounded when government restructuring occurs.
+  - same text value does not make two typed institutions identical.
+  - a ministry, division, organization and procuring_entity_office are not collapsed into one buyer field.
+  - a project office may be the PE for one procurement while the parent organization remains the project owner or end user.
+  - officeholders are time-bounded role assignments and are not part of stable institution identity.
+
+procurement_observation_resolution:
+  sequence:
+    - resolve exact PE code when present
+    - resolve exact official domain/source URL
+    - resolve ministry/division/organization hierarchy
+    - resolve canonical institution aliases
+    - create candidate institution only when no existing entity safely matches
+  pe_code_rule: >-
+    PE codes are source-system identifiers attached to the procuring entity office. They are not
+    project codes, organization IDs or ministry IDs even when a numeric value happens to match another field.
+
+current_directory_policy:
+  mode: continuously_enriched_reference_graph
+  national_portal_refresh: periodic
+  procurement_entity_refresh: on_each_material_procurement_observation
+  deprecate_missing_entity_automatically: false
+  require_authoritative_evidence_for_restructure: true
+  retain_historical_names_as_aliases: true
+
+important_anchor_examples:
+  - institution: Ministry of Defence
+    relationship: parent of Directorate General Defence Purchase in official DGDP source
+  - institution: Directorate General Defence Purchase
+    organization_type: DIRECTORATE
+    role: defence procurement organization supporting procurement against demands of the Services Headquarters and other defence organizations
+  - institution: Bangladesh Navy
+    organization_type: FORCE
+    rule: end-user/service identity must remain separate from DGDP procurement-office identity when DGDP conducts the procurement
+  - institution: Bangladesh Coast Guard
+    organization_type: FORCE
+    rule: resolve its supervising ministry/organization from current authoritative government sources; do not infer from a tender title alone
+
+naming_quality_controls:
+  - Never use the current minister/adviser/secretary/DG person's name as the institution canonical name.
+  - Store officeholder person, title, effective dates and source separately if commercially material.
+  - Preserve Bangla/English official names and source-specific aliases.
+  - Never rewrite historical records when an institution is renamed; link old/new validity periods.
