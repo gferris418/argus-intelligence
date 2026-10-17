@@ -1,0 +1,27 @@
+{
+  "baseline_id": "ARGUS-GITHUB-CANONICAL-BASELINE-001",
+  "effective_date": "2026-10-18",
+  "status": "CANONICAL_BASELINE",
+  "physical_store": "github",
+  "logical_store": "ARGUS Master Registry",
+  "record_file": "data/registry/records.jsonl",
+  "record_count": 11,
+  "record_schema_versions": ["0.2.0"],
+  "active_compatible_schema": "ARGUS-SCHEMA-REG-001 v0.2.1 candidate",
+  "records_jsonl_sha256": "a43cb9555f3c82a827d16508d4e3af9764f4445e99df44853895eb2d505bbc31",
+  "records_jsonl_bytes": 17806,
+  "import_source": {
+    "pilot_id": "ARGUS-DTIF-MIGRATION-PILOT-001",
+    "pilot_version": "0.1.0",
+    "pilot_status": "PILOT_ACCEPTED_WITH_NON_BLOCKING_REFINEMENTS",
+    "library_fixture": "argus-pilot-records-v0.1.0.json",
+    "library_fixture_sha256": "2cfb99c9045eb8bf2739f39db3591b618307bda4b3cc1b301461bb259e50f2b9",
+    "source_authority": "accepted synthesized migration pilot; not a fresh byte-for-byte export of the prior database runtime"
+  },
+  "canonical_transition": {
+    "rule": "From this baseline forward, governed Git commits/PRs define the canonical ARGUS structured lineage for the current phase.",
+    "prior_supabase_neon_state": "historical/deferred runtime materialization; not current canonical write target",
+    "raw_source_documents_imported": false,
+    "tender_documents_imported": false
+  }
+}
