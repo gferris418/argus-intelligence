@@ -87,26 +87,41 @@ master_registry:
     - OPPORTUNITY
     - SUPPLIER_PRODUCT
     - KNOWLEDGE
-  canonical_store: ARGUS Master Registry
-  write_boundary: RegistryStoreAdapter
+  logical_canonical_store: ARGUS Master Registry
+  physical_canonical_store: github
+  canonical_structured_path: data/registry
+  synthesized_intelligence_path: data/syntheses
+  derived_export_path: data/exports
+  database_artifact_path: registry
+  preferred_canonical_format: json_or_jsonl
+  allowed_supporting_formats:
+    - markdown
+    - csv
+    - xlsx_for_review_or_interchange
+    - yaml
+    - sql_for_database_artifacts
+  raw_tender_documents_in_github: prohibited
+  raw_source_documents_in_github: prohibited
+  original_email_payloads_in_github: prohibited
+  operational_database_runtime: deferred
+  future_database_materialization_must_preserve_argus_semantics: true
   new_record_type_for_collection: false
 
 registry_compatibility:
   validated_against_contract: ARGUS-REG-001 v0.2.0
   validated_against_schema: ARGUS-SCHEMA-REG-001 v0.2.0
   validated_schema_sha256: 2dad9c73dc0236395fe0418f6694ee53b478ccc51c86996d8bc00abff5f2f808
-  api_baseline: Registry API v0.1.1
+  historical_api_baseline: Registry API v0.1.1
   bangladesh_route_fields: PASS_ADDITIVE_ATTRIBUTES
   collection_coverage: PASS_ADDITIVE_ATTRIBUTES
   collection_gaps: PASS_ADDITIVE_ATTRIBUTES
   source_convergence: PASS_ADDITIVE_ATTRIBUTES
-  evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS_RUNTIME_PATCH_PENDING
+  evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS
   candidate_registry_schema: registry/schema/argus-master-registry-v0.2.1.json
   candidate_registry_contract: registry/contract/master-registry-v0.2.1.md
   candidate_physical_migration: registry/migrations/0.2.0-to-0.2.1-evidence.sql
-  required_registry_schema_target: 0.2.1
-  registry_api_source_patch_required: true
-  live_canonical_registry_mutated_by_this_validation: false
+  operational_database_deployment_required_for_current_phase: false
+  database_materialization_work: deferred_until_runtime_need
   validation_record: docs/validation/registry-schema-compatibility-rc2.md
 
 bangladesh_lifecycle_validation:
@@ -119,11 +134,21 @@ bangladesh_lifecycle_validation:
   live_registry_mutation: false
 
 canonical_ownership:
-  structured_intelligence: ARGUS Master Registry
-  communications: communication system
-  original_documents: document repository
-  post_px_commercial_pursuit: CRM
-  framework_and_governance_artifacts: ATLAS/ChatGPT Library or governed framework repository
+  structured_intelligence: GitHub private repository data/registry under ARGUS Master Registry semantics
+  synthesized_intelligence: GitHub private repository data/syntheses
+  communications: communication system; GitHub stores references/syntheses only
+  original_documents: external document repository/source system; GitHub stores references/syntheses only
+  post_px_commercial_pursuit: CRM when activated; GitHub preserves ARGUS canonical identity and synthesis
+  framework_governance_database_artifacts: GitHub private repository
+
+repository_storage_policy:
+  architecture: docs/architecture/github-first-canonical-store.md
+  primary_structured_format: JSON_JSONL
+  csv_role: derived_interchange_or_review
+  xlsx_role: derived_human_review_or_interchange_not_preferred_canonical
+  markdown_role: synthesized_intelligence_governance_and_decisions
+  source_bytes_policy: reference_do_not_duplicate
+  secrets_in_repository: prohibited
 
 maturity:
   scale:
@@ -177,11 +202,12 @@ domain_result:
   may_report_collection_gaps: true
 
 release_gates:
-  - Registry API can represent route/profile fields without breaking existing records: PASS
+  - Registry route/profile fields remain portable under ARGUS record contract: PASS
   - collection coverage can be represented without creating a new canonical record type: PASS
-  - representative Bangladesh route compatibility tests against Registry v0.2.0 pass: PASS
-  - claim type and claim condition candidate schema/physical migration contract: PASS
-  - Registry API v0.1.1 source + live persistence support Registry v0.2.1: PENDING
+  - representative Bangladesh route compatibility tests pass: PASS
+  - claim type and claim condition candidate schema contract: PASS
+  - GitHub-first canonical storage policy is defined and testable: PASS_PENDING_CI
+  - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
   - 360-degree collection contract test passes: PASS
   - APP/tender/amendment/award reconciliation avoids duplicate opportunities: PASS
   - defence pre-procurement signal test passes: PASS
