@@ -108,6 +108,9 @@ live_procurement_event_response:
   retender:
     trigger: RETENDER_ISSUED
     identity_effect: new_procurement_cycle_same_underlying_opportunity_lineage_by_default
+    lineage_rule: >-
+      A re-tender remains in the same underlying opportunity lineage by default after reconciliation;
+      only evidence of a genuinely different requirement justifies a new commercial opportunity.
     actions:
       - reconcile the re-tender against the predecessor using project, package, lot, PE, title, requirement and typed identifiers
       - preserve the predecessor procurement record and link the successor with replaces when established
