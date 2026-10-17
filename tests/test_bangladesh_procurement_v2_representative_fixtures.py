@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "tests" / "fixtures" / "bangladesh-v2"
 REPORT = ROOT / "docs" / "validation" / "bangladesh-procurement-v2-representative-fixtures.md"
 MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
+V2 = (ROOT / "profiles" / "bangladesh-canonical-procurement-standard-v2.0.yaml").read_text()
 
 FIXTURES = {
     "bcg_cpv": FIXTURE_DIR / "bcg-cpv.json",
@@ -114,7 +115,8 @@ class BangladeshProcurementV2RepresentativeFixtures(unittest.TestCase):
         f = load_fixture("world_bank_sita_g01")
         r = f["v2_candidate"]
         self.assertIn(("PROCUREMENT_ACTIVITY_ID", "PMIPSD/G-01"), identifiers(r))
-        self.assertIn(("PROJECT_ID", "P506691"), identifiers(r))
+        self.assertEqual(f["linked_context"]["project"]["identifiers"][0]["value"], "P506691")
+        self.assertNotIn(("PROJECT_ID", "P506691"), identifiers(r), "project identity belongs to linked PROJECT context, not duplicated on PROCUREMENT")
         self.assertEqual(r["process"]["category"], "GOODS")
         self.assertEqual(r["process"]["method_normalized"], "OPEN")
         self.assertEqual(r["process"]["method_source_label"], "Request for Bids")
@@ -126,8 +128,9 @@ class BangladeshProcurementV2RepresentativeFixtures(unittest.TestCase):
         self.assertEqual(r["financing_entries"][0]["instrument"], "CREDIT")
         self.assertEqual(r["financing_entries"][0]["reference"], "IDA / 78280")
         self.assertEqual(r["process"]["status_raw"], "Pending Implementation")
+        self.assertIn("EXPECTED_PUBLICATION", V2)
         ms = milestones(r)
-        for milestone_type in ("PUBLICATION", "SUBMISSION_DEADLINE", "EXPECTED_AWARD", "CONTRACT_SIGNING", "COMPLETION"):
+        for milestone_type in ("EXPECTED_PUBLICATION", "SUBMISSION_DEADLINE", "EXPECTED_AWARD", "CONTRACT_SIGNING", "COMPLETION"):
             self.assertIn(milestone_type, ms)
             self.assertEqual(ms[milestone_type]["status"], "PLANNED")
 
