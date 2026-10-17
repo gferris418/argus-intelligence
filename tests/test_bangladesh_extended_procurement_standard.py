@@ -4,12 +4,15 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STANDARD = (ROOT / "profiles" / "bangladesh-data-standard.yaml").read_text()
-MAPPINGS = (ROOT / "profiles" / "bangladesh-source-mappings.yaml").read_text()
-SCHEMA = json.loads((ROOT / "schemas" / "bangladesh-observation.schema.json").read_text())
+BASE_STANDARD = (ROOT / "profiles" / "bangladesh-data-standard.yaml").read_text()
+STANDARD = (ROOT / "profiles" / "bangladesh-canonical-procurement-standard-v1.1.yaml").read_text()
+MAPPINGS = (ROOT / "profiles" / "bangladesh-source-mappings-v1.1.yaml").read_text()
+SCHEMA = json.loads((ROOT / "schemas" / "bangladesh-observation-v1.1.schema.json").read_text())
 MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
 
 FIELD_RE = re.compile(r"^  ([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+):\s*$", re.MULTILINE)
+MAPPING_RE = re.compile(r"canonical_field:\s*([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+)")
+INLINE_TARGET_RE = re.compile(r"(?:amount|currency|reference|description|date_time|place):\s*([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+)")
 
 
 class BangladeshExtendedProcurementStandard(unittest.TestCase):
@@ -92,6 +95,11 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
         for source in required_sources:
             self.assertIn(f"  {source}:", MAPPINGS)
 
+    def test_all_extended_mappings_target_known_canonical_fields(self):
+        known = set(FIELD_RE.findall(BASE_STANDARD)) | set(FIELD_RE.findall(STANDARD))
+        mapped = set(MAPPING_RE.findall(MAPPINGS)) | set(INLINE_TARGET_RE.findall(MAPPINGS))
+        self.assertTrue(mapped.issubset(known), sorted(mapped - known))
+
     def test_world_bank_controls_are_mapped(self):
         for token in (
             "Activity Reference No.",
@@ -110,7 +118,7 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
             "ADB Review Procedure",
             "Expected Advertisement Date",
             "Contract Amount Financed by ADB",
-            "Contract Signing Date",
+            "CONTRACT SIGNING DATE",
             "Conditions for Procurement",
             "Eligible Source Countries",
             "Registration level",

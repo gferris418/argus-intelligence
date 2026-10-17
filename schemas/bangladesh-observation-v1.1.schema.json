@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/bangladesh-observation-v1.1.schema.json",
+  "title": "ARGUS Bangladesh Source Observation v1.1",
+  "description": "Intermediate normalized observation contract for heterogeneous Bangladesh public-sector, defence, development-partner and UN procurement sources. It is not a new Master Registry record type.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["observation_id", "source_family", "canonical_layers", "source", "data_points"],
+  "properties": {
+    "observation_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "source_family": {
+      "type": "string",
+      "enum": [
+        "BPPA_EGP_APP",
+        "BPPA_EGP_SOLICITATION",
+        "BPPA_EGP_AWARD",
+        "BPPA_ECMS",
+        "IMED_ADP",
+        "PLANNING_DPP_TAPP",
+        "ERD_AIMS",
+        "PPP_AUTHORITY",
+        "DGDP_EDP",
+        "DGDP_PREPROCUREMENT",
+        "WORLD_BANK_PROCUREMENT_PLAN",
+        "WORLD_BANK_PROCUREMENT_NOTICE",
+        "ADB_PROJECT_PROCUREMENT",
+        "AIIB_PROJECT_PROCUREMENT",
+        "JICA_ODA_PROCUREMENT",
+        "UNGM_NOTICE",
+        "DEVELOPMENT_PARTNER_OTHER",
+        "AGENCY_WEBSITE",
+        "INTERNAL_EMAIL",
+        "INTERNAL_DOCUMENT",
+        "MEETING_NOTE",
+        "OTHER"
+      ]
+    },
+    "canonical_layers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "POLICY_STRATEGY",
+          "INSTITUTION",
+          "PROGRAMME_PROJECT",
+          "FUNDING",
+          "PROCUREMENT_PLAN",
+          "PROCUREMENT_PACKAGE",
+          "PRE_PROCUREMENT",
+          "SOLICITATION",
+          "AMENDMENT_PREBID",
+          "AWARD_CONTRACT",
+          "CONTRACT_EXECUTION",
+          "INSTALLED_BASE",
+          "SUPPLIER_MARKET",
+          "INTERNAL_INTELLIGENCE"
+        ]
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_system", "observed_at"],
+      "properties": {
+        "source_system": {"type": "string", "minLength": 1, "maxLength": 120},
+        "source_id": {"type": "string", "minLength": 1, "maxLength": 500},
+        "source_locator": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "title": {"type": "string", "maxLength": 800},
+        "published_at": {"type": ["string", "null"], "format": "date-time"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "language": {"type": ["string", "null"]},
+        "source_record_type": {"type": ["string", "null"]},
+        "content_sha256": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"}
+      },
+      "anyOf": [
+        {"required": ["source_id"]},
+        {"required": ["source_locator"]}
+      ]
+    },
+    "atlas_domain_context_refs": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "data_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field_id", "raw_label", "claim_type", "claim_condition"],
+        "properties": {
+          "field_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"},
+          "value": {},
+          "raw_label": {"type": "string", "minLength": 1, "maxLength": 500},
+          "raw_value": {},
+          "normalized_from": {"type": ["string", "null"]},
+          "claim_type": {"enum": ["FACT", "DERIVED", "INFERENCE", "ASSUMPTION", "UNKNOWN"]},
+          "claim_condition": {"enum": ["CURRENT", "STALE", "CONFLICT"]},
+          "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "notes": {"type": ["string", "null"], "maxLength": 2000}
+        },
+        "anyOf": [
+          {"required": ["value"]},
+          {
+            "properties": {"claim_type": {"const": "UNKNOWN"}},
+            "required": ["claim_type"]
+          }
+        ]
+      }
+    },
+    "source_status_raw": {"type": ["string", "null"]},
+    "reconciliation_hints": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
