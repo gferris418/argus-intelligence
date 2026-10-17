@@ -5,7 +5,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIO = json.loads((ROOT / "tests" / "scenarios" / "bd-bcg-cpv-live-2026.json").read_text())
 STANDARD = (ROOT / "profiles" / "bangladesh-data-standard.yaml").read_text()
-MAPPINGS = (ROOT / "profiles" / "bangladesh-source-mappings.yaml").read_text()
 
 
 class BCGCPVLiveDryRun(unittest.TestCase):
@@ -34,13 +33,16 @@ class BCGCPVLiveDryRun(unittest.TestCase):
         self.assertNotIn("procurement.package_no", canonical)
         self.assertNotEqual(canonical["procurement.lot_identification"], canonical["solicitation.reference_no"])
 
-    def test_standard_models_lot_number_and_lot_identification_separately(self):
+    def test_standard_models_lot_number_and_identification_separately(self):
         self.assertIn("procurement.lot_no:", STANDARD)
         self.assertIn("procurement.lot_identification:", STANDARD)
-        self.assertIn("source_label: Lot No", MAPPINGS)
-        self.assertIn("canonical_field: procurement.lot_no", MAPPINGS)
-        self.assertIn("source_label: Identification", MAPPINGS)
-        self.assertIn("canonical_field: procurement.lot_identification", MAPPINGS)
+        obs = SCENARIO["source_observations"]["bppa_solicitation"]
+        lot_no = next(x for x in obs["data_points"] if x["field_id"] == "procurement.lot_no")
+        lot_id = next(x for x in obs["data_points"] if x["field_id"] == "procurement.lot_identification")
+        self.assertEqual(lot_no["raw_label"], "Lot No")
+        self.assertEqual(lot_id["raw_label"], "Identification")
+        self.assertEqual(lot_no["value"], "1")
+        self.assertEqual(lot_id["value"], "WD-2")
 
     def test_current_official_evidence_updates_stale_registry_state_without_duplicate(self):
         result = SCENARIO["reconciliation_result"]
