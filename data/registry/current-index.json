@@ -7,6 +7,12 @@
     "ENT-BD-COAST-GUARD": "data/registry/current/ENT-BD-COAST-GUARD.json",
     "ENT-BD-BCG-PD-224392800": "data/registry/current/ENT-BD-BCG-PD-224392800.json",
     "PRJ-BCG-CPV-WD2": "data/registry/current/PRJ-BCG-CPV-WD2.json",
-    "PROC-BCG-LT001": "data/registry/current/PROC-BCG-LT001.json"
+    "PROC-BCG-LT001": "data/registry/current/PROC-BCG-LT001.json",
+    "ENT-BD-MOA": "data/registry/current/ENT-BD-MOA.json",
+    "ENT-BD-DAE": "data/registry/current/ENT-BD-DAE.json",
+    "ENT-BD-DAE-CHAR-224385000-PE": "data/registry/current/ENT-BD-DAE-CHAR-224385000-PE.json",
+    "PRJ-BD-DAE-224385000": "data/registry/current/PRJ-BD-DAE-224385000.json",
+    "PROC-DAE-1318662": "data/registry/current/PROC-DAE-1318662.json",
+    "PROC-DAE-CHAR28-R2": "data/registry/current/PROC-DAE-CHAR28-R2.json"
   }
 }
