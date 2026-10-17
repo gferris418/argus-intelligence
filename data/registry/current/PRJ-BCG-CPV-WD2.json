@@ -9,10 +9,16 @@
     "Construction and Delivery of 4 Coastal Patrol Vessels (CPV)"
   ],
   "related_argus_ids": [
+    "ENT-BD-MOHA",
     "ENT-BD-COAST-GUARD",
     "PROC-BCG-LT001"
   ],
   "relationships": [
+    {
+      "target_argus_id": "ENT-BD-MOHA",
+      "relation_type": "related_to",
+      "evidence_refs": []
+    },
     {
       "target_argus_id": "ENT-BD-COAST-GUARD",
       "relation_type": "related_to",
@@ -70,8 +76,8 @@
     "project_end_date": "2027-06-30",
     "funding_source": "GOB",
     "funding_sources": ["Development Budget GOB"],
-    "funding_maturity": "F5",
     "implementing_agency": "Bangladesh Coast Guard",
+    "sponsoring_ministry_entity_id": "ENT-BD-MOHA",
     "sponsoring_ministry": "Ministry of Home Affairs",
     "owner_entity_ids": ["ENT-BD-COAST-GUARD"],
     "linked_procurement_ids": ["PROC-BCG-LT001"],
