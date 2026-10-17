@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STANDARD = (ROOT / "profiles" / "bangladesh-data-standard.yaml").read_text()
-MAPPINGS = (ROOT / "profiles" / "bangladesh-source-mappings.yaml").read_text()
-SCHEMA = json.loads((ROOT / "schemas" / "bangladesh-observation.schema.json").read_text())
+STANDARD = (ROOT / "profiles" / "bangladesh-canonical-procurement-standard-v1.1.yaml").read_text()
+MAPPINGS = (ROOT / "profiles" / "bangladesh-source-mappings-v1.1.yaml").read_text()
+SCHEMA = json.loads((ROOT / "schemas" / "bangladesh-observation-v1.1.schema.json").read_text())
 MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
 
 FIELD_RE = re.compile(r"^  ([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+):\s*$", re.MULTILINE)
@@ -110,7 +110,7 @@ class BangladeshExtendedProcurementStandard(unittest.TestCase):
             "ADB Review Procedure",
             "Expected Advertisement Date",
             "Contract Amount Financed by ADB",
-            "Contract Signing Date",
+            "CONTRACT SIGNING DATE",
             "Conditions for Procurement",
             "Eligible Source Countries",
             "Registration level",
