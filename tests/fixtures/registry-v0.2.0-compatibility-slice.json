@@ -1,0 +1,20 @@
+{
+  "source": {
+    "document_id": "ARGUS-SCHEMA-REG-001",
+    "version": "0.2.0",
+    "sha256": "2dad9c73dc0236395fe0418f6694ee53b478ccc51c86996d8bc00abff5f2f808",
+    "status": "PILOT",
+    "purpose": "Test-only compatibility slice extracted from the canonical Registry v0.2.0 schema retained in the ARGUS Library. It is not a replacement canonical schema."
+  },
+  "record": {
+    "top_level_additional_properties": false,
+    "attributes_additional_properties": true,
+    "intelligence_required_attributes": ["maturity"]
+  },
+  "evidence_ref": {
+    "additional_properties": false,
+    "required": ["source_system", "analytical_label"],
+    "properties": ["source_system", "source_id", "source_locator", "title", "as_of", "analytical_label", "notes"],
+    "analytical_label_enum": ["FACT", "DERIVED", "INFERENCE", "ASSUMPTION", "UNKNOWN", "CONFLICT", "STALE"]
+  }
+}
