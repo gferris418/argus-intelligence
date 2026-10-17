@@ -1,0 +1,670 @@
+document_id: ARGUS-BD-DATA-STD-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+country_code: BD
+purpose: >-
+  Provide one canonical field vocabulary for Bangladesh public-sector opportunity
+  intelligence from policy/strategy through institution, programme/project,
+  funding, procurement planning, solicitation, award, contract execution,
+  installed base and internal intelligence. Source-specific labels are mapped
+  into these concepts without changing their meaning between institutions.
+
+governing_principles:
+  - Canonical concepts are institution-neutral; source-specific labels are aliases, not new fields.
+  - Preserve raw source labels and values for audit while storing normalized values separately.
+  - Never infer a missing field solely because another source normally contains it.
+  - Typed identifiers remain distinct: project code, APP ID, package number, tender ID, tender reference and contract number are not interchangeable.
+  - Ministry, division, organization and procuring entity are separate hierarchy levels and must not be collapsed into buyer.
+  - Bangladesh route, budget type, source of funds, procurement nature, procurement type and procurement method are independent concepts.
+  - ATLAS owns generic taxonomy, product/service/capability classification and standards alignment; ARGUS stores references and adds opportunity-intelligence context only.
+  - Time-varying observations retain observation time, source publication time and source status; latest does not silently overwrite historical evidence.
+  - Monetary values retain original amount/currency; any converted BDT or USD value requires rate/date/source metadata.
+  - Conflicts are preserved and reconciled; conflicting source values are not silently merged.
+  - The same underlying requirement preserves one lineage across policy, project, APP, package, tender, amendment, award and installed-base evidence.
+
+defaults:
+  country_code: BD
+  default_currency: BDT
+  timezone: Asia/Dhaka
+  canonical_language: en
+  fiscal_year_format: YYYY-YY
+
+canonical_layers:
+  - POLICY_STRATEGY
+  - INSTITUTION
+  - PROGRAMME_PROJECT
+  - FUNDING
+  - PROCUREMENT_PLAN
+  - PROCUREMENT_PACKAGE
+  - SOLICITATION
+  - AMENDMENT_PREBID
+  - AWARD_CONTRACT
+  - CONTRACT_EXECUTION
+  - INSTALLED_BASE
+  - SUPPLIER_MARKET
+  - INTERNAL_INTELLIGENCE
+
+lineage_model:
+  primary_flow:
+    - POLICY_STRATEGY
+    - INSTITUTION
+    - PROGRAMME_PROJECT
+    - FUNDING
+    - PROCUREMENT_PLAN
+    - PROCUREMENT_PACKAGE
+    - SOLICITATION
+    - AMENDMENT_PREBID
+    - AWARD_CONTRACT
+    - CONTRACT_EXECUTION
+    - INSTALLED_BASE
+  side_inputs:
+    - SUPPLIER_MARKET
+    - INTERNAL_INTELLIGENCE
+  rule: >-
+    Any layer may appear first. ARGUS resolves backward and forward to the same
+    underlying need and must not require every layer to exist publicly.
+
+identification_and_normalization_approaches:
+  - SOURCE_TEMPLATE
+  - IDENTIFIER_FIRST
+  - HIERARCHY_FIRST
+  - ATLAS_DOMAIN_CONTEXT
+  - TEMPORAL_EVENT
+  - SEMANTIC_ALIAS
+  - CROSS_SOURCE_CONVERGENCE
+  - POLICY_DOWNSTREAM
+  - PROCUREMENT_BACKWARD
+  - INTERNAL_FIRST
+
+approach_definitions:
+  SOURCE_TEMPLATE: Use known source/form layouts such as e-GP APP/tender/award/eCMS, DPP, ADP, AIMS and DGDP to map labeled fields deterministically.
+  IDENTIFIER_FIRST: Prefer exact typed identifiers such as project code, APP ID, tender ID, reference number, package number and contract number before fuzzy matching.
+  HIERARCHY_FIRST: Resolve ministry/division/organization/PE hierarchy and role before interpreting buyer/end-user relationships.
+  ATLAS_DOMAIN_CONTEXT: Use ATLAS-owned industry/product/service/capability/taxonomy context to interpret and expand domain terms without redefining them.
+  TEMPORAL_EVENT: Treat publication, amendment, NOA, contract signing, completion and revision as dated events in one lineage.
+  SEMANTIC_ALIAS: Use Bangla/English names, abbreviations and known aliases only as matching aids; retain the canonical entity/concept separately.
+  CROSS_SOURCE_CONVERGENCE: Increase confidence when independent official/project/procurement/internal sources converge on the same claim.
+  POLICY_DOWNSTREAM: Trace policy/strategy/mission statements toward institution, project, funding and procurement evidence.
+  PROCUREMENT_BACKWARD: Trace APP/tender/award evidence backward to PE, project, funding, ministry and underlying requirement.
+  INTERNAL_FIRST: Reuse authorized Access Asia history, correspondence and prior records before duplicating external collection.
+
+normalization_rules:
+  identifiers:
+    preserve_as_string: true
+    trim_outer_whitespace: true
+    preserve_leading_zeroes: true
+    never_merge_different_identifier_types: true
+  names:
+    unicode_normalization: NFC
+    preserve_raw_alias: true
+    canonicalize_case_for_matching_only: true
+    bangla_english_aliases_allowed: true
+  dates:
+    canonical_date: YYYY-MM-DD
+    canonical_datetime: RFC3339
+    timezone_when_local: Asia/Dhaka
+    preserve_source_precision: true
+  fiscal_year:
+    canonical: YYYY-YY
+    examples:
+      - 2026-27
+      - 2025-26
+    do_not_infer_from_publication_date_alone: true
+  money:
+    preserve_original_amount: true
+    preserve_original_currency: true
+    normalized_conversion_optional: true
+    conversion_requires:
+      - exchange_rate
+      - exchange_rate_date
+      - exchange_rate_source
+  status:
+    preserve_source_status_raw: true
+    normalized_status_is_separate: true
+    do_not_assume_current_from_historical_record: true
+  missingness:
+    omit_unobserved_fields: true
+    explicit_unknown_allowed: true
+    never_fill_from_source_template_defaults: true
+  evidence:
+    every_material_datapoint_requires_source_reference: true
+    claim_type_and_condition_required: true
+    conflicting_values_remain_separate_until_reconciled: true
+  taxonomy:
+    generic_classification_owner: ATLAS_OS
+    argus_role: store_refs_and_contextual_enrichment
+    never_create_competing_master_taxonomy: true
+
+normalized_status_vocabularies:
+  procurement_state:
+    - PLANNED
+    - PUBLISHED
+    - OPEN
+    - CLOSED
+    - EVALUATING
+    - AWARD_PENDING
+    - AWARDED
+    - CONTRACTED
+    - CANCELLED
+    - RETENDERED
+    - COMPLETED
+    - UNKNOWN
+  project_state:
+    - CONCEPT
+    - PROPOSED
+    - APPROVED
+    - ONGOING
+    - REVISED
+    - COMPLETED
+    - SUSPENDED
+    - CANCELLED
+    - UNKNOWN
+  contract_work_status:
+    - NOT_STARTED
+    - ONGOING
+    - DELAYED
+    - COMPLETED
+    - TERMINATED
+    - UNKNOWN
+
+canonical_fields:
+  bangladesh.route:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: ARGUS Bangladesh acquisition/project route hypothesis such as BD-DEV-GOB or BD-DEF-DGDP.
+  policy.title:
+    layer: POLICY_STRATEGY
+    type: string
+    meaning: Official policy, strategy, plan, mandate or programme title.
+  policy.issuer_name:
+    layer: POLICY_STRATEGY
+    type: string
+    meaning: Institution issuing or owning the policy/strategy document.
+  policy.publication_date:
+    layer: POLICY_STRATEGY
+    type: date
+    meaning: Official publication or approval date of the policy/strategy source.
+  policy.effective_date:
+    layer: POLICY_STRATEGY
+    type: date
+    meaning: Date from which the policy/strategy becomes effective when stated.
+  policy.horizon:
+    layer: POLICY_STRATEGY
+    type: string
+    meaning: Stated planning period or target horizon.
+  policy.objective:
+    layer: POLICY_STRATEGY
+    type: string
+    meaning: Material objective, mission, target or capability outcome relevant to opportunity discovery.
+  policy.target_institution:
+    layer: POLICY_STRATEGY
+    type: string
+    meaning: Institution, sector or beneficiary explicitly targeted by the policy or strategy.
+
+  institution.ministry_name:
+    layer: INSTITUTION
+    type: string
+    meaning: Canonical ministry-level institution name.
+  institution.division_name:
+    layer: INSTITUTION
+    type: string
+    meaning: Canonical government division name under or alongside the ministry hierarchy.
+  institution.organization_name:
+    layer: INSTITUTION
+    type: string
+    meaning: Canonical department, directorate, authority, corporation, board, force or other organization name.
+  institution.pe_name:
+    layer: INSTITUTION
+    type: string
+    meaning: Procuring Entity office/name responsible for the procurement event or package.
+  institution.pe_code:
+    layer: INSTITUTION
+    type: string
+    meaning: Source-system Procuring Entity code where published.
+  institution.district:
+    layer: INSTITUTION
+    type: string
+    meaning: District/location assigned to the PE or source record.
+  institution.role:
+    layer: INSTITUTION
+    type: string
+    meaning: Evidenced role such as sponsor, implementing agency, operator, end user, PE, approver, funder or regulator.
+
+  project.code:
+    layer: PROGRAMME_PROJECT
+    type: string
+    meaning: Official development/project code or other authoritative project identifier.
+  project.name:
+    layer: PROGRAMME_PROJECT
+    type: string
+    meaning: Official project/programme name.
+  project.type:
+    layer: PROGRAMME_PROJECT
+    type: string
+    meaning: Project or programme type such as investment, technical assistance, development, revenue or other source-defined type.
+  project.status:
+    layer: PROGRAMME_PROJECT
+    type: string
+    meaning: Normalized current project implementation/approval state.
+  project.approval_date:
+    layer: PROGRAMME_PROJECT
+    type: date
+    meaning: Official approval date where evidenced.
+  project.revision_date:
+    layer: PROGRAMME_PROJECT
+    type: date
+    meaning: Official revision/approval date for a revised project where evidenced.
+  project.start_date:
+    layer: PROGRAMME_PROJECT
+    type: date
+    meaning: Planned or approved implementation start date.
+  project.end_date:
+    layer: PROGRAMME_PROJECT
+    type: date
+    meaning: Planned or approved implementation completion date.
+  project.total_cost:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Total approved/estimated project cost in project.currency.
+  project.currency:
+    layer: PROGRAMME_PROJECT
+    type: currency
+    meaning: Currency applying to project cost fields.
+  project.gob_cost:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Government of Bangladesh financing component of project cost.
+  project.project_aid_cost:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Project-aid/development-partner component of project cost.
+  project.own_fund_cost:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Implementing agency or self-financed component where stated.
+  project.current_fy_allocation:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Allocation for the referenced fiscal year where published.
+  project.physical_progress_pct:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Reported physical implementation progress percentage.
+  project.financial_progress_pct:
+    layer: PROGRAMME_PROJECT
+    type: number
+    meaning: Reported financial implementation progress percentage.
+
+  funding.budget_type:
+    layer: FUNDING
+    type: string
+    meaning: Budget classification used by the source, e.g. Revenue, Development or Own Fund.
+  funding.source:
+    layer: FUNDING
+    type: string
+    meaning: Funding source or financing class, e.g. Government, Aid/Grant, loan, own fund or G2G.
+  funding.development_partner:
+    layer: FUNDING
+    type: string
+    meaning: Named development partner, lender or donor where applicable.
+  funding.agreement_type:
+    layer: FUNDING
+    type: string
+    meaning: Financing agreement type such as loan, grant, financing agreement, MoU or project document.
+  funding.agreement_title:
+    layer: FUNDING
+    type: string
+    meaning: Official aid/financing agreement title.
+  funding.commitment_amount:
+    layer: FUNDING
+    type: number
+    meaning: Committed financing amount under the relevant agreement.
+  funding.currency:
+    layer: FUNDING
+    type: currency
+    meaning: Currency of financing commitment/amount.
+  funding.commitment_date:
+    layer: FUNDING
+    type: date
+    meaning: Date of written financing commitment/agreement.
+  funding.status:
+    layer: FUNDING
+    type: string
+    meaning: Normalized financing maturity/availability status when evidenced.
+
+  procurement.app_id:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: e-GP Annual Procurement Plan identifier.
+  procurement.app_code:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: APP code or source-defined APP reference.
+  procurement.financial_year:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Fiscal year governing the APP/package record in canonical YYYY-YY form.
+  procurement.package_no:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Package identifier/reference within APP/project/procurement planning.
+  procurement.package_description:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Official package title or description.
+  procurement.nature:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Procurement nature such as Goods, Works, Consulting Services or Physical/Non-Consulting Services.
+  procurement.type:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Source-defined procurement type such as NCT or ICT; distinct from method and route.
+  procurement.method:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Procurement method such as OTM, LTM, RFQ, DPM or other authoritative method.
+  procurement.category_code:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Published procurement/category code when the source exposes one.
+  procurement.category_label:
+    layer: PROCUREMENT_PACKAGE
+    type: string
+    meaning: Published category/product-service classification label.
+  procurement.estimated_cost:
+    layer: PROCUREMENT_PACKAGE
+    type: number
+    meaning: Package/APP estimated cost before solicitation/award.
+  procurement.currency:
+    layer: PROCUREMENT_PACKAGE
+    type: currency
+    meaning: Currency of estimated package/procurement value.
+  procurement.framework_agreement:
+    layer: PROCUREMENT_PACKAGE
+    type: boolean
+    meaning: Whether the procurement is identified as a framework agreement.
+  procurement.strategy_reference:
+    layer: PROCUREMENT_PLAN
+    type: string
+    meaning: Procurement strategy/reference where published under current rules or project documents.
+
+  solicitation.id:
+    layer: SOLICITATION
+    type: string
+    meaning: e-GP tender/proposal ID or equivalent source-system solicitation identifier.
+  solicitation.reference_no:
+    layer: SOLICITATION
+    type: string
+    meaning: Invitation/tender/proposal reference number distinct from source-system ID.
+  solicitation.event_type:
+    layer: SOLICITATION
+    type: string
+    meaning: Tender, EOI, PQ, RFP, PPS, RFQ or other solicitation event type.
+  solicitation.invitation_for:
+    layer: SOLICITATION
+    type: string
+    meaning: Published invitation/lot/selection descriptor.
+  solicitation.status_raw:
+    layer: SOLICITATION
+    type: string
+    meaning: Exact source-published tender/proposal status text.
+  solicitation.status_normalized:
+    layer: SOLICITATION
+    type: string
+    meaning: ARGUS normalized procurement state derived from current evidence without replacing the raw status.
+  solicitation.publication_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Scheduled/actual publication timestamp of the solicitation.
+  solicitation.document_sale_end_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Last selling/downloading timestamp for tender/proposal documents.
+  solicitation.prebid_start_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Start timestamp of pre-tender/pre-proposal question or meeting window where published.
+  solicitation.prebid_end_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: End timestamp of pre-tender/pre-proposal question or meeting window where published.
+  solicitation.closing_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Tender/proposal closing deadline.
+  solicitation.opening_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Tender/proposal opening timestamp.
+  solicitation.security_deadline_at:
+    layer: SOLICITATION
+    type: datetime
+    meaning: Last date/time for tender/proposal security submission where applicable.
+  solicitation.eligibility:
+    layer: SOLICITATION
+    type: string
+    meaning: Published eligibility/qualification requirements or synthesized structured summary.
+
+  amendment.sequence:
+    layer: AMENDMENT_PREBID
+    type: integer
+    meaning: Amendment/corrigendum sequence number when available.
+  amendment.reference_no:
+    layer: AMENDMENT_PREBID
+    type: string
+    meaning: Amendment/corrigendum/pre-bid reference identifier.
+  amendment.date:
+    layer: AMENDMENT_PREBID
+    type: date
+    meaning: Publication/effective date of the amendment/corrigendum/pre-bid notice.
+  amendment.summary:
+    layer: AMENDMENT_PREBID
+    type: string
+    meaning: Synthesized material change or clarification.
+
+  award.noa_date:
+    layer: AWARD_CONTRACT
+    type: date
+    meaning: Date of Notification of Award.
+  award.contract_no:
+    layer: AWARD_CONTRACT
+    type: string
+    meaning: Contract number/reference after award.
+  award.supplier_name:
+    layer: AWARD_CONTRACT
+    type: string
+    meaning: Awarded tenderer/consultant/supplier/contractor name.
+  award.supplier_id:
+    layer: AWARD_CONTRACT
+    type: string
+    meaning: Source-system supplier/company identifier where published.
+  award.value:
+    layer: AWARD_CONTRACT
+    type: number
+    meaning: Contract/award amount as published.
+  award.currency:
+    layer: AWARD_CONTRACT
+    type: currency
+    meaning: Currency of contract/award amount.
+  award.beneficial_owner:
+    layer: AWARD_CONTRACT
+    type: string
+    meaning: Published beneficial ownership information where lawfully available.
+
+  contract.sign_date:
+    layer: AWARD_CONTRACT
+    type: date
+    meaning: Contract signing date.
+  contract.start_date:
+    layer: CONTRACT_EXECUTION
+    type: date
+    meaning: Contract commencement/start date.
+  contract.end_date:
+    layer: CONTRACT_EXECUTION
+    type: date
+    meaning: Planned/contractual end date.
+  contract.work_status:
+    layer: CONTRACT_EXECUTION
+    type: string
+    meaning: Normalized ongoing/completed/delayed/terminated work status.
+  contract.actual_completion_date:
+    layer: CONTRACT_EXECUTION
+    type: date
+    meaning: Actual completion date when evidenced.
+  contract.final_value:
+    layer: CONTRACT_EXECUTION
+    type: number
+    meaning: Final executed contract value when published/evidenced.
+  contract.variation_count:
+    layer: CONTRACT_EXECUTION
+    type: integer
+    meaning: Number of identified contract variations/change orders where available.
+
+  installed_base.asset_name:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: Installed asset/system/platform/equipment name relevant to future support, upgrade or replacement.
+  installed_base.product_class:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: ARGUS product/solution class linked to ATLAS domain classification references.
+  installed_base.oem:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: Original equipment manufacturer where evidenced.
+  installed_base.model:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: Model/type/class designation where evidenced.
+  installed_base.quantity:
+    layer: INSTALLED_BASE
+    type: number
+    meaning: Installed/delivered quantity.
+  installed_base.commissioned_date:
+    layer: INSTALLED_BASE
+    type: date
+    meaning: Commissioning/delivery/in-service date where evidenced.
+  installed_base.location:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: Installation/deployment location at a safe permitted level of detail.
+  installed_base.status:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: In-service/support/obsolete/replacement status based on evidence.
+  installed_base.replacement_signal:
+    layer: INSTALLED_BASE
+    type: string
+    meaning: Evidence of lifecycle replacement, expansion, upgrade or obsolescence need.
+
+  supplier.name:
+    layer: SUPPLIER_MARKET
+    type: string
+    meaning: Supplier/OEM/consultant/contractor/integrator name.
+  supplier.country:
+    layer: SUPPLIER_MARKET
+    type: string
+    meaning: Supplier country/jurisdiction where material.
+  supplier.role:
+    layer: SUPPLIER_MARKET
+    type: string
+    meaning: Role such as OEM, prime, consultant, EPC, local partner, awarded contractor or bidder.
+  supplier.product_service:
+    layer: SUPPLIER_MARKET
+    type: string
+    meaning: Relevant product/service/solution offering linked to governed domain context where possible.
+
+  internal.subject:
+    layer: INTERNAL_INTELLIGENCE
+    type: string
+    meaning: Subject/title of internal email, note, meeting or document.
+  internal.date:
+    layer: INTERNAL_INTELLIGENCE
+    type: datetime
+    meaning: Date/time of internal evidence or interaction.
+  internal.participants:
+    layer: INTERNAL_INTELLIGENCE
+    type: array
+    meaning: Participants/senders/recipients/attendees relevant to the intelligence claim.
+  internal.channel:
+    layer: INTERNAL_INTELLIGENCE
+    type: string
+    meaning: Email, meeting, call, document, message or other authorized internal channel.
+  internal.claim:
+    layer: INTERNAL_INTELLIGENCE
+    type: string
+    meaning: Synthesized decision-relevant statement derived from the internal source.
+  internal.next_action:
+    layer: INTERNAL_INTELLIGENCE
+    type: string
+    meaning: Action, follow-up or trigger explicitly arising from internal intelligence.
+
+observation_contract:
+  schema: schemas/bangladesh-observation.schema.json
+  role: ingestion_and_reconciliation_intermediate
+  creates_new_registry_record_type: false
+  persistence: optional_synthesized_observation_only
+  raw_document_bytes: prohibited_in_github
+
+registry_mapping:
+  POLICY_STRATEGY:
+    preferred_records:
+      - KNOWLEDGE
+      - INTELLIGENCE
+  INSTITUTION:
+    preferred_records:
+      - ENTITY
+  PROGRAMME_PROJECT:
+    preferred_records:
+      - PROJECT
+  FUNDING:
+    preferred_records:
+      - PROJECT
+      - INTELLIGENCE
+  PROCUREMENT_PLAN:
+    preferred_records:
+      - PROCUREMENT
+      - INTELLIGENCE
+  PROCUREMENT_PACKAGE:
+    preferred_records:
+      - PROCUREMENT
+  SOLICITATION:
+    preferred_records:
+      - PROCUREMENT
+  AMENDMENT_PREBID:
+    preferred_records:
+      - PROCUREMENT
+  AWARD_CONTRACT:
+    preferred_records:
+      - PROCUREMENT
+      - SUPPLIER_PRODUCT
+  CONTRACT_EXECUTION:
+    preferred_records:
+      - PROCUREMENT
+      - KNOWLEDGE
+  INSTALLED_BASE:
+    preferred_records:
+      - SUPPLIER_PRODUCT
+      - KNOWLEDGE
+      - INTELLIGENCE
+  SUPPLIER_MARKET:
+    preferred_records:
+      - SUPPLIER_PRODUCT
+  INTERNAL_INTELLIGENCE:
+    preferred_records:
+      - INTELLIGENCE
+      - KNOWLEDGE
+
+quality_gates:
+  - source_family_known_or_explicitly_OTHER
+  - every_mapped_field_exists_in_canonical_dictionary
+  - typed_identifiers_not_conflated
+  - raw_label_preserved_when_source_mapping_used
+  - missing_fields_not_fabricated
+  - material_datapoints_have_evidence_reference
+  - raw_and_normalized_status_separate
+  - route_budget_funding_method_not_collapsed
+  - ATLAS_domain_context_refs_preserved_when_material
+  - cross_source_conflicts_preserved_until_reconciled
