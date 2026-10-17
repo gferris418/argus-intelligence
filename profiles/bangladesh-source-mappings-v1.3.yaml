@@ -1,0 +1,132 @@
+document_id: ARGUS-BD-SOURCE-MAP-001
+version: 1.3.0
+status: CANDIDATE
+extends:
+  - profiles/bangladesh-source-mappings-v1.2.yaml
+canonical_extension: profiles/bangladesh-canonical-procurement-standard-v1.3.yaml
+purpose: >-
+  Normalize Bangladesh tender deadline extensions, validity extensions, corrigenda,
+  cancellations and re-tender/reissue notices into append-only procurement lifecycle events.
+
+source_families:
+  BPPA_EGP_SOLICITATION:
+    event_patterns:
+      - source_pattern: Advertisement Corrigendum(s)
+        default_event_type: CORRIGENDUM
+        canonical_field: procurement.events
+        rule: >-
+          Create one source-provenanced event per published corrigendum. Compare revised fields with the
+          previous effective state and emit additional material-effect events where applicable.
+      - raw_label: Date Of Corrigendum
+        event_field: published_at
+      - raw_label: Tender Last Selling Date
+        affected_field: solicitation.document_sale_end_at
+        material_effect_event: DOCUMENT_SALE_END_CHANGE
+      - raw_label: Tender Closing Date
+        affected_field: solicitation.closing_at
+        material_effect_event: SUBMISSION_DEADLINE_EXTENSION
+        comparison_rule: >-
+          Emit SUBMISSION_DEADLINE_EXTENSION when the authoritative new closing date/time is later than the prior effective closing date/time.
+      - raw_label: Tender Closing Time
+        affected_field: solicitation.closing_at
+      - raw_label: Tender Opening Date
+        affected_field: solicitation.opening_at
+        material_effect_event: OPENING_DATE_CHANGE
+      - raw_label: Tender Opening Time
+        affected_field: solicitation.opening_at
+      - source_pattern: Invitation for Re-Tender
+        event_type: RETENDER_ISSUED
+        canonical_field: procurement.events
+        set_fields:
+          procurement.cycle_type: RETENDER
+        reconciliation_rule: >-
+          Treat the notice as a new solicitation/procurement cycle. Search for the predecessor using typed IDs,
+          project/package/lot/title/PE and requirement semantics; do not overwrite the predecessor.
+      - source_pattern: Invitation for Re-Tender (Single Lot)
+        event_type: RETENDER_ISSUED
+        canonical_field: procurement.events
+      - source_pattern: Re-Tender
+        event_type: RETENDER_ISSUED
+        canonical_field: procurement.events
+        condition: only_when_source_explicitly_labels_notice_as_retender
+
+    current_effective_field_rules:
+      - canonical_field: solicitation.document_sale_end_at
+        rule: latest authoritative corrigendum value becomes current effective; original value is preserved separately
+      - canonical_field: solicitation.closing_at
+        rule: latest authoritative corrigendum value becomes current effective; original value is preserved separately
+      - canonical_field: solicitation.opening_at
+        rule: latest authoritative corrigendum value becomes current effective; original value is preserved separately
+
+  BPPA_STANDARD_DOCUMENT:
+    event_patterns:
+      - source_pattern: Extension of Tender Validity and Tender Security
+        event_type: TENDER_VALIDITY_EXTENSION
+        canonical_field: procurement.events
+        related_effect: TENDER_SECURITY_VALIDITY_EXTENSION
+        rule: >-
+          Keep validity-extension events separate from submission-deadline extensions. Update solicitation.validity_until
+          only when the new validity date is authoritatively available.
+      - source_pattern: Addendum to e-Tender Document
+        event_type: ADDENDUM
+        canonical_field: procurement.events
+        possible_effect: SUBMISSION_DEADLINE_EXTENSION
+
+  DGDP_EDP:
+    event_patterns:
+      - raw_label: Amendment
+        event_type: CORRIGENDUM
+        canonical_field: procurement.events
+        rule: Preserve the amendment source/reference and classify material changes when extracted.
+      - source_pattern: Request for Extension of Submission Deadline
+        event_type: SUBMISSION_DEADLINE_EXTENSION
+        canonical_field: procurement.events
+      - source_pattern: Request for Extention of Submission Deadline
+        event_type: SUBMISSION_DEADLINE_EXTENSION
+        canonical_field: procurement.events
+        note: Preserve DGDP's published source spelling when that is the observed title.
+      - source_pattern: Re-Tender
+        event_type: RETENDER_ISSUED
+        canonical_field: procurement.events
+        condition: only_when_explicitly_published_as_retender_or_reissue
+
+  DGDP_PREPROCUREMENT:
+    event_patterns:
+      - source_pattern: Request for Extension of Submission Deadline
+        event_type: SUBMISSION_DEADLINE_EXTENSION
+        event_scope: PRE_PROCUREMENT
+        canonical_field: procurement.events
+      - source_pattern: Request for Extention of Submission Deadline
+        event_type: SUBMISSION_DEADLINE_EXTENSION
+        event_scope: PRE_PROCUREMENT
+        canonical_field: procurement.events
+      - source_pattern: Re-Evaluation
+        event_type: REISSUE
+        event_scope: PRE_PROCUREMENT
+        canonical_field: procurement.events
+        rule: >-
+          Re-evaluation is not automatically a live re-tender. Keep it in PRE_PROCUREMENT unless a formal solicitation/re-tender notice is separately evidenced.
+
+  DEVELOPMENT_PARTNER_OTHER:
+    event_patterns:
+      - source_pattern: deadline extension
+        event_type: SUBMISSION_DEADLINE_EXTENSION
+        canonical_field: procurement.events
+      - source_pattern: amendment/addendum/corrigendum
+        event_type: CORRIGENDUM
+        canonical_field: procurement.events
+      - source_pattern: retender/re-tender/reissue/re-bid
+        event_type: RETENDER_ISSUED
+        canonical_field: procurement.events
+        rule: >-
+          Preserve financier/source terminology and reconcile to the predecessor procurement cycle before deciding lineage.
+
+mapping_rules:
+  - Never destroy the previously published date/value when an extension or corrigendum changes the current effective value.
+  - Store previous_value and new_value in procurement.events whenever both can be established.
+  - Preserve source_ref for every event.
+  - A deadline extension updates the same procurement cycle.
+  - A re-tender/reissue normally creates a successor procurement cycle and a replaces relationship to the predecessor.
+  - Never create a new commercial opportunity solely because a re-tender has a new portal ID, reference number or publication date.
+  - Do not infer re-tender reason from sequence, title or cancellation context unless the source explicitly states it.
+  - If a supposed re-tender cannot be confidently linked to a predecessor, route it through ARGUS reconciliation rather than forcing a relationship.
