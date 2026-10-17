@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.2.1",
+  "argus_id": "ENT-BD-MOA",
+  "record_type": "ENTITY",
+  "canonical_name_or_title": "Ministry of Agriculture",
+  "status": "current_official_institution",
+  "aliases": [],
+  "related_argus_ids": ["ENT-BD-DAE"],
+  "relationships": [{"target_argus_id": "ENT-BD-DAE", "relation_type": "parent_of", "evidence_refs": []}],
+  "evidence_refs": [{"source_system": "USER_PROVIDED_EGP_NOTICE", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_locator": "TenderNotice (77).pdf", "title": "e-GP tender notice for Tender/Proposal ID 1318662", "as_of": "2026-10-18", "claim_type": "FACT", "claim_condition": "CURRENT", "notes": "The uploaded notice identifies Ministry of Agriculture as the ministry."}],
+  "external_refs": [],
+  "information_classification": "internal",
+  "revision": 1,
+  "created_at": "2026-10-18T00:00:00+06:00",
+  "updated_at": "2026-10-18T00:00:00+06:00",
+  "attributes": {"country_code": "BD", "entity_type": "MINISTRY"}
+}
