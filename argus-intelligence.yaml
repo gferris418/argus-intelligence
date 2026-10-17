@@ -252,5 +252,5 @@ release_gates:
   - defence pre-procurement signal test passes: PASS
   - cross-fiscal-year project lineage test passes: PASS
   - promotion-before-live-tender test passes: PASS
-  - ATLAS domain-context handoff pin and return-correlation contract: PASS_PENDING_CI
-  - Bangladesh cross-source canonical data standard and observation contract: PASS_PENDING_CI
+  - ATLAS domain-context handoff pin and return-correlation contract: PASS
+  - Bangladesh cross-source canonical data standard and observation contract: PASS
