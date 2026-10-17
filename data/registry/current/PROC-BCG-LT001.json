@@ -10,12 +10,19 @@
     "44.08.2680.033.02.106.26.160"
   ],
   "related_argus_ids": [
+    "ENT-BD-MOHA",
     "ENT-BD-COAST-GUARD",
+    "ENT-BD-BCG-PD-224392800",
     "PRJ-BCG-CPV-WD2"
   ],
   "relationships": [
     {
       "target_argus_id": "ENT-BD-COAST-GUARD",
+      "relation_type": "related_to",
+      "evidence_refs": []
+    },
+    {
+      "target_argus_id": "ENT-BD-BCG-PD-224392800",
       "relation_type": "related_to",
       "evidence_refs": []
     },
@@ -34,7 +41,7 @@
       "as_of": "2026-10-18",
       "claim_type": "FACT",
       "claim_condition": "CURRENT",
-      "notes": "Official BPPA notice and two published corrigenda establish the current invitation reference, method, funding, lot identity, security, completion period and effective closing/opening dates."
+      "notes": "Official BPPA notice and two published corrigenda establish ministry, agency, procuring entity, invitation reference, method, funding, lot identity, security, completion period and effective closing/opening dates."
     },
     {
       "source_system": "DEW_PUBLIC_EOI",
@@ -76,11 +83,13 @@
   "attributes": {
     "procurement_type": "works_shipbuilding_procurement",
     "buyer_entity_id": "ENT-BD-COAST-GUARD",
-    "procuring_entity_id": "ENT-BD-COAST-GUARD",
+    "end_user_entity_ids": ["ENT-BD-COAST-GUARD"],
+    "procuring_entity_id": "ENT-BD-BCG-PD-224392800",
     "procuring_entity_name_raw": "Project Director",
     "procuring_entity_code": "224392800",
     "project_id": "PRJ-BCG-CPV-WD2",
     "project_code": "224392800",
+    "sponsoring_ministry_entity_id": "ENT-BD-MOHA",
     "sponsoring_ministry": "Ministry of Home Affairs",
     "agency": "Bangladesh Coast Guard Force",
     "solicitation_reference_no": "44.08.2680.033.02.106.26.160",
