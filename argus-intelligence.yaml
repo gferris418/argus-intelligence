@@ -14,6 +14,7 @@ authority:
   country_profiles:
     bangladesh: profiles/bangladesh.md
   domain_result_schema: schemas/domain-result.schema.json
+  atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
 
 scope:
   primary: pre-bid government and public-sector opportunity intelligence
@@ -34,9 +35,19 @@ production_runtime:
 atlas_compatibility:
   validated_against: 2.0.0-rc.7
   relationship: nested_domain_method
-  rule: ARGUS conforms to existing ATLAS contracts; ARGUS does not require ATLAS changes.
+  rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
+  atlas_domain_context_contract_version: 1.0.0
+  atlas_domain_context_contract_sha256: 57a0054b78754b91346206553c95bbef1211fa84df6e8c34f9542704870b8e30
+  atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
+  handoff_required_in_access_asia_production: true
+  accepted_handoff_states:
+    - READY
+    - PARTIAL
+  blocked_handoff_execution: prohibited
+  exact_return_correlation_required: true
 
 operating_loop:
+  - Contextualize
   - Discover
   - Extract
   - Resolve
@@ -213,6 +224,7 @@ domain_result:
   may_propose_domain_actions: true
   may_report_collection_coverage: true
   may_report_collection_gaps: true
+  atlas_governed_results_must_return_upstream_handoff_receipt: true
 
 release_gates:
   - Registry route/profile fields remain portable under ARGUS record contract: PASS
@@ -227,3 +239,4 @@ release_gates:
   - defence pre-procurement signal test passes: PASS
   - cross-fiscal-year project lineage test passes: PASS
   - promotion-before-live-tender test passes: PASS
+  - ATLAS domain-context handoff pin and return-correlation contract: PASS_PENDING_CI
