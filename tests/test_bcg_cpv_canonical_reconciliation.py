@@ -26,6 +26,20 @@ RECORDS = load_current_records()
 
 
 class BCGCPVCanonicalReconciliation(unittest.TestCase):
+    def test_institution_hierarchy_separates_ministry_agency_and_pe(self):
+        ministry = RECORDS["ENT-BD-MOHA"]
+        coast_guard = RECORDS["ENT-BD-COAST-GUARD"]
+        pe = RECORDS["ENT-BD-BCG-PD-224392800"]
+        proc = RECORDS["PROC-BCG-LT001"]["attributes"]
+
+        self.assertEqual(ministry["canonical_name_or_title"], "Ministry of Home Affairs")
+        self.assertEqual(coast_guard["attributes"]["parent_entity_id"], "ENT-BD-MOHA")
+        self.assertEqual(pe["attributes"]["parent_entity_id"], "ENT-BD-COAST-GUARD")
+        self.assertEqual(pe["attributes"]["official_identifier"], "224392800")
+        self.assertEqual(proc["buyer_entity_id"], "ENT-BD-COAST-GUARD")
+        self.assertEqual(proc["procuring_entity_id"], "ENT-BD-BCG-PD-224392800")
+        self.assertNotEqual(proc["buyer_entity_id"], proc["procuring_entity_id"])
+
     def test_project_is_linked_to_current_official_project_identity(self):
         project = RECORDS["PRJ-BCG-CPV-WD2"]
         attrs = project["attributes"]
@@ -45,6 +59,13 @@ class BCGCPVCanonicalReconciliation(unittest.TestCase):
         self.assertEqual(attrs["lot_no"], "1")
         self.assertEqual(attrs["lot_identification"], "WD-2")
         self.assertNotEqual(attrs["solicitation_reference_no"], attrs["lot_identification"])
+
+    def test_typed_identifiers_keep_equal_values_semantically_separate(self):
+        attrs = RECORDS["PROC-BCG-LT001"]["attributes"]
+        self.assertEqual(attrs["procuring_entity_code"], "224392800")
+        self.assertEqual(attrs["project_code"], "224392800")
+        self.assertEqual(attrs["procuring_entity_code"], attrs["project_code"])
+        self.assertNotEqual(attrs["procuring_entity_id"], attrs["project_id"])
 
     def test_procurement_is_current_i9_with_two_append_only_extensions(self):
         proc = RECORDS["PROC-BCG-LT001"]
