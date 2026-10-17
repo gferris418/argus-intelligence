@@ -14,9 +14,9 @@ authority:
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
-  bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.2.yaml
+  bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.3.yaml
   bangladesh_source_mappings: profiles/bangladesh-source-mappings.yaml
-  bangladesh_extended_source_mappings: profiles/bangladesh-source-mappings-v1.2.yaml
+  bangladesh_extended_source_mappings: profiles/bangladesh-source-mappings-v1.3.yaml
   bangladesh_institution_standard: profiles/bangladesh-institution-standard.yaml
   bangladesh_pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
   bangladesh_observation_schema: schemas/bangladesh-observation.schema.json
@@ -68,17 +68,18 @@ operating_loop:
 
 bangladesh_standardization:
   canonical_data_standard: profiles/bangladesh-data-standard.yaml
-  canonical_procurement_extension: profiles/bangladesh-canonical-procurement-standard-v1.2.yaml
+  canonical_procurement_extension: profiles/bangladesh-canonical-procurement-standard-v1.3.yaml
   source_mappings: profiles/bangladesh-source-mappings.yaml
-  extended_source_mappings: profiles/bangladesh-source-mappings-v1.2.yaml
+  extended_source_mappings: profiles/bangladesh-source-mappings-v1.3.yaml
   institution_standard: profiles/bangladesh-institution-standard.yaml
   pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
   observation_schema: schemas/bangladesh-observation-v1.1.schema.json
-  bangladesh_data_standard_version: 1.2.0
+  bangladesh_data_standard_version: 1.3.0
   development_partner_procurement_normalization: PASS
   egp_system_id_reference_no_separation: PASS
   institution_graph_normalization: PASS
   pursuit_activation_modes: PASS
+  tender_extension_and_retender_events: PASS
   rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before route, reconciliation, maturity or commercial assessment.
   preserve_raw_labels_and_values: true
   sparse_observations_allowed: true
@@ -88,6 +89,10 @@ bangladesh_standardization:
   preprocurement_layer_enabled: true
   multi_lot_structure_preserved: true
   procurement_milestone_structure_preserved: true
+  procurement_event_history_append_only: true
+  submission_deadline_and_tender_validity_extensions_are_distinct: true
+  retender_preserves_predecessor_procurement: true
+  retender_same_opportunity_by_default_after_reconciliation: true
   development_partner_controls_separate_from_procurement_method: true
   tender_portal_id_and_reference_are_distinct: true
   institution_names_resolve_to_canonical_graph: true
@@ -110,6 +115,8 @@ pursuit_activation:
   supplier_engagement_can_begin_before_tender: true
   customer_engagement_can_begin_before_tender_when_lawful: true
   specification_input_must_preserve_competition: true
+  deadline_extension_replans_live_response: true
+  retender_reengages_suppliers_and_refreshes_compliance: true
   current_bangladesh_framework: PPR 2025
 
 360_intelligence_collection:
@@ -207,6 +214,8 @@ bangladesh_lifecycle_validation:
   defence_preproc_evaluation_standardization: PASS
   cross_fiscal_adp_radp_lineage: PASS
   promotion_before_live_tender: PASS
+  tender_extension_same_procurement_lineage: PASS
+  retender_successor_procurement_same_opportunity_by_default: PASS
   validation_record: docs/validation/bangladesh-lifecycle-release-gates-rc2.md
   live_registry_mutation: false
 
@@ -298,3 +307,4 @@ release_gates:
   - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS
   - Bangladesh institution graph and naming contract: PASS
   - Bangladesh pursuit activation modes and specification-integrity controls: PASS
+  - Bangladesh tender extension and re-tender lifecycle events: PASS
