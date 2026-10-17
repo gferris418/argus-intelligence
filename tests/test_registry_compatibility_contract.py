@@ -50,10 +50,11 @@ class RegistryCompatibilityContract(unittest.TestCase):
         self.assertIn("CONFLICT", evidence["analytical_label_enum"])
         self.assertIn("STALE", evidence["analytical_label_enum"])
 
-    def test_manifest_tracks_candidate_fix_and_runtime_gate_separately(self):
-        self.assertIn("claim type and claim condition candidate schema/physical migration contract: PASS", MANIFEST)
-        self.assertIn("Registry API v0.1.1 source + live persistence support Registry v0.2.1: PENDING", MANIFEST)
-        self.assertIn("evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS_RUNTIME_PATCH_PENDING", MANIFEST)
+    def test_manifest_tracks_candidate_fix_and_database_deferral_separately(self):
+        self.assertIn("claim type and claim condition candidate schema contract: PASS", MANIFEST)
+        self.assertIn("operational database deployment for current phase: DEFERRED_NOT_REQUIRED", MANIFEST)
+        self.assertIn("evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS", MANIFEST)
+        self.assertIn("database_materialization_work: deferred_until_runtime_need", MANIFEST)
 
 
 if __name__ == "__main__":
