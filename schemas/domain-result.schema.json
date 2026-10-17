@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/domain-result.schema.json",
+  "title": "ARGUS Domain Result",
+  "description": "Domain-result contract returned by ARGUS to the governing runtime. It is not the final user-facing output contract.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "objective",
+    "candidate_or_opportunity",
+    "decision",
+    "maturity",
+    "evidence",
+    "unknowns_conflicts",
+    "next_recommended_action"
+  ],
+  "properties": {
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidate_or_opportunity": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["name"],
+      "properties": {
+        "argus_id": {"type": ["string", "null"]},
+        "name": {"type": "string", "minLength": 1},
+        "record_type": {
+          "type": ["string", "null"],
+          "enum": ["ENTITY", "PROJECT", "PROCUREMENT", "INTELLIGENCE", "OPPORTUNITY", "SUPPLIER_PRODUCT", "KNOWLEDGE", null]
+        }
+      }
+    },
+    "country_context": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "country_code": {"type": ["string", "null"]},
+        "route": {"type": ["string", "null"]},
+        "route_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+      }
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["MONITOR", "INVESTIGATE", "PROMOTE_TO_PX", "MERGE_EXISTING", "HOLD", "REJECT"]
+    },
+    "decision_rationale": {
+      "type": ["string", "null"]
+    },
+    "maturity": {
+      "type": "string",
+      "enum": ["I0", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9"]
+    },
+    "institutional_chain": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "project_budget_funding": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "procurement_planning_package": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "procurement_state_horizon": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "commercial_relevance": {
+      "type": ["object", "string", "null"],
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["claim", "claim_type", "claim_condition"],
+        "properties": {
+          "claim": {"type": "string", "minLength": 1},
+          "claim_type": {
+            "type": "string",
+            "enum": ["FACT", "DERIVED", "INFERENCE", "ASSUMPTION", "UNKNOWN"]
+          },
+          "claim_condition": {
+            "type": "string",
+            "enum": ["CURRENT", "STALE", "CONFLICT"]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "atlas_assurance": {
+            "type": ["string", "null"],
+            "enum": ["VERIFIED", "SUPPORTED", "INFERRED", "ASSUMED", "SPECULATIVE", "UNKNOWN", null]
+          },
+          "atlas_health": {
+            "type": ["string", "null"],
+            "enum": ["GREEN", "AMBER", "RED", "UNKNOWN", null]
+          }
+        }
+      }
+    },
+    "unknowns_conflicts": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "research_frontier": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["question"],
+        "properties": {
+          "question": {"type": "string", "minLength": 1},
+          "decision_relevance": {"type": ["string", "null"]},
+          "priority": {"type": ["integer", "null"], "minimum": 1}
+        }
+      }
+    },
+    "next_material_trigger": {
+      "type": ["string", "null"]
+    },
+    "next_recommended_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposed_domain_actions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/proposedAction"}
+    },
+    "proposed_registry_actions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/proposedAction"}
+    }
+  },
+  "$defs": {
+    "proposedAction": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["action", "rationale"],
+      "properties": {
+        "action": {"type": "string", "minLength": 1},
+        "target_argus_id": {"type": ["string", "null"]},
+        "rationale": {"type": "string", "minLength": 1},
+        "reversible": {"type": ["boolean", "null"]},
+        "approval_hint": {
+          "type": ["string", "null"],
+          "description": "Advisory domain metadata only; the governing runtime determines the actual approval requirement."
+        }
+      }
+    }
+  }
+}
