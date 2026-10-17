@@ -91,6 +91,20 @@ master_registry:
   write_boundary: RegistryStoreAdapter
   new_record_type_for_collection: false
 
+registry_compatibility:
+  validated_against_contract: ARGUS-REG-001 v0.2.0
+  validated_against_schema: ARGUS-SCHEMA-REG-001 v0.2.0
+  validated_schema_sha256: 2dad9c73dc0236395fe0418f6694ee53b478ccc51c86996d8bc00abff5f2f808
+  api_baseline: Registry API v0.1.1
+  bangladesh_route_fields: PASS_ADDITIVE_ATTRIBUTES
+  collection_coverage: PASS_ADDITIVE_ATTRIBUTES
+  collection_gaps: PASS_ADDITIVE_ATTRIBUTES
+  source_convergence: PASS_ADDITIVE_ATTRIBUTES
+  evidence_claim_type_condition_split: BLOCKED_REQUIRES_BACKWARD_COMPATIBLE_SCHEMA_EVOLUTION
+  required_registry_schema_target: 0.2.1
+  live_canonical_registry_mutated_by_this_validation: false
+  validation_record: docs/validation/registry-schema-compatibility-rc2.md
+
 canonical_ownership:
   structured_intelligence: ARGUS Master Registry
   communications: communication system
@@ -150,12 +164,12 @@ domain_result:
   may_report_collection_gaps: true
 
 release_gates:
-  - Registry API can represent route/profile fields without breaking existing records
-  - claim type and claim condition can be represented separately
-  - collection coverage can be represented without creating a new canonical record type
-  - representative Bangladesh route tests pass
-  - 360-degree collection contract test passes
-  - APP/tender/amendment/award reconciliation avoids duplicate opportunities
-  - defence pre-procurement signal test passes
-  - cross-fiscal-year project lineage test passes
-  - promotion-before-live-tender test passes
+  - Registry API can represent route/profile fields without breaking existing records: PASS
+  - collection coverage can be represented without creating a new canonical record type: PASS
+  - representative Bangladesh route compatibility tests against Registry v0.2.0 pass: PASS
+  - claim type and claim condition can be represented separately: BLOCKED_PENDING_REGISTRY_SCHEMA_0_2_1
+  - 360-degree collection contract test passes: PASS
+  - APP/tender/amendment/award reconciliation avoids duplicate opportunities: PENDING
+  - defence pre-procurement signal test passes: PENDING
+  - cross-fiscal-year project lineage test passes: PENDING
+  - promotion-before-live-tender test passes: PENDING
