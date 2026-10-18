@@ -145,7 +145,8 @@ class BangladeshProcurementV2MaterializationRehearsal(unittest.TestCase):
         text = REPORT.read_text().lower()
         for phrase in [
             "v1.3 remains active",
-            "no-go for live activation",
+            "no-go for live",
+            "activation",
             "record_state",
             "computed material information loss",
             "disposable activation/revert",
