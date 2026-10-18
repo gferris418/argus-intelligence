@@ -39,7 +39,7 @@
     ],
     "budget": {"type": "DEVELOPMENT"},
     "financing_entries": [
-      {"instrument": "GOVERNMENT_ALLOCATION", "reference": null, "amount": null, "currency": null, "status": null, "conditions": [], "scope": "PROCUREMENT", "source_raw": "GOVERNMENT"}
+      {"instrument": "GOVERNMENT_ALLOCATION", "reference": null, "amount": null, "currency": null, "status": null, "conditions": [], "scope": "PROCUREMENT"}
     ],
     "process": {
       "category": "GOODS",
@@ -80,7 +80,8 @@
       {"security_id": "SEC-TENDER-1", "type": "TENDER_SECURITY", "amount": 3900000, "currency": "BDT", "raw_text": "BDT 3,900,000", "validity_until": "2027-02-08", "lot_ref": "01", "source_ref": "EGP-1318662"}
     ],
     "observations": [
-      {"observation_id": "OBS-DAE-SYSTEM-ID", "field_path": "identifiers[SYSTEM_TENDER_ID]", "value": "1318662", "raw_label": "Tender/Proposal ID", "raw_value": "1318662", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_system": "USER_PROVIDED_EGP_NOTICE", "source_locator": "TenderNotice (77).pdf", "observed_at": "2026-10-18", "published_at": "2026-08-20T15:00:00+06:00", "claim_type": "FACT", "condition": "CURRENT", "assurance": "VERIFIED_SOURCE"}
+      {"observation_id": "OBS-DAE-SYSTEM-ID", "field_path": "identifiers[SYSTEM_TENDER_ID]", "value": "1318662", "raw_label": "Tender/Proposal ID", "raw_value": "1318662", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_system": "USER_PROVIDED_EGP_NOTICE", "source_locator": "TenderNotice (77).pdf", "observed_at": "2026-10-18", "published_at": "2026-08-20T15:00:00+06:00", "claim_type": "FACT", "condition": "CURRENT", "assurance": "VERIFIED_SOURCE"},
+      {"observation_id": "OBS-DAE-FUNDING-RAW", "field_path": "financing_entries[0].instrument", "value": "GOVERNMENT_ALLOCATION", "raw_label": "Source of Funds", "raw_value": "GOVERNMENT", "source_id": "file_000000000f0c820897de3855ac90cc4f", "source_system": "USER_PROVIDED_EGP_NOTICE", "source_locator": "TenderNotice (77).pdf", "observed_at": "2026-10-18", "published_at": "2026-08-20T15:00:00+06:00", "claim_type": "FACT", "condition": "CURRENT", "assurance": "VERIFIED_SOURCE"}
     ],
     "intelligence": {
       "maturity": "I9",

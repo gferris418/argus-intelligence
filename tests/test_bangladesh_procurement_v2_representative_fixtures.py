@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "tests" / "fixtures" / "bangladesh-v2"
 REPORT = ROOT / "docs" / "validation" / "bangladesh-procurement-v2-representative-fixtures.md"
 MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
-V2_ADDENDUM = (ROOT / "profiles" / "bangladesh-canonical-procurement-standard-v2.0-validation-addendum.yaml")
+V2 = (ROOT / "profiles" / "bangladesh-canonical-procurement-standard-v2.0.yaml")
 
 FIXTURES = {
     "bcg_cpv": FIXTURE_DIR / "bcg-cpv.json",
@@ -128,10 +128,10 @@ class BangladeshProcurementV2RepresentativeFixtures(unittest.TestCase):
         self.assertEqual(r["financing_entries"][0]["instrument"], "CREDIT")
         self.assertEqual(r["financing_entries"][0]["reference"], "IDA / 78280")
         self.assertEqual(r["process"]["status_raw"], "Pending Implementation")
-        self.assertTrue(V2_ADDENDUM.exists())
-        addendum = V2_ADDENDUM.read_text()
-        self.assertIn("EXPECTED_PUBLICATION", addendum)
-        self.assertIn("PROCUREMENT_DOCUMENT_READY", addendum)
+        self.assertTrue(V2.exists())
+        candidate = V2.read_text()
+        self.assertIn("EXPECTED_PUBLICATION", candidate)
+        self.assertIn("PROCUREMENT_DOCUMENT_READY", candidate)
         ms = milestones(r)
         for milestone_type in ("PROCUREMENT_DOCUMENT_READY", "EXPECTED_PUBLICATION", "SUBMISSION_DEADLINE", "EVALUATION_COMPLETE", "CONTRACT_SIGNING", "COMPLETION"):
             self.assertIn(milestone_type, ms)

@@ -1,0 +1,8 @@
+{
+  "PROC-BCG-LT001": "tests/fixtures/bangladesh-v2/bcg-cpv.json",
+  "PROC-DAE-1318662": "tests/fixtures/bangladesh-v2/dae-low-lift-pump.json",
+  "PROC-DAE-CHAR28-R2": "tests/fixtures/bangladesh-v2/dae-low-lift-pump-successor.json",
+  "PROC-DGDP-248-07-075-26": "tests/fixtures/bangladesh-v2/dgdp-inflatable-boat.json",
+  "PROC-DGDP-248-07-076-26": "tests/fixtures/bangladesh-v2/dgdp-rhib.json",
+  "PROC-DGDP-248-07-078-26": "tests/fixtures/bangladesh-v2/dgdp-scuba.json"
+}

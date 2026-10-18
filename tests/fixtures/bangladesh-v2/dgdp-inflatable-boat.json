@@ -1,0 +1,69 @@
+{
+  "fixture_type": "current_record_v2_dry_run",
+  "target_standard": "2.0.0-candidate",
+  "live_registry_mutation": false,
+  "source_basis": {
+    "current_record": "data/registry/current/PROC-DGDP-248-07-075-26.json",
+    "primary_source_system": "USER_PROVIDED_DGDP_NOTICE",
+    "corroborating_source": "DGDP_PUBLIC_NAVY_WING",
+    "as_of": "2026-10-18"
+  },
+  "v2_candidate": {
+    "argus_id": "PROC-DGDP-248-07-075-26",
+    "title": "Inflatable Boat (IB) Without Engines",
+    "record_state": "CURRENT",
+    "record_revision": 1,
+    "identifiers": [
+      {"scheme": "DGDP_TENDER_NUMBER", "value": "248.07.075.26", "scope": "PROCESS", "source_system": "DGDP", "source_label": "Tender No."}
+    ],
+    "party_role_links": [
+      {"party_id": "ENT-BD-MOD", "role": "SPONSORING_MINISTRY", "source_role_label": "Ministry of Defence", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-DGDP", "role": "PROCURING_ENTITY", "source_role_label": "Directorate General Defence Purchase", "unit_label": "Navy Wing / NP-8", "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-NAVY", "role": "END_USER", "source_role_label": "Bangladesh Navy", "unit_label": null, "effective_from": null, "effective_to": null}
+    ],
+    "process": {
+      "route": "BD-DEF-DGDP",
+      "category": "GOODS",
+      "method_normalized": "OPEN",
+      "method_source_label": "Open tender",
+      "status_raw": "Open",
+      "status_normalized": "OPEN"
+    },
+    "items": [
+      {"item_id": "ITEM-1", "description": "Inflatable Boat (IB) Without Engines", "quantity": 3, "unit": "Nos", "lot_ref": null, "classifications": []}
+    ],
+    "notices": [
+      {"notice_id": "DGDP-248.07.075.26", "notice_type": "TENDER_NOTICE", "version": 1, "published_at": null, "source_system": "DGDP", "source_locator": "tender_20261014114803.pdf"}
+    ],
+    "milestones": [
+      {"milestone_id": "MS-SALE-START", "type": "DOCUMENT_SALE_START", "due_at": "2026-10-15", "original_due_at": "2026-10-15", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": null, "source_ref": "DGDP-248.07.075.26"},
+      {"milestone_id": "MS-SALE-END", "type": "DOCUMENT_SALE_END", "due_at": "2026-11-25", "original_due_at": "2026-11-25", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": null, "source_ref": "DGDP-248.07.075.26"},
+      {"milestone_id": "MS-SUBMISSION", "type": "SUBMISSION_DEADLINE", "due_at": "2026-11-26T12:00:00+06:00", "original_due_at": "2026-11-26T12:00:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": null, "source_ref": "DGDP-248.07.075.26"},
+      {"milestone_id": "MS-OPENING", "type": "OPENING", "due_at": "2026-11-26T12:05:00+06:00", "original_due_at": "2026-11-26T12:05:00+06:00", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": null, "source_ref": "DGDP-248.07.075.26"}
+    ],
+    "requirements": [
+      {"requirement_id": "REQ-ENLIST-1", "type": "ENLISTMENT", "text": "Bona fide Manufacturer/Dealer/Suppliers/Importers enlisted with DGDP", "normalized_value": "DGDP_ENLISTMENT_REQUIRED", "mandatory": true, "scope": "PROCESS", "lot_ref": null, "source_ref": "DGDP-248.07.075.26"}
+    ],
+    "fees": [
+      {"fee_id": "FEE-SCHEDULE-1", "type": "SCHEDULE_PURCHASE", "amount": 1000, "currency": "BDT", "raw_text": "BDT 1,000", "refundable": false, "lot_ref": null, "source_ref": "DGDP-248.07.075.26"}
+    ],
+    "observations": [
+      {"observation_id": "OBS-DGDP-075-TENDER-NO", "field_path": "identifiers[DGDP_TENDER_NUMBER]", "value": "248.07.075.26", "raw_label": "Tender No.", "raw_value": "248.07.075.26", "source_id": "file_00000000377c8208a0ee09a6a4b4bb9c", "source_system": "USER_PROVIDED_DGDP_NOTICE", "source_locator": "tender_20261014114803.pdf", "observed_at": "2026-10-18", "published_at": null, "claim_type": "FACT", "condition": "CURRENT", "assurance": "VERIFIED_SOURCE"},
+      {"observation_id": "OBS-DGDP-075-CURRENCY-BASIS", "field_path": "observations[tender_currency_basis]", "value": "FOREIGN_CURRENCY", "raw_label": "currency basis", "raw_value": "foreign currency", "source_id": "file_00000000377c8208a0ee09a6a4b4bb9c", "source_system": "USER_PROVIDED_DGDP_NOTICE", "source_locator": "tender_20261014114803.pdf", "observed_at": "2026-10-18", "published_at": null, "claim_type": "FACT", "condition": "CURRENT", "assurance": "VERIFIED_SOURCE"}
+    ],
+    "intelligence": {
+      "maturity": "I9",
+      "activation_mode": "LIVE_TENDER_RESPONSE",
+      "commercial_fit": null,
+      "supplier_discovery_state": "PENDING_TECHNICAL_SCHEDULE",
+      "material_unknowns": ["Detailed inflatable-boat dimensions/performance specification", "Material/construction requirements", "Delivery schedule/location", "Tender security and performance-security requirements", "Warranty/training/spares requirements", "Country-of-origin or source restrictions if any", "Specific DGDP enlistment category"],
+      "research_frontier": "Obtain and review the DGDP inflatable-boat technical tender schedule/specification before supplier shortlisting or compliance assessment.",
+      "next_action": "Retrieve and review the DGDP technical schedule."
+    }
+  },
+  "preservation_assessment": {
+    "material_information_loss": 0,
+    "semantic_equivalence": "PASS",
+    "guardrail": "Foreign-currency tender basis is retained as evidence and does not imply INTERNATIONAL competition scope."
+  }
+}
