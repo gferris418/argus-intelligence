@@ -19,17 +19,19 @@
       "additionalProperties": false,
       "required": [
         "version", "commit", "handoff_contract_version", "handoff_id",
-        "payload_sha256", "source_task_id", "source_plan_id", "source_work_unit_id"
+        "payload_sha256", "source_task_id", "source_plan_id", "source_work_unit_id",
+        "handoff_attestation"
       ],
       "properties": {
         "version": {"const": "2.0.0-rc.8"},
-        "commit": {"const": "01ca6b772e696c534b146b560fa0ecef5f76555d"},
+        "commit": {"const": "51130014352b30000f847623691f56390cf174aa"},
         "handoff_contract_version": {"const": "1.1.0"},
         "handoff_id": {"type": "string"},
         "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
         "source_task_id": {"type": "string"},
         "source_plan_id": {"type": "string"},
-        "source_work_unit_id": {"type": "string"}
+        "source_work_unit_id": {"type": "string"},
+        "handoff_attestation": {"$ref": "#/$defs/atlasAttestation"}
       }
     },
     "argus": {
@@ -87,5 +89,33 @@
       ]
     },
     "resume_from": {"type": ["string", "null"]}
-  }
+  },
+  "$defs": {
+    "atlasAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "issuer", "algorithm", "key_id", "record_sha256", "signature"],
+      "properties": {
+        "version": {"const": "1"},
+        "issuer": {"const": "ATLAS_OS"},
+        "algorithm": {"const": "Ed25519"},
+        "key_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"},
+        "record_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "signature": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"enum": ["RESULT_READY", "RETURNED"]}}, "required": ["state"]},
+      "then": {
+        "properties": {
+          "argus": {
+            "properties": {"result_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}},
+            "required": ["result_sha256"]
+          }
+        }
+      }
+    }
+  ]
 }

@@ -3,7 +3,7 @@
 **Date:** 2026-10-18  
 **Status:** IMPLEMENTED_CANDIDATE
 **Scope:** ARGUS implementation against immutable ATLAS OS contracts  
-**ATLAS baseline:** `2.0.0-rc.8` at `01ca6b772e696c534b146b560fa0ecef5f76555d`
+**ATLAS baseline:** `2.0.0-rc.8` at `51130014352b30000f847623691f56390cf174aa`
 **ARGUS implementation base:** `2.0.0-rc.2` at `fe7ef26ed90cda49b4962b9ab7f707640c4ddc62`
 **ATLAS modification required:** Completed separately in the RC8 control-plane remediation
 **Production activation:** No
@@ -109,7 +109,7 @@ ARGUS shall maintain an executable compatibility descriptor for the approved ATL
 ```yaml
 atlas_compatibility:
   atlas_version: 2.0.0-rc.8
-  atlas_commit: 01ca6b772e696c534b146b560fa0ecef5f76555d
+  atlas_commit: 51130014352b30000f847623691f56390cf174aa
   handoff_contract_version: 1.1.0
   source_contracts:
     domain_context_handoff:
@@ -261,9 +261,12 @@ result.upstream_handoff.handoff_id        == handoff.handoff_id
 result.upstream_handoff.payload_sha256    == handoff.payload_sha256
 result.upstream_handoff.consumer          == ARGUS
 result.upstream_handoff.status            == ACCEPTED
+result.sync_execution_id                  == receipt.sync_execution_id
+result.sync_attempt                       == receipt.attempt
+result.result_sha256                      == sha256(canonical result payload)
 ```
 
-The active handoff digest must also still verify.
+The active handoff digest must also still verify, and its detached Ed25519 attestation must validate against an operator-pinned ATLAS public key. An unkeyed digest is not producer authentication.
 
 Any mismatch yields `VALIDATION_FAILED`; no usable governed domain result is emitted.
 
@@ -333,10 +336,11 @@ A governed mutation may execute only when:
 1. the originating synchronization execution is current and exactly correlated;
 2. the proposed action matches the action being authorized;
 3. the ATLAS approval object validates against the pinned ATLAS approval schema;
-4. the governing execution provides `expected_scope[]`, and every expected element exists exactly in `approval.scope`;
-5. approval state satisfies Section 6;
-6. the mutation implementation remains idempotent;
-7. outcome is independently verified after mutation.
+4. the approval's detached Ed25519 attestation validates against an operator-pinned ATLAS public key;
+5. the governing execution provides non-empty `expected_scope[]`, and every expected element exists exactly in `approval.scope`;
+6. approval state satisfies Section 6 and is bound to the receipt task, plan, work unit and handoff;
+7. the mutation implementation remains idempotent across replacement synchronization executions;
+8. outcome is independently verified after mutation.
 
 Permanent PX creation, destructive merge, identity reassignment and other major canonical-state changes remain subject to ATLAS approval controls.
 

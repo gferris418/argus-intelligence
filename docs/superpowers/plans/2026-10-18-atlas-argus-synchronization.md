@@ -4,7 +4,7 @@
 
 **Goal:** Implement an ARGUS-side synchronization runtime that enforces the approved ATLAS OS handoff, correlation, invalidation, retry/resume, and approval semantics without changing ATLAS OS or activating any pending ARGUS production migration.
 
-**Architecture:** ATLAS OS remains the immutable upstream governance authority. ARGUS pins the approved ATLAS 2.0.0-rc.8 contracts at commit `01ca6b772e696c534b146b560fa0ecef5f76555d`, validates incoming handoffs and approvals against those contracts, maintains only local synchronization-execution state, and returns exactly correlated domain results. Synchronization receipts are interoperability evidence, not Master Registry records.
+**Architecture:** ATLAS OS remains the immutable upstream governance authority. ARGUS pins the approved ATLAS 2.0.0-rc.8 contracts at commit `51130014352b30000f847623691f56390cf174aa`, validates incoming handoffs and approvals against those contracts, maintains only local synchronization-execution state, and returns exactly correlated domain results. Synchronization receipts are interoperability evidence, not Master Registry records.
 
 **Tech Stack:** Python 3.12 standard library, `jsonschema==4.23.0`, JSON Schema Draft 2020-12, `unittest`, GitHub Actions Contract Tests.
 
@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Do not further modify `gferris418/atlas-os` during ARGUS implementation; approved ATLAS baseline is `2.0.0-rc.8` at `01ca6b772e696c534b146b560fa0ecef5f76555d`.
+- Do not further modify `gferris418/atlas-os` during ARGUS implementation; approved ATLAS baseline is `2.0.0-rc.8` at `51130014352b30000f847623691f56390cf174aa`.
 - Handoff contract version is `1.1.0`; ARGUS adapts to ATLAS rather than redefining ATLAS semantics.
 - Bangladesh Procurement v1.3 remains the active ARGUS production procurement standard; no v2/v0.3 activation or live registry mutation belongs to this plan.
 - Reuse the ATLAS approval schema; do not introduce a second authorization schema.
@@ -61,7 +61,7 @@
 - Modify: `tests/test_atlas_domain_handoff_contract.py`
 
 **Interfaces:**
-- Consumes: approved ATLAS commit `01ca6b772e696c534b146b560fa0ecef5f76555d` and exact upstream bytes from `schemas/domain-context-handoff.schema.json`, `schemas/domain-handoff-receipt.schema.json`, `schemas/approval.schema.json`, `spec/runtime.yaml`, `spec/approvals.yaml`, `spec/verification.yaml`.
+- Consumes: approved ATLAS commit `51130014352b30000f847623691f56390cf174aa` and exact upstream bytes from `schemas/domain-context-handoff.schema.json`, `schemas/domain-handoff-receipt.schema.json`, `schemas/approval.schema.json`, `spec/runtime.yaml`, `spec/approvals.yaml`, `spec/verification.yaml`.
 - Produces: compatibility descriptor parsed by `json.loads(Path(...).read_text())`; local receipt and approval schema paths used by `tools/atlas_sync.py`.
 
 - [ ] **Step 1: Write failing compatibility tests**
@@ -76,7 +76,7 @@ def test_pinned_approval_copy_hash_matches_descriptor(): ...
 def test_sync_descriptor_contains_no_placeholder_hashes(): ...
 ```
 
-Assertions must require ATLAS version `2.0.0-rc.8`, commit `01ca6b772e696c534b146b560fa0ecef5f76555d`, contract version `1.1.0`, and 64-character lowercase SHA-256 values for all six source entries.
+Assertions must require ATLAS version `2.0.0-rc.8`, commit `51130014352b30000f847623691f56390cf174aa`, contract version `1.1.0`, and 64-character lowercase SHA-256 values for all six source entries.
 
 - [ ] **Step 2: Run the focused tests and confirm RED**
 
@@ -113,8 +113,8 @@ Commit message: `Pin ATLAS synchronization compatibility contracts`.
 - Produces these exact public interfaces in `tools/atlas_sync.py`:
   - `class SyncValidationError(ValueError):` with public attributes `code: str` and `atlas_failure_state: str`.
   - `canonical_handoff_sha256(handoff: dict[str, Any]) -> str`
-  - `validate_handoff(handoff: dict[str, Any]) -> None`
-  - `new_sync_receipt(sync_execution_id: str, handoff: dict[str, Any], started_at: str) -> dict[str, Any]`
+  - `validate_handoff(handoff, *, atlas_attestation, trusted_public_keys) -> None`
+  - `new_sync_receipt(sync_execution_id, handoff, started_at, *, atlas_attestation, trusted_public_keys) -> dict`
   - `transition_sync(receipt: dict[str, Any], target_state: str) -> dict[str, Any]`
   - `validate_sync_receipt(receipt: dict[str, Any]) -> None`
   - `mark_upstream_context_change(receipt: dict[str, Any], affected_facets: list[str], evidence_refs: list[str], reason: str) -> dict[str, Any]`
@@ -143,7 +143,7 @@ Failure enum/null: ATLAS runtime vocabulary only: `BLOCKED`, `PARTIAL`, `UNVERIF
 
 Canonical digest: UTF-8 JSON, sorted keys, compact separators, excluding `payload_sha256`, returned as `sha256:<64 hex>`.
 
-`validate_handoff` must Draft-2020-12 validate, enforce consumer `ARGUS`, supported version, digest equality, and fail closed on `BLOCKED`.
+`validate_handoff` must Draft-2020-12 validate, verify the detached Ed25519 ATLAS attestation with an operator-pinned public key, enforce the 24-hour activation window, independently derive state, enforce consumer `ARGUS`, supported version, digest equality, and fail closed on `BLOCKED`.
 
 Lifecycle transitions are explicit allow-list transitions from the spec; no arbitrary state mutation.
 
@@ -167,8 +167,8 @@ Commit message: `Add ATLAS ARGUS handoff synchronization runtime`.
 **Interfaces:**
 - Consumes: Task 2 receipt/lifecycle functions.
 - Produces:
-  - `validate_result_correlation(result: dict[str, Any], handoff: dict[str, Any], receipt: dict[str, Any]) -> None`
-  - `retry_sync(receipt: dict[str, Any], handoff: dict[str, Any]) -> dict[str, Any]`
+  - `validate_result_correlation(result, handoff, receipt, *, trusted_public_keys) -> dict`
+  - `retry_sync(receipt, handoff, *, trusted_public_keys) -> dict`
   - `resume_sync(receipt: dict[str, Any], handoff: dict[str, Any], *, active_sync_execution_id: str, stored_registry_fingerprint: str, actual_registry_fingerprint: str) -> dict[str, Any]`
   - `map_atlas_failure(condition: str) -> str`
 
@@ -209,13 +209,13 @@ Commit message: `Enforce ATLAS ARGUS correlation retry and resume`.
 **Interfaces:**
 - Consumes: pinned `contracts/atlas/approval-v1.schema.json`, current synchronization receipt, ARGUS proposed action object from `schemas/domain-result.schema.json`.
 - Produces:
-  - `validate_action_authorization(action: dict[str, Any], approval: dict[str, Any], expected_scope: list[str]) -> None`
-  - `action_idempotency_key(sync_execution_id: str, action: dict[str, Any]) -> str`
-  - `authorize_action(receipt: dict[str, Any], action: dict[str, Any], approval: dict[str, Any], expected_scope: list[str]) -> dict[str, Any]`
+  - `validate_action_authorization(action, approval, expected_scope, receipt, *, approval_attestation, trusted_public_keys) -> None`
+  - `action_idempotency_key(action: dict[str, Any]) -> str`
+  - `authorize_action(receipt, action, approval, expected_scope, *, approval_attestation, trusted_public_keys) -> dict`
 
 - [ ] **Step 1: Write failing approval/idempotence tests**
 
-Cover required+APPROVED success; required+PENDING/DENIED/EXPIRED rejection; required=false+NOT_REQUIRED success; required=false+APPROVED rejection; subset scope success; out-of-scope rejection; fuzzy string similarity rejection; superseded receipt rejection; deterministic idempotency key; and repeated authorization not duplicating `authorized_actions`.
+Cover required+APPROVED success; required+PENDING/DENIED/EXPIRED rejection; `NOT_REQUIRED` rejection for canonical mutation; untrusted/fabricated attestation rejection; subset scope success; out-of-scope rejection; fuzzy string similarity rejection; superseded receipt rejection; deterministic cross-execution idempotency key; and repeated authorization not duplicating `authorized_actions`.
 
 - [ ] **Step 2: Run focused tests and confirm RED**
 
@@ -225,7 +225,7 @@ Expected: FAIL on new Task 4 tests.
 
 - [ ] **Step 3: Implement Task 4 functions**
 
-Approval validation uses the exact pinned ATLAS schema. Scope test is only `set(expected_scope).issubset(set(approval["scope"]))`; no normalization/fuzzy matching. `authorize_action` records approval ID and one deterministic idempotency key; an existing same key returns an unchanged receipt.
+Approval validation uses the exact pinned ATLAS schema plus a detached Ed25519 attestation verified with an operator-pinned ATLAS public key. Scope test is only `set(expected_scope).issubset(set(approval["scope"]))`; no normalization/fuzzy matching. `authorize_action` records approval ID and one action-derived deterministic idempotency key; an existing same key returns an unchanged receipt.
 
 - [ ] **Step 4: Run focused tests and confirm GREEN**
 

@@ -1,7 +1,7 @@
 {
   "atlas_compatibility": {
     "atlas_version": "2.0.0-rc.8",
-    "atlas_commit": "01ca6b772e696c534b146b560fa0ecef5f76555d",
+    "atlas_commit": "51130014352b30000f847623691f56390cf174aa",
     "control_revision": "chatgpt-bootstrap-2026-10-18-r2",
     "handoff_contract_version": "1.1.0",
     "source_contracts": {
@@ -18,7 +18,7 @@
       "approval": {
         "source_path": "schemas/approval.schema.json",
         "local_path": "contracts/atlas/approval-v1.schema.json",
-        "sha256": "2f004ca8481cf8f0c91f8c5e3167f46ba2c6a397769ff950e0e5c452013ba12d"
+        "sha256": "ee4ccefe38069a7a1add8c347f3c486214a237aa209eb00b437bf9983ed244b7"
       },
       "runtime": {
         "source_path": "spec/runtime.yaml",
@@ -26,11 +26,11 @@
       },
       "approvals": {
         "source_path": "spec/approvals.yaml",
-        "sha256": "21b5348f53f68f0c7e47493298df94b9d3386ec6cabb566394e46c61be37a778"
+        "sha256": "2b6fdb13a0ef5aae3e1cbcb88de37abd2a6566678ba7899384de3521308eeaf0"
       },
       "verification": {
         "source_path": "spec/verification.yaml",
-        "sha256": "dde7cd0f46b263d0d696f5e4589f1ee78c80f77148cf1030e39f385b21bd38f8"
+        "sha256": "8c996bde7445df429f5e15fa6225ad16e8823217f73362e26159ef83d04fb2ad"
       }
     }
   }

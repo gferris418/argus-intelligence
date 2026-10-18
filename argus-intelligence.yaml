@@ -27,6 +27,7 @@ authority:
   atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml
   atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json
   synchronization_runtime: tools/atlas_sync.py
+  synchronization_validation_record: docs/validation/atlas-argus-synchronization-v1.md
 
 scope:
   primary: pre-bid government and public-sector opportunity intelligence
@@ -46,7 +47,7 @@ production_runtime:
 
 atlas_compatibility:
   validated_against: 2.0.0-rc.8
-  validated_against_commit: 01ca6b772e696c534b146b560fa0ecef5f76555d
+  validated_against_commit: 51130014352b30000f847623691f56390cf174aa
   control_revision: chatgpt-bootstrap-2026-10-18-r2
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
@@ -61,6 +62,7 @@ atlas_compatibility:
   replay_and_stale_result_protection: enforced
   retry_resume_reconciliation: enforced
   action_authorization_binding: enforced
+  atlas_control_record_authenticity: detached_ed25519_operator_pinned_public_key
   activation_contract_version: 1.0.0
   activation_authority: ATLAS_OS
   activation_capability: government_public_sector_opportunity_intelligence
