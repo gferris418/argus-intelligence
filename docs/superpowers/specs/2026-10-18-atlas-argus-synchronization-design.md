@@ -114,23 +114,25 @@ atlas_compatibility:
   source_contracts:
     domain_context_handoff:
       source_path: schemas/domain-context-handoff.schema.json
-      sha256: <computed>
+      sha256: <64-lowercase-hex-of-exact-approved-upstream-bytes>
     domain_handoff_receipt:
       source_path: schemas/domain-handoff-receipt.schema.json
-      sha256: <computed>
+      sha256: <64-lowercase-hex-of-exact-approved-upstream-bytes>
     approval:
       source_path: schemas/approval.schema.json
-      sha256: <computed>
+      sha256: <64-lowercase-hex-of-exact-approved-upstream-bytes>
     runtime:
       source_path: spec/runtime.yaml
-      sha256: <computed>
+      sha256: <64-lowercase-hex-of-exact-approved-upstream-bytes>
     approvals:
       source_path: spec/approvals.yaml
-      sha256: <computed>
+      sha256: <64-lowercase-hex-of-exact-approved-upstream-bytes>
     verification:
       source_path: spec/verification.yaml
-      sha256: <computed>
+      sha256: <64-lowercase-hex-of-exact-approved-upstream-bytes>
 ```
+
+The angle-bracket notation above specifies the required value format, not a value to be committed literally. Implementation must compute and commit the actual SHA-256 values from the exact approved ATLAS baseline bytes.
 
 Build/test compatibility fails closed if a pinned contract or normative ATLAS source changes without a separately reviewed compatibility update.
 
@@ -152,7 +154,19 @@ ATLAS already defines `schemas/approval.schema.json` with:
 
 ARGUS shall pin and validate that ATLAS approval schema for actions that require governed authorization.
 
-For synchronization, ARGUS only needs to reference validated ATLAS approval objects by approval ID and verify that the approval scope covers the proposed action/target/material impact. ARGUS does not decide the actual approval requirement; ATLAS does.
+ARGUS must not invent a second semantic syntax for `scope[]`. Instead, the governing execution context supplies an `expected_scope[]` for the proposed action. ARGUS authorization performs only exact membership checks:
+
+`set(expected_scope) ⊆ set(approval.scope)`
+
+This keeps the meaning and construction of approval scope upstream under ATLAS governance while allowing ARGUS to fail closed if the presented approval does not cover the scope expected by the governing execution.
+
+Authorization rules:
+
+- when `approval.required = true`, `approval.status` must be `APPROVED`;
+- when `approval.required = false`, `approval.status` must be `NOT_REQUIRED`;
+- `PENDING`, `DENIED`, and `EXPIRED` never authorize mutation;
+- the expected scope must be covered exactly by membership, with no fuzzy or inferred matching;
+- ARGUS does not decide whether approval is required; ATLAS does.
 
 ## 7. Handoff validation
 
@@ -318,9 +332,9 @@ A governed mutation may execute only when:
 
 1. the originating synchronization execution is current and exactly correlated;
 2. the proposed action matches the action being authorized;
-3. any required ATLAS approval object validates against the pinned ATLAS approval schema;
-4. approval status is `APPROVED` or ATLAS explicitly determines `NOT_REQUIRED`;
-5. approval scope covers the described action, target and material impact;
+3. the ATLAS approval object validates against the pinned ATLAS approval schema;
+4. the governing execution provides `expected_scope[]`, and every expected element exists exactly in `approval.scope`;
+5. approval state satisfies Section 6;
 6. the mutation implementation remains idempotent;
 7. outcome is independently verified after mutation.
 
@@ -412,13 +426,14 @@ Implementation must add tests covering at minimum:
 11. **Resume reconciliation** — actual persisted state and handoff validity are checked before continuation.
 12. **Failure mapping** — conditions map to the existing ATLAS failure vocabulary.
 13. **Approval reuse** — ATLAS approval schema is reused; no duplicate authorization schema is introduced.
-14. **Mutation gating** — major canonical mutation cannot execute without valid current ATLAS authorization where required.
-15. **Approval scope** — an approved but out-of-scope approval cannot authorize a different action/target.
-16. **Idempotence** — repeated accepted result/action processing does not duplicate canonical mutations.
-17. **Synchronization receipt validation** — receipt shape/correlation fields validate.
-18. **Standalone isolation** — standalone ARGUS remains possible but cannot masquerade as ATLAS-governed execution.
-19. **ATLAS immutability** — ARGUS implementation changes no `atlas-os` file and tests are read/fixture based.
-20. **Production boundary** — no ARGUS live registry mutation or manifest authority change is part of this synchronization hardening gate.
+14. **Approval status** — required/NOT_REQUIRED combinations are enforced conservatively.
+15. **Approval scope** — `expected_scope` must be an exact subset of `approval.scope`; fuzzy scope matching is prohibited.
+16. **Mutation gating** — major canonical mutation cannot execute without valid current ATLAS authorization where required.
+17. **Idempotence** — repeated accepted result/action processing does not duplicate canonical mutations.
+18. **Synchronization receipt validation** — receipt shape/correlation fields validate.
+19. **Standalone isolation** — standalone ARGUS remains possible but cannot masquerade as ATLAS-governed execution.
+20. **ATLAS immutability** — ARGUS implementation changes no `atlas-os` file and tests are read/fixture based.
+21. **Production boundary** — no ARGUS live registry mutation or manifest authority change is part of this synchronization hardening gate.
 
 ## 19. Planned ARGUS repository changes
 
@@ -434,7 +449,7 @@ contracts/atlas/
 schemas/
   atlas-argus-sync-receipt.schema.json
 
-argus_runtime/ or tools/
+tools/
   atlas_sync.py                                   # pure validation/lifecycle helpers
 
 tests/
@@ -470,14 +485,14 @@ This design does not:
 The synchronization hardening gate is complete only when all are true:
 
 1. ATLAS repository remains byte/state unchanged from the approved baseline.
-2. ARGUS declares one approved ATLAS compatibility baseline with verifiable hashes.
+2. ARGUS declares one approved ATLAS compatibility baseline with actual verifiable hashes.
 3. all pinned ATLAS runtime schemas used by ARGUS match the approved ATLAS source.
 4. handoff schema, digest, consumer and state are executable preconditions to governed ARGUS execution.
 5. exact result correlation is executable, not documentation-only.
 6. material upstream-context changes invalidate dependent work and require a new ATLAS handoff.
 7. retry and resume behavior is deterministic and tested.
 8. ATLAS failure vocabulary is reused.
-9. ATLAS approval schema is reused and action scope is checked.
+9. ATLAS approval schema is reused and exact expected-scope coverage is checked.
 10. destructive/major canonical mutations remain impossible without required current authorization.
 11. synchronization receipts are machine-valid and do not become canonical intelligence records.
 12. standalone mode remains distinct from ATLAS-governed execution.
