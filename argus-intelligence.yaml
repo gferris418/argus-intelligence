@@ -24,6 +24,7 @@ authority:
   domain_result_schema: schemas/domain-result.schema.json
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_activation_contract: contracts/atlas/argus-activation-v1.json
+  atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml
 
 scope:
   primary: pre-bid government and public-sector opportunity intelligence
@@ -42,10 +43,12 @@ production_runtime:
       - non_access_asia_implementation
 
 atlas_compatibility:
-  validated_against: 2.0.0-rc.7
+  validated_against: 2.0.0-rc.8
+  validated_against_commit: 01ca6b772e696c534b146b560fa0ecef5f76555d
+  control_revision: chatgpt-bootstrap-2026-10-18-r2
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
-  atlas_domain_context_contract_version: 1.0.0
+  atlas_domain_context_contract_version: 1.1.0
   atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
   handoff_required_in_access_asia_production: true
   accepted_handoff_states:

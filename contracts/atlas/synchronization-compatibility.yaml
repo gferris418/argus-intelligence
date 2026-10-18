@@ -1,0 +1,37 @@
+{
+  "atlas_compatibility": {
+    "atlas_version": "2.0.0-rc.8",
+    "atlas_commit": "01ca6b772e696c534b146b560fa0ecef5f76555d",
+    "control_revision": "chatgpt-bootstrap-2026-10-18-r2",
+    "handoff_contract_version": "1.1.0",
+    "source_contracts": {
+      "domain_context_handoff": {
+        "source_path": "schemas/domain-context-handoff.schema.json",
+        "local_path": "contracts/atlas/domain-context-handoff-v1.schema.json",
+        "sha256": "fb2d5f87d1b98c2403656ddb56ffc738027aeafcee1f42be6ebc389608545cc6"
+      },
+      "domain_handoff_receipt": {
+        "source_path": "schemas/domain-handoff-receipt.schema.json",
+        "local_path": "contracts/atlas/domain-handoff-receipt-v1.schema.json",
+        "sha256": "17abe08ed4574cd59eab1c6a0bba48d53a54d7d1116dd60ac14fbb1cb267b738"
+      },
+      "approval": {
+        "source_path": "schemas/approval.schema.json",
+        "local_path": "contracts/atlas/approval-v1.schema.json",
+        "sha256": "2f004ca8481cf8f0c91f8c5e3167f46ba2c6a397769ff950e0e5c452013ba12d"
+      },
+      "runtime": {
+        "source_path": "spec/runtime.yaml",
+        "sha256": "fc6b5e01eab5942712d4a8153436f8f7e93c980ff1327f597affe86f7ede33ab"
+      },
+      "approvals": {
+        "source_path": "spec/approvals.yaml",
+        "sha256": "21b5348f53f68f0c7e47493298df94b9d3386ec6cabb566394e46c61be37a778"
+      },
+      "verification": {
+        "source_path": "spec/verification.yaml",
+        "sha256": "dde7cd0f46b263d0d696f5e4589f1ee78c80f77148cf1030e39f385b21bd38f8"
+      }
+    }
+  }
+}

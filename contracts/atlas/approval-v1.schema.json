@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas-os.local/schemas/approval.schema.json",
+  "title": "ATLAS approval state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "required", "reason", "scope", "status", "requested_at", "approved_at",
+    "action_type", "target_id", "input_sha256", "precondition_revision",
+    "approver_identity", "issued_at", "expires_at", "policy_revision"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^APR-[A-Z0-9-]+$"},
+    "required": {"type": "boolean"},
+    "reason": {"type": "string"},
+    "scope": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "status": {"enum": ["NOT_REQUIRED", "PENDING", "APPROVED", "DENIED", "EXPIRED"]},
+    "requested_at": {"type": ["string", "null"], "format": "date-time"},
+    "approved_at": {"type": ["string", "null"], "format": "date-time"},
+    "approver": {"type": ["string", "null"]},
+    "action_type": {"type": "string", "minLength": 1},
+    "target_id": {"type": "string", "minLength": 1},
+    "input_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "precondition_revision": {"type": "string", "minLength": 1},
+    "approver_identity": {"type": "string", "minLength": 1},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "policy_revision": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "APPROVED"}}},
+      "then": {
+        "properties": {
+          "approved_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    }
+  ]
+}
