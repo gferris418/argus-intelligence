@@ -2,7 +2,7 @@
 
 **Document ID:** ARGUS-BD-PROC-V2-DRIFT-REPAIR-001  
 **Date:** 2026-10-18  
-**Status:** CORRECTIVE_VALIDATION_PENDING_FINAL_CI  
+**Status:** CORRECTIVE_VALIDATION_PR_HEAD_GREEN  
 **Scope:** ARGUS only  
 **ATLAS unchanged:** yes  
 **Production authority:** Bangladesh Procurement v1.3 remains active
@@ -54,7 +54,7 @@ The corrective rehearsal computes material information loss. It checks:
 - representation of legacy context IDs in relationships, v2 related-record links or party-role links;
 - preservation of the legacy overloaded status as migration provenance.
 
-The rehearsal must return an empty findings set before the repair can be considered green.
+On the verified PR head, all six current PROCUREMENT transformations returned an empty material-loss finding set and `material_information_loss = 0` from the executable comparison rather than a declared receipt constant.
 
 ## Disposable activation/revert
 
@@ -67,11 +67,11 @@ The corrected rehearsal performs a physical but isolated activate/revert cycle:
 5. original source bytes are restored;
 6. post-rollback SHA-256 and byte counts must exactly equal the pre-activation snapshot.
 
-No canonical GitHub registry file is written by this test. This proves disposable rollback behavior rather than merely proving that production was never mutated.
+The verified PR-head rehearsal passed `activation_changed_bytes = true` and `rollback_exact = true`. No canonical GitHub registry file is written by this test.
 
 ## Schema correction
 
-The domain projection schema now reuses standalone-v2 `$defs` for all nested procurement structures. The Registry v0.3 candidate references the domain schema directly. Validation therefore rejects malformed nested identifiers/process/lots/items/notices/milestones/events/requirements/commercial/award/contract/implementation/intelligence structures even if a caller bypasses the Python materializer.
+The domain projection schema now reuses standalone-v2 `$defs` for all nested procurement structures. The Registry v0.3 candidate references the domain schema directly. Validation rejects malformed nested identifiers/process/lots/items/notices/milestones/events/requirements/commercial/award/contract/implementation/intelligence structures even if a caller bypasses the Python materializer.
 
 Schema resolution is local through a registered JSON-Schema resource registry; no network lookup is required.
 
@@ -85,20 +85,31 @@ set(related_argus_ids) == set(relationship.target_argus_id for relationship in r
 
 Unrelated/untyped IDs are not permitted in the compatibility cache.
 
-## Production boundary
+## TDD and verification receipts
 
-This repair does not change:
+- RED: Contract Tests run **#170** on `d92b4cdcb6caeb15c77f6e912288f7b9b57523a4` failed after the new repair tests were added before implementation.
+- First GREEN attempt: run **#171** on `4f2d808dfa4d862c90a61caca9c5334cefa02d8a` reached **144/145**; all behavior tests passed and the only failure was a case-sensitive documentation assertion.
+- Corrected PR head: `40c072dcfbdb3e5a27ac7ad5bdc8c3d1db982aeb`.
+- Full Contract Tests run **#172** on that exact head: **SUCCESS**.
 
-- `argus-intelligence.yaml` production authority;
+## Scope review
+
+Base `ff2c157619673a41a43e59ca276534e6f6a9494f` → PR head `40c072dcfbdb3e5a27ac7ad5bdc8c3d1db982aeb` changes only candidate schemas, the pure materializer/audit helpers, repair tests/fixture, and architecture/validation documentation.
+
+It does **not** change:
+
+- `argus-intelligence.yaml`;
 - `data/registry/current-index.json`;
 - any `data/registry/current/*.json` canonical record;
 - immutable `data/registry/records.jsonl`;
 - ATLAS OS.
 
+The setup phase did include an accidental direct-to-`main` commit of the repair plan document plus a transient marker commit that was immediately removed. Those commits changed documentation only and did not alter production authority or canonical registry state. All actual repair code/schema/test changes were executed on PR #23.
+
 **v1.3 remains active.**
 
 ## Decision
 
-**NO-GO for live activation** until the corrective PR is fully green, merged, re-read from `main`, and a later activation gate is separately approved.
+The defects identified by the drift audit are corrected on the verified PR head. **NO-GO for live v2 activation remains in force.** Merge of this corrective PR does not authorize activation; a later activation gate remains separately governed.
 
-Final PR-head and post-merge CI receipts are added only after fresh verification.
+Post-merge `main` CI and readback must be verified before the repair is reported complete.
