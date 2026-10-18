@@ -1,6 +1,6 @@
 # ARGUS Bangladesh Country Profile
 
-**Version:** 2.0.0-rc.2  
+**Version:** 2.0.0-rc.3
 **Status:** Candidate  
 **Country:** Bangladesh (`BD`)  
 **Production runtime:** ATLAS OS required for Access Asia

@@ -2,7 +2,7 @@ schema_version: 1
 product:
   id: argus-intelligence
   name: ARGUS Intelligence
-  version: 2.0.0-rc.2
+  version: 2.0.0-rc.3
   release_channel: candidate
   status: CANDIDATE
   classification: internal
@@ -27,7 +27,9 @@ authority:
   atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml
   atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json
   synchronization_runtime: tools/atlas_sync.py
+  analysis_runtime: tools/argus_runtime.py
   synchronization_validation_record: docs/validation/atlas-argus-synchronization-v1.md
+  runtime_simplification_validation: docs/validation/runtime-simplification-rc3.md
 
 scope:
   primary: pre-bid government and public-sector opportunity intelligence
@@ -46,9 +48,9 @@ production_runtime:
       - non_access_asia_implementation
 
 atlas_compatibility:
-  validated_against: 2.0.0-rc.9
-  validated_against_commit: 896d329a09c4368b2564ee6ef818e025b0e397b6
-  control_revision: chatgpt-bootstrap-2026-10-19-r3
+  validated_against: 2.0.0-rc.10
+  validated_against_commit: 673a676a0b23518dad1a295a7cd36b5b75aa064e
+  control_revision: chatgpt-bootstrap-2026-10-19-r4
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
   atlas_domain_context_contract_version: 1.1.0

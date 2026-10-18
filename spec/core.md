@@ -1,6 +1,6 @@
 # ARGUS Core
 
-**Version:** 2.0.0-rc.2  
+**Version:** 2.0.0-rc.3
 **Status:** Candidate  
 **Scope:** Pre-bid government and public-sector opportunity intelligence
 
@@ -69,6 +69,8 @@ Canonical flow:
 
 Standalone ARGUS execution is reserved for portability, testing, recovery or non-Access-Asia implementations.
 
+The preferred executable interface is `Argus.analyze(AnalysisEnvelope)`. It owns the governed synchronization lifecycle and protected result correlation around an injected ARGUS domain method. The lower-level synchronization functions remain available for recovery, retry/resume, authorization, and compatible integrations; callers should not manually recreate the standard analysis path.
+
 ## 5. Canonical operating loop
 
 `Contextualize → Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
@@ -118,6 +120,8 @@ ARGUS consists of:
 4. **Adapters** — replaceable interfaces to external systems.
 5. **Alignment Contracts** — mappings to execution/governance environments such as ATLAS OS.
 6. **Views / Consoles / Analytics** — non-authoritative presentation and analytical surfaces.
+
+The runtime has one primary external seam: an authenticated analysis envelope enters `Argus.analyze`, and a correlated domain result plus synchronization receipt returns. Collection, normalization, reconciliation and assessment remain inside the injected domain-method implementation rather than expanding the external interface.
 
 Applications adapt to ARGUS. ARGUS Core is not redesigned merely to fit an application.
 
