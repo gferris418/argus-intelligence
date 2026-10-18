@@ -3,6 +3,7 @@ version: 2.0.0
 status: CANDIDATE
 country: Bangladesh
 country_code: BD
+write_contract: schemas/bangladesh-procurement-v2.schema.json
 supersedes_after_migration:
   - profiles/bangladesh-data-standard.yaml
   - profiles/bangladesh-canonical-procurement-standard-v1.1.yaml
@@ -38,6 +39,8 @@ semantic_principles:
   - Different identifier types never substitute for one another even when their string values match.
   - A notice is a publication about a procurement process; it is not the procurement process itself.
   - A milestone represents a scheduled or achieved point in time; an event represents something that happened or changed.
+  - Planned publication is a milestone; actual publication is a notice/publication event.
+  - Procurement-document readiness does not imply public issuance of those documents.
   - Original and current dates are represented by milestone history and events, not duplicate scalar fields.
   - Counts that can be calculated from canonical arrays are derived and are not stored as authoritative facts.
   - Award and contract are different lifecycle objects. A contract number belongs to the contract, not the award.
@@ -51,6 +54,7 @@ storage_boundary:
   procurement_record_type: PROCUREMENT
   linked_record_types: [ENTITY, PROJECT, INTELLIGENCE, OPPORTUNITY, SUPPLIER_PRODUCT, KNOWLEDGE]
   raw_source_documents_in_github: prohibited
+  write_schema: schemas/bangladesh-procurement-v2.schema.json
   live_record_migration: DEFERRED
 
 structured_types:
@@ -131,6 +135,8 @@ role_vocabularies:
     - SECURITY_CLEARANCE
     - OTHER
   milestone_types:
+    - PROCUREMENT_DOCUMENT_READY
+    - EXPECTED_PUBLICATION
     - DOCUMENT_SALE_START
     - DOCUMENT_SALE_END
     - PREBID_MEETING
@@ -164,279 +170,279 @@ role_vocabularies:
 
 field_dictionary:
   argus_id:
-    definition: Permanent ARGUS identifier for this PROCUREMENT record/process cycle.
+    definition: Permanent ARGUS identifier for this procurement process/cycle.
     cardinality: one
-    when_populated: Always for a canonical PROCUREMENT record.
-    not_to_confuse_with: External tender ID, tender reference, package number or requirement identity.
-    international_alignment: Internal analogue of a stable contracting-process record identifier.
+    when_populated: Always.
+    not_to_confuse_with: External tender, package, project or contract identifiers.
+    international_alignment: Stable contracting-process identity.
   requirement_ref:
-    definition: Stable reference to the underlying commercial/mission need shared across planning, tender and re-tender cycles.
+    definition: Stable link to the underlying need shared across planning, tender and re-tender cycles.
     cardinality: zero_or_one
-    when_populated: When reconciliation establishes the underlying requirement lineage.
-    not_to_confuse_with: Procurement record ID or project ID.
-    international_alignment: ARGUS lineage extension beyond a single contracting process.
+    when_populated: When underlying requirement lineage has been reconciled.
+    not_to_confuse_with: Procurement or project identity.
+    international_alignment: ARGUS lineage extension.
   title:
-    definition: Normalized human-readable title of this procurement process cycle.
+    definition: Normalized human-readable title of the procurement cycle.
     cardinality: one
-    when_populated: When any reliable title or item description is available.
-    not_to_confuse_with: Source notice title, package title or project title.
-    international_alignment: OCDS tender/title concept.
+    when_populated: Always once any reliable title/item description is known.
+    not_to_confuse_with: Project title or notice title.
+    international_alignment: OCDS tender title.
   description:
-    definition: Concise normalized description of the procurement scope.
+    definition: Concise normalized procurement-scope description.
     cardinality: zero_or_one
-    when_populated: When scope detail beyond the title is available.
+    when_populated: When title alone does not adequately express scope.
     not_to_confuse_with: Raw source wording retained in observations.
-    international_alignment: OCDS tender/description concept.
+    international_alignment: OCDS tender description.
   record_state:
-    definition: State of the ARGUS data record itself, such as current, superseded or archived.
+    definition: State of the ARGUS record itself.
     cardinality: one
     when_populated: Always.
-    not_to_confuse_with: Procurement process status or contract status.
-    international_alignment: Internal data-governance field.
+    not_to_confuse_with: Procurement, award, contract or implementation status.
+    international_alignment: Internal data-governance state.
   record_revision:
-    definition: Monotonic revision of the ARGUS canonical record.
+    definition: Monotonic revision number of the ARGUS canonical record.
     cardinality: one
     when_populated: Always.
-    not_to_confuse_with: Notice version, corrigendum number or project revision.
-    international_alignment: Internal data-governance field.
+    not_to_confuse_with: Notice version or re-tender sequence.
+    international_alignment: Internal revision control.
   identifiers:
-    definition: Typed identifiers attached to the procurement or linked planning context.
+    definition: Typed external identifiers attached to the procurement or planning scope.
     cardinality: zero_or_many
     when_populated: Whenever a source publishes a typed identifier.
-    not_to_confuse_with: Aliases; each identifier retains its scheme and semantic scope.
-    international_alignment: OCDS/EU eForms principle of distinct identifiers.
+    not_to_confuse_with: Aliases or another identifier type with the same value.
+    international_alignment: OCDS/eForms typed-identity principle.
+  identifier_scheme:
+    definition: Semantic identifier type such as SYSTEM_TENDER_ID, TENDER_REFERENCE_NO or PACKAGE_NO.
+    cardinality: one_per_identifier
+    when_populated: For every identifier.
+    not_to_confuse_with: Source label.
+    international_alignment: eForms procedure/notice/lot identity separation.
+  identifier_value:
+    definition: Exact identifier value preserved as a string.
+    cardinality: one_per_identifier
+    when_populated: For every identifier.
+    not_to_confuse_with: Numeric interpretation of an identifier.
+    international_alignment: Stable identifier practice.
+  identifier_scope:
+    definition: Lifecycle/object scope identified by the identifier.
+    cardinality: one_per_identifier
+    when_populated: For every identifier.
+    not_to_confuse_with: Identifier scheme.
+    international_alignment: Relational identifier scoping.
   related_record_refs:
     definition: Links to canonical ENTITY, PROJECT, OPPORTUNITY, SUPPLIER_PRODUCT, INTELLIGENCE or KNOWLEDGE records.
     cardinality: zero_or_many
     when_populated: When the procurement is reconciled to another canonical record.
-    not_to_confuse_with: Copying linked-record attributes into the procurement.
-    international_alignment: Relational normalization best practice.
+    not_to_confuse_with: Copying linked-record attributes into procurement.
+    international_alignment: Relational normalization.
   party_role_links:
     definition: Links canonical parties to the role they perform in this procurement.
-    cardinality: one_or_many
-    when_populated: When institutional roles are evidenced.
-    not_to_confuse_with: Government hierarchy, which remains on ENTITY relationships.
+    cardinality: zero_or_many
+    when_populated: When institutional or supplier roles are evidenced.
+    not_to_confuse_with: Government hierarchy stored on ENTITY records.
     international_alignment: OCDS parties and roles.
   party_id:
-    definition: Canonical ENTITY identifier of an organization/person participating in the procurement.
+    definition: Canonical ENTITY identifier of the linked party.
     cardinality: one_per_role_link
-    when_populated: For each party-role link.
-    not_to_confuse_with: PE code or supplier source-system ID.
-    international_alignment: OCDS organization identifier linkage.
+    when_populated: For every role link.
+    not_to_confuse_with: PE code or source-system organization ID.
+    international_alignment: OCDS organization linkage.
   party_role:
-    definition: Functional role performed by the linked party in this procurement.
+    definition: Functional role performed by the party in this procurement.
     cardinality: one_per_role_link
-    when_populated: For each party-role link.
-    not_to_confuse_with: Organization type or parent hierarchy.
-    international_alignment: OCDS party roles localized for Bangladesh.
+    when_populated: For every role link.
+    not_to_confuse_with: Organization type or hierarchy.
+    international_alignment: OCDS roles localized for Bangladesh.
   unit_label:
-    definition: Source-published procurement wing, section, cell or unit below the canonical party when a separate ENTITY is not justified.
+    definition: Published procurement wing/section/cell below a canonical party when a separate ENTITY is not justified.
     cardinality: zero_or_one_per_role_link
-    when_populated: When a notice names an operational unit such as Navy Wing or NP-8.
-    not_to_confuse_with: Procuring-entity organization identity.
-    international_alignment: Local extension for organizational subunits.
+    when_populated: When the source names an operating unit such as Navy Wing or NP-8.
+    not_to_confuse_with: Procuring-entity identity.
+    international_alignment: Local organizational-unit extension.
   budget_type:
-    definition: Bangladesh budget classification applying to the procurement-specific budget allocation.
+    definition: Bangladesh budget classification specific to the procurement.
     cardinality: zero_or_one
     when_populated: When Revenue, Development, Own Fund or equivalent is stated.
-    not_to_confuse_with: Financing instrument or financier identity.
-    international_alignment: Local fiscal-classification extension.
+    not_to_confuse_with: Financing source or instrument.
+    international_alignment: Local fiscal classification.
   budget_fiscal_year:
     definition: Fiscal year of the procurement-specific budget allocation.
     cardinality: zero_or_one
-    when_populated: When the budget allocation is tied to a fiscal year.
-    not_to_confuse_with: APP fiscal year if they differ.
-    international_alignment: Local fiscal-classification extension.
+    when_populated: When tied to a fiscal year.
+    not_to_confuse_with: APP or project fiscal year when different.
+    international_alignment: Local fiscal classification.
   budget_amount:
-    definition: Amount allocated in the applicable budget specifically to this procurement when evidenced.
+    definition: Procurement-specific amount allocated in the applicable budget.
     cardinality: zero_or_one
-    when_populated: Only when a procurement-specific allocation is published.
-    not_to_confuse_with: Project total cost, estimated procurement value or contract value.
+    when_populated: Only when explicitly evidenced.
+    not_to_confuse_with: Project cost, estimated procurement value or contract value.
     international_alignment: OCDS planning/budget concept.
   budget_currency:
-    definition: Currency of budget_amount.
+    definition: Currency of budget amount.
     cardinality: zero_or_one
-    when_populated: When budget_amount exists.
-    not_to_confuse_with: Procurement estimate or contract currency.
-    international_alignment: OCDS value/currency pattern.
+    when_populated: When budget amount exists.
+    not_to_confuse_with: Procurement or contract currency.
+    international_alignment: Value/currency pattern.
   budget_line_reference:
-    definition: Budget line, economic code or allocation reference tied to the procurement.
+    definition: Budget line/economic-code/allocation reference tied to procurement.
     cardinality: zero_or_one
     when_populated: When published.
-    not_to_confuse_with: Package, APP or project identifier.
-    international_alignment: Local fiscal reference.
+    not_to_confuse_with: APP, package or project identifier.
+    international_alignment: Fiscal-reference practice.
   financing_entries:
-    definition: Structured funding contributions/instruments applicable to this procurement or linked project scope.
+    definition: Structured funding contributions or instruments applying to the procurement/project scope.
     cardinality: zero_or_many
-    when_populated: When a source identifies GoB, loan, credit, grant, G2G, own-fund or other financing.
+    when_populated: When a financing source/instrument is evidenced.
     not_to_confuse_with: Budget classification.
-    international_alignment: World Bank/IFI financing-reference practice.
+    international_alignment: IFI financing-reference practice.
   financing_source_party_id:
-    definition: Canonical party supplying the finance, such as GoB, World Bank, ADB, JICA or AIIB.
+    definition: Canonical party supplying finance.
     cardinality: zero_or_one_per_financing_entry
-    when_populated: When the financier is identified.
-    not_to_confuse_with: Procuring entity or implementing agency.
+    when_populated: When financier identity is known.
+    not_to_confuse_with: Buyer, implementing agency or procuring entity.
     international_alignment: Party-based financier representation.
   financing_instrument:
-    definition: Legal/economic form of finance, such as government allocation, loan, credit, grant, own fund or G2G.
+    definition: Legal/economic form of finance such as government allocation, loan, credit, grant or own fund.
     cardinality: zero_or_one_per_financing_entry
-    when_populated: When the financing instrument is known.
+    when_populated: When known.
     not_to_confuse_with: Budget type.
     international_alignment: IFI financing semantics.
   financing_reference:
-    definition: Typed loan, credit, grant or financing-agreement reference.
+    definition: Loan, credit, grant or financing-agreement reference.
     cardinality: zero_or_one_per_financing_entry
     when_populated: When published.
-    not_to_confuse_with: Project code, tender reference or package number.
-    international_alignment: World Bank/ADB/JICA financing reference.
+    not_to_confuse_with: Tender, package or project identifier.
+    international_alignment: IFI financing identifiers.
   financing_amount:
-    definition: Amount contributed by this financing entry.
+    definition: Amount contributed by the financing entry.
     cardinality: zero_or_one_per_financing_entry
-    when_populated: When contribution amount is available.
-    not_to_confuse_with: Total project cost or award value.
+    when_populated: When contribution amount is stated.
+    not_to_confuse_with: Total project, procurement or contract value.
     international_alignment: Financial contribution value.
   financing_currency:
-    definition: Currency of financing_amount.
+    definition: Currency of financing amount.
     cardinality: zero_or_one_per_financing_entry
-    when_populated: When financing_amount exists.
+    when_populated: When financing amount exists.
     not_to_confuse_with: Contract currency.
     international_alignment: Value/currency pattern.
   financing_commitment_date:
-    definition: Date the financing commitment/agreement became formally committed when evidenced.
+    definition: Date the financing commitment/agreement became formally committed.
     cardinality: zero_or_one_per_financing_entry
-    when_populated: When stated by authoritative financing evidence.
-    not_to_confuse_with: Procurement-plan date or project approval date.
+    when_populated: When authoritative financing evidence states it.
+    not_to_confuse_with: Procurement-plan or project-approval date.
     international_alignment: IFI financing lifecycle.
   financing_status:
-    definition: Current state of the financing entry, such as proposed, approved, signed, effective or disbursing.
+    definition: Current financing state such as proposed, approved, signed, effective or disbursing.
     cardinality: zero_or_one_per_financing_entry
-    when_populated: When financing maturity is evidenced.
+    when_populated: When evidenced.
     not_to_confuse_with: Project or procurement status.
     international_alignment: IFI financing lifecycle.
   financing_conditions:
-    definition: Procurement/source-country or other conditions imposed by the financing instrument.
+    definition: Financing-linked procurement or source-country conditions.
     cardinality: zero_or_many_per_financing_entry
-    when_populated: When tied, untied, eligible-country or equivalent conditions are stated.
+    when_populated: When tied/untied/eligible-country conditions are stated.
     not_to_confuse_with: General tender eligibility requirements.
     international_alignment: Bilateral/IFI financing conditions.
   process_route:
-    definition: ARGUS Bangladesh acquisition-route classification, such as general e-GP, GoB development, DGDP or development-partner route.
+    definition: ARGUS Bangladesh acquisition-route classification.
     cardinality: zero_or_one
     when_populated: After route classification is supported.
-    not_to_confuse_with: Competition scope or procurement method.
-    international_alignment: ARGUS Bangladesh contextual classification.
+    not_to_confuse_with: Competition scope or method.
+    international_alignment: ARGUS jurisdiction context.
   process_category:
-    definition: What is being procured at the top level: goods, works, consulting services or non-consulting services.
+    definition: Top-level object being procured: goods, works, consulting or non-consulting services.
     cardinality: zero_or_one
-    when_populated: When source nature/category is known.
-    not_to_confuse_with: Procurement method or market competition scope.
-    international_alignment: OCDS mainProcurementCategory concept.
+    when_populated: When source category/nature is known.
+    not_to_confuse_with: Method or competition scope.
+    international_alignment: OCDS mainProcurementCategory.
   process_method_normalized:
-    definition: Internationally normalized supplier-selection method: open, selective, limited, direct or other.
+    definition: Internationally normalized supplier-selection method.
     cardinality: zero_or_one
-    when_populated: When the source procurement method is known.
-    not_to_confuse_with: Source code OTM/LTM/RFQ/DPM, NCT/ICT or envelope configuration.
-    international_alignment: OCDS procurementMethod codelist.
+    when_populated: When source method is known and safely normalizable.
+    not_to_confuse_with: OTM/LTM source code, NCT/ICT or envelope configuration.
+    international_alignment: OCDS procurementMethod.
   process_method_source_code:
-    definition: Exact source-system procurement-method code such as OTM, LTM, RFQ or DPM.
+    definition: Exact source method code such as OTM, LTM, RFQ, DPM or RFB.
     cardinality: zero_or_one
-    when_populated: When a source code exists.
+    when_populated: When source exposes a code.
     not_to_confuse_with: Normalized method.
-    international_alignment: Local source preservation.
+    international_alignment: Source preservation.
   process_method_source_label:
-    definition: Exact source-published procurement-method label.
+    definition: Exact source-published method label.
     cardinality: zero_or_one
     when_populated: When available.
     not_to_confuse_with: Normalized method.
-    international_alignment: Source-label preservation.
+    international_alignment: Source preservation.
   process_competition_scope:
-    definition: Market scope/eligibility of competition, such as national, international or financing-restricted.
+    definition: Market scope/eligibility of competition such as national or international.
     cardinality: zero_or_one
-    when_populated: When NCT/ICT or equivalent market scope is stated.
+    when_populated: When NCT/ICT or equivalent is evidenced.
     not_to_confuse_with: Procurement method.
-    international_alignment: Localized market-approach concept.
+    international_alignment: Market-approach concept.
   process_configuration:
-    definition: Structural procedure configuration, such as one-stage two-envelope or two-stage.
+    definition: Procedure structure such as one-stage two-envelope or two-stage.
     cardinality: zero_or_one
-    when_populated: When procedure structure is known.
+    when_populated: When explicitly known.
     not_to_confuse_with: Method or competition scope.
-    international_alignment: World Bank/IFI procurement-process configuration.
+    international_alignment: IFI process configuration.
   process_review_type:
     definition: Financier review/control classification such as prior or post review.
     cardinality: zero_or_one
-    when_populated: For development-partner procurements where stated.
-    not_to_confuse_with: Method, process configuration or approval status.
+    when_populated: When stated.
+    not_to_confuse_with: Method or approval status.
     international_alignment: World Bank/ADB review control.
   process_prequalification_required:
     definition: Whether formal prequalification/preselection is required.
     cardinality: zero_or_one
     when_populated: When explicitly stated.
     not_to_confuse_with: General eligibility criteria.
-    international_alignment: OCDS pre-qualification mapping and IFI practice.
+    international_alignment: IFI/OCDS qualification practice.
   process_framework_agreement:
-    definition: Whether the procurement establishes/uses a framework agreement.
+    definition: Whether procurement establishes or uses a framework agreement.
     cardinality: zero_or_one
     when_populated: When explicitly identified.
     not_to_confuse_with: Multi-lot procurement.
-    international_alignment: UNCITRAL/OCDS framework-agreement concept.
+    international_alignment: UNCITRAL/OCDS framework concept.
   process_status_raw:
-    definition: Exact current procurement-process status text from the authoritative source.
+    definition: Exact procurement-process status text from source.
     cardinality: zero_or_one_per_current_source
-    when_populated: When the source publishes a status.
-    not_to_confuse_with: ARGUS record_state or normalized process status.
+    when_populated: When source publishes status.
+    not_to_confuse_with: ARGUS record state.
     international_alignment: Source-status preservation.
   process_status_normalized:
-    definition: ARGUS normalized current procurement-process state.
-    cardinality: one
-    when_populated: For every canonical process once enough evidence exists.
-    not_to_confuse_with: Record state, project status or contract status.
-    international_alignment: OCDS tender/status concept localized to ARGUS.
+    definition: ARGUS normalized procurement-process state.
+    cardinality: zero_or_one
+    when_populated: Only when evidence supports normalization.
+    not_to_confuse_with: Record, project or contract status.
+    international_alignment: OCDS tender status localized to ARGUS.
   process_estimated_value:
     definition: Pre-award estimated value of the procurement process/package.
     cardinality: zero_or_one
-    when_populated: When an authoritative estimate is available.
-    not_to_confuse_with: Budget allocation, award value or contract current value.
-    international_alignment: OCDS tender/value concept.
+    when_populated: When authoritative estimate is available.
+    not_to_confuse_with: Budget, award or contract value.
+    international_alignment: OCDS tender value.
   process_currency:
-    definition: Currency of process_estimated_value.
+    definition: Currency of estimated procurement value.
     cardinality: zero_or_one
-    when_populated: When process_estimated_value exists.
+    when_populated: When estimated value exists.
     not_to_confuse_with: Tender currency basis or contract currency.
-    international_alignment: OCDS value/currency pattern.
-  identifiers_scheme:
-    definition: Semantic type/scheme of an external identifier, e.g. BD_PROJECT_CODE, EGP_APP_ID, EGP_TENDER_ID, TENDER_REFERENCE_NO, PACKAGE_NO, LOAN_REFERENCE.
-    cardinality: one_per_identifier
-    when_populated: For every identifier entry.
-    not_to_confuse_with: Source label alone.
-    international_alignment: Typed-identifier practice aligned with eForms procedure/notice separation.
-  identifiers_value:
-    definition: Exact identifier value preserved as a string.
-    cardinality: one_per_identifier
-    when_populated: For every identifier entry.
-    not_to_confuse_with: Another identifier type even when the string matches.
-    international_alignment: Stable identifier practice.
-  identifiers_scope:
-    definition: Object/lifecycle scope the identifier identifies, such as PROJECT, PLAN, PACKAGE, PROCESS, NOTICE, AWARD or CONTRACT.
-    cardinality: one_per_identifier
-    when_populated: For every identifier entry.
-    not_to_confuse_with: Identifier scheme.
-    international_alignment: Relational identifier scoping.
+    international_alignment: Value/currency pattern.
   lots:
-    definition: Array of separately identifiable lots within one procurement process.
+    definition: Separately identifiable lots within one procurement process.
     cardinality: zero_or_many
-    when_populated: When the source defines lots.
-    not_to_confuse_with: Package identifiers or procurement-process identity.
-    international_alignment: EU eForms lot model and OCDS lot extensions/practice.
+    when_populated: When source defines lots.
+    not_to_confuse_with: Package or process identity.
+    international_alignment: eForms/OCDS lot model.
   lot_id:
-    definition: Source-published lot sequence/identifier, usually numeric or short code.
+    definition: Source/internal identity of a lot.
     cardinality: one_per_lot
-    when_populated: For each lot.
-    not_to_confuse_with: Package number, tender reference or lot_reference.
-    international_alignment: EU eForms lot identifier.
+    when_populated: For every structured lot.
+    not_to_confuse_with: Package number or lot reference.
+    international_alignment: eForms lot identifier.
   lot_reference:
-    definition: Additional published lot code/identification such as WD-2 when distinct from lot_id.
+    definition: Additional published lot code such as WD-2 when distinct from lot_id.
     cardinality: zero_or_one_per_lot
-    when_populated: When a source provides a separate lot identification label/code.
+    when_populated: When separately published.
     not_to_confuse_with: Package number.
     international_alignment: Localized lot reference.
   lot_title:
@@ -444,525 +450,423 @@ field_dictionary:
     cardinality: zero_or_one_per_lot
     when_populated: When published or safely normalized.
     not_to_confuse_with: Process title.
-    international_alignment: eForms/OCDS lot title semantics.
+    international_alignment: eForms/OCDS lot title.
   lot_description:
     definition: Additional scope description specific to the lot.
     cardinality: zero_or_one_per_lot
     when_populated: When available.
-    not_to_confuse_with: Item-level descriptions.
+    not_to_confuse_with: Item description.
     international_alignment: Lot description semantics.
   lot_estimated_value:
-    definition: Pre-award estimated value specific to the lot.
+    definition: Pre-award estimated value specific to a lot.
     cardinality: zero_or_one_per_lot
     when_populated: When explicitly published.
-    not_to_confuse_with: Process total estimate or award value.
+    not_to_confuse_with: Process total or award value.
     international_alignment: eForms/OCDS lot value.
   lot_currency:
-    definition: Currency of lot_estimated_value.
+    definition: Currency of lot estimated value.
     cardinality: zero_or_one_per_lot
-    when_populated: When lot_estimated_value exists.
+    when_populated: When lot value exists.
     not_to_confuse_with: Process currency.
     international_alignment: Value/currency pattern.
   lot_delivery_location:
     definition: Delivery/performance location specific to a lot.
-    cardinality: zero_or_many_per_lot
+    cardinality: zero_or_one_per_lot
     when_populated: When published.
     not_to_confuse_with: Procuring-entity address.
-    international_alignment: OCDS item/implementation location practice.
+    international_alignment: OCDS delivery-location practice.
   items:
-    definition: Goods, works or services line items being procured, with quantity and unit where available.
+    definition: Goods, works or services line items being procured.
     cardinality: zero_or_many
-    when_populated: When product/service line items can be identified.
-    not_to_confuse_with: Lots; a lot can contain many items.
+    when_populated: When line items can be identified.
+    not_to_confuse_with: Lots.
     international_alignment: OCDS items model.
   item_id:
-    definition: Stable source/internal identifier for an item row within the process.
+    definition: Stable identity of an item row inside the process.
     cardinality: one_per_item
-    when_populated: For each structured item.
+    when_populated: For every item.
     not_to_confuse_with: Product taxonomy code.
     international_alignment: OCDS item id.
   item_description:
-    definition: Description of the good, work or service line item.
+    definition: Description of the good, work or service item.
     cardinality: one_per_item
-    when_populated: For each structured item.
+    when_populated: For every item.
     not_to_confuse_with: Process or lot title.
     international_alignment: OCDS item description.
   item_quantity:
-    definition: Numeric quantity of the item where meaningful.
+    definition: Numeric quantity of the item when meaningful.
     cardinality: zero_or_one_per_item
-    when_populated: When a quantity is stated.
+    when_populated: When source states quantity.
     not_to_confuse_with: Lot count.
     international_alignment: OCDS item quantity.
   item_unit:
-    definition: Unit of measure applying to item_quantity.
+    definition: Unit of measure applying to item quantity.
     cardinality: zero_or_one_per_item
-    when_populated: When quantity is stated.
+    when_populated: When source states unit.
     not_to_confuse_with: Currency.
-    international_alignment: OCDS unit concept.
+    international_alignment: OCDS item unit.
   item_lot_ref:
-    definition: Reference linking the item to a lot when the process is lot-structured.
+    definition: Link from an item to its lot.
     cardinality: zero_or_one_per_item
-    when_populated: When applicable.
-    not_to_confuse_with: Lot identifier source value itself.
+    when_populated: When lot structure applies.
+    not_to_confuse_with: Source lot code itself.
     international_alignment: Relational lot-item linkage.
   classifications:
-    definition: Typed source or governed taxonomy classifications attached to a process/item.
+    definition: Typed source or governed taxonomy classifications attached to an item.
     cardinality: zero_or_many
-    when_populated: When UNSPSC, CPV, BPPA category or ATLAS taxonomy references exist.
-    not_to_confuse_with: Free-text item description.
+    when_populated: When UNSPSC, CPV or governed taxonomy references exist.
+    not_to_confuse_with: Free-text description.
     international_alignment: OCDS classification model.
   notices:
-    definition: Publications about the procurement process, including planning, tender, corrigendum, award and re-tender notices.
+    definition: Publications about a procurement process.
     cardinality: zero_or_many
-    when_populated: Whenever a notice/publication is observed.
-    not_to_confuse_with: The procurement process itself.
-    international_alignment: EU eForms notice/procedure separation.
+    when_populated: Whenever an actual publication is observed.
+    not_to_confuse_with: Procurement process or planned publication milestone.
+    international_alignment: eForms notice/procedure separation.
   notice_id:
-    definition: Identifier of a particular published notice when the source exposes one.
+    definition: Identity of a particular notice publication.
     cardinality: zero_or_one_per_notice
-    when_populated: When available.
-    not_to_confuse_with: Process/tender reference or portal tender ID.
-    international_alignment: EU eForms Notice Identifier.
+    when_populated: When source exposes one.
+    not_to_confuse_with: Tender/process reference.
+    international_alignment: eForms Notice Identifier.
   notice_type:
-    definition: Semantic publication type, such as planning notice, tender notice, corrigendum, award notice or re-tender notice.
+    definition: Semantic publication type such as tender notice or corrigendum.
     cardinality: one_per_notice
-    when_populated: For every structured notice.
-    not_to_confuse_with: Procurement method or event type.
-    international_alignment: eForms notice taxonomy / OCDS document context.
+    when_populated: For every notice.
+    not_to_confuse_with: Event type or procurement method.
+    international_alignment: eForms/OCDS publication taxonomy.
   notice_version:
-    definition: Version/revision of the same notice publication where the source supports versioning.
+    definition: Version/revision of the same notice publication.
     cardinality: zero_or_one_per_notice
-    when_populated: When explicitly available.
-    not_to_confuse_with: ARGUS record revision or procurement re-tender sequence.
-    international_alignment: EU eForms Notice Version Identifier.
+    when_populated: When source versions notices.
+    not_to_confuse_with: Record revision or re-tender sequence.
+    international_alignment: eForms Notice Version Identifier.
   notice_published_at:
     definition: Date/time the notice became publicly available.
     cardinality: zero_or_one_per_notice
-    when_populated: When publication time/date is known.
-    not_to_confuse_with: Event occurrence date when different.
-    international_alignment: OCDS/eForms publication metadata.
+    when_populated: When known.
+    not_to_confuse_with: Expected publication milestone.
+    international_alignment: Publication metadata.
   notice_source_system:
-    definition: Publishing portal/system, such as BPPA e-GP, DGDP, UNGM or an IFI portal.
+    definition: Publishing portal/system for the notice.
     cardinality: one_per_notice
     when_populated: For every notice.
     not_to_confuse_with: Procuring entity.
     international_alignment: Publication provenance.
   notice_source_locator:
-    definition: Authoritative URL, file locator or source record locator for the notice.
-    cardinality: one_per_notice
-    when_populated: For every notice where technically available.
-    not_to_confuse_with: Submission portal/location.
+    definition: URL/file/source locator for the notice.
+    cardinality: zero_or_one_per_notice
+    when_populated: When technically available.
+    not_to_confuse_with: Submission channel.
     international_alignment: Publication provenance.
   milestones:
-    definition: Typed scheduled/actual dates for the procurement lifecycle.
+    definition: Typed scheduled/actual dates for procurement lifecycle points.
     cardinality: zero_or_many
-    when_populated: Whenever a material deadline or lifecycle date is observed.
-    not_to_confuse_with: Events that describe what happened or changed.
+    when_populated: Whenever a material lifecycle date is observed.
+    not_to_confuse_with: Events or notices.
     international_alignment: OCDS milestones.
+  procurement_document_ready:
+    definition: Planned or achieved date when bidding/procurement documents or justification are ready for the next procurement step.
+    cardinality: zero_or_many_by_process_or_lot_scope
+    when_populated: When an authoritative plan separately schedules document readiness.
+    not_to_confuse_with: Public issue/sale/download of tender documents or notice publication.
+    international_alignment: World Bank Draft Bidding Document / Justification milestone.
+  expected_publication:
+    definition: Planned date on which a procurement notice/invitation is expected to be published or advertised.
+    cardinality: zero_or_many_by_notice_or_lot_scope
+    when_populated: When an authoritative plan publishes a future advertisement/invitation date.
+    not_to_confuse_with: Actual notice publication in notices[].published_at.
+    international_alignment: World Bank procurement-plan Specific Procurement Notice / Invitation milestone.
   milestone_id:
-    definition: Stable internal/source identity of a milestone entry.
+    definition: Stable identity of a milestone entry.
     cardinality: one_per_milestone
-    when_populated: For each milestone.
+    when_populated: For every milestone.
     not_to_confuse_with: Milestone type.
     international_alignment: OCDS milestone id.
   milestone_type:
-    definition: Semantic meaning of the date, e.g. submission deadline, opening, validity end, award or completion.
+    definition: Semantic meaning of the lifecycle date.
     cardinality: one_per_milestone
-    when_populated: For each milestone.
-    not_to_confuse_with: Notice type.
-    international_alignment: OCDS milestone type localized to procurement lifecycle.
+    when_populated: For every milestone.
+    not_to_confuse_with: Notice or event type.
+    international_alignment: OCDS milestone type localized to procurement.
   milestone_due_at:
     definition: Current authoritative due/scheduled date-time.
     cardinality: zero_or_one_per_milestone
-    when_populated: When a due date exists.
-    not_to_confuse_with: Original due date or actual date met.
-    international_alignment: OCDS milestone dueDate.
+    when_populated: When due date exists.
+    not_to_confuse_with: Original or actual date.
+    international_alignment: OCDS dueDate.
   milestone_original_due_at:
     definition: First authoritative due date before extensions/changes.
     cardinality: zero_or_one_per_milestone
-    when_populated: Only after a due date changes or when preserving initial schedule is material.
+    when_populated: When preserving initial schedule is material.
     not_to_confuse_with: Current due date.
-    international_alignment: ARGUS extension preserving OCDS-style milestone history.
+    international_alignment: ARGUS history extension.
   milestone_date_met:
-    definition: Actual date/time the milestone occurred or was met.
+    definition: Actual date/time the milestone occurred.
     cardinality: zero_or_one_per_milestone
     when_populated: When actual occurrence is evidenced.
     not_to_confuse_with: Due date.
-    international_alignment: OCDS milestone dateMet.
+    international_alignment: OCDS dateMet.
   milestone_date_modified:
-    definition: Date/time the milestone schedule was last officially modified.
+    definition: Date/time the milestone schedule was officially modified.
     cardinality: zero_or_one_per_milestone
-    when_populated: When an official change occurs.
-    not_to_confuse_with: Notice publication date unless they are the same event.
-    international_alignment: OCDS milestone dateModified.
+    when_populated: When schedule changes.
+    not_to_confuse_with: Notice publication unless same event.
+    international_alignment: OCDS dateModified.
   milestone_status:
-    definition: Status such as scheduled, met, modified, missed or cancelled.
+    definition: Status of the milestone such as planned, scheduled, met, missed or cancelled.
     cardinality: zero_or_one_per_milestone
     when_populated: When determinable.
     not_to_confuse_with: Overall procurement status.
     international_alignment: OCDS milestone status.
   events:
-    definition: Append-only lifecycle occurrences/changes such as corrigenda, extensions, cancellation, re-tender and award.
+    definition: Append-only lifecycle occurrences/changes such as extension, cancellation, reissue or award.
     cardinality: zero_or_many
-    when_populated: Whenever a material procurement event occurs.
+    when_populated: When a material event occurs.
     not_to_confuse_with: Milestones or notices.
-    international_alignment: OCDS release/change history plus ARGUS lifecycle semantics.
+    international_alignment: Event/change history.
   event_id:
-    definition: Stable identity for one lifecycle event.
+    definition: Stable identity of a lifecycle event.
     cardinality: one_per_event
-    when_populated: For each event.
-    not_to_confuse_with: Notice identifier.
-    international_alignment: Internal event identity.
+    when_populated: For every event.
+    not_to_confuse_with: Notice identity.
+    international_alignment: Event-sourcing practice.
   event_type:
-    definition: Semantic event type such as CORRIGENDUM, DEADLINE_EXTENSION, CANCELLATION, RETENDER or AWARD.
+    definition: Semantic lifecycle event type.
     cardinality: one_per_event
     when_populated: For every event.
     not_to_confuse_with: Notice type.
-    international_alignment: Contracting lifecycle change semantics.
+    international_alignment: Contracting lifecycle semantics.
   event_occurred_at:
-    definition: Date/time the event took effect or occurred.
+    definition: Date/time the event occurred or took effect.
     cardinality: zero_or_one_per_event
     when_populated: When known.
     not_to_confuse_with: Notice publication date.
     international_alignment: Event-sourcing practice.
   event_reason_raw:
-    definition: Exact source-stated reason for the event, preserved without inference.
+    definition: Exact source-stated reason for an event.
     cardinality: zero_or_one_per_event
-    when_populated: When the source states a reason.
+    when_populated: Only when source states a reason.
     not_to_confuse_with: Analyst inference.
-    international_alignment: Auditability/transparency principle.
+    international_alignment: Auditability principle.
   event_changes:
-    definition: Structured previous/new-value changes caused by the event.
+    definition: Structured previous/new-value changes caused by an event.
     cardinality: zero_or_many_per_event
-    when_populated: When a specific field/value changed.
-    not_to_confuse_with: Current scalar value only.
-    international_alignment: Change-history/event-sourcing practice.
+    when_populated: When specific values changed.
+    not_to_confuse_with: Current value alone.
+    international_alignment: Change-history practice.
   requirements:
-    definition: Typed participation, qualification, technical, legal and policy requirements.
+    definition: Typed participation, qualification, technical, legal and policy conditions.
     cardinality: zero_or_many
-    when_populated: When a procurement imposes a material bidder/product condition.
+    when_populated: When material bidder/product conditions are published.
     not_to_confuse_with: Underlying mission requirement_ref.
-    international_alignment: UNCITRAL qualification/participation principles and OCDS criteria extensions.
+    international_alignment: UNCITRAL qualification/participation principles.
   requirement_type:
-    definition: Semantic requirement category such as registration, experience, financial capacity, OEM authorization or source country.
+    definition: Semantic category of the requirement.
     cardinality: one_per_requirement
-    when_populated: For each requirement.
+    when_populated: For every requirement.
     not_to_confuse_with: Procurement category.
-    international_alignment: Structured eligibility/qualification criteria.
+    international_alignment: Structured eligibility criteria.
   requirement_text:
-    definition: Exact or faithful source-grounded requirement text/summary.
+    definition: Exact or faithful source-grounded requirement wording/summary.
     cardinality: one_per_requirement
-    when_populated: For each requirement.
-    not_to_confuse_with: Normalized categorical value.
-    international_alignment: Source-grounded qualification criteria.
+    when_populated: For every requirement.
+    not_to_confuse_with: Normalized machine value.
+    international_alignment: Source-grounded criteria.
   requirement_normalized_value:
-    definition: Machine-usable normalized value extracted from requirement_text where safe.
+    definition: Machine-usable normalized value extracted from requirement text.
     cardinality: zero_or_one_per_requirement
-    when_populated: When normalization is reliable.
+    when_populated: Only when normalization is reliable.
     not_to_confuse_with: Raw requirement wording.
-    international_alignment: Local normalization layer.
+    international_alignment: Local normalization.
   requirement_mandatory:
-    definition: Whether the source makes the requirement mandatory.
+    definition: Whether source makes the requirement mandatory.
     cardinality: zero_or_one_per_requirement
-    when_populated: When clear from the source.
-    not_to_confuse_with: Analyst importance rating.
-    international_alignment: Qualification criterion semantics.
+    when_populated: When source is clear.
+    not_to_confuse_with: Analyst importance.
+    international_alignment: Qualification semantics.
   fees:
-    definition: Typed fees payable for participation/documents/schedules.
+    definition: Typed participation/document/schedule charges.
     cardinality: zero_or_many
     when_populated: When a procurement publishes a fee.
-    not_to_confuse_with: Securities/guarantees or procurement value.
+    not_to_confuse_with: Securities or procurement value.
     international_alignment: Participation-cost normalization.
   fee_type:
-    definition: Type of fee, such as tender document or schedule purchase.
+    definition: Type of fee such as tender document or schedule purchase.
     cardinality: one_per_fee
-    when_populated: For each fee.
+    when_populated: For every fee.
     not_to_confuse_with: Security type.
     international_alignment: Local extension.
   fee_amount:
-    definition: Numeric fee amount where unambiguous.
+    definition: Numeric fee amount when unambiguous.
     cardinality: zero_or_one_per_fee
-    when_populated: When amount/currency can be safely parsed.
-    not_to_confuse_with: Raw fee text for multi-currency/conditional cases.
+    when_populated: When safely parsed.
+    not_to_confuse_with: Raw text for ambiguous fee expressions.
     international_alignment: Value/currency pattern.
   fee_currency:
-    definition: Currency of fee_amount.
+    definition: Currency of fee amount.
     cardinality: zero_or_one_per_fee
-    when_populated: When fee_amount exists.
+    when_populated: When amount exists.
     not_to_confuse_with: Tender currency basis.
     international_alignment: Value/currency pattern.
   fee_raw_text:
-    definition: Exact source fee expression retained when parsing would lose information.
+    definition: Exact source fee expression retained for auditability.
     cardinality: zero_or_one_per_fee
-    when_populated: When source wording is material or ambiguous.
+    when_populated: When source wording is material.
     not_to_confuse_with: Parsed amount.
-    international_alignment: Source-preservation principle.
+    international_alignment: Source preservation.
   fee_refundable:
-    definition: Whether the fee is refundable.
+    definition: Whether a fee is refundable.
     cardinality: zero_or_one_per_fee
     when_populated: When explicitly stated.
     not_to_confuse_with: Security returnability.
     international_alignment: Participation-cost semantics.
   securities:
-    definition: Typed financial guarantees/security obligations such as tender or performance security.
+    definition: Typed financial guarantees/security obligations.
     cardinality: zero_or_many
     when_populated: When required.
     not_to_confuse_with: Fees.
     international_alignment: Standard procurement guarantee concepts.
   security_type:
-    definition: Tender security, performance security, advance-payment guarantee, retention or other.
+    definition: Tender security, performance security, advance-payment guarantee, retention or other security type.
     cardinality: one_per_security
-    when_populated: For each security requirement.
-    not_to_confuse_with: Requirement_type.
-    international_alignment: Standard procurement security concepts.
+    when_populated: For every security.
+    not_to_confuse_with: Requirement type.
+    international_alignment: Procurement security concepts.
   security_amount:
-    definition: Numeric security amount where unambiguous.
+    definition: Numeric security amount when unambiguous.
     cardinality: zero_or_one_per_security
     when_populated: When stated.
-    not_to_confuse_with: Contract or tender value.
+    not_to_confuse_with: Procurement/contract value.
     international_alignment: Value/currency pattern.
   security_currency:
-    definition: Currency of security_amount.
+    definition: Currency of security amount.
     cardinality: zero_or_one_per_security
-    when_populated: When security_amount exists.
+    when_populated: When amount exists.
     not_to_confuse_with: Process currency.
     international_alignment: Value/currency pattern.
   security_validity_until:
-    definition: Date/time through which the security must remain valid.
+    definition: Date/time through which security must remain valid.
     cardinality: zero_or_one_per_security
     when_populated: When published.
-    not_to_confuse_with: Tender validity end; they can differ.
-    international_alignment: Procurement-security practice.
+    not_to_confuse_with: Tender validity end.
+    international_alignment: Security practice.
   contacts:
     definition: Purpose-specific procurement contact points linked to canonical parties.
     cardinality: zero_or_many
     when_populated: When source contact information is published.
-    not_to_confuse_with: Canonical organization master data unless it is the same contact.
-    international_alignment: OCDS contactPoint concept with purpose extension.
-  contact_party_id:
-    definition: Canonical party responsible for the contact point.
-    cardinality: zero_or_one_per_contact
-    when_populated: When the responsible party is resolved.
-    not_to_confuse_with: Contact person name.
-    international_alignment: Party/contact linkage.
-  contact_purpose:
-    definition: Purpose such as procurement contact, project director, submission contact or clarification contact.
-    cardinality: one_per_contact
-    when_populated: For each contact.
-    not_to_confuse_with: Party role.
-    international_alignment: Local contact-purpose extension.
-  contact_name:
-    definition: Published contact person name.
-    cardinality: zero_or_one_per_contact
-    when_populated: When published.
-    not_to_confuse_with: Organization name.
-    international_alignment: OCDS contactPoint/name.
-  contact_designation:
-    definition: Published job title/designation of the contact person.
-    cardinality: zero_or_one_per_contact
-    when_populated: When published.
-    not_to_confuse_with: Party role.
-    international_alignment: Contact metadata.
-  contact_address:
-    definition: Address associated with this contact purpose.
-    cardinality: zero_or_one_per_contact
-    when_populated: When published.
-    not_to_confuse_with: Delivery location.
-    international_alignment: OCDS address/contact pattern.
-  contact_email:
-    definition: Published email for this procurement contact.
-    cardinality: zero_or_one_per_contact
-    when_populated: When published.
-    not_to_confuse_with: General organization email unless used for this purpose.
-    international_alignment: OCDS contactPoint/email.
-  contact_phone:
-    definition: Published phone for this procurement contact.
-    cardinality: zero_or_one_per_contact
-    when_populated: When published.
-    not_to_confuse_with: General switchboard unless identified as procurement contact.
-    international_alignment: OCDS contactPoint/telephone.
+    not_to_confuse_with: Organization master data unless same contact.
+    international_alignment: OCDS contactPoint.
   awards:
-    definition: Procurement decisions establishing the relationship between awarded items/lots, suppliers and award value.
+    definition: Procurement decisions linking selected suppliers/items/lots and award value.
     cardinality: zero_or_many
-    when_populated: Once an award/NOA decision is evidenced.
-    not_to_confuse_with: Signed contracts.
+    when_populated: Once award decision is evidenced.
+    not_to_confuse_with: Signed contract.
     international_alignment: OCDS Award object.
   award_id:
-    definition: Stable identity for one award decision.
+    definition: Stable identity of an award decision.
     cardinality: one_per_award
-    when_populated: For each award.
+    when_populated: For every award.
     not_to_confuse_with: Contract number.
     international_alignment: OCDS award id.
   award_date:
-    definition: Date of award decision/NOA as represented by the source.
+    definition: Date of award/NOA decision.
     cardinality: zero_or_one_per_award
     when_populated: When published.
     not_to_confuse_with: Contract signing date.
-    international_alignment: OCDS award/date.
-  award_status:
-    definition: State of the award decision.
-    cardinality: zero_or_one_per_award
-    when_populated: When known.
-    not_to_confuse_with: Procurement or contract status.
-    international_alignment: OCDS award/status.
+    international_alignment: OCDS award date.
   award_supplier_party_ids:
-    definition: Canonical supplier parties selected by this award.
-    cardinality: one_or_many_per_award
-    when_populated: When awarded supplier identity is known.
-    not_to_confuse_with: Tenderer list.
-    international_alignment: OCDS award/suppliers.
-  award_lot_refs:
-    definition: Lots covered by the award.
+    definition: Canonical supplier parties selected by the award.
     cardinality: zero_or_many_per_award
-    when_populated: For lot-based procurement.
-    not_to_confuse_with: Items if no lot structure exists.
-    international_alignment: Lot-aware award linkage.
+    when_populated: When supplier identity is known.
+    not_to_confuse_with: Tenderer list.
+    international_alignment: OCDS award suppliers.
   award_value:
-    definition: Monetary value of the award decision.
+    definition: Monetary value of award decision.
     cardinality: zero_or_one_per_award
     when_populated: When published.
-    not_to_confuse_with: Signed contract value or current implementation value.
-    international_alignment: OCDS award/value.
-  award_currency:
-    definition: Currency of award_value.
-    cardinality: zero_or_one_per_award
-    when_populated: When award_value exists.
-    not_to_confuse_with: Contract currency if later changed.
-    international_alignment: OCDS value/currency pattern.
-  award_approval_reference:
-    definition: Financier/approving-authority reference tied to the award decision.
-    cardinality: zero_or_one_per_award
-    when_populated: When published.
-    not_to_confuse_with: Contract number or tender reference.
-    international_alignment: IFI approval/no-objection reference.
+    not_to_confuse_with: Contract value or current implementation value.
+    international_alignment: OCDS award value.
   contracts:
     definition: Signed/legal contract objects resulting from awards.
     cardinality: zero_or_many
-    when_populated: Once a contract is signed or otherwise evidenced.
-    not_to_confuse_with: Award decisions.
+    when_populated: Once a contract is evidenced.
+    not_to_confuse_with: Award decision.
     international_alignment: OCDS Contract object.
   contract_id:
-    definition: Stable canonical/internal identity for one contract.
+    definition: Stable internal identity of a contract object.
     cardinality: one_per_contract
-    when_populated: For each contract.
+    when_populated: For every contract.
     not_to_confuse_with: Official contract number.
     international_alignment: OCDS contract id.
   contract_number:
     definition: Official signed contract number/reference.
     cardinality: zero_or_one_per_contract
-    when_populated: When published/evidenced.
+    when_populated: When evidenced.
     not_to_confuse_with: Tender reference or award id.
     international_alignment: Contract identifier concept.
-  contract_award_ref:
-    definition: Award object from which this contract results.
-    cardinality: zero_or_one_per_contract
-    when_populated: When award lineage is known.
-    not_to_confuse_with: Procurement predecessor/re-tender link.
-    international_alignment: OCDS awardID relationship.
-  contract_supplier_party_ids:
-    definition: Canonical supplier parties legally contracted.
-    cardinality: one_or_many_per_contract
-    when_populated: When contract parties are known.
-    not_to_confuse_with: Awarded supplier if contract differs.
-    international_alignment: OCDS contract/award supplier relationship.
   contract_value:
     definition: Contract value at signing.
     cardinality: zero_or_one_per_contract
     when_populated: When evidenced.
-    not_to_confuse_with: Award value or current value after modifications.
-    international_alignment: OCDS contract/value.
-  contract_currency:
-    definition: Currency of contract_value.
-    cardinality: zero_or_one_per_contract
-    when_populated: When contract_value exists.
-    not_to_confuse_with: Process estimate currency.
-    international_alignment: Value/currency pattern.
+    not_to_confuse_with: Award value or current amended value.
+    international_alignment: OCDS contract value.
   contract_signed_at:
     definition: Date/time the contract was signed.
     cardinality: zero_or_one_per_contract
     when_populated: When evidenced.
-    not_to_confuse_with: Award/NOA date.
-    international_alignment: OCDS contract/dateSigned.
-  contract_period_start:
-    definition: Contractual commencement date.
-    cardinality: zero_or_one_per_contract
-    when_populated: When defined.
-    not_to_confuse_with: Project start date.
-    international_alignment: OCDS contract/period startDate.
-  contract_period_end:
-    definition: Contractual planned completion/end date.
-    cardinality: zero_or_one_per_contract
-    when_populated: When defined.
-    not_to_confuse_with: Actual completion date.
-    international_alignment: OCDS contract/period endDate.
-  contract_status:
-    definition: Legal/current state of the contract.
-    cardinality: zero_or_one_per_contract
-    when_populated: When known.
-    not_to_confuse_with: Implementation delivery status.
-    international_alignment: OCDS contract/status.
+    not_to_confuse_with: Award date.
+    international_alignment: OCDS dateSigned.
   implementation_status:
-    definition: Current delivery/execution state under the contract.
-    cardinality: zero_or_one_per_contract
+    definition: Current contract delivery/execution state.
+    cardinality: zero_or_one
     when_populated: During/after execution.
     not_to_confuse_with: Contract legal status.
     international_alignment: OCDS implementation stage.
   implementation_progress_pct:
-    definition: Reported execution/delivery progress percentage for the contract where meaningful.
-    cardinality: zero_or_one_per_contract
+    definition: Reported delivery/execution progress percentage.
+    cardinality: zero_or_one
     when_populated: When authoritatively reported.
     not_to_confuse_with: Project physical progress.
-    international_alignment: Contract-management performance indicator.
-  implementation_actual_completion_date:
-    definition: Actual completion/delivery date.
-    cardinality: zero_or_one_per_contract
-    when_populated: When completed and evidenced.
-    not_to_confuse_with: Contract planned end date.
-    international_alignment: OCDS implementation milestone/completion information.
+    international_alignment: Contract-management KPI.
   implementation_current_value:
     definition: Current contract value after approved modifications.
-    cardinality: zero_or_one_per_contract
-    when_populated: When current amended value is known.
+    cardinality: zero_or_one
+    when_populated: When known.
     not_to_confuse_with: Original contract value.
-    international_alignment: OCDS implementation/value/modification practice.
-  implementation_modifications:
-    definition: Structured contract variations/change orders/extensions affecting obligations, period or value.
-    cardinality: zero_or_many_per_contract
-    when_populated: When modifications occur.
-    not_to_confuse_with: Tender corrigenda before contract award.
-    international_alignment: OCDS contract/implementation amendments.
+    international_alignment: OCDS implementation/value practice.
   observations:
-    definition: Field-level provenance records preserving raw source label/value and evidence semantics.
-    cardinality: one_or_many
-    when_populated: For every material canonical value.
+    definition: Field-level provenance preserving raw labels/values and evidence semantics.
+    cardinality: zero_or_many
+    when_populated: For material canonical values and relevant source-only facts.
     not_to_confuse_with: Canonical values themselves.
-    international_alignment: Provenance layer supporting transparent source mapping.
+    international_alignment: Provenance layer.
   observation_field_path:
-    definition: Canonical field supported by this observation.
+    definition: Canonical or source-only field supported by an observation.
     cardinality: one_per_observation
     when_populated: For every observation.
     not_to_confuse_with: Raw source label.
-    international_alignment: Field-level provenance extension.
+    international_alignment: Field-level provenance.
   observation_value:
-    definition: Canonical/normalized value supported by the observation.
+    definition: Normalized value supported by the observation; may be any JSON value.
     cardinality: zero_or_one_per_observation
-    when_populated: When a value is observed/derived.
-    not_to_confuse_with: Raw source value.
+    when_populated: When a value is observed or derived.
+    not_to_confuse_with: Raw source representation.
     international_alignment: Provenance/value representation.
   observation_raw_label:
     definition: Exact source field/column/heading label.
     cardinality: zero_or_one_per_observation
     when_populated: When available.
-    not_to_confuse_with: Canonical field name.
+    not_to_confuse_with: Canonical field path.
     international_alignment: Source-mapping auditability.
   observation_raw_value:
-    definition: Exact source representation before normalization.
+    definition: Exact source representation before normalization; may be any JSON value.
     cardinality: zero_or_one_per_observation
     when_populated: When source value exists.
-    not_to_confuse_with: Normalized value.
+    not_to_confuse_with: Normalized observation value.
     international_alignment: Source-mapping auditability.
   observation_source_system:
-    definition: System/publication family from which evidence was obtained.
+    definition: Source system/publication family from which evidence was obtained.
     cardinality: one_per_observation
     when_populated: For every observation.
     not_to_confuse_with: Procuring entity.
@@ -971,62 +875,62 @@ field_dictionary:
     definition: Source record/file/notice identifier.
     cardinality: zero_or_one_per_observation
     when_populated: When available.
-    not_to_confuse_with: Canonical identifier of the procurement.
+    not_to_confuse_with: Canonical procurement identifier.
     international_alignment: Provenance metadata.
   observation_source_locator:
     definition: URL/file/page/row/section locator supporting the observation.
-    cardinality: one_per_observation
+    cardinality: zero_or_one_per_observation
     when_populated: Where technically possible.
     not_to_confuse_with: Submission locator.
     international_alignment: Provenance metadata.
   observation_observed_at:
-    definition: Date/time ARGUS observed/retrieved the source.
+    definition: Date/time ARGUS observed or retrieved the source.
     cardinality: one_per_observation
     when_populated: For every observation.
     not_to_confuse_with: Source publication date.
-    international_alignment: Provenance freshness metadata.
+    international_alignment: Freshness metadata.
   observation_published_at:
-    definition: Date/time the source itself published the information when known.
+    definition: Date/time the source published the information when known.
     cardinality: zero_or_one_per_observation
     when_populated: When available.
     not_to_confuse_with: observed_at.
     international_alignment: Publication metadata.
   observation_claim_type:
-    definition: ARGUS analytical type: FACT, DERIVED, INFERENCE, ASSUMPTION or UNKNOWN.
+    definition: ARGUS evidence type FACT, DERIVED, INFERENCE, ASSUMPTION or UNKNOWN.
     cardinality: one_per_observation
     when_populated: For every material observation.
-    not_to_confuse_with: ATLAS evidence assurance.
+    not_to_confuse_with: ATLAS assurance.
     international_alignment: ARGUS evidence semantics.
   observation_condition:
-    definition: Freshness/conflict state: CURRENT, STALE or CONFLICT.
+    definition: Freshness/conflict state CURRENT, STALE, CONFLICT or UNKNOWN.
     cardinality: one_per_observation
     when_populated: For every material observation.
     not_to_confuse_with: Claim type.
     international_alignment: ARGUS evidence semantics.
   observation_assurance:
-    definition: ATLAS evidence-assurance classification when ATLAS governs the execution.
+    definition: ATLAS evidence-assurance classification where ATLAS governs execution.
     cardinality: zero_or_one_per_observation
-    when_populated: When an ATLAS assurance decision exists.
-    not_to_confuse_with: ARGUS claim type or confidence.
+    when_populated: When assurance decision exists.
+    not_to_confuse_with: ARGUS claim type.
     international_alignment: ATLAS governance layer.
   intelligence_maturity:
     definition: ARGUS opportunity-development maturity I0-I9.
-    cardinality: one
-    when_populated: After opportunity assessment.
-    not_to_confuse_with: Procurement process status.
-    international_alignment: ARGUS domain-specific intelligence field.
-  intelligence_activation_mode:
-    definition: Commercial entry mode: early requirement development, planned procurement capture or live tender response.
     cardinality: zero_or_one
-    when_populated: When the actionable stage is classified.
-    not_to_confuse_with: Procurement method or lifecycle status.
-    international_alignment: ARGUS commercial-intelligence field.
+    when_populated: After opportunity assessment.
+    not_to_confuse_with: Procurement status.
+    international_alignment: ARGUS domain intelligence.
+  intelligence_activation_mode:
+    definition: Commercial entry mode: early development, planned capture or live tender response.
+    cardinality: zero_or_one
+    when_populated: When actionable stage is classified.
+    not_to_confuse_with: Procurement method.
+    international_alignment: ARGUS commercial intelligence.
   intelligence_commercial_fit:
     definition: Access Asia commercial relevance/fit assessment.
     cardinality: zero_or_one
     when_populated: After commercial assessment.
-    not_to_confuse_with: Technical compliance or procurement eligibility.
-    international_alignment: ARGUS commercial-intelligence field.
+    not_to_confuse_with: Technical compliance or eligibility.
+    international_alignment: ARGUS commercial intelligence.
   intelligence_supplier_discovery_state:
     definition: State of supplier/OEM discovery and qualification work.
     cardinality: zero_or_one
@@ -1037,20 +941,20 @@ field_dictionary:
     definition: Unresolved facts likely to change the domain decision or next action.
     cardinality: zero_or_many
     when_populated: When material gaps remain.
-    not_to_confuse_with: General research notes.
+    not_to_confuse_with: General notes.
     international_alignment: ARGUS Research Frontier doctrine.
   intelligence_research_frontier:
     definition: Highest-value unresolved research question at the current stage.
     cardinality: zero_or_one
-    when_populated: When further research could materially change the decision/action.
+    when_populated: When further research could change decision/action.
     not_to_confuse_with: Task backlog.
     international_alignment: ARGUS Research Frontier doctrine.
   intelligence_next_action:
-    definition: Recommended next commercial/intelligence action based on current evidence.
+    definition: Recommended next intelligence/commercial action based on current evidence.
     cardinality: zero_or_one
     when_populated: When actionable.
-    not_to_confuse_with: Procurement authority action.
-    international_alignment: ARGUS decision-support field.
+    not_to_confuse_with: Procurement-authority action.
+    international_alignment: ARGUS decision support.
 
 derived_fields:
   extension_count:
@@ -1061,13 +965,20 @@ derived_fields:
     derive_from: COUNT(events where event_type == VALIDITY_EXTENSION)
   variation_count:
     do_not_store: true
-    derive_from: COUNT(implementation_modifications)
+    derive_from: COUNT(implementation.modifications)
   current_submission_deadline:
     do_not_store_as_duplicate_when_milestone_exists: true
     derive_from: current milestone where milestone_type == SUBMISSION_DEADLINE
   current_opening_at:
     do_not_store_as_duplicate_when_milestone_exists: true
     derive_from: current milestone where milestone_type == OPENING
+
+validation_rules:
+  - PROCUREMENT_DOCUMENT_READY is a milestone and does not imply bidding documents were publicly issued.
+  - EXPECTED_PUBLICATION is a planning milestone and does not create a notice until actual publication evidence exists.
+  - When a notice is published, preserve the planned milestone and add the actual notice/publication evidence.
+  - A probable reissue/retender relationship remains qualified as inference until authoritative evidence establishes the event.
+  - Unknown or unobserved fields remain absent or explicitly unknown; schema completeness must never fabricate facts.
 
 source_mapping_rule: >-
   Source-specific Bangladesh and development-partner labels must map to these semantic concepts.
@@ -1078,5 +989,6 @@ compatibility:
   current_v1_3_records_remain_readable: true
   candidate_is_not_active_write_schema: true
   migration_map: profiles/bangladesh-procurement-v1-to-v2-migration.yaml
+  machine_write_contract: schemas/bangladesh-procurement-v2.schema.json
   live_record_migration: DEFERRED
   no_new_master_registry_record_type: true
