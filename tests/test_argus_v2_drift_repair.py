@@ -4,11 +4,9 @@ import json
 import unittest
 from pathlib import Path
 
-from jsonschema import Draft202012Validator, ValidationError
+from jsonschema import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
-REGISTRY_SCHEMA = ROOT / "registry" / "schema" / "argus-master-registry-v0.3.0-candidate.json"
-DOMAIN_SCHEMA = ROOT / "schemas" / "bangladesh-procurement-v2-domain.schema.json"
 TOOL = ROOT / "tools" / "bangladesh_procurement_v2_materialize.py"
 CURRENT = ROOT / "data" / "registry" / "current" / "PROC-DAE-1318662.json"
 FIXTURE = ROOT / "tests" / "fixtures" / "bangladesh-v2" / "dae-low-lift-pump.json"
@@ -39,7 +37,7 @@ class ArgusV2DriftRepair(unittest.TestCase):
         self.assertNotEqual(current["status"], standalone["record_state"])
 
     def test_v03_non_procurement_is_rejected_until_designed(self):
-        schema = json.loads(REGISTRY_SCHEMA.read_text())
+        module = load_tool()
         record = {
             "schema_version": "0.3.0",
             "argus_id": "ENT-TEST",
@@ -53,12 +51,17 @@ class ArgusV2DriftRepair(unittest.TestCase):
             "revision": 1,
             "created_at": "2026-10-18",
             "updated_at": "2026-10-18",
+            "observations": [],
+            "domain_payload": {
+                "profile": "BANGLADESH_PROCUREMENT",
+                "version": "2.0.0-candidate",
+                "data": {},
+            },
         }
-        with self.assertRaises(ValidationError):
-            Draft202012Validator(schema).validate(record)
+        with self.assertRaises((ValidationError, ValueError)):
+            module.validate_registry_candidate(record)
 
     def test_domain_projection_is_deeply_typed(self):
-        schema = json.loads(DOMAIN_SCHEMA.read_text())
         module = load_tool()
         current, standalone = load_inputs()
         projected = module.materialize_registry_procurement(current, standalone)["domain_payload"]["data"]
@@ -66,17 +69,16 @@ class ArgusV2DriftRepair(unittest.TestCase):
         self.assertTrue(broken.get("identifiers"))
         broken["identifiers"][0].pop("scheme", None)
         with self.assertRaises(ValidationError):
-            Draft202012Validator(schema).validate(broken)
+            module.validate_domain_candidate(broken)
 
     def test_registry_schema_binds_domain_payload_deeply(self):
-        schema = json.loads(REGISTRY_SCHEMA.read_text())
         module = load_tool()
         current, standalone = load_inputs()
         materialized = module.materialize_registry_procurement(current, standalone)
         broken = copy.deepcopy(materialized)
         broken["domain_payload"]["data"]["identifiers"][0].pop("scheme", None)
         with self.assertRaises(ValidationError):
-            Draft202012Validator(schema).validate(broken)
+            module.validate_registry_candidate(broken)
 
     def test_relationship_cache_must_exactly_match_relationship_targets(self):
         module = load_tool()

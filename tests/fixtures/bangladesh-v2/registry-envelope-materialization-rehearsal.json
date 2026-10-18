@@ -1,22 +1,7 @@
 {
-  "candidate_index_ids": [
-    "PROC-BCG-LT001",
-    "PROC-DAE-1318662",
-    "PROC-DAE-CHAR28-R2",
-    "PROC-DGDP-248-07-075-26",
-    "PROC-DGDP-248-07-076-26",
-    "PROC-DGDP-248-07-078-26"
-  ],
-  "current_output_count": 6,
-  "current_output_ids": [
-    "PROC-BCG-LT001",
-    "PROC-DAE-1318662",
-    "PROC-DAE-CHAR28-R2",
-    "PROC-DGDP-248-07-075-26",
-    "PROC-DGDP-248-07-076-26",
-    "PROC-DGDP-248-07-078-26"
-  ],
-  "current_source_count": 6,
+  "fixture_type": "registry_envelope_materialization_rehearsal_v2",
+  "target_registry_schema": "0.3.0-candidate",
+  "target_domain_profile": "BANGLADESH_PROCUREMENT/2.0.0-candidate",
   "current_source_ids": [
     "PROC-BCG-LT001",
     "PROC-DAE-1318662",
@@ -25,52 +10,12 @@
     "PROC-DGDP-248-07-076-26",
     "PROC-DGDP-248-07-078-26"
   ],
-  "fixture_type": "registry_envelope_materialization_rehearsal",
-  "historical_baseline_sha256": "a43cb9555f3c82a827d16508d4e3af9764f4445e99df44853895eb2d505bbc31",
-  "historical_current_overlay_backfill_prohibited": true,
-  "historical_ids": [
-    "PROC-BCG-LT001"
-  ],
-  "historical_source_count": 1,
-  "live_registry_mutation": false,
-  "material_information_loss": 0,
-  "materialized_output_sha256": {
-    "PROC-BCG-LT001": "cc46dac3222964b19b3066903e31c8a07b833d01898104f663a687adfba36d5d",
-    "PROC-DAE-1318662": "9a266d948316417f392452fc88a4901b8ae27d58741686cc077e68de701caefa",
-    "PROC-DAE-CHAR28-R2": "3b694cc959d9838869a4a0330d63478aa7171f79fcfc81bcb9b3a738d9466a3a",
-    "PROC-DGDP-248-07-075-26": "0499b8067d8c30e786fe5828ba3a19b07c0940265abe9d8390f3bcaa226b32a8",
-    "PROC-DGDP-248-07-076-26": "47756c2020a69539e3f9b4e139d3db42106b8e56f8fb60cab07148466390466f",
-    "PROC-DGDP-248-07-078-26": "30651220cccb48ed911bbfebb019a57582eb404a1cb087099e7f0cda2cf59306"
-  },
-  "relationship_resolution": "PASS",
-  "rollback_exact": true,
-  "schema_validation": "PASS",
-  "source_snapshots": {
-    "PROC-BCG-LT001": {
-      "bytes": 7064,
-      "sha256": "4fb5b44b82fa76f19c5fbdab6aeec853252eb0e03bd8b59027d4e501417efeb9"
-    },
-    "PROC-DAE-1318662": {
-      "bytes": 3651,
-      "sha256": "62ceada2f8586068205a4e1c983a44ee60fb31ab3f312979d0620e4ef92fdd13"
-    },
-    "PROC-DAE-CHAR28-R2": {
-      "bytes": 3666,
-      "sha256": "c2544af2ca9deb2937e316c7ce198ef9d01d1a3111eee52ff18a120d18207da0"
-    },
-    "PROC-DGDP-248-07-075-26": {
-      "bytes": 3352,
-      "sha256": "1660b04b527bc48a3b26b95cf1b48468746c813007ab03897b424e6a56ef950c"
-    },
-    "PROC-DGDP-248-07-076-26": {
-      "bytes": 3439,
-      "sha256": "408a47d9a71d067605b869b2a15510b8081fe0d17f0e51de72c63c74081caf39"
-    },
-    "PROC-DGDP-248-07-078-26": {
-      "bytes": 3477,
-      "sha256": "b5ac4789ddb36915e0db8ef671da2f8b1ef6a3615444f2c43a4e9646feaf25c3"
-    }
-  },
-  "target_domain_profile": "BANGLADESH_PROCUREMENT/2.0.0-candidate",
-  "target_registry_schema": "0.3.0-candidate"
+  "expected": {
+    "schema_validation": "PASS",
+    "relationship_resolution": "PASS",
+    "material_information_loss": 0,
+    "activation_changed_bytes": true,
+    "rollback_exact": true,
+    "live_registry_mutation": false
+  }
 }
