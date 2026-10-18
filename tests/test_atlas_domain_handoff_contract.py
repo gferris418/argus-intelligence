@@ -21,8 +21,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_sync_validation_records_remote_exact_head_ci(self):
         validation = SYNC_VALIDATION_PATH.read_text(encoding="utf-8")
         self.assertIn("**Status:** REMOTE_CI_PASS", validation)
-        self.assertIn("bed9e8b2d8e53e2a1926cc258c647b7732a3bca5", validation)
-        self.assertIn("39119981576", validation)
+        self.assertIn("5e7b3882fe358749193d69ffbf1e68e28a235618", validation)
+        self.assertIn("39154453083", validation)
         self.assertNotIn("remote exact-head CI: **pending push**", validation)
 
     def test_argus_pins_the_atlas_handoff_contract(self):
@@ -33,9 +33,9 @@ class AtlasDomainHandoffContract(unittest.TestCase):
 
     def test_sync_descriptor_pins_exact_atlas_baseline(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
-        self.assertEqual("2.0.0-rc.8", descriptor["atlas_version"])
-        self.assertEqual("51130014352b30000f847623691f56390cf174aa", descriptor["atlas_commit"])
-        self.assertEqual("chatgpt-bootstrap-2026-10-18-r2", descriptor["control_revision"])
+        self.assertEqual("2.0.0-rc.9", descriptor["atlas_version"])
+        self.assertEqual("896d329a09c4368b2564ee6ef818e025b0e397b6", descriptor["atlas_commit"])
+        self.assertEqual("chatgpt-bootstrap-2026-10-19-r3", descriptor["control_revision"])
         self.assertEqual("1.1.0", descriptor["handoff_contract_version"])
         self.assertEqual(6, len(descriptor["source_contracts"]))
 

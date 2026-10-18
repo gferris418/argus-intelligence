@@ -46,9 +46,9 @@ production_runtime:
       - non_access_asia_implementation
 
 atlas_compatibility:
-  validated_against: 2.0.0-rc.8
-  validated_against_commit: 51130014352b30000f847623691f56390cf174aa
-  control_revision: chatgpt-bootstrap-2026-10-18-r2
+  validated_against: 2.0.0-rc.9
+  validated_against_commit: 896d329a09c4368b2564ee6ef818e025b0e397b6
+  control_revision: chatgpt-bootstrap-2026-10-19-r3
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
   atlas_domain_context_contract_version: 1.1.0
