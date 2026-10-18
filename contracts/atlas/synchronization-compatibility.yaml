@@ -1,8 +1,8 @@
 {
   "atlas_compatibility": {
-    "atlas_version": "2.0.0-rc.8",
-    "atlas_commit": "51130014352b30000f847623691f56390cf174aa",
-    "control_revision": "chatgpt-bootstrap-2026-10-18-r2",
+    "atlas_version": "2.0.0-rc.9",
+    "atlas_commit": "896d329a09c4368b2564ee6ef818e025b0e397b6",
+    "control_revision": "chatgpt-bootstrap-2026-10-19-r3",
     "handoff_contract_version": "1.1.0",
     "source_contracts": {
       "domain_context_handoff": {
@@ -26,7 +26,7 @@
       },
       "approvals": {
         "source_path": "spec/approvals.yaml",
-        "sha256": "2b6fdb13a0ef5aae3e1cbcb88de37abd2a6566678ba7899384de3521308eeaf0"
+        "sha256": "4fbc6bff87a6aba6ccda300a824440b64cd5d7e6ba99e7ecdde2db208b2cc5d0"
       },
       "verification": {
         "source_path": "spec/verification.yaml",

@@ -18,7 +18,7 @@ ARGUS may enrich the ATLAS context for opportunity discovery—aliases, local te
 
 In Access Asia production, ARGUS rejects dependent execution on a `BLOCKED` handoff and returns the exact `handoff_id`, contract version and `payload_sha256` in every `ATLAS_GOVERNED` domain result. Standalone execution remains available for portability, testing, recovery, or non-Access-Asia implementations.
 
-The executable synchronization runtime in [`tools/atlas_sync.py`](tools/atlas_sync.py) pins ATLAS `2.0.0-rc.8`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. It does not mutate the Master Registry by itself.
+The executable synchronization runtime in [`tools/atlas_sync.py`](tools/atlas_sync.py) pins ATLAS `2.0.0-rc.9`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. It does not mutate the Master Registry by itself.
 
 ### Activation boundary
 
