@@ -21,8 +21,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_sync_validation_records_remote_exact_head_ci(self):
         validation = SYNC_VALIDATION_PATH.read_text(encoding="utf-8")
         self.assertIn("**Status:** REMOTE_CI_PASS", validation)
-        self.assertIn("bed9e8b2d8e53e2a1926cc258c647b7732a3bca5", validation)
-        self.assertIn("39119981576", validation)
+        self.assertIn("5e7b3882fe358749193d69ffbf1e68e28a235618", validation)
+        self.assertIn("39154453083", validation)
         self.assertNotIn("remote exact-head CI: **pending push**", validation)
 
     def test_argus_pins_the_atlas_handoff_contract(self):
