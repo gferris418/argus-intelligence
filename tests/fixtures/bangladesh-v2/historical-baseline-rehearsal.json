@@ -1,0 +1,290 @@
+{
+  "fixture_type": "historical_baseline_v2_migration_rehearsal",
+  "target_standard": "2.0.0-candidate",
+  "baseline_sha256": "a43cb9555f3c82a827d16508d4e3af9764f4445e99df44853895eb2d505bbc31",
+  "baseline_record_count": 11,
+  "source_procurement_count": 1,
+  "output_procurement_count": 1,
+  "source_argus_ids": ["PROC-BCG-LT001"],
+  "output_argus_ids": ["PROC-BCG-LT001"],
+  "live_registry_mutation": false,
+  "transformer": "tools/bangladesh_procurement_v2_migrate.py",
+  "migration_contract": "profiles/bangladesh-procurement-v2-registry-legacy-migration.json",
+  "transformed_payloads": [
+    {
+      "argus_id": "PROC-BCG-LT001",
+      "title": "Construction and Delivery of 4 Coastal Patrol Vessels (CPV)",
+      "record_state": "BASELINE_PROVENANCE",
+      "record_revision": 1,
+      "related_record_refs": [
+        {"argus_id": "ENT-BD-COAST-GUARD", "relation_type": "related_to"},
+        {"argus_id": "PRJ-BCG-CPV-WD2", "relation_type": "related_to"}
+      ],
+      "party_role_links": [
+        {"party_id": "ENT-BD-COAST-GUARD", "role": "BUYER", "source_role_label": "buyer_entity_id", "unit_label": null, "effective_from": null, "effective_to": null},
+        {"party_id": "ENT-BD-COAST-GUARD", "role": "PROCURING_ENTITY", "source_role_label": "procuring_entity_id", "unit_label": null, "effective_from": null, "effective_to": null}
+      ],
+      "process": {
+        "method_source_code": "OSTETM",
+        "status_raw": "Published_snapshot_unverified_current"
+      },
+      "items": [
+        {
+          "item_id": "LEGACY-ITEM-1",
+          "description": "Construction and Delivery of 4 Coastal Patrol Vessels (CPV)",
+          "quantity": 4,
+          "unit": "vessels",
+          "lot_ref": null,
+          "classifications": []
+        }
+      ],
+      "intelligence": {
+        "material_unknowns": [
+          "Current tender status",
+          "Verified publication/closing dates",
+          "Exact package budget",
+          "Full eligibility and technical requirements"
+        ]
+      },
+      "observations": [
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-1",
+          "field_path": "legacy.aliases",
+          "value": ["BCG-LT001", "WD-2"],
+          "raw_label": "aliases",
+          "raw_value": ["BCG-LT001", "WD-2"],
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-2",
+          "field_path": "legacy.created_at",
+          "value": "2026-10-16T01:48:17+06:00",
+          "raw_label": "created_at",
+          "raw_value": "2026-10-16T01:48:17+06:00",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-3",
+          "field_path": "legacy.external_refs",
+          "value": [
+            {"external_id": "BCG-LT001", "label": "Legacy opportunity ID", "system": "DTIF_DB001"},
+            {"external_id": "MA-8AFCA50F2D8E", "label": "Legacy next-action ID", "system": "DTIF_DB003"}
+          ],
+          "raw_label": "external_refs",
+          "raw_value": [
+            {"external_id": "BCG-LT001", "label": "Legacy opportunity ID", "system": "DTIF_DB001"},
+            {"external_id": "MA-8AFCA50F2D8E", "label": "Legacy next-action ID", "system": "DTIF_DB003"}
+          ],
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-4",
+          "field_path": "legacy.information_classification",
+          "value": "internal",
+          "raw_label": "information_classification",
+          "raw_value": "internal",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-5",
+          "field_path": "legacy.schema_version",
+          "value": "0.2.0",
+          "raw_label": "schema_version",
+          "raw_value": "0.2.0",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-6",
+          "field_path": "legacy.status",
+          "value": "legacy_published_snapshot_current_status_unverified",
+          "raw_label": "status",
+          "raw_value": "legacy_published_snapshot_current_status_unverified",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-TOP-7",
+          "field_path": "legacy.updated_at",
+          "value": "2026-10-16T01:48:17+06:00",
+          "raw_label": "updated_at",
+          "raw_value": "2026-10-16T01:48:17+06:00",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-ATTR-1",
+          "field_path": "legacy.attributes.currency",
+          "value": "BDT",
+          "raw_label": "currency",
+          "raw_value": "BDT",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-ATTR-2",
+          "field_path": "legacy.attributes.funding_source_raw",
+          "value": "Development Budget GOB",
+          "raw_label": "funding_source_raw",
+          "raw_value": "Development Budget GOB",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-ATTR-3",
+          "field_path": "legacy.attributes.official_reference",
+          "value": "WD-2",
+          "raw_label": "official_reference",
+          "raw_value": "WD-2",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-ATTR-4",
+          "field_path": "legacy.attributes.package_reference",
+          "value": "WD-2",
+          "raw_label": "package_reference",
+          "raw_value": "WD-2",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-ATTR-5",
+          "field_path": "legacy.attributes.procurement_type",
+          "value": "goods_and_shipbuilding_procurement",
+          "raw_label": "procurement_type",
+          "raw_value": "goods_and_shipbuilding_procurement",
+          "source_id": "PROC-BCG-LT001",
+          "source_system": "ARGUS_LEGACY_REGISTRY",
+          "source_locator": "data/registry/records.jsonl",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_PRESERVED"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-EVIDENCE-1",
+          "field_path": "legacy.evidence_refs[0]",
+          "value": {
+            "analytical_label": "STALE",
+            "notes": "Source states a tender notice claim. DB-001 marks the evidence as legacy OCR unverified; current tender status must be refreshed.",
+            "source_id": "SRC-003",
+            "source_locator": "MASTER_OPPORTUNITIES!row 469",
+            "source_system": "DTIF_DB001",
+            "title": "BCG-LT001 legacy tender record"
+          },
+          "raw_label": "evidence_refs",
+          "raw_value": {
+            "analytical_label": "STALE",
+            "notes": "Source states a tender notice claim. DB-001 marks the evidence as legacy OCR unverified; current tender status must be refreshed.",
+            "source_id": "SRC-003",
+            "source_locator": "MASTER_OPPORTUNITIES!row 469",
+            "source_system": "DTIF_DB001",
+            "title": "BCG-LT001 legacy tender record"
+          },
+          "source_id": "SRC-003",
+          "source_system": "DTIF_DB001",
+          "source_locator": "MASTER_OPPORTUNITIES!row 469",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_ANALYTICAL_LABEL_STALE"
+        },
+        {
+          "observation_id": "LEGACY-PROC-BCG-LT001-EVIDENCE-2",
+          "field_path": "legacy.evidence_refs[1]",
+          "value": {
+            "analytical_label": "STALE",
+            "notes": "Legacy action states 'Tender Live' in the 2026-10-08 snapshot and instructs review of the full tender; treated as a stale workflow snapshot, not current truth.",
+            "source_id": "SRC-003",
+            "source_locator": "next_actions!row 423",
+            "source_system": "DTIF_DB003",
+            "title": "BCG-LT001 workflow action"
+          },
+          "raw_label": "evidence_refs",
+          "raw_value": {
+            "analytical_label": "STALE",
+            "notes": "Legacy action states 'Tender Live' in the 2026-10-08 snapshot and instructs review of the full tender; treated as a stale workflow snapshot, not current truth.",
+            "source_id": "SRC-003",
+            "source_locator": "next_actions!row 423",
+            "source_system": "DTIF_DB003",
+            "title": "BCG-LT001 workflow action"
+          },
+          "source_id": "SRC-003",
+          "source_system": "DTIF_DB003",
+          "source_locator": "next_actions!row 423",
+          "observed_at": "2026-10-16T01:48:17+06:00",
+          "claim_type": "UNKNOWN",
+          "condition": "STALE",
+          "assurance": "LEGACY_ANALYTICAL_LABEL_STALE"
+        }
+      ]
+    }
+  ],
+  "preservation_assessment": {
+    "material_information_loss": 0,
+    "schema_validation": "PASS",
+    "identity_set_match": "PASS",
+    "evidence_state_preservation": "PASS",
+    "unsafe_identifier_retyping": 0
+  }
+}
