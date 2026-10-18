@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/atlas-argus-sync-receipt.schema.json",
+  "title": "ATLAS-ARGUS synchronization receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sync_execution_id", "attempt", "mode", "atlas", "argus", "state",
+    "started_at", "completed_at", "unresolved_material", "risk_flags",
+    "context_change_detected", "upstream_refresh_required", "upstream_context_change",
+    "proposed_actions", "approval_refs", "authorized_actions", "failure_state", "resume_from"
+  ],
+  "properties": {
+    "sync_execution_id": {"type": "string", "pattern": "^ARGUS-SYNC-[A-Z0-9][A-Z0-9-]{2,95}$"},
+    "attempt": {"type": "integer", "minimum": 1},
+    "mode": {"const": "ATLAS_GOVERNED"},
+    "atlas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version", "commit", "handoff_contract_version", "handoff_id",
+        "payload_sha256", "source_task_id", "source_plan_id", "source_work_unit_id"
+      ],
+      "properties": {
+        "version": {"const": "2.0.0-rc.8"},
+        "commit": {"const": "01ca6b772e696c534b146b560fa0ecef5f76555d"},
+        "handoff_contract_version": {"const": "1.1.0"},
+        "handoff_id": {"type": "string"},
+        "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "source_task_id": {"type": "string"},
+        "source_plan_id": {"type": "string"},
+        "source_work_unit_id": {"type": "string"}
+      }
+    },
+    "argus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "result_sha256"],
+      "properties": {
+        "version": {"const": "2.0.0-rc.2"},
+        "result_sha256": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "state": {
+      "enum": [
+        "RECEIVED", "VALIDATED", "ACCEPTED", "ACTIVE", "RESULT_READY", "RETURNED",
+        "REJECTED", "INVALID", "BLOCKED", "SUPERSEDED_PENDING_ATLAS", "STALE", "FAILED"
+      ]
+    },
+    "started_at": {"type": "string", "format": "date-time"},
+    "completed_at": {"type": ["string", "null"], "format": "date-time"},
+    "unresolved_material": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "risk_flags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "context_change_detected": {"type": "boolean"},
+    "upstream_refresh_required": {"type": "boolean"},
+    "upstream_context_change": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["affected_facets", "evidence_refs", "reason"],
+      "properties": {
+        "affected_facets": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "proposed_actions": {"type": "array", "items": {"type": "object"}},
+    "approval_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "authorized_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["idempotency_key", "action_sha256", "approval_id"],
+        "properties": {
+          "idempotency_key": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "action_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "approval_id": {"type": "string"}
+        }
+      }
+    },
+    "failure_state": {
+      "type": ["string", "null"],
+      "enum": [
+        "BLOCKED", "PARTIAL", "UNVERIFIED", "CAPABILITY_UNAVAILABLE",
+        "AUTHORIZATION_REQUIRED", "EVIDENCE_INSUFFICIENT", "DEPENDENCY_FAILED",
+        "VALIDATION_FAILED", null
+      ]
+    },
+    "resume_from": {"type": ["string", "null"]}
+  }
+}
