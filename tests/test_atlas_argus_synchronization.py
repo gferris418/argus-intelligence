@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import unittest
 from copy import deepcopy
@@ -7,6 +8,8 @@ from pathlib import Path
 
 from tools.atlas_sync import (
     SyncValidationError,
+    action_idempotency_key,
+    authorize_action,
     canonical_handoff_sha256,
     mark_upstream_context_change,
     map_atlas_failure,
@@ -15,6 +18,7 @@ from tools.atlas_sync import (
     retry_sync,
     transition_sync,
     validate_handoff,
+    validate_action_authorization,
     validate_result_correlation,
     validate_sync_receipt,
 )
@@ -29,6 +33,27 @@ def load_fixture(name: str) -> dict:
 
 
 class AtlasArgusSynchronizationTests(unittest.TestCase):
+    def _action(self) -> dict:
+        return {
+            "action": "CREATE_PX_OPPORTUNITY",
+            "target_argus_id": "NEW:PX:COASTAL-RADAR",
+            "rationale": "Promote the governed candidate after verification.",
+            "reversible": False,
+            "precondition_revision": "registry-rev-11",
+            "policy_revision": "approvals-v2",
+        }
+
+    def _action_sha256(self, action: dict) -> str:
+        encoded = json.dumps(
+            action, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        ).encode("utf-8")
+        return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+    def _approval(self, name: str = "approval-approved.json") -> dict:
+        approval = load_fixture(name)
+        approval["input_sha256"] = self._action_sha256(self._action())
+        return approval
+
     def _active_receipt(self, handoff: dict | None = None) -> dict:
         handoff = handoff or load_fixture("ready-handoff.json")
         receipt = new_sync_receipt(
@@ -229,6 +254,71 @@ class AtlasArgusSynchronizationTests(unittest.TestCase):
                 self.assertEqual(failure, map_atlas_failure(condition))
         with self.assertRaises(SyncValidationError):
             map_atlas_failure("invented-state")
+
+    def test_required_and_not_required_approval_states_are_conservative(self) -> None:
+        action = self._action()
+        validate_action_authorization(
+            action, self._approval(), ["CREATE_PX_OPPORTUNITY", "ARGUS:CANONICAL_WRITE"]
+        )
+        validate_action_authorization(
+            action,
+            self._approval("approval-not-required.json"),
+            ["CREATE_PX_OPPORTUNITY"],
+        )
+
+        for status in ("PENDING", "DENIED", "EXPIRED"):
+            approval = self._approval()
+            approval["status"] = status
+            if status != "PENDING":
+                approval["approved_at"] = "2026-10-18T07:01:00Z"
+            with self.subTest(status=status), self.assertRaises(SyncValidationError):
+                validate_action_authorization(action, approval, ["CREATE_PX_OPPORTUNITY"])
+
+        inconsistent = self._approval("approval-not-required.json")
+        inconsistent["status"] = "APPROVED"
+        inconsistent["approved_at"] = "2026-10-18T07:01:00Z"
+        with self.assertRaises(SyncValidationError):
+            validate_action_authorization(action, inconsistent, ["CREATE_PX_OPPORTUNITY"])
+
+    def test_approval_scope_and_action_binding_are_exact(self) -> None:
+        action = self._action()
+        approval = self._approval()
+        for expected_scope in (
+            ["CREATE-PX-OPPORTUNITY"],
+            ["CREATE_PX"],
+            ["CREATE_PX_OPPORTUNITY", "MISSING_SCOPE"],
+        ):
+            with self.subTest(expected_scope=expected_scope), self.assertRaises(SyncValidationError):
+                validate_action_authorization(action, approval, expected_scope)
+
+        changed = deepcopy(action)
+        changed["target_argus_id"] = "NEW:PX:OTHER"
+        with self.assertRaises(SyncValidationError) as caught:
+            validate_action_authorization(changed, approval, ["CREATE_PX_OPPORTUNITY"])
+        self.assertEqual("APPROVAL_ACTION_MISMATCH", caught.exception.code)
+
+    def test_action_authorization_is_idempotent_and_rejects_superseded_sync(self) -> None:
+        action = self._action()
+        approval = self._approval()
+        receipt = self._active_receipt()
+        key = action_idempotency_key(receipt["sync_execution_id"], action)
+        self.assertEqual(key, action_idempotency_key(receipt["sync_execution_id"], action))
+
+        authorized = authorize_action(
+            receipt, action, approval, ["CREATE_PX_OPPORTUNITY"]
+        )
+        repeated = authorize_action(
+            authorized, action, approval, ["CREATE_PX_OPPORTUNITY"]
+        )
+        self.assertEqual(authorized, repeated)
+        self.assertEqual(1, len(repeated["authorized_actions"]))
+        self.assertEqual(key, repeated["authorized_actions"][0]["idempotency_key"])
+
+        superseded = mark_upstream_context_change(
+            receipt, ["jurisdiction"], ["EVIDENCE-001"], "Context changed."
+        )
+        with self.assertRaises(SyncValidationError):
+            authorize_action(superseded, action, approval, ["CREATE_PX_OPPORTUNITY"])
 
 
 if __name__ == "__main__":

@@ -19,6 +19,9 @@ HANDOFF_SCHEMA = json.loads(
 SYNC_SCHEMA = json.loads(
     (ROOT / "schemas/atlas-argus-sync-receipt.schema.json").read_text(encoding="utf-8")
 )
+APPROVAL_SCHEMA = json.loads(
+    (ROOT / "contracts/atlas/approval-v1.schema.json").read_text(encoding="utf-8")
+)
 COMPATIBILITY = json.loads(
     (ROOT / "contracts/atlas/synchronization-compatibility.yaml").read_text(encoding="utf-8")
 )["atlas_compatibility"]
@@ -282,3 +285,90 @@ def map_atlas_failure(condition: str) -> str:
         raise SyncValidationError(
             "UNKNOWN_SYNC_FAILURE", "VALIDATION_FAILED", f"unknown synchronization condition: {condition}"
         ) from error
+
+
+def validate_action_authorization(
+    action: dict[str, Any],
+    approval: dict[str, Any],
+    expected_scope: list[str],
+) -> None:
+    try:
+        jsonschema.validate(
+            approval,
+            APPROVAL_SCHEMA,
+            format_checker=jsonschema.FormatChecker(),
+        )
+    except jsonschema.ValidationError as error:
+        raise SyncValidationError(
+            "APPROVAL_SCHEMA_INVALID", "AUTHORIZATION_REQUIRED", error.message
+        ) from error
+
+    expected_status = "APPROVED" if approval["required"] else "NOT_REQUIRED"
+    if approval["status"] != expected_status:
+        raise SyncValidationError(
+            "APPROVAL_STATUS_INVALID",
+            "AUTHORIZATION_REQUIRED",
+            "approval required/status combination does not authorize mutation",
+        )
+    if not set(expected_scope).issubset(set(approval["scope"])):
+        raise SyncValidationError(
+            "APPROVAL_SCOPE_MISMATCH", "AUTHORIZATION_REQUIRED", "approval scope is insufficient"
+        )
+
+    target_id = action.get("target_argus_id")
+    expected = {
+        "action_type": action.get("action"),
+        "target_id": target_id,
+        "input_sha256": _sha256_json(action),
+        "precondition_revision": action.get("precondition_revision"),
+        "policy_revision": action.get("policy_revision"),
+    }
+    if any(not value or approval.get(field) != value for field, value in expected.items()):
+        raise SyncValidationError(
+            "APPROVAL_ACTION_MISMATCH",
+            "AUTHORIZATION_REQUIRED",
+            "approval is not bound to the exact proposed action",
+        )
+    issued_at = datetime.fromisoformat(approval["issued_at"].replace("Z", "+00:00"))
+    expires_at = datetime.fromisoformat(approval["expires_at"].replace("Z", "+00:00"))
+    current = datetime.now(timezone.utc)
+    if not issued_at <= current < expires_at:
+        raise SyncValidationError(
+            "APPROVAL_EXPIRED", "AUTHORIZATION_REQUIRED", "approval is outside its validity interval"
+        )
+
+
+def action_idempotency_key(sync_execution_id: str, action: dict[str, Any]) -> str:
+    payload = {"sync_execution_id": sync_execution_id, "action": action}
+    return _sha256_json(payload)
+
+
+def authorize_action(
+    receipt: dict[str, Any],
+    action: dict[str, Any],
+    approval: dict[str, Any],
+    expected_scope: list[str],
+) -> dict[str, Any]:
+    validate_sync_receipt(receipt)
+    if receipt["state"] not in {"ACTIVE", "RESULT_READY"}:
+        raise SyncValidationError(
+            "SYNC_EXECUTION_NOT_CURRENT",
+            "AUTHORIZATION_REQUIRED",
+            "a non-current synchronization cannot authorize canonical mutation",
+        )
+    validate_action_authorization(action, approval, expected_scope)
+    key = action_idempotency_key(receipt["sync_execution_id"], action)
+    if any(entry["idempotency_key"] == key for entry in receipt["authorized_actions"]):
+        return deepcopy(receipt)
+    result = deepcopy(receipt)
+    if action not in result["proposed_actions"]:
+        result["proposed_actions"].append(deepcopy(action))
+    if approval["id"] not in result["approval_refs"]:
+        result["approval_refs"].append(approval["id"])
+    result["authorized_actions"].append({
+        "idempotency_key": key,
+        "action_sha256": _sha256_json(action),
+        "approval_id": approval["id"],
+    })
+    validate_sync_receipt(result)
+    return result
