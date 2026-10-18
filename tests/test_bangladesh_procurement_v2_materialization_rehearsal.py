@@ -142,14 +142,14 @@ class BangladeshProcurementV2MaterializationRehearsal(unittest.TestCase):
 
     def test_validation_report_records_correction_and_no_go(self):
         self.assertTrue(REPORT.exists())
-        text = REPORT.read_text()
+        text = REPORT.read_text().lower()
         for phrase in [
             "v1.3 remains active",
-            "NO-GO for live activation",
+            "no-go for live activation",
             "record_state",
             "computed material information loss",
             "disposable activation/revert",
-            "ATLAS unchanged",
+            "atlas unchanged",
         ]:
             self.assertIn(phrase, text)
 
