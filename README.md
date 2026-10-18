@@ -31,7 +31,19 @@ outcome = runtime.analyze(AnalysisEnvelope(
 ))
 ```
 
-The synchronization runtime pins ATLAS `2.0.0-rc.10`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. Neither runtime mutates the Master Registry by itself.
+The synchronization runtime pins ATLAS `2.0.0-rc.11`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. Neither runtime mutates the Master Registry by itself.
+
+The complete seam can be tested without persistent keys, network access, or
+registry writes. Compact text is the default; NDJSON is available for a
+machine consumer:
+
+```bash
+python -m tools.live_smoke
+python -m tools.live_smoke --format ndjson
+```
+
+The command is explicitly test-only and generates a fresh in-memory signing
+key. See [`docs/live-testing.md`](docs/live-testing.md) for its scope.
 
 ### Activation boundary
 
@@ -114,6 +126,6 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 
 ## Current status
 
-`2.0.0-rc.3` — candidate.
+`2.0.0-rc.4` — candidate.
 
 The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, and governed ATLAS domain-context handoff are under CI validation. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical persistence layer while ARGUS usage and integration requirements mature.
