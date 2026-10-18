@@ -12,6 +12,8 @@ HANDOFF_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "domain-context-handoff-v1.
 RECEIPT_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "domain-handoff-receipt-v1.schema.json"
 APPROVAL_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "approval-v1.schema.json"
 SYNC_DESCRIPTOR_PATH = ROOT / "contracts" / "atlas" / "synchronization-compatibility.yaml"
+SYNC_RECEIPT_SCHEMA_PATH = ROOT / "schemas" / "atlas-argus-sync-receipt.schema.json"
+WORKFLOW_PATH = ROOT / ".github" / "workflows" / "contract-tests.yml"
 
 
 class AtlasDomainHandoffContract(unittest.TestCase):
@@ -75,6 +77,33 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         modes = RESULT_SCHEMA["properties"]["governance_mode"]["enum"]
         self.assertIn("STANDALONE", modes)
         self.assertIn("ATLAS_GOVERNED", modes)
+
+    def test_manifest_declares_sync_runtime_without_changing_production_authority(self):
+        self.assertIn(
+            "atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml",
+            MANIFEST,
+        )
+        self.assertIn(
+            "atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json",
+            MANIFEST,
+        )
+        self.assertIn("synchronization_runtime: tools/atlas_sync.py", MANIFEST)
+        self.assertIn("bangladesh_procurement_standard_version: 1.3.0", MANIFEST)
+        self.assertIn("atlas_change_required: false", MANIFEST)
+        self.assertIn("standalone_argus: false", MANIFEST)
+        record_type_block = MANIFEST.split("record_types:", 1)[1].split(
+            "logical_canonical_store:", 1
+        )[0]
+        self.assertEqual(7, sum(line.strip().startswith("- ") for line in record_type_block.splitlines()))
+        self.assertTrue(SYNC_RECEIPT_SCHEMA_PATH.is_file())
+
+    def test_ci_uses_immutable_actions_hash_locked_install_and_audit(self):
+        workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+        self.assertNotIn("actions/checkout@v", workflow)
+        self.assertNotIn("actions/setup-python@v", workflow)
+        self.assertIn("pip install --require-hashes", workflow)
+        self.assertIn("gh-action-pip-audit@", workflow)
+        self.assertTrue((ROOT / "requirements-test.lock").is_file())
 
 
 if __name__ == "__main__":

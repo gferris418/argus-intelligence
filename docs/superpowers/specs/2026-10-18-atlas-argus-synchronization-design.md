@@ -1,11 +1,11 @@
 # ATLAS OS ↔ ARGUS Synchronization Design v1
 
 **Date:** 2026-10-18  
-**Status:** DESIGN_FOR_REVIEW  
+**Status:** IMPLEMENTED_CANDIDATE
 **Scope:** ARGUS implementation against immutable ATLAS OS contracts  
-**ATLAS baseline:** `2.0.0-rc.7` at `a9e709e10a0187b342520baa06dbf4a3e05fbb24`  
-**ARGUS baseline:** `2.0.0-rc.2` at `36b611e96d37b048b5b2e8ea076db70315ce38b9`  
-**ATLAS modification required:** No  
+**ATLAS baseline:** `2.0.0-rc.8` at `01ca6b772e696c534b146b560fa0ecef5f76555d`
+**ARGUS implementation base:** `2.0.0-rc.2` at `fe7ef26ed90cda49b4962b9ab7f707640c4ddc62`
+**ATLAS modification required:** Completed separately in the RC8 control-plane remediation
 **Production activation:** No
 
 ## 1. Purpose
@@ -60,7 +60,7 @@ ARGUS does not redefine ATLAS-owned taxonomy, classification, standards conclusi
 
 ### Selected: ARGUS-side synchronization runtime against immutable ATLAS contracts
 
-ATLAS stays unchanged. ARGUS adds a small synchronization layer that consumes pinned ATLAS contracts and enforces compatibility, handoff integrity, lifecycle, return correlation, invalidation, retry/resume, and action-authorization preconditions.
+ARGUS treats the approved ATLAS RC8 commit as immutable and adds a small synchronization layer that consumes its pinned contracts and enforces compatibility, handoff integrity, lifecycle, return correlation, invalidation, retry/resume, and action-authorization preconditions.
 
 Rejected alternatives:
 
@@ -108,9 +108,9 @@ ARGUS shall maintain an executable compatibility descriptor for the approved ATL
 
 ```yaml
 atlas_compatibility:
-  atlas_version: 2.0.0-rc.7
-  atlas_commit: a9e709e10a0187b342520baa06dbf4a3e05fbb24
-  handoff_contract_version: 1.0.0
+  atlas_version: 2.0.0-rc.8
+  atlas_commit: 01ca6b772e696c534b146b560fa0ecef5f76555d
+  handoff_contract_version: 1.1.0
   source_contracts:
     domain_context_handoff:
       source_path: schemas/domain-context-handoff.schema.json
@@ -460,7 +460,7 @@ docs/architecture/
   atlas-argus-synchronization-v1.md               # durable architecture copy if useful
 ```
 
-No change is planned to the ATLAS repository.
+No further ATLAS change is part of the ARGUS synchronization implementation; compatibility remains pinned to the approved RC8 commit.
 
 No live ARGUS registry/index/manifest migration belongs in this gate.
 

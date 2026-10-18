@@ -25,6 +25,8 @@ authority:
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_activation_contract: contracts/atlas/argus-activation-v1.json
   atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml
+  atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json
+  synchronization_runtime: tools/atlas_sync.py
 
 scope:
   primary: pre-bid government and public-sector opportunity intelligence
@@ -56,6 +58,9 @@ atlas_compatibility:
     - PARTIAL
   blocked_handoff_execution: prohibited
   exact_return_correlation_required: true
+  replay_and_stale_result_protection: enforced
+  retry_resume_reconciliation: enforced
+  action_authorization_binding: enforced
   activation_contract_version: 1.0.0
   activation_authority: ATLAS_OS
   activation_capability: government_public_sector_opportunity_intelligence
@@ -315,6 +320,7 @@ release_gates:
   - cross-fiscal-year project lineage test passes: PASS
   - promotion-before-live-tender test passes: PASS
   - ATLAS domain-context handoff pin and return-correlation contract: PASS
+  - ATLAS-ARGUS synchronization lifecycle, replay, resume and authorization contract: PASS_CANDIDATE
   - Bangladesh cross-source canonical data standard and observation contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS

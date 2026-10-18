@@ -320,6 +320,14 @@ class AtlasArgusSynchronizationTests(unittest.TestCase):
         with self.assertRaises(SyncValidationError):
             authorize_action(superseded, action, approval, ["CREATE_PX_OPPORTUNITY"])
 
+    def test_standalone_result_cannot_masquerade_as_governed(self) -> None:
+        handoff = load_fixture("ready-handoff.json")
+        result = self._result(handoff)
+        result["governance_mode"] = "STANDALONE"
+        with self.assertRaises(SyncValidationError) as caught:
+            validate_result_correlation(result, handoff, self._active_receipt(handoff))
+        self.assertEqual("GOVERNANCE_MODE_MISMATCH", caught.exception.code)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,7 +4,7 @@
 
 **Goal:** Implement an ARGUS-side synchronization runtime that enforces the approved ATLAS OS handoff, correlation, invalidation, retry/resume, and approval semantics without changing ATLAS OS or activating any pending ARGUS production migration.
 
-**Architecture:** ATLAS OS remains the immutable upstream governance authority. ARGUS pins the approved ATLAS 2.0.0-rc.7 contracts at commit `a9e709e10a0187b342520baa06dbf4a3e05fbb24`, validates incoming handoffs and approvals against those contracts, maintains only local synchronization-execution state, and returns exactly correlated domain results. Synchronization receipts are interoperability evidence, not Master Registry records.
+**Architecture:** ATLAS OS remains the immutable upstream governance authority. ARGUS pins the approved ATLAS 2.0.0-rc.8 contracts at commit `01ca6b772e696c534b146b560fa0ecef5f76555d`, validates incoming handoffs and approvals against those contracts, maintains only local synchronization-execution state, and returns exactly correlated domain results. Synchronization receipts are interoperability evidence, not Master Registry records.
 
 **Tech Stack:** Python 3.12 standard library, `jsonschema==4.23.0`, JSON Schema Draft 2020-12, `unittest`, GitHub Actions Contract Tests.
 
@@ -12,8 +12,8 @@
 
 ## Global Constraints
 
-- Do not modify `gferris418/atlas-os`; approved ATLAS baseline is `2.0.0-rc.7` at `a9e709e10a0187b342520baa06dbf4a3e05fbb24`.
-- Handoff contract version remains `1.0.0`; ARGUS adapts to ATLAS rather than redefining ATLAS semantics.
+- Do not further modify `gferris418/atlas-os` during ARGUS implementation; approved ATLAS baseline is `2.0.0-rc.8` at `01ca6b772e696c534b146b560fa0ecef5f76555d`.
+- Handoff contract version is `1.1.0`; ARGUS adapts to ATLAS rather than redefining ATLAS semantics.
 - Bangladesh Procurement v1.3 remains the active ARGUS production procurement standard; no v2/v0.3 activation or live registry mutation belongs to this plan.
 - Reuse the ATLAS approval schema; do not introduce a second authorization schema.
 - `contracts/atlas/synchronization-compatibility.yaml` shall contain JSON syntax (valid YAML 1.2) so runtime/tests can parse it with Python `json` and no new YAML dependency.
@@ -61,7 +61,7 @@
 - Modify: `tests/test_atlas_domain_handoff_contract.py`
 
 **Interfaces:**
-- Consumes: approved ATLAS commit `a9e709e10a0187b342520baa06dbf4a3e05fbb24` and exact upstream bytes from `schemas/domain-context-handoff.schema.json`, `schemas/domain-handoff-receipt.schema.json`, `schemas/approval.schema.json`, `spec/runtime.yaml`, `spec/approvals.yaml`, `spec/verification.yaml`.
+- Consumes: approved ATLAS commit `01ca6b772e696c534b146b560fa0ecef5f76555d` and exact upstream bytes from `schemas/domain-context-handoff.schema.json`, `schemas/domain-handoff-receipt.schema.json`, `schemas/approval.schema.json`, `spec/runtime.yaml`, `spec/approvals.yaml`, `spec/verification.yaml`.
 - Produces: compatibility descriptor parsed by `json.loads(Path(...).read_text())`; local receipt and approval schema paths used by `tools/atlas_sync.py`.
 
 - [ ] **Step 1: Write failing compatibility tests**
@@ -76,7 +76,7 @@ def test_pinned_approval_copy_hash_matches_descriptor(): ...
 def test_sync_descriptor_contains_no_placeholder_hashes(): ...
 ```
 
-Assertions must require ATLAS version `2.0.0-rc.7`, commit `a9e709e10a0187b342520baa06dbf4a3e05fbb24`, contract version `1.0.0`, and 64-character lowercase SHA-256 values for all six source entries.
+Assertions must require ATLAS version `2.0.0-rc.8`, commit `01ca6b772e696c534b146b560fa0ecef5f76555d`, contract version `1.1.0`, and 64-character lowercase SHA-256 values for all six source entries.
 
 - [ ] **Step 2: Run the focused tests and confirm RED**
 
@@ -262,7 +262,7 @@ Expected: existing tests green; only newly added integration assertions fail.
 
 - [ ] **Step 3: Update alignment/manifest and write validation record**
 
-Document the executable runtime and compatibility upgrade rule without changing ATLAS ownership or production authority. Validation record must state exact ATLAS commit, ARGUS base/head, compatibility hashes, RED/GREEN test receipts, scope review, and explicit `ATLAS unchanged: yes` / `live registry mutation: false` / `v2 activation: false`.
+Document the executable runtime and compatibility upgrade rule without changing ATLAS ownership or production authority. Validation record must state exact ATLAS commit, ARGUS base/head, compatibility hashes, RED/GREEN test receipts, scope review, and explicit `ATLAS unchanged during ARGUS implementation: yes` / `live registry mutation: false` / `v2 activation: false`.
 
 - [ ] **Step 4: Run the complete local contract suite**
 
