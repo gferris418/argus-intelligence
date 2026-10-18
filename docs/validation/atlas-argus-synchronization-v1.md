@@ -1,9 +1,11 @@
 # ATLAS–ARGUS synchronization v1 validation
 
 **Date:** 2026-10-18
-**Status:** LOCAL_IMPLEMENTATION_PASS_REMOTE_CI_PENDING
+**Status:** REMOTE_CI_PASS
 **ARGUS base:** `fe7ef26ed90cda49b4962b9ab7f707640c4ddc62`
 **Validated implementation head:** `7c4315d4405aac8f5d97d29e4140601e0db6c567`
+**Current exact-head validation:** `bed9e8b2d8e53e2a1926cc258c647b7732a3bca5`
+**Exact-head CI:** PASS — [Contract Tests run 39119981576](https://github.com/gferris418/argus-intelligence/actions/runs/39119981576)
 **ATLAS baseline:** `2.0.0-rc.8` at `51130014352b30000f847623691f56390cf174aa`
 
 ## Outcome
@@ -54,8 +56,8 @@ Additional checks:
 - eighth Master Registry record type: **false**
 - standalone mode may forge governed synchronization evidence: **false**
 - untrusted code may self-assert an ATLAS handoff or approval: **false**
-- remote exact-head CI: **pending push**
+- remote exact-head CI: **PASS** — run `39119981576` at `bed9e8b2d8e53e2a1926cc258c647b7732a3bca5`
 
-Production activation remains `No` until canonical branch governance and exact-head remote CI are verified.
+Production activation remains `No` until canonical branch governance is enforceable.
 
 Residual infrastructure constraint: `ubuntu-24.04` and Python `3.12.12` remove floating major/minor labels, but GitHub-hosted runner images are still vendor-maintained rather than immutable image digests. Stronger runner-image immutability requires a separately governed self-hosted runner and is not introduced in this release candidate.

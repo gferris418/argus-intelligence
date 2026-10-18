@@ -14,9 +14,17 @@ APPROVAL_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "approval-v1.schema.json"
 SYNC_DESCRIPTOR_PATH = ROOT / "contracts" / "atlas" / "synchronization-compatibility.yaml"
 SYNC_RECEIPT_SCHEMA_PATH = ROOT / "schemas" / "atlas-argus-sync-receipt.schema.json"
 WORKFLOW_PATH = ROOT / ".github" / "workflows" / "contract-tests.yml"
+SYNC_VALIDATION_PATH = ROOT / "docs" / "validation" / "atlas-argus-synchronization-v1.md"
 
 
 class AtlasDomainHandoffContract(unittest.TestCase):
+    def test_sync_validation_records_remote_exact_head_ci(self):
+        validation = SYNC_VALIDATION_PATH.read_text(encoding="utf-8")
+        self.assertIn("**Status:** REMOTE_CI_PASS", validation)
+        self.assertIn("bed9e8b2d8e53e2a1926cc258c647b7732a3bca5", validation)
+        self.assertIn("39119981576", validation)
+        self.assertNotIn("remote exact-head CI: **pending push**", validation)
+
     def test_argus_pins_the_atlas_handoff_contract(self):
         schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         self.assertIn("atlas_domain_context_contract_version: 1.1.0", MANIFEST)
