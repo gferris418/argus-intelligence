@@ -1,7 +1,9 @@
 # ARGUS 2.0.0-rc.3 runtime simplification validation
 
 **Date:** 2026-10-19  
-**Status:** LOCAL_PASS_REMOTE_CI_PENDING  
+**Status:** REMOTE_CI_PASS
+**Validated implementation head:** `2269c961d2fa1f7df648f6b7f8cc2d223b53cb1f`
+**Exact-head CI:** PASS — [Contract Tests run 39157293626](https://github.com/gferris418/argus-intelligence/actions/runs/39157293626)
 **ATLAS baseline:** `2.0.0-rc.10` at `673a676a0b23518dad1a295a7cd36b5b75aa064e`
 
 ## Outcome
@@ -13,6 +15,7 @@ No canonical registry record is written by this interface.
 ## Local evidence
 
 - focused façade and synchronization tests: **PASS**;
+- complete local suite: **177 tests PASS**;
 - domain methods cannot supply `governance_mode`, synchronization identity, result digest or upstream receipt fields;
 - input handoffs remain unmodified;
 - successful analysis returns a `RETURNED` receipt with the exact bound result digest;
