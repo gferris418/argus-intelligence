@@ -1,0 +1,70 @@
+{
+  "fixture_type": "current_record_v2_dry_run",
+  "target_standard": "2.0.0-candidate",
+  "live_registry_mutation": false,
+  "source_basis": {
+    "current_record": "data/registry/current/PROC-DAE-CHAR28-R2.json",
+    "source_status": "supported_successor_candidate_pending_official_verification",
+    "as_of": "2026-10-18"
+  },
+  "linked_context": {
+    "project_ref": "PRJ-BD-DAE-224385000",
+    "entity_refs": ["ENT-BD-MOA", "ENT-BD-DAE", "ENT-BD-DAE-CHAR-224385000-PE"]
+  },
+  "v2_candidate": {
+    "argus_id": "PROC-DAE-CHAR28-R2",
+    "requirement_ref": "REQ-DAE-224385000-CHAR28-LLP",
+    "title": "Irrigation Equipment: LLP (Low Lift Pump) Set — probable successor cycle",
+    "record_state": "SUPPORTED_CANDIDATE",
+    "record_revision": 1,
+    "identifiers": [
+      {"scheme": "TENDER_REFERENCE_NO", "value": "12.01.0000.981.07.005.26-367", "scope": "PROCESS", "source_system": "DGMARKET_PUBLIC_MIRROR", "source_label": "Successor invitation reference pending official verification"},
+      {"scheme": "PACKAGE_NO", "value": "GD/DAE/CHAR-28", "scope": "PACKAGE", "source_system": "PUBLIC_MIRROR", "source_label": "Package No."}
+    ],
+    "related_record_refs": [
+      {"argus_id": "PRJ-BD-DAE-224385000", "relation_type": "PART_OF_PROJECT"},
+      {"argus_id": "PROC-DAE-1318662", "relation_type": "PROBABLE_REISSUE_OF"}
+    ],
+    "party_role_links": [
+      {"party_id": "ENT-BD-MOA", "role": "SPONSORING_MINISTRY", "source_role_label": "Ministry of Agriculture", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-DAE", "role": "IMPLEMENTING_AGENCY", "source_role_label": "Department of Agricultural Extension", "unit_label": null, "effective_from": null, "effective_to": null},
+      {"party_id": "ENT-BD-DAE-CHAR-224385000-PE", "role": "PROCURING_ENTITY", "source_role_label": "Project-level Procuring Entity", "unit_label": null, "effective_from": null, "effective_to": null}
+    ],
+    "process": {
+      "category": "GOODS",
+      "method_normalized": "OPEN",
+      "method_source_code": "OTM",
+      "method_source_label": "Open Tendering Method",
+      "competition_scope": "NATIONAL",
+      "status_raw": "PROBABLE_LIVE_RETENDER"
+    },
+    "items": [
+      {"item_id": "ITEM-1", "description": "Irrigation Equipment: LLP (Low Lift Pump) Set", "quantity": null, "unit": null, "lot_ref": null, "classifications": []}
+    ],
+    "notices": [
+      {"notice_id": "MIRROR-115875707", "notice_type": "PUBLIC_MIRROR_NOTICE", "version": null, "published_at": "2026-10-08", "source_system": "DGMARKET_PUBLIC_MIRROR", "source_locator": "https://lelang.dgmarket.com/tenders/np-notice.do?keywords=&noticeId=115875707"}
+    ],
+    "milestones": [
+      {"milestone_id": "MS-SUBMISSION", "type": "SUBMISSION_DEADLINE", "due_at": "2026-10-25", "original_due_at": "2026-10-25", "date_met": null, "date_modified": null, "status": "SCHEDULED", "lot_ref": null, "source_ref": "MIRROR-115875707"}
+    ],
+    "events": [],
+    "observations": [
+      {"observation_id": "OBS-DAE-R2-REF", "field_path": "identifiers[TENDER_REFERENCE_NO]", "value": "12.01.0000.981.07.005.26-367", "raw_label": "Invitation reference", "raw_value": "12.01.0000.981.07.005.26-367", "source_id": "115875707", "source_system": "DGMARKET_PUBLIC_MIRROR", "source_locator": "https://lelang.dgmarket.com/tenders/np-notice.do?keywords=&noticeId=115875707", "observed_at": "2026-10-18", "published_at": "2026-10-08", "claim_type": "INFERENCE", "condition": "CURRENT", "assurance": "SUPPORTED"},
+      {"observation_id": "OBS-DAE-R2-LINEAGE", "field_path": "related_record_refs[PROBABLE_REISSUE_OF]", "value": "PROC-DAE-1318662", "raw_label": "cross-source reconciliation", "raw_value": "same project, PE, package and product with later reference/deadline", "source_id": "GD/DAE/CHAR-28-20261008", "source_system": "TENDERBANGLADESH_PUBLIC_INDEX", "source_locator": "https://tenderbangladesh.com/all-tenders?page=4&tender_category_slug=machineries---equipment", "observed_at": "2026-10-18", "published_at": "2026-10-08", "claim_type": "INFERENCE", "condition": "CURRENT", "assurance": "SUPPORTED"}
+    ],
+    "intelligence": {
+      "maturity": "I9",
+      "activation_mode": "LIVE_TENDER_RESPONSE",
+      "commercial_fit": null,
+      "supplier_discovery_state": null,
+      "material_unknowns": ["Authoritative e-GP successor Tender/Proposal ID", "Successor APP ID", "Whether the official successor notice explicitly labels the event as re-tender/reissue", "Successor lot/security/document-price/validity details", "Detailed technical specification and TDS eligibility"],
+      "research_frontier": "Retrieve authoritative e-GP successor notice for reference 12.01.0000.981.07.005.26-367 and resolve its Tender/Proposal ID, APP ID and explicit re-tender status.",
+      "next_action": "Retrieve the authoritative e-GP successor notice before upgrading the probable reissue assessment to a factual event."
+    }
+  },
+  "preservation_assessment": {
+    "material_information_loss": 0,
+    "semantic_equivalence": "PASS",
+    "guardrail": "No RETENDER or REISSUE event is asserted until authoritative evidence verifies it."
+  }
+}
