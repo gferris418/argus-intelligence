@@ -1,7 +1,7 @@
 # ARGUS ↔ ATLAS OS Alignment Contract
 
-**ARGUS version:** 2.0.0-rc.3
-**Validated ATLAS baseline:** 2.0.0-rc.10 at `673a676a0b23518dad1a295a7cd36b5b75aa064e` + Domain Context Handoff v1.1
+**ARGUS version:** 2.0.0-rc.4
+**Validated ATLAS baseline:** 2.0.0-rc.11 at `3bfad80a84a8e7fa0bd68795b0e4442f55df9948` + Domain Context Handoff v1.1
 **Status:** Candidate
 
 ## 1. Governing rule

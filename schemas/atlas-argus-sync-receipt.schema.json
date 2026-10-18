@@ -23,8 +23,8 @@
         "handoff_attestation"
       ],
       "properties": {
-        "version": {"const": "2.0.0-rc.10"},
-        "commit": {"const": "673a676a0b23518dad1a295a7cd36b5b75aa064e"},
+        "version": {"const": "2.0.0-rc.11"},
+        "commit": {"const": "3bfad80a84a8e7fa0bd68795b0e4442f55df9948"},
         "handoff_contract_version": {"const": "1.1.0"},
         "handoff_id": {"type": "string"},
         "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
@@ -39,7 +39,7 @@
       "additionalProperties": false,
       "required": ["version", "result_sha256"],
       "properties": {
-        "version": {"const": "2.0.0-rc.3"},
+        "version": {"const": "2.0.0-rc.4"},
         "result_sha256": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"}
       }
     },

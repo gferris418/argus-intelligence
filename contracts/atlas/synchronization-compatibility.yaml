@@ -1,7 +1,7 @@
 {
   "atlas_compatibility": {
-    "atlas_version": "2.0.0-rc.10",
-    "atlas_commit": "673a676a0b23518dad1a295a7cd36b5b75aa064e",
+    "atlas_version": "2.0.0-rc.11",
+    "atlas_commit": "3bfad80a84a8e7fa0bd68795b0e4442f55df9948",
     "control_revision": "chatgpt-bootstrap-2026-10-19-r4",
     "handoff_contract_version": "1.1.0",
     "source_contracts": {
