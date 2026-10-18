@@ -175,3 +175,110 @@ def mark_upstream_context_change(
     changed["failure_state"] = "PARTIAL"
     validate_sync_receipt(changed)
     return changed
+
+
+def _require_receipt_handoff(receipt: dict[str, Any], handoff: dict[str, Any]) -> None:
+    expected = {
+        "handoff_contract_version": handoff.get("contract_version"),
+        "handoff_id": handoff.get("handoff_id"),
+        "payload_sha256": handoff.get("payload_sha256"),
+        "source_task_id": handoff.get("source_task_id"),
+        "source_plan_id": handoff.get("source_plan_id"),
+        "source_work_unit_id": handoff.get("source_work_unit_id"),
+    }
+    if any(receipt.get("atlas", {}).get(field) != value for field, value in expected.items()):
+        raise SyncValidationError(
+            "SYNC_HANDOFF_STALE", "VALIDATION_FAILED", "receipt does not belong to the active handoff"
+        )
+
+
+def validate_result_correlation(
+    result: dict[str, Any],
+    handoff: dict[str, Any],
+    receipt: dict[str, Any],
+) -> None:
+    validate_handoff(handoff)
+    validate_sync_receipt(receipt)
+    if result.get("governance_mode") != "ATLAS_GOVERNED" or receipt.get("mode") != "ATLAS_GOVERNED":
+        raise SyncValidationError(
+            "GOVERNANCE_MODE_MISMATCH", "VALIDATION_FAILED", "result is not ATLAS-governed"
+        )
+    if receipt["state"] not in {"ACTIVE", "RESULT_READY"}:
+        raise SyncValidationError(
+            "SYNC_EXECUTION_NOT_CURRENT", "VALIDATION_FAILED", "synchronization execution is not current"
+        )
+    _require_receipt_handoff(receipt, handoff)
+    upstream = result.get("upstream_handoff", {})
+    expected = {
+        "contract_version": handoff["contract_version"],
+        "handoff_id": handoff["handoff_id"],
+        "payload_sha256": handoff["payload_sha256"],
+        "consumer": "ARGUS",
+        "status": "ACCEPTED",
+    }
+    if any(upstream.get(field) != value for field, value in expected.items()):
+        raise SyncValidationError(
+            "RESULT_CORRELATION_MISMATCH", "VALIDATION_FAILED", "result does not match the active handoff"
+        )
+
+
+def _restart_failed_sync(receipt: dict[str, Any], handoff: dict[str, Any]) -> dict[str, Any]:
+    validate_sync_receipt(receipt)
+    validate_handoff(handoff)
+    _require_receipt_handoff(receipt, handoff)
+    if receipt["state"] != "FAILED":
+        raise SyncValidationError(
+            "SYNC_NOT_RETRYABLE", "VALIDATION_FAILED", "only a failed current execution may restart"
+        )
+    restarted = deepcopy(receipt)
+    restarted["attempt"] += 1
+    restarted["resume_from"] = receipt["state"]
+    restarted["state"] = "ACTIVE"
+    restarted["completed_at"] = None
+    restarted["failure_state"] = "PARTIAL" if handoff["state"] == "PARTIAL" else None
+    validate_sync_receipt(restarted)
+    return restarted
+
+
+def retry_sync(receipt: dict[str, Any], handoff: dict[str, Any]) -> dict[str, Any]:
+    return _restart_failed_sync(receipt, handoff)
+
+
+def resume_sync(
+    receipt: dict[str, Any],
+    handoff: dict[str, Any],
+    *,
+    active_sync_execution_id: str,
+    stored_registry_fingerprint: str,
+    actual_registry_fingerprint: str,
+) -> dict[str, Any]:
+    if active_sync_execution_id != receipt.get("sync_execution_id"):
+        raise SyncValidationError(
+            "SYNC_EXECUTION_STALE", "VALIDATION_FAILED", "a different synchronization execution is active"
+        )
+    if stored_registry_fingerprint != actual_registry_fingerprint:
+        raise SyncValidationError(
+            "REGISTRY_FINGERPRINT_DRIFT",
+            "VALIDATION_FAILED",
+            "ARGUS canonical state changed and requires reconciliation",
+        )
+    return _restart_failed_sync(receipt, handoff)
+
+
+def map_atlas_failure(condition: str) -> str:
+    mapping = {
+        "invalid": "VALIDATION_FAILED",
+        "blocked": "BLOCKED",
+        "dependency": "DEPENDENCY_FAILED",
+        "capability": "CAPABILITY_UNAVAILABLE",
+        "evidence": "EVIDENCE_INSUFFICIENT",
+        "authorization": "AUTHORIZATION_REQUIRED",
+        "unverified": "UNVERIFIED",
+        "partial": "PARTIAL",
+    }
+    try:
+        return mapping[condition]
+    except KeyError as error:
+        raise SyncValidationError(
+            "UNKNOWN_SYNC_FAILURE", "VALIDATION_FAILED", f"unknown synchronization condition: {condition}"
+        ) from error
