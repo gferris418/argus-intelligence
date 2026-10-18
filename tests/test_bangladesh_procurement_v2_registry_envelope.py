@@ -46,22 +46,24 @@ class BangladeshProcurementV2RegistryEnvelope(unittest.TestCase):
         Draft202012Validator.check_schema(domain)
 
     def test_domain_projection_has_no_envelope_owned_fields(self):
-        self.assertTrue(DOMAIN_SCHEMA.exists())
         domain = json.loads(DOMAIN_SCHEMA.read_text())
         props = set(domain["properties"])
         self.assertTrue(FORBIDDEN_DOMAIN_FIELDS.isdisjoint(props))
         self.assertFalse(domain.get("additionalProperties", True))
         for required in FORBIDDEN_DOMAIN_FIELDS:
             self.assertNotIn(required, domain.get("required", []))
+        self.assertIn("$ref", domain["properties"]["process"])
+        self.assertIn("$ref", domain["properties"]["identifiers"]["items"])
 
     def test_registry_candidate_is_backward_compatible_and_composed(self):
-        self.assertTrue(REGISTRY_SCHEMA.exists())
         schema = json.loads(REGISTRY_SCHEMA.read_text())
         self.assertEqual(schema["document_id"], "ARGUS-SCHEMA-REG-001")
         self.assertEqual(schema["version"], "0.3.0-candidate")
         self.assertEqual(schema["properties"]["schema_version"]["enum"], ["0.2.0", "0.2.1", "0.3.0"])
+        self.assertIn("record_state", schema["properties"])
         self.assertIn("domain_payload", schema["properties"])
         self.assertIn("observations", schema["properties"])
+        self.assertIn("$ref", schema["properties"]["domain_payload"]["properties"]["data"])
 
         legacy = json.loads(CURRENT.read_text())
         Draft202012Validator(schema).validate(legacy)
@@ -82,12 +84,16 @@ class BangladeshProcurementV2RegistryEnvelope(unittest.TestCase):
         self.assertEqual(first["schema_version"], "0.3.0")
         self.assertEqual(first["argus_id"], current["argus_id"])
         self.assertEqual(first["canonical_name_or_title"], current["canonical_name_or_title"])
+        self.assertEqual(first["record_state"], standalone["record_state"])
+        self.assertNotIn("status", first)
         self.assertEqual(first["revision"], current["revision"])
         self.assertNotIn("attributes", first)
         self.assertEqual(first["domain_payload"]["profile"], "BANGLADESH_PROCUREMENT")
         self.assertEqual(first["domain_payload"]["version"], "2.0.0-candidate")
         self.assertTrue(FORBIDDEN_DOMAIN_FIELDS.isdisjoint(first["domain_payload"]["data"]))
-        self.assertEqual(first["observations"], standalone.get("observations", []))
+        for observation in standalone.get("observations", []):
+            self.assertIn(observation, first["observations"])
+        self.assertTrue(any(o.get("field_path") == "legacy_registry.status" for o in first["observations"]))
         self.assertEqual(first["evidence_refs"], current["evidence_refs"])
         self.assertEqual(first["external_refs"], current["external_refs"])
 
@@ -97,7 +103,7 @@ class BangladeshProcurementV2RegistryEnvelope(unittest.TestCase):
         self.assertTrue(current_pairs.issubset(materialized_pairs))
         self.assertTrue(v2_pairs.issubset(materialized_pairs))
         relationship_targets = {r["target_argus_id"] for r in first["relationships"]}
-        self.assertTrue(relationship_targets.issubset(set(first["related_argus_ids"])))
+        self.assertEqual(relationship_targets, set(first["related_argus_ids"]))
 
         bad_id = copy.deepcopy(standalone)
         bad_id["argus_id"] = "PROC-WRONG"
@@ -116,23 +122,24 @@ class BangladeshProcurementV2RegistryEnvelope(unittest.TestCase):
 
     def test_materialized_record_validates_and_reader_supports_both_shapes(self):
         module = load_tool()
-        registry_schema = json.loads(REGISTRY_SCHEMA.read_text())
-        domain_schema = json.loads(DOMAIN_SCHEMA.read_text())
         current = json.loads(CURRENT.read_text())
         standalone = json.loads(FIXTURE.read_text())["v2_candidate"]
         materialized = module.materialize_registry_procurement(current, standalone)
 
-        Draft202012Validator(registry_schema).validate(materialized)
-        Draft202012Validator(domain_schema).validate(materialized["domain_payload"]["data"])
+        module.validate_registry_candidate(materialized)
+        module.validate_domain_candidate(materialized["domain_payload"]["data"])
 
         legacy_view = module.read_procurement_semantics(current)
         self.assertEqual(legacy_view["shape"], "LEGACY_REGISTRY_V0_2")
         self.assertEqual(legacy_view["argus_id"], current["argus_id"])
+        self.assertIsNone(legacy_view["record_state"])
+        self.assertEqual(legacy_view["legacy_status"], current["status"])
         self.assertEqual(legacy_view["data"], current["attributes"])
 
         v2_view = module.read_procurement_semantics(materialized)
         self.assertEqual(v2_view["shape"], "COMPOSED_REGISTRY_V0_3")
         self.assertEqual(v2_view["argus_id"], materialized["argus_id"])
+        self.assertEqual(v2_view["record_state"], standalone["record_state"])
         self.assertEqual(v2_view["data"], materialized["domain_payload"]["data"])
         self.assertEqual(v2_view["observations"], materialized["observations"])
 
