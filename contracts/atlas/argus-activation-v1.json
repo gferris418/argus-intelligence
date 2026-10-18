@@ -1,0 +1,35 @@
+{
+  "contract_version": "1.0.0",
+  "method_id": "domain-method.argus-intelligence",
+  "consumer_id": "ARGUS",
+  "activation_authority": "ATLAS_OS",
+  "activation_mechanism": "explicit_structured_capability_routing",
+  "required_capability": "government_public_sector_opportunity_intelligence",
+  "requires_atlas_domain_context_handoff": true,
+  "accepted_handoff_states": ["READY", "PARTIAL"],
+  "blocked_handoff_behavior": "REJECT_DEPENDENT_EXECUTION",
+  "keyword_activation": false,
+  "background_activation": false,
+  "non_triggers": [
+    "generic factual explanation",
+    "organization mentioned without opportunity-intelligence objective",
+    "general writing or translation",
+    "external action without a specialist analysis requirement"
+  ],
+  "ownership": {
+    "execution_spine": "ATLAS_OS",
+    "planning": "ATLAS_OS",
+    "approvals": "ATLAS_OS",
+    "domain_classification": "ATLAS_OS",
+    "domain_analysis": "ARGUS",
+    "argus_canonical_semantics": "ARGUS"
+  },
+  "artifact_roles": {
+    "framework": "ARGUS principles, concepts, stages, roles, and decision logic",
+    "methodology": "ARGUS analytical method inside the ATLAS-governed task",
+    "playbook": "branching guidance for a recurring opportunity-intelligence situation",
+    "sop": "ordered procedure for a stable ARGUS operation",
+    "workflow": "the live ATLAS-owned task instance and state",
+    "protocol": "the ATLAS-ARGUS handoff, result, receipt, and failure contract"
+  }
+}

@@ -18,6 +18,12 @@ ARGUS may enrich the ATLAS context for opportunity discovery—aliases, local te
 
 In Access Asia production, ARGUS rejects dependent execution on a `BLOCKED` handoff and returns the exact `handoff_id`, contract version and `payload_sha256` in every `ATLAS_GOVERNED` domain result. Standalone execution remains available for portability, testing, recovery, or non-Access-Asia implementations.
 
+### Activation boundary
+
+ARGUS does not activate from keywords, the mere mention of a government organization, or a background listener. ATLAS first classifies and plans the task. It activates ARGUS only when the structured requirement is `government_public_sector_opportunity_intelligence`, ARGUS is registered and available, and the required Domain Context Handoff is `READY` or an explicitly unresolved `PARTIAL`. `BLOCKED` context is rejected.
+
+The machine-readable contract is [`contracts/atlas/argus-activation-v1.json`](contracts/atlas/argus-activation-v1.json). ATLAS owns the live workflow, execution spine, plan, approvals, verification, and delivery. ARGUS supplies the specialist framework and methodology, may use scenario playbooks and operational SOPs, and returns domain analysis and proposed actions without creating a second execution system.
+
 ## Current persistence model: GitHub-first
 
 For the current candidate phase, this private repository is the **interim physical canonical store** for ARGUS structured intelligence, synthesized intelligence, and database-related artifacts.
