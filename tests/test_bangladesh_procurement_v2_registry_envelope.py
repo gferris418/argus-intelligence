@@ -88,9 +88,14 @@ class BangladeshProcurementV2RegistryEnvelope(unittest.TestCase):
         self.assertEqual(first["domain_payload"]["version"], "2.0.0-candidate")
         self.assertTrue(FORBIDDEN_DOMAIN_FIELDS.isdisjoint(first["domain_payload"]["data"]))
         self.assertEqual(first["observations"], standalone.get("observations", []))
-        self.assertEqual(first["relationships"], current["relationships"])
         self.assertEqual(first["evidence_refs"], current["evidence_refs"])
         self.assertEqual(first["external_refs"], current["external_refs"])
+
+        materialized_pairs = {(r["target_argus_id"], r["relation_type"]) for r in first["relationships"]}
+        current_pairs = {(r["target_argus_id"], r["relation_type"]) for r in current["relationships"]}
+        v2_pairs = {(r["argus_id"], r["relation_type"]) for r in standalone.get("related_record_refs", [])}
+        self.assertTrue(current_pairs.issubset(materialized_pairs))
+        self.assertTrue(v2_pairs.issubset(materialized_pairs))
         relationship_targets = {r["target_argus_id"] for r in first["relationships"]}
         self.assertTrue(relationship_targets.issubset(set(first["related_argus_ids"])))
 
