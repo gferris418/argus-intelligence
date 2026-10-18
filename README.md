@@ -8,7 +8,7 @@ Its purpose is to identify credible business before formal tender publication, c
 
 Within the Access Asia governed environment, **ATLAS OS is the execution-governance backbone**. ARGUS is a nested specialist domain method and does not create a second execution spine.
 
-ATLAS owns generic domain classification, taxonomy/product/service/capability context, material risk flags, and applicable law/standards/framework alignment. Before ARGUS executes, ATLAS transfers that context through the governed **Domain Context Handoff v1**.
+ATLAS owns generic domain classification, taxonomy/product/service/capability context, material risk flags, and applicable law/standards/framework alignment. Before ARGUS executes, ATLAS transfers that context through the governed **Domain Context Handoff v1.1**.
 
 Canonical execution flow:
 
@@ -17,6 +17,8 @@ Canonical execution flow:
 ARGUS may enrich the ATLAS context for opportunity discovery—aliases, local terminology, adjacent solution classes, installed-base interpretation, supplier/competitor relevance, Bangladesh route implications—but it must not silently redefine ATLAS taxonomy or standards conclusions.
 
 In Access Asia production, ARGUS rejects dependent execution on a `BLOCKED` handoff and returns the exact `handoff_id`, contract version and `payload_sha256` in every `ATLAS_GOVERNED` domain result. Standalone execution remains available for portability, testing, recovery, or non-Access-Asia implementations.
+
+The executable synchronization runtime in [`tools/atlas_sync.py`](tools/atlas_sync.py) pins ATLAS `2.0.0-rc.8`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. It does not mutate the Master Registry by itself.
 
 ### Activation boundary
 
@@ -88,6 +90,8 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 - Core: [`spec/core.md`](spec/core.md)
 - ATLAS alignment: [`alignments/atlas-os.md`](alignments/atlas-os.md)
 - Pinned ATLAS handoff contract: [`contracts/atlas/domain-context-handoff-v1.schema.json`](contracts/atlas/domain-context-handoff-v1.schema.json)
+- Synchronization compatibility descriptor: [`contracts/atlas/synchronization-compatibility.yaml`](contracts/atlas/synchronization-compatibility.yaml)
+- Synchronization receipt schema: [`schemas/atlas-argus-sync-receipt.schema.json`](schemas/atlas-argus-sync-receipt.schema.json)
 - Bangladesh profile: [`profiles/bangladesh.md`](profiles/bangladesh.md)
 - Domain result schema: [`schemas/domain-result.schema.json`](schemas/domain-result.schema.json)
 - GitHub-first persistence architecture: [`docs/architecture/github-first-canonical-store.md`](docs/architecture/github-first-canonical-store.md)

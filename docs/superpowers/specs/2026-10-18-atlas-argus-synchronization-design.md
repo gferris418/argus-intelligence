@@ -1,11 +1,11 @@
 # ATLAS OS ↔ ARGUS Synchronization Design v1
 
 **Date:** 2026-10-18  
-**Status:** DESIGN_FOR_REVIEW  
+**Status:** IMPLEMENTED_CANDIDATE
 **Scope:** ARGUS implementation against immutable ATLAS OS contracts  
-**ATLAS baseline:** `2.0.0-rc.7` at `a9e709e10a0187b342520baa06dbf4a3e05fbb24`  
-**ARGUS baseline:** `2.0.0-rc.2` at `36b611e96d37b048b5b2e8ea076db70315ce38b9`  
-**ATLAS modification required:** No  
+**ATLAS baseline:** `2.0.0-rc.8` at `51130014352b30000f847623691f56390cf174aa`
+**ARGUS implementation base:** `2.0.0-rc.2` at `fe7ef26ed90cda49b4962b9ab7f707640c4ddc62`
+**ATLAS modification required:** Completed separately in the RC8 control-plane remediation
 **Production activation:** No
 
 ## 1. Purpose
@@ -60,7 +60,7 @@ ARGUS does not redefine ATLAS-owned taxonomy, classification, standards conclusi
 
 ### Selected: ARGUS-side synchronization runtime against immutable ATLAS contracts
 
-ATLAS stays unchanged. ARGUS adds a small synchronization layer that consumes pinned ATLAS contracts and enforces compatibility, handoff integrity, lifecycle, return correlation, invalidation, retry/resume, and action-authorization preconditions.
+ARGUS treats the approved ATLAS RC8 commit as immutable and adds a small synchronization layer that consumes its pinned contracts and enforces compatibility, handoff integrity, lifecycle, return correlation, invalidation, retry/resume, and action-authorization preconditions.
 
 Rejected alternatives:
 
@@ -108,9 +108,9 @@ ARGUS shall maintain an executable compatibility descriptor for the approved ATL
 
 ```yaml
 atlas_compatibility:
-  atlas_version: 2.0.0-rc.7
-  atlas_commit: a9e709e10a0187b342520baa06dbf4a3e05fbb24
-  handoff_contract_version: 1.0.0
+  atlas_version: 2.0.0-rc.8
+  atlas_commit: 51130014352b30000f847623691f56390cf174aa
+  handoff_contract_version: 1.1.0
   source_contracts:
     domain_context_handoff:
       source_path: schemas/domain-context-handoff.schema.json
@@ -261,9 +261,12 @@ result.upstream_handoff.handoff_id        == handoff.handoff_id
 result.upstream_handoff.payload_sha256    == handoff.payload_sha256
 result.upstream_handoff.consumer          == ARGUS
 result.upstream_handoff.status            == ACCEPTED
+result.sync_execution_id                  == receipt.sync_execution_id
+result.sync_attempt                       == receipt.attempt
+result.result_sha256                      == sha256(canonical result payload)
 ```
 
-The active handoff digest must also still verify.
+The active handoff digest must also still verify, and its detached Ed25519 attestation must validate against an operator-pinned ATLAS public key. An unkeyed digest is not producer authentication.
 
 Any mismatch yields `VALIDATION_FAILED`; no usable governed domain result is emitted.
 
@@ -333,10 +336,11 @@ A governed mutation may execute only when:
 1. the originating synchronization execution is current and exactly correlated;
 2. the proposed action matches the action being authorized;
 3. the ATLAS approval object validates against the pinned ATLAS approval schema;
-4. the governing execution provides `expected_scope[]`, and every expected element exists exactly in `approval.scope`;
-5. approval state satisfies Section 6;
-6. the mutation implementation remains idempotent;
-7. outcome is independently verified after mutation.
+4. the approval's detached Ed25519 attestation validates against an operator-pinned ATLAS public key;
+5. the governing execution provides non-empty `expected_scope[]`, and every expected element exists exactly in `approval.scope`;
+6. approval state satisfies Section 6 and is bound to the receipt task, plan, work unit and handoff;
+7. the mutation implementation remains idempotent across replacement synchronization executions;
+8. outcome is independently verified after mutation.
 
 Permanent PX creation, destructive merge, identity reassignment and other major canonical-state changes remain subject to ATLAS approval controls.
 
@@ -460,7 +464,7 @@ docs/architecture/
   atlas-argus-synchronization-v1.md               # durable architecture copy if useful
 ```
 
-No change is planned to the ATLAS repository.
+No further ATLAS change is part of the ARGUS synchronization implementation; compatibility remains pinned to the approved RC8 commit.
 
 No live ARGUS registry/index/manifest migration belongs in this gate.
 

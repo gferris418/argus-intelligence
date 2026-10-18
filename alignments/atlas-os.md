@@ -1,7 +1,7 @@
 # ARGUS ↔ ATLAS OS Alignment Contract
 
 **ARGUS version:** 2.0.0-rc.2  
-**Validated ATLAS baseline:** 2.0.0-rc.7 + Domain Context Handoff v1  
+**Validated ATLAS baseline:** 2.0.0-rc.8 at `51130014352b30000f847623691f56390cf174aa` + Domain Context Handoff v1.1
 **Status:** Candidate
 
 ## 1. Governing rule
@@ -69,6 +69,8 @@ The handoff must include and preserve:
 - `contract_version`;
 - `handoff_id`;
 - `source_task_id`;
+- `source_plan_id`;
+- `source_work_unit_id`;
 - `producer`;
 - `consumer`;
 - `created_at`;
@@ -89,6 +91,8 @@ Rules:
 6. ARGUS returns an upstream handoff receipt in every `ATLAS_GOVERNED` domain result.
 7. ATLAS must reject mismatched, missing, mutated, stale or rejected handoff correlation before accepting the ARGUS result.
 8. `handoff_id`, contract version, consumer and `payload_sha256` must match exactly end-to-end.
+
+The executable synchronization boundary is implemented in `tools/atlas_sync.py`. It validates the pinned ATLAS contracts, verifies detached Ed25519 attestations with operator-pinned ATLAS public keys, maintains a local non-canonical synchronization receipt, rejects replay or stale results, reconciles retry/resume against the actual registry fingerprint, and binds proposed actions to exact ATLAS approval capabilities. Synchronization receipts do not create an eighth Master Registry record type.
 
 ## 5. Stage mapping
 

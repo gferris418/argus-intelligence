@@ -1,0 +1,22 @@
+{
+  "id": "APR-ARGUS-PX-NOT-REQUIRED",
+  "required": false,
+  "reason": "ATLAS policy classifies this fixture action as not requiring approval.",
+  "scope": ["CREATE_PX_OPPORTUNITY"],
+  "status": "NOT_REQUIRED",
+  "requested_at": "2026-10-18T05:00:00Z",
+  "approved_at": null,
+  "approver": null,
+  "action_type": "CREATE_PX_OPPORTUNITY",
+  "target_id": "NEW:PX:COASTAL-RADAR",
+  "input_sha256": "sha256:c2f625fa5ee80905ce7cc9eb63faa516ecf6c66f5e06043452add7397aa0e363",
+  "precondition_revision": "registry-rev-11",
+  "approver_identity": "policy:atlas",
+  "issued_at": "2026-10-18T05:00:00Z",
+  "expires_at": "2099-10-18T08:00:00Z",
+  "policy_revision": "approvals-v2",
+  "source_task_id": "TASK-ARGUS-READY-001",
+  "source_plan_id": "plan-argus-ready-001",
+  "source_work_unit_id": "unit-opportunity-analysis",
+  "handoff_id": "HANDOFF-ARGUS-READY-001"
+}
