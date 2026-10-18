@@ -31,7 +31,7 @@
     ],
     "budget": {"type": "DEVELOPMENT"},
     "financing_entries": [
-      {"instrument": "GOVERNMENT_ALLOCATION", "reference": null, "amount": null, "currency": null, "status": null, "conditions": [], "scope": "PROCUREMENT", "source_raw": "Development Budget GOB"}
+      {"instrument": "GOVERNMENT_ALLOCATION", "reference": null, "amount": null, "currency": null, "status": null, "conditions": [], "scope": "PROCUREMENT"}
     ],
     "process": {
       "category": "WORKS",
@@ -80,7 +80,8 @@
       {"security_id": "SEC-TENDER-1", "type": "TENDER_SECURITY", "amount": 230000000, "currency": "BDT", "raw_text": "BDT 230,000,000", "validity_until": null, "lot_ref": "1", "source_ref": "BPPA-98162-INITIAL"}
     ],
     "observations": [
-      {"observation_id": "OBS-BCG-REF", "field_path": "identifiers[TENDER_REFERENCE_NO]", "value": "44.08.2680.033.02.106.26.160", "raw_label": "Invitation Reference No.", "raw_value": "44.08.2680.033.02.106.26.160", "source_id": "44.08.2680.033.02.106.26.160", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html", "observed_at": "2026-10-18", "published_at": "2026-08-18", "claim_type": "FACT", "condition": "CURRENT", "assurance": "SUPPORTED"}
+      {"observation_id": "OBS-BCG-REF", "field_path": "identifiers[TENDER_REFERENCE_NO]", "value": "44.08.2680.033.02.106.26.160", "raw_label": "Invitation Reference No.", "raw_value": "44.08.2680.033.02.106.26.160", "source_id": "44.08.2680.033.02.106.26.160", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html", "observed_at": "2026-10-18", "published_at": "2026-08-18", "claim_type": "FACT", "condition": "CURRENT", "assurance": "SUPPORTED"},
+      {"observation_id": "OBS-BCG-FUNDING-RAW", "field_path": "financing_entries[0].instrument", "value": "GOVERNMENT_ALLOCATION", "raw_label": "Source of Funds", "raw_value": "Development Budget GOB", "source_id": "44.08.2680.033.02.106.26.160", "source_system": "BPPA", "source_locator": "https://bppa.gov.bd/advertisement-works/details-98162.html", "observed_at": "2026-10-18", "published_at": "2026-08-18", "claim_type": "FACT", "condition": "CURRENT", "assurance": "SUPPORTED"}
     ],
     "intelligence": {
       "maturity": "I9",
