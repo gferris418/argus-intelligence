@@ -5,7 +5,9 @@ import json
 import base64
 import unittest
 from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -41,6 +43,14 @@ def load_fixture(name: str) -> dict:
 class AtlasArgusSynchronizationTests(unittest.TestCase):
     PRIVATE_KEY = bytes(range(1, 33))
     KEY_ID = "atlas-test-2026"
+
+    def setUp(self) -> None:
+        clock = patch(
+            "tools.atlas_sync._utc_now",
+            return_value=datetime(2026, 10, 18, 8, 0, tzinfo=timezone.utc),
+        )
+        clock.start()
+        self.addCleanup(clock.stop)
 
     def _trusted_public_keys(self) -> dict[str, bytes]:
         public_key = Ed25519PrivateKey.from_private_bytes(self.PRIVATE_KEY).public_key()
