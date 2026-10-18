@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://argus.accessasia.example/schemas/bangladesh-procurement-v2.schema.json",
+  "title": "ARGUS Bangladesh Procurement v2 Candidate Write Contract",
+  "description": "Machine-validating candidate contract for a semantically normalized Bangladesh PROCUREMENT payload. This schema is not the active production write authority until governed migration approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["argus_id", "title", "record_state", "record_revision"],
+  "properties": {
+    "argus_id": {"type": "string", "minLength": 1},
+    "requirement_ref": {"type": ["string", "null"], "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": ["string", "null"]},
+    "record_state": {"type": "string", "minLength": 1},
+    "record_revision": {"type": "integer", "minimum": 1},
+    "identifiers": {"type": "array", "items": {"$ref": "#/$defs/typed_identifier"}},
+    "related_record_refs": {"type": "array", "items": {"$ref": "#/$defs/related_record_ref"}},
+    "party_role_links": {"type": "array", "items": {"$ref": "#/$defs/party_role_link"}},
+    "budget": {"$ref": "#/$defs/budget"},
+    "financing_entries": {"type": "array", "items": {"$ref": "#/$defs/financing"}},
+    "process": {"$ref": "#/$defs/process"},
+    "lots": {"type": "array", "items": {"$ref": "#/$defs/lot"}},
+    "items": {"type": "array", "items": {"$ref": "#/$defs/item"}},
+    "notices": {"type": "array", "items": {"$ref": "#/$defs/notice"}},
+    "milestones": {"type": "array", "items": {"$ref": "#/$defs/milestone"}},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+    "requirements": {"type": "array", "items": {"$ref": "#/$defs/requirement"}},
+    "fees": {"type": "array", "items": {"$ref": "#/$defs/fee"}},
+    "securities": {"type": "array", "items": {"$ref": "#/$defs/security"}},
+    "contacts": {"type": "array", "items": {"$ref": "#/$defs/contact_point"}},
+    "awards": {"type": "array", "items": {"$ref": "#/$defs/award"}},
+    "contracts": {"type": "array", "items": {"$ref": "#/$defs/contract"}},
+    "implementation": {"$ref": "#/$defs/implementation"},
+    "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+    "intelligence": {"$ref": "#/$defs/intelligence"}
+  },
+  "$defs": {
+    "currency": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z]{3}$"
+    },
+    "date_or_datetime": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "typed_identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "value", "scope"],
+      "properties": {
+        "scheme": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "enum": ["PROJECT", "PLAN", "PACKAGE", "PROCESS", "LOT", "NOTICE", "AWARD", "CONTRACT", "FINANCING", "OTHER"]},
+        "source_system": {"type": ["string", "null"]},
+        "source_label": {"type": ["string", "null"]}
+      }
+    },
+    "related_record_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["argus_id", "relation_type"],
+      "properties": {
+        "argus_id": {"type": "string", "minLength": 1},
+        "relation_type": {"type": "string", "minLength": 1}
+      }
+    },
+    "party_role_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["party_id", "role"],
+      "properties": {
+        "party_id": {"type": "string", "minLength": 1},
+        "role": {
+          "type": "string",
+          "enum": ["SPONSORING_MINISTRY", "PARENT_DIVISION", "IMPLEMENTING_AGENCY", "BUYER", "PROCURING_ENTITY", "PROCUREMENT_AGENT", "PROCUREMENT_UNIT", "END_USER", "PROJECT_OFFICE", "APPROVING_AUTHORITY", "FUNDER", "REGULATOR", "TENDERER", "SUPPLIER"]
+        },
+        "source_role_label": {"type": ["string", "null"]},
+        "unit_label": {"type": ["string", "null"]},
+        "effective_from": {"$ref": "#/$defs/date_or_datetime"},
+        "effective_to": {"$ref": "#/$defs/date_or_datetime"}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {"type": ["string", "null"]},
+        "fiscal_year": {"type": ["string", "null"]},
+        "amount": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "line_reference": {"type": ["string", "null"]}
+      }
+    },
+    "financing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_party_id": {"type": ["string", "null"]},
+        "instrument": {"type": ["string", "null"]},
+        "reference": {"type": ["string", "null"]},
+        "amount": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "commitment_date": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]},
+        "conditions": {"type": "array", "items": {"type": "string"}},
+        "scope": {"type": ["string", "null"]}
+      }
+    },
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "route": {"type": ["string", "null"]},
+        "category": {"type": "string", "enum": ["GOODS", "WORKS", "CONSULTING_SERVICES", "NON_CONSULTING_SERVICES"]},
+        "method_normalized": {"type": "string", "enum": ["OPEN", "SELECTIVE", "LIMITED", "DIRECT", "OTHER"]},
+        "method_source_code": {"type": ["string", "null"]},
+        "method_source_label": {"type": ["string", "null"]},
+        "competition_scope": {"type": "string", "enum": ["NATIONAL", "INTERNATIONAL", "RESTRICTED_BY_FINANCING", "OTHER"]},
+        "configuration": {"type": "string", "enum": ["ONE_STAGE_ONE_ENVELOPE", "ONE_STAGE_TWO_ENVELOPE", "TWO_STAGE", "TWO_STAGE_TWO_ENVELOPE", "OTHER"]},
+        "review_type": {"type": ["string", "null"]},
+        "prequalification_required": {"type": ["boolean", "null"]},
+        "framework_agreement": {"type": ["boolean", "null"]},
+        "status_raw": {"type": ["string", "null"]},
+        "status_normalized": {"type": ["string", "null"]},
+        "estimated_value": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"}
+      }
+    },
+    "lot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lot_id"],
+      "properties": {
+        "lot_id": {"type": "string", "minLength": 1},
+        "lot_reference": {"type": ["string", "null"]},
+        "title": {"type": ["string", "null"]},
+        "description": {"type": ["string", "null"]},
+        "estimated_value": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "delivery_location": {"type": ["string", "null"]}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "id"],
+      "properties": {
+        "scheme": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1},
+        "description": {"type": ["string", "null"]}
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "description"],
+      "properties": {
+        "item_id": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "quantity": {"type": ["number", "null"], "minimum": 0},
+        "unit": {"type": ["string", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "classifications": {"type": "array", "items": {"$ref": "#/$defs/classification"}}
+      }
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["notice_type", "source_system"],
+      "properties": {
+        "notice_id": {"type": ["string", "null"]},
+        "notice_type": {"type": "string", "minLength": 1},
+        "version": {"type": ["integer", "string", "null"]},
+        "published_at": {"$ref": "#/$defs/date_or_datetime"},
+        "source_system": {"type": "string", "minLength": 1},
+        "source_locator": {"type": ["string", "null"]}
+      }
+    },
+    "milestone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["milestone_id", "type"],
+      "properties": {
+        "milestone_id": {"type": "string", "minLength": 1},
+        "type": {
+          "type": "string",
+          "enum": ["PROCUREMENT_DOCUMENT_READY", "EXPECTED_PUBLICATION", "DOCUMENT_SALE_START", "DOCUMENT_SALE_END", "PREBID_MEETING", "CLARIFICATION_DEADLINE", "SECURITY_DEADLINE", "SUBMISSION_DEADLINE", "OPENING", "VALIDITY_END", "SECURITY_VALIDITY_END", "EVALUATION_COMPLETE", "EXPECTED_AWARD", "CONTRACT_SIGNING", "DELIVERY", "COMPLETION"]
+        },
+        "due_at": {"$ref": "#/$defs/date_or_datetime"},
+        "original_due_at": {"$ref": "#/$defs/date_or_datetime"},
+        "date_met": {"$ref": "#/$defs/date_or_datetime"},
+        "date_modified": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field"],
+      "properties": {
+        "field": {"type": "string", "minLength": 1},
+        "previous_value": {},
+        "new_value": {}
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "type"],
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["PUBLICATION", "CORRIGENDUM", "ADDENDUM", "CLARIFICATION", "DEADLINE_EXTENSION", "OPENING_DATE_CHANGE", "VALIDITY_EXTENSION", "SECURITY_VALIDITY_EXTENSION", "CANCELLATION", "RETENDER", "REISSUE", "AWARD", "CONTRACT_SIGNING"]},
+        "occurred_at": {"$ref": "#/$defs/date_or_datetime"},
+        "notice_ref": {"type": ["string", "null"]},
+        "reason_raw": {"type": ["string", "null"]},
+        "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "type", "text"],
+      "properties": {
+        "requirement_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["REGISTRATION", "ENLISTMENT", "LEGAL", "EXPERIENCE", "FINANCIAL_CAPACITY", "TECHNICAL_CAPABILITY", "OEM_AUTHORIZATION", "SOURCE_COUNTRY", "LOCAL_PARTICIPATION", "JV_REQUIREMENT", "STANDARD_CERTIFICATION", "SUSTAINABILITY", "SECURITY_CLEARANCE", "OTHER"]},
+        "text": {"type": "string", "minLength": 1},
+        "normalized_value": {},
+        "mandatory": {"type": ["boolean", "null"]},
+        "scope": {"type": ["string", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "fee": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fee_id", "type"],
+      "properties": {
+        "fee_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["TENDER_DOCUMENT", "SCHEDULE_PURCHASE", "OTHER"]},
+        "amount": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "raw_text": {"type": ["string", "null"]},
+        "refundable": {"type": ["boolean", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["security_id", "type"],
+      "properties": {
+        "security_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["TENDER_SECURITY", "PERFORMANCE_SECURITY", "ADVANCE_PAYMENT_GUARANTEE", "RETENTION", "OTHER"]},
+        "amount": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "raw_text": {"type": ["string", "null"]},
+        "validity_until": {"$ref": "#/$defs/date_or_datetime"},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "contact_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contact_id", "purpose"],
+      "properties": {
+        "contact_id": {"type": "string", "minLength": 1},
+        "party_id": {"type": ["string", "null"]},
+        "purpose": {"type": "string", "minLength": 1},
+        "name": {"type": ["string", "null"]},
+        "designation": {"type": ["string", "null"]},
+        "address": {"type": ["string", "null"]},
+        "email": {"type": ["string", "null"]},
+        "phone": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "award": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["award_id"],
+      "properties": {
+        "award_id": {"type": "string", "minLength": 1},
+        "award_date": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]},
+        "supplier_party_ids": {"type": "array", "items": {"type": "string"}},
+        "lot_refs": {"type": "array", "items": {"type": "string"}},
+        "value": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "approval_reference": {"type": ["string", "null"]},
+        "financing": {"type": "array", "items": {"$ref": "#/$defs/financing"}}
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_id"],
+      "properties": {
+        "contract_id": {"type": "string", "minLength": 1},
+        "contract_number": {"type": ["string", "null"]},
+        "award_ref": {"type": ["string", "null"]},
+        "supplier_party_ids": {"type": "array", "items": {"type": "string"}},
+        "value": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "signed_at": {"$ref": "#/$defs/date_or_datetime"},
+        "period_start": {"$ref": "#/$defs/date_or_datetime"},
+        "period_end": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]}
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {"type": ["string", "null"]},
+        "progress_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "actual_completion_date": {"$ref": "#/$defs/date_or_datetime"},
+        "current_value": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "milestones": {"type": "array", "items": {"$ref": "#/$defs/milestone"}},
+        "transactions": {"type": "array", "items": {}},
+        "modifications": {"type": "array", "items": {}}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observation_id", "field_path", "source_system", "observed_at", "claim_type", "condition"],
+      "properties": {
+        "observation_id": {"type": "string", "minLength": 1},
+        "field_path": {"type": "string", "minLength": 1},
+        "value": {},
+        "raw_label": {"type": ["string", "null"]},
+        "raw_value": {},
+        "source_id": {"type": ["string", "null"]},
+        "source_system": {"type": "string", "minLength": 1},
+        "source_locator": {"type": ["string", "null"]},
+        "observed_at": {"type": "string", "minLength": 1},
+        "published_at": {"$ref": "#/$defs/date_or_datetime"},
+        "claim_type": {"type": "string", "enum": ["FACT", "DERIVED", "INFERENCE", "ASSUMPTION", "UNKNOWN"]},
+        "condition": {"type": "string", "enum": ["CURRENT", "STALE", "CONFLICT", "UNKNOWN"]},
+        "assurance": {"type": ["string", "null"]}
+      }
+    },
+    "intelligence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maturity": {"type": ["string", "null"], "pattern": "^I[0-9]$"},
+        "activation_mode": {"type": ["string", "null"], "enum": ["EARLY_REQUIREMENT_DEVELOPMENT", "PLANNED_PROCUREMENT_CAPTURE", "LIVE_TENDER_RESPONSE", null]},
+        "commercial_fit": {},
+        "supplier_discovery_state": {"type": ["string", "null"]},
+        "material_unknowns": {"type": "array", "items": {"type": "string"}},
+        "research_frontier": {"type": ["string", "null"]},
+        "next_action": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
