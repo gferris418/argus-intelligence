@@ -33,11 +33,15 @@ class AtlasDomainHandoffContract(unittest.TestCase):
 
     def test_sync_descriptor_pins_exact_atlas_baseline(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
-        self.assertEqual("2.0.0-rc.9", descriptor["atlas_version"])
-        self.assertEqual("896d329a09c4368b2564ee6ef818e025b0e397b6", descriptor["atlas_commit"])
-        self.assertEqual("chatgpt-bootstrap-2026-10-19-r3", descriptor["control_revision"])
+        self.assertEqual("2.0.0-rc.10", descriptor["atlas_version"])
+        self.assertEqual("673a676a0b23518dad1a295a7cd36b5b75aa064e", descriptor["atlas_commit"])
+        self.assertEqual("chatgpt-bootstrap-2026-10-19-r4", descriptor["control_revision"])
         self.assertEqual("1.1.0", descriptor["handoff_contract_version"])
         self.assertEqual(6, len(descriptor["source_contracts"]))
+        self.assertEqual(
+            "62a5048f0c6d5a672e4321239596563ea169ebf593dbefda46e4c2d1d6368e64",
+            descriptor["source_contracts"]["runtime"]["sha256"],
+        )
 
     def test_pinned_local_contract_hashes_match_descriptor(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
@@ -96,6 +100,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
             MANIFEST,
         )
         self.assertIn("synchronization_runtime: tools/atlas_sync.py", MANIFEST)
+        self.assertIn("analysis_runtime: tools/argus_runtime.py", MANIFEST)
         self.assertIn("bangladesh_procurement_standard_version: 1.3.0", MANIFEST)
         self.assertIn("atlas_change_required: false", MANIFEST)
         self.assertIn("standalone_argus: false", MANIFEST)

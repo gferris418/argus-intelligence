@@ -18,7 +18,20 @@ ARGUS may enrich the ATLAS context for opportunity discovery—aliases, local te
 
 In Access Asia production, ARGUS rejects dependent execution on a `BLOCKED` handoff and returns the exact `handoff_id`, contract version and `payload_sha256` in every `ATLAS_GOVERNED` domain result. Standalone execution remains available for portability, testing, recovery, or non-Access-Asia implementations.
 
-The executable synchronization runtime in [`tools/atlas_sync.py`](tools/atlas_sync.py) pins ATLAS `2.0.0-rc.9`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. It does not mutate the Master Registry by itself.
+The preferred executable interface is `Argus.analyze(AnalysisEnvelope)` in [`tools/argus_runtime.py`](tools/argus_runtime.py). It owns handoff validation, synchronization transitions, domain-method invocation, protected result metadata, digest correlation, and the final return receipt. A domain-method failure carries a retryable `FAILED` receipt instead of losing execution state. Existing synchronization functions remain available for compatibility and recovery workflows.
+
+```python
+from tools.argus_runtime import AnalysisEnvelope, Argus
+
+runtime = Argus(domain_method, trusted_public_keys=operator_pinned_keys)
+outcome = runtime.analyze(AnalysisEnvelope(
+    handoff=atlas_handoff,
+    atlas_attestation=atlas_attestation,
+    started_at="2026-10-19T01:00:00+06:00",
+))
+```
+
+The synchronization runtime pins ATLAS `2.0.0-rc.10`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. Neither runtime mutates the Master Registry by itself.
 
 ### Activation boundary
 
@@ -101,6 +114,6 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 
 ## Current status
 
-`2.0.0-rc.2` — candidate.
+`2.0.0-rc.3` — candidate.
 
 The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, and governed ATLAS domain-context handoff are under CI validation. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical persistence layer while ARGUS usage and integration requirements mature.

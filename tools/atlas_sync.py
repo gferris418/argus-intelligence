@@ -37,6 +37,21 @@ COMPATIBILITY = json.loads(
     (ROOT / "contracts/atlas/synchronization-compatibility.yaml").read_text(encoding="utf-8")
 )["atlas_compatibility"]
 
+
+def _compile_validator(schema: dict[str, Any]) -> jsonschema.Draft202012Validator:
+    jsonschema.Draft202012Validator.check_schema(schema)
+    return jsonschema.Draft202012Validator(
+        schema,
+        format_checker=jsonschema.FormatChecker(),
+    )
+
+
+_HANDOFF_VALIDATOR = _compile_validator(HANDOFF_SCHEMA)
+_SYNC_VALIDATOR = _compile_validator(SYNC_SCHEMA)
+_APPROVAL_VALIDATOR = _compile_validator(APPROVAL_SCHEMA)
+_HANDOFF_RECEIPT_VALIDATOR = _compile_validator(HANDOFF_RECEIPT_SCHEMA)
+_RESULT_VALIDATOR = _compile_validator(RESULT_SCHEMA)
+
 _TRANSITIONS = {
     "RECEIVED": {"VALIDATED", "INVALID", "REJECTED", "BLOCKED"},
     "VALIDATED": {"ACCEPTED", "REJECTED", "INVALID"},
@@ -137,11 +152,7 @@ def validate_handoff(
     trusted_public_keys: Mapping[str, bytes],
 ) -> None:
     try:
-        jsonschema.validate(
-            handoff,
-            HANDOFF_SCHEMA,
-            format_checker=jsonschema.FormatChecker(),
-        )
+        _HANDOFF_VALIDATOR.validate(handoff)
     except jsonschema.ValidationError as error:
         raise SyncValidationError(
             "HANDOFF_SCHEMA_INVALID", "VALIDATION_FAILED", error.message
@@ -190,11 +201,7 @@ def validate_handoff(
 
 def validate_sync_receipt(receipt: dict[str, Any]) -> None:
     try:
-        jsonschema.validate(
-            receipt,
-            SYNC_SCHEMA,
-            format_checker=jsonschema.FormatChecker(),
-        )
+        _SYNC_VALIDATOR.validate(receipt)
     except jsonschema.ValidationError as error:
         raise SyncValidationError(
             "SYNC_RECEIPT_INVALID", "VALIDATION_FAILED", error.message
@@ -228,7 +235,7 @@ def new_sync_receipt(
             "source_work_unit_id": handoff["source_work_unit_id"],
             "handoff_attestation": deepcopy(atlas_attestation),
         },
-        "argus": {"version": "2.0.0-rc.2", "result_sha256": None},
+        "argus": {"version": "2.0.0-rc.3", "result_sha256": None},
         "state": "RECEIVED",
         "started_at": started_at,
         "completed_at": None,
@@ -317,7 +324,7 @@ def validate_result_correlation(
         trusted_public_keys=trusted_public_keys,
     )
     try:
-        jsonschema.validate(result, RESULT_SCHEMA, format_checker=jsonschema.FormatChecker())
+        _RESULT_VALIDATOR.validate(result)
     except jsonschema.ValidationError as error:
         raise SyncValidationError(
             "RESULT_SCHEMA_INVALID", "VALIDATION_FAILED", error.message
@@ -340,7 +347,7 @@ def validate_result_correlation(
         )
     upstream = result.get("upstream_handoff", {})
     try:
-        jsonschema.validate(upstream, HANDOFF_RECEIPT_SCHEMA, format_checker=jsonschema.FormatChecker())
+        _HANDOFF_RECEIPT_VALIDATOR.validate(upstream)
     except jsonschema.ValidationError as error:
         raise SyncValidationError(
             "RESULT_RECEIPT_INVALID", "VALIDATION_FAILED", error.message
@@ -455,11 +462,7 @@ def validate_action_authorization(
     trusted_public_keys: Mapping[str, bytes],
 ) -> None:
     try:
-        jsonschema.validate(
-            approval,
-            APPROVAL_SCHEMA,
-            format_checker=jsonschema.FormatChecker(),
-        )
+        _APPROVAL_VALIDATOR.validate(approval)
     except jsonschema.ValidationError as error:
         raise SyncValidationError(
             "APPROVAL_SCHEMA_INVALID", "AUTHORIZATION_REQUIRED", error.message
