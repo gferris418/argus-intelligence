@@ -101,6 +101,14 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
         self.assertNotIn("actions/checkout@v", workflow)
         self.assertNotIn("actions/setup-python@v", workflow)
+        self.assertIn(
+            "actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0",
+            workflow,
+        )
+        self.assertIn(
+            "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0",
+            workflow,
+        )
         self.assertIn("pip install --require-hashes", workflow)
         self.assertIn("gh-action-pip-audit@", workflow)
         self.assertIn("cache-dependency-path: requirements-test.lock", workflow)
