@@ -29,3 +29,19 @@ jobs:
           inputs: requirements-test.lock
       - name: Run contract tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Build deterministic main snapshot
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python tools/package/build_release.py . dist
+      - name: Upload deterministic main snapshot
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: argus-intelligence-main-snapshot
+          path: |
+            dist/argus-intelligence-*.zip
+            dist/argus-intelligence-*.tar.gz
+            dist/argus-intelligence-*.manifest.json
+            dist/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
