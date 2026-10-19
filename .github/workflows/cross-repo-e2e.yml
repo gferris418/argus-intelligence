@@ -1,0 +1,37 @@
+name: Cross-repository E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-repository-e2e:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout ARGUS
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          path: argus-intelligence
+          persist-credentials: false
+      - name: Checkout compatible ATLAS
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          repository: gferris418/atlas-os
+          ref: 3bfad80a84a8e7fa0bd68795b0e4442f55df9948
+          token: ${{ secrets.ATLAS_READ_TOKEN }}
+          path: atlas-os
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.12.12'
+          cache: pip
+          cache-dependency-path: argus-intelligence/requirements-test.lock
+      - name: Install dependencies
+        working-directory: argus-intelligence
+        run: python -m pip install --require-hashes --requirement requirements-test.lock
+      - name: Run the real producer-consumer-return path
+        working-directory: argus-intelligence
+        run: python -m unittest discover -s tests/cross_repo -v

@@ -29,6 +29,7 @@ authority:
   synchronization_runtime: tools/atlas_sync.py
   analysis_runtime: tools/argus_runtime.py
   live_smoke_runtime: tools/live_smoke.py
+  cross_repository_validation_runtime: tools/cross_repo_e2e.py
   synchronization_validation_record: docs/validation/atlas-argus-synchronization-v1.md
   runtime_simplification_validation: docs/validation/runtime-simplification-rc3.md
 

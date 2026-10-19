@@ -45,6 +45,18 @@ python -m tools.live_smoke --format ndjson
 The command is explicitly test-only and generates a fresh in-memory signing
 key. See [`docs/live-testing.md`](docs/live-testing.md) for its scope.
 
+When an exact compatible ATLAS checkout is available beside this repository,
+the real producer-consumer-return path can also be exercised end to end:
+
+```bash
+python -m tools.cross_repo_e2e --atlas-repo ../atlas-os
+```
+
+Unlike the self-contained smoke command, this imports the verified ATLAS
+checkout and uses its execution, classification, alignment, routing, handoff,
+attestation, and return-verification functions around the real ARGUS façade.
+It remains read-only and test-only.
+
 ### Activation boundary
 
 ARGUS does not activate from keywords, the mere mention of a government organization, or a background listener. ATLAS first classifies and plans the task. It activates ARGUS only when the structured requirement is `government_public_sector_opportunity_intelligence`, ARGUS is registered and available, and the required Domain Context Handoff is `READY` or an explicitly unresolved `PARTIAL`. `BLOCKED` context is rejected.
