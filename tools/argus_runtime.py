@@ -38,17 +38,27 @@ class AnalysisExecutionError(RuntimeError):
 
 @dataclass(frozen=True)
 class AnalysisEnvelope:
-    """Authenticated ATLAS context required for one ARGUS analysis."""
+    """Authenticated ATLAS context and lease required for one ARGUS analysis."""
 
     handoff: Mapping[str, Any]
     atlas_attestation: Mapping[str, Any]
+    execution_lease: Mapping[str, Any]
+    execution_lease_attestation: Mapping[str, Any]
     started_at: str
 
     def __post_init__(self) -> None:
         if not self.started_at.strip():
             raise ValueError("analysis started_at is required")
-        object.__setattr__(self, "handoff", deepcopy(dict(self.handoff)))
-        object.__setattr__(self, "atlas_attestation", deepcopy(dict(self.atlas_attestation)))
+        for field_name in (
+            "handoff",
+            "atlas_attestation",
+            "execution_lease",
+            "execution_lease_attestation",
+        ):
+            value = dict(getattr(self, field_name))
+            if not value:
+                raise ValueError(f"analysis {field_name} is required")
+            object.__setattr__(self, field_name, deepcopy(value))
 
 
 @dataclass(frozen=True)
@@ -78,14 +88,15 @@ class Argus:
         self,
         method: AnalysisMethod,
         *,
-        trusted_public_keys: Mapping[str, bytes],
+        trusted_key_registry: Mapping[str, Any],
     ) -> None:
         if not callable(method):
             raise TypeError("ARGUS analysis method must be callable")
-        if not trusted_public_keys:
-            raise ValueError("ARGUS requires operator-pinned ATLAS public keys")
+        registry = deepcopy(dict(trusted_key_registry))
+        if not registry or not registry.get("keys"):
+            raise ValueError("ARGUS requires a lifecycle-governed ATLAS signing-key registry")
         self._method = method
-        self._trusted_public_keys = dict(trusted_public_keys)
+        self._trusted_key_registry = registry
 
     def analyze(self, envelope: AnalysisEnvelope) -> AnalysisOutcome:
         """Validate, execute, correlate, and return one governed domain result."""
@@ -96,7 +107,9 @@ class Argus:
             handoff,
             envelope.started_at,
             atlas_attestation=envelope.atlas_attestation,
-            trusted_public_keys=self._trusted_public_keys,
+            execution_lease=deepcopy(dict(envelope.execution_lease)),
+            execution_lease_attestation=envelope.execution_lease_attestation,
+            trusted_key_registry=self._trusted_key_registry,
         )
         for state in ("VALIDATED", "ACCEPTED", "ACTIVE"):
             receipt = transition_sync(receipt, state)
@@ -141,7 +154,7 @@ class Argus:
             result,
             handoff,
             receipt,
-            trusted_public_keys=self._trusted_public_keys,
+            trusted_key_registry=self._trusted_key_registry,
         )
         receipt = transition_sync(receipt, "RETURNED")
         duration_ms = max(0, round((perf_counter_ns() - started) / 1_000_000))

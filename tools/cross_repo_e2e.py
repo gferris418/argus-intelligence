@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from time import perf_counter_ns
 from collections.abc import Callable
@@ -109,6 +110,15 @@ def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
             f"ATLAS checkout version mismatch: expected {expected_version}, got {actual_version}"
         )
 
+    for contract in compatibility.get("source_contracts", {}).values():
+        source = atlas_repo / contract["source_path"]
+        if not source.is_file():
+            raise ValueError(f"ATLAS source contract missing: {source}")
+        import hashlib
+        actual_sha = hashlib.sha256(source.read_bytes()).hexdigest()
+        if actual_sha != contract["sha256"]:
+            raise ValueError(f"ATLAS source contract hash mismatch: {contract['source_path']}")
+
     sys.path.insert(0, str(atlas_repo))
     import atlas_runtime  # imported only after the exact checkout is verified
 
@@ -158,7 +168,8 @@ def run(
 
     started = perf_counter_ns()
     atlas, compatibility = _prepare_atlas_import(atlas_repo.resolve())
-    timestamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    now = datetime.now(timezone.utc).replace(microsecond=0)
+    timestamp = now.isoformat().replace("+00:00", "Z")
 
     execution = atlas.execute(atlas.ExecutionEnvelope(
         objective=_OBJECTIVE,
@@ -231,22 +242,51 @@ def run(
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw,
     )
-    attestation = atlas.attest_control_record(
+    handoff_attestation = atlas.attest_control_record(
         handoff,
         key_id=_KEY_ID,
         private_key=private_bytes,
     )
+    lease = atlas.prepare_execution_lease(
+        handoff,
+        execution_lease_id="LEASE-ARGUS-E2E-001",
+        issued_at=timestamp,
+        lease_expires_at=(now + timedelta(hours=4)).isoformat().replace("+00:00", "Z"),
+    )
+    lease_attestation = atlas.attest_control_record(
+        lease,
+        key_id=_KEY_ID,
+        private_key=private_bytes,
+    )
+    registry = {
+        "registry_version": "1.0.0",
+        "issuer": "ATLAS_OS",
+        "keys": [{
+            "key_id": _KEY_ID,
+            "algorithm": "Ed25519",
+            "public_key_base64": base64.b64encode(public_bytes).decode("ascii"),
+            "activated_at": (now - timedelta(minutes=1)).isoformat().replace("+00:00", "Z"),
+            "expires_at": (now + timedelta(hours=8)).isoformat().replace("+00:00", "Z"),
+            "status": "ACTIVE",
+            "issuer": "ATLAS_OS",
+            "allowed_record_classes": ["DOMAIN_CONTEXT_HANDOFF", "EXECUTION_LEASE"],
+            "supersedes": None,
+        }],
+    }
     analysis = Argus(
         _analysis_method,
-        trusted_public_keys={_KEY_ID: public_bytes},
+        trusted_key_registry=registry,
     ).analyze(AnalysisEnvelope(
         handoff=handoff,
-        atlas_attestation=attestation,
+        atlas_attestation=handoff_attestation,
+        execution_lease=lease,
+        execution_lease_attestation=lease_attestation,
         started_at=timestamp,
     ))
     if event_writer is not None:
         event_writer({
             "event": "argus_result",
+            "execution_lease_id": analysis.receipt["atlas"]["execution_lease_id"],
             "result_sha256": analysis.result["result_sha256"],
             "state": analysis.receipt["state"],
         })

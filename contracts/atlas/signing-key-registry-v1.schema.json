@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas-os.local/schemas/signing-key-registry.schema.json",
+  "title": "ATLAS signing-key registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_version", "issuer", "keys"],
+  "properties": {
+    "registry_version": {"const": "1.0.0"},
+    "issuer": {"const": "ATLAS_OS"},
+    "keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key_id",
+          "algorithm",
+          "public_key_base64",
+          "activated_at",
+          "expires_at",
+          "status",
+          "issuer",
+          "allowed_record_classes",
+          "supersedes"
+        ],
+        "properties": {
+          "key_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"},
+          "algorithm": {"const": "Ed25519"},
+          "public_key_base64": {"type": "string", "minLength": 1},
+          "activated_at": {"type": "string", "format": "date-time"},
+          "expires_at": {"type": "string", "format": "date-time"},
+          "status": {"enum": ["ACTIVE", "REVOKED", "RETIRED"]},
+          "issuer": {"const": "ATLAS_OS"},
+          "allowed_record_classes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"enum": ["DOMAIN_CONTEXT_HANDOFF", "EXECUTION_LEASE", "APPROVAL", "CONTROL_RECORD"]}
+          },
+          "supersedes": {
+            "type": ["string", "null"],
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"
+          }
+        }
+      }
+    }
+  }
+}

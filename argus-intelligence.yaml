@@ -2,9 +2,9 @@ schema_version: 1
 product:
   id: argus-intelligence
   name: ARGUS Intelligence
-  version: 2.0.0
-  release_channel: stable
-  status: RELEASED
+  version: 2.0.1-rc.1
+  release_channel: candidate
+  status: CANDIDATE
   classification: internal
 
 authority:
@@ -23,6 +23,8 @@ authority:
   bangladesh_observation_schema_v1_1: schemas/bangladesh-observation-v1.1.schema.json
   domain_result_schema: schemas/domain-result.schema.json
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
+  atlas_execution_lease_contract: contracts/atlas/execution-lease-v1.schema.json
+  atlas_signing_key_registry_contract: contracts/atlas/signing-key-registry-v1.schema.json
   atlas_activation_contract: contracts/atlas/argus-activation-v1.json
   atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml
   atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json
@@ -50,14 +52,19 @@ production_runtime:
       - non_access_asia_implementation
 
 atlas_compatibility:
-  validated_against: 2.0.0
-  validated_against_commit: a533d092fb35f5c048a96f46c0201d5ce37871c7
+  validated_against: 2.0.1-rc.1
+  validated_against_commit: 53ae8723fe2939898015810a821f61a93ed8b9c8
   control_revision: chatgpt-bootstrap-2026-10-19-r4
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
-  atlas_domain_context_contract_version: 1.1.0
+  atlas_domain_context_contract_version: 1.2.0
   atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
+  atlas_execution_lease_contract_version: 1.0.0
+  atlas_execution_lease_contract_path: contracts/atlas/execution-lease-v1.schema.json
+  atlas_signing_key_registry_contract_version: 1.0.0
+  atlas_signing_key_registry_contract_path: contracts/atlas/signing-key-registry-v1.schema.json
   handoff_required_in_access_asia_production: true
+  execution_lease_required_in_access_asia_production: true
   accepted_handoff_states:
     - READY
     - PARTIAL
@@ -66,7 +73,7 @@ atlas_compatibility:
   replay_and_stale_result_protection: enforced
   retry_resume_reconciliation: enforced
   action_authorization_binding: enforced
-  atlas_control_record_authenticity: detached_ed25519_operator_pinned_public_key
+  atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry
   activation_contract_version: 1.0.0
   activation_authority: ATLAS_OS
   activation_capability: government_public_sector_opportunity_intelligence
@@ -325,8 +332,8 @@ release_gates:
   - defence preprocurement signal test passes: PASS
   - cross-fiscal-year project lineage test passes: PASS
   - promotion-before-live-tender test passes: PASS
-  - ATLAS domain-context handoff pin and return-correlation contract: PASS
-  - ATLAS-ARGUS synchronization lifecycle, replay, resume and authorization contract: PASS_RELEASED
+  - ATLAS domain-context handoff pin and return-correlation contract: PASS_CANDIDATE
+  - ATLAS-ARGUS synchronization lifecycle, replay, resume and authorization contract: PASS_CANDIDATE
   - Bangladesh cross-source canonical data standard and observation contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS

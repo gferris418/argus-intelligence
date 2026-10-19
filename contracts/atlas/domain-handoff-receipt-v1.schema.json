@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["contract_version", "handoff_id", "payload_sha256", "consumer", "status", "received_at"],
   "properties": {
-    "contract_version": {"const": "1.1.0"},
+    "contract_version": {"const": "1.2.0"},
     "handoff_id": {"type": "string", "pattern": "^HANDOFF-[A-Z0-9][A-Z0-9-]{2,95}$"},
     "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
     "consumer": {"type": "string", "minLength": 1, "maxLength": 80},

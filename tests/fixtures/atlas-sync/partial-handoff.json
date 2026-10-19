@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.1.0",
+  "contract_version": "1.2.0",
   "handoff_id": "HANDOFF-ARGUS-PARTIAL-001",
   "source_task_id": "TASK-ARGUS-PARTIAL-001",
   "source_plan_id": "plan-argus-partial-001",
@@ -7,6 +7,7 @@
   "producer": "ATLAS_OS",
   "consumer": "ARGUS",
   "created_at": "2026-10-18T07:00:00Z",
+  "activation_expires_at": "2026-10-19T07:00:00Z",
   "state": "PARTIAL",
   "domain_classification": {
     "status": "PARTIAL",
@@ -29,5 +30,5 @@
   },
   "unresolved_material": ["procurement-route"],
   "risk_flags": ["DEFENSE_SENSITIVE"],
-  "payload_sha256": "sha256:b2c1b0ce20045bf26e55fe25b7b5b2cbf9b6b24a526e44e0b7498aa8146b743d"
+  "payload_sha256": "sha256:a4edb62be95b0aa6784e76eb2ee3c7067bcdb1557bb93d4a406f2344b6628b56"
 }
