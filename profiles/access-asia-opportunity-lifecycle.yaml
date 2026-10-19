@@ -1,0 +1,78 @@
+schema_version: 1
+policy_id: access-asia-opportunity-lifecycle
+version: 1.0.0
+effective_date: 2026-10-19
+scope: Access Asia tracked opportunities and working-file lifecycle
+
+identity:
+  naming: "[Year]_[PXnnnnn]_[ShortName]"
+  permanent_from: tracked_opportunity_activation
+  preserve_across_stage_moves: true
+  create_new_id_on_submission: false
+  create_new_id_on_award: false
+
+signal_stage:
+  argus_record_type: INTELLIGENCE
+  sharepoint_folder_required: false
+
+tracked_opportunity:
+  activation:
+    - PROMOTE_TO_PX
+    - explicit_tracked_opportunity_registration
+  argus_record_type: OPPORTUNITY
+  working_home: General/Business Intelligence/50_OPPORTUNITIES
+  retained_stages:
+    - discovery
+    - research
+    - qualification
+    - customer_engagement
+    - supplier_oem_engagement
+    - solution_shaping
+    - capture
+    - procurement_monitoring
+    - live_tender_review
+    - bid_no_bid_analysis
+    - compliance_planning
+    - pre_submission
+  tender_publication_moves_folder: false
+  promote_to_px_moves_to_submission_workspace: false
+
+submission:
+  state: SUBMISSION_ACTIVE
+  definition: formal response-package execution has actually started for a specific solicitation after the bid decision
+  source_home: General/Business Intelligence/50_OPPORTUNITIES
+  destination_home: General/REV/OPP Opportunities
+  move_entire_folder: true
+  separate_bid_folder: false
+  duplicate_folder_allowed: false
+  preserve_identifier: true
+
+project:
+  trigger:
+    - AWARDED
+    - CONTRACT_ACTIVATED
+  source_home: General/REV/OPP Opportunities
+  destination_home: General/OPS/PRJ Projects
+  move_entire_folder: true
+  preserve_identifier: true
+
+non_submission_outcomes:
+  states:
+    - MONITOR
+    - HOLD
+    - REJECT
+    - CANCELLED
+    - CLOSED_BEFORE_SUBMISSION
+  remain_in_business_intelligence: true
+  archive_home: General/Business Intelligence/90_ARCHIVE
+
+canonical_ownership:
+  structured_intelligence: ARGUS Master Registry
+  working_documents: SharePoint lifecycle folder for the current stage
+  atlas_execution_governance: ATLAS OS
+
+rules:
+  - A live tender alone does not imply SUBMISSION_ACTIVE.
+  - PROMOTE_TO_PX activates the tracked opportunity lineage but does not move working files to REV/OPP.
+  - Only one physical working folder may exist for a tracked opportunity at a time.
+  - Folder movement is a governed lifecycle mutation and must be verified before completion is claimed.
