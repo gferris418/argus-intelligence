@@ -2,6 +2,28 @@ name: Cross-repository E2E
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'argus-intelligence.yaml'
+      - 'contracts/atlas/**'
+      - 'schemas/atlas-argus-sync-receipt.schema.json'
+      - 'tools/atlas_sync.py'
+      - 'tools/argus_runtime.py'
+      - 'tools/cross_repo_e2e.py'
+      - 'tests/cross_repo/**'
+      - '.github/workflows/cross-repo-e2e.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'argus-intelligence.yaml'
+      - 'contracts/atlas/**'
+      - 'schemas/atlas-argus-sync-receipt.schema.json'
+      - 'tools/atlas_sync.py'
+      - 'tools/argus_runtime.py'
+      - 'tools/cross_repo_e2e.py'
+      - 'tests/cross_repo/**'
+      - '.github/workflows/cross-repo-e2e.yml'
 
 permissions:
   contents: read
@@ -19,7 +41,7 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: gferris418/atlas-os
-          ref: a533d092fb35f5c048a96f46c0201d5ce37871c7
+          ref: 53ae8723fe2939898015810a821f61a93ed8b9c8
           token: ${{ secrets.ATLAS_READ_TOKEN }}
           path: atlas-os
           persist-credentials: false
