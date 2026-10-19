@@ -30,6 +30,12 @@ APPROVAL_SCHEMA = json.loads(
 HANDOFF_RECEIPT_SCHEMA = json.loads(
     (ROOT / "contracts/atlas/domain-handoff-receipt-v1.schema.json").read_text(encoding="utf-8")
 )
+EXECUTION_LEASE_SCHEMA = json.loads(
+    (ROOT / "contracts/atlas/execution-lease-v1.schema.json").read_text(encoding="utf-8")
+)
+SIGNING_KEY_REGISTRY_SCHEMA = json.loads(
+    (ROOT / "contracts/atlas/signing-key-registry-v1.schema.json").read_text(encoding="utf-8")
+)
 RESULT_SCHEMA = json.loads(
     (ROOT / "schemas/domain-result.schema.json").read_text(encoding="utf-8")
 )
@@ -50,6 +56,8 @@ _HANDOFF_VALIDATOR = _compile_validator(HANDOFF_SCHEMA)
 _SYNC_VALIDATOR = _compile_validator(SYNC_SCHEMA)
 _APPROVAL_VALIDATOR = _compile_validator(APPROVAL_SCHEMA)
 _HANDOFF_RECEIPT_VALIDATOR = _compile_validator(HANDOFF_RECEIPT_SCHEMA)
+_EXECUTION_LEASE_VALIDATOR = _compile_validator(EXECUTION_LEASE_SCHEMA)
+_SIGNING_KEY_REGISTRY_VALIDATOR = _compile_validator(SIGNING_KEY_REGISTRY_SCHEMA)
 _RESULT_VALIDATOR = _compile_validator(RESULT_SCHEMA)
 
 _TRANSITIONS = {
@@ -59,6 +67,9 @@ _TRANSITIONS = {
     "ACTIVE": {"RESULT_READY", "SUPERSEDED_PENDING_ATLAS", "STALE", "FAILED"},
     "RESULT_READY": {"RETURNED", "SUPERSEDED_PENDING_ATLAS", "STALE", "FAILED"},
 }
+_GOVERNED_RECORD_CLASSES = frozenset(
+    {"DOMAIN_CONTEXT_HANDOFF", "EXECUTION_LEASE", "APPROVAL", "CONTROL_RECORD"}
+)
 
 
 class SyncValidationError(ValueError):
@@ -76,10 +87,76 @@ def _sha256_json(value: Any) -> str:
     return "sha256:" + hashlib.sha256(_canonical_json(value)).hexdigest()
 
 
+def _utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _parse_timestamp(value: str, field: str) -> datetime:
+    try:
+        moment = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise SyncValidationError(
+            f"{field.upper()}_INVALID", "VALIDATION_FAILED", f"{field} must be RFC 3339"
+        ) from error
+    if moment.tzinfo is None:
+        raise SyncValidationError(
+            f"{field.upper()}_INVALID", "VALIDATION_FAILED", f"{field} requires a timezone offset"
+        )
+    return moment
+
+
+def _resolve_registry_public_key(
+    registry: Mapping[str, Any],
+    *,
+    key_id: str,
+    record_class: str,
+    verified_at: datetime | None = None,
+) -> bytes:
+    if record_class not in _GOVERNED_RECORD_CLASSES:
+        raise SyncValidationError(
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "unsupported ATLAS control record class"
+        )
+    try:
+        _SIGNING_KEY_REGISTRY_VALIDATOR.validate(registry)
+    except jsonschema.ValidationError as error:
+        raise SyncValidationError(
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", f"invalid ATLAS signing-key registry: {error.message}"
+        ) from error
+    matches = [entry for entry in registry["keys"] if entry.get("key_id") == key_id]
+    if len(matches) != 1:
+        raise SyncValidationError(
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key is not trusted"
+        )
+    entry = matches[0]
+    if entry["status"] != "ACTIVE" or record_class not in entry["allowed_record_classes"]:
+        raise SyncValidationError(
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key is inactive or out of scope"
+        )
+    current = verified_at or _utc_now()
+    activated_at = _parse_timestamp(entry["activated_at"], "key_activated_at")
+    expires_at = _parse_timestamp(entry["expires_at"], "key_expires_at")
+    if expires_at <= activated_at or current < activated_at or current > expires_at:
+        raise SyncValidationError(
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key is outside its lifecycle"
+        )
+    try:
+        public_key = base64.b64decode(entry["public_key_base64"], validate=True)
+        Ed25519PublicKey.from_public_bytes(public_key)
+    except (ValueError, TypeError) as error:
+        raise SyncValidationError(
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key material is invalid"
+        ) from error
+    return public_key
+
+
 def _verify_atlas_attestation(
     record: Mapping[str, Any],
     attestation: Mapping[str, Any],
-    trusted_public_keys: Mapping[str, bytes],
+    *,
+    record_class: str,
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
+    verified_at: datetime | None = None,
 ) -> None:
     expected_fields = {
         "version", "issuer", "algorithm", "key_id", "record_sha256", "signature"
@@ -92,10 +169,23 @@ def _verify_atlas_attestation(
         raise SyncValidationError(
             "ATLAS_ATTESTATION_INVALID", "VALIDATION_FAILED", "unsupported ATLAS attestation"
         )
-    public_key_bytes = trusted_public_keys.get(str(attestation.get("key_id", "")))
-    if public_key_bytes is None:
+    key_id = str(attestation.get("key_id", ""))
+    if trusted_key_registry is not None:
+        public_key_bytes = _resolve_registry_public_key(
+            trusted_key_registry,
+            key_id=key_id,
+            record_class=record_class,
+            verified_at=verified_at,
+        )
+    elif trusted_public_keys is not None:
+        public_key_bytes = trusted_public_keys.get(key_id)
+        if public_key_bytes is None:
+            raise SyncValidationError(
+                "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key is not trusted"
+            )
+    else:
         raise SyncValidationError(
-            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key is not trusted"
+            "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS trust material is required"
         )
     payload = _canonical_json(record)
     digest = "sha256:" + hashlib.sha256(payload).hexdigest()
@@ -131,10 +221,6 @@ def canonical_sync_execution_id(handoff: Mapping[str, Any]) -> str:
     return "ARGUS-SYNC-" + digest.removeprefix("sha256:")[:24].upper()
 
 
-def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-
-
 def _derived_handoff_state(handoff: dict[str, Any]) -> str:
     classification = handoff["domain_classification"]
     alignment = handoff["domain_alignment"]
@@ -145,11 +231,12 @@ def _derived_handoff_state(handoff: dict[str, Any]) -> str:
     return "PARTIAL"
 
 
-def validate_handoff(
+def validate_handoff_integrity(
     handoff: dict[str, Any],
     *,
     atlas_attestation: Mapping[str, Any],
-    trusted_public_keys: Mapping[str, bytes],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> None:
     try:
         _HANDOFF_VALIDATOR.validate(handoff)
@@ -169,7 +256,19 @@ def validate_handoff(
         raise SyncValidationError(
             "HANDOFF_VERSION_UNSUPPORTED", "VALIDATION_FAILED", "unsupported handoff contract version"
         )
-    _verify_atlas_attestation(handoff, atlas_attestation, trusted_public_keys)
+    created_at = _parse_timestamp(handoff["created_at"], "handoff_created_at")
+    activation_expires_at = _parse_timestamp(handoff["activation_expires_at"], "activation_expires_at")
+    if activation_expires_at - created_at != timedelta(hours=24):
+        raise SyncValidationError(
+            "HANDOFF_ACTIVATION_WINDOW_INVALID", "VALIDATION_FAILED", "handoff activation window must be exactly 24 hours"
+        )
+    _verify_atlas_attestation(
+        handoff,
+        atlas_attestation,
+        record_class="DOMAIN_CONTEXT_HANDOFF",
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
     if handoff.get("payload_sha256") != canonical_handoff_sha256(handoff):
         raise SyncValidationError(
             "HANDOFF_DIGEST_MISMATCH", "VALIDATION_FAILED", "handoff digest does not match payload"
@@ -187,15 +286,88 @@ def validate_handoff(
         raise SyncValidationError(
             "HANDOFF_STATE_INCONSISTENT", "VALIDATION_FAILED", "handoff state differs from its ATLAS context"
         )
-    created_at = datetime.fromisoformat(handoff["created_at"].replace("Z", "+00:00"))
+
+
+def validate_handoff(
+    handoff: dict[str, Any],
+    *,
+    atlas_attestation: Mapping[str, Any],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
+) -> None:
+    """Validate a handoff for first activation, including its replay window."""
+    validate_handoff_integrity(
+        handoff,
+        atlas_attestation=atlas_attestation,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
+    created_at = _parse_timestamp(handoff["created_at"], "handoff_created_at")
+    activation_expires_at = _parse_timestamp(handoff["activation_expires_at"], "activation_expires_at")
     current = _utc_now()
-    if created_at > current + timedelta(minutes=5) or current - created_at > timedelta(hours=24):
+    if current < created_at - timedelta(minutes=5) or current > activation_expires_at:
         raise SyncValidationError(
             "HANDOFF_EXPIRED", "VALIDATION_FAILED", "handoff is outside the 24-hour activation window"
         )
     if handoff.get("state") == "BLOCKED":
         raise SyncValidationError(
             "HANDOFF_BLOCKED", "BLOCKED", "BLOCKED handoff cannot start dependent ARGUS execution"
+        )
+
+
+def validate_execution_lease(
+    execution_lease: dict[str, Any],
+    handoff: dict[str, Any],
+    *,
+    lease_attestation: Mapping[str, Any],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
+    expected_lease_id: str | None = None,
+) -> None:
+    try:
+        _EXECUTION_LEASE_VALIDATOR.validate(execution_lease)
+    except jsonschema.ValidationError as error:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_SCHEMA_INVALID", "VALIDATION_FAILED", error.message
+        ) from error
+    expected = {
+        "handoff_id": handoff.get("handoff_id"),
+        "handoff_payload_sha256": handoff.get("payload_sha256"),
+        "source_task_id": handoff.get("source_task_id"),
+        "source_plan_id": handoff.get("source_plan_id"),
+        "source_work_unit_id": handoff.get("source_work_unit_id"),
+        "producer": "ATLAS_OS",
+        "consumer": "ARGUS",
+    }
+    if any(execution_lease.get(field) != value for field, value in expected.items()):
+        raise SyncValidationError(
+            "EXECUTION_LEASE_CORRELATION_MISMATCH", "VALIDATION_FAILED", "execution lease does not belong to the active handoff"
+        )
+    if expected_lease_id is not None and execution_lease.get("execution_lease_id") != expected_lease_id:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_STALE", "VALIDATION_FAILED", "execution lease is stale or superseded"
+        )
+    _verify_atlas_attestation(
+        execution_lease,
+        lease_attestation,
+        record_class="EXECUTION_LEASE",
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
+    issued_at = _parse_timestamp(execution_lease["issued_at"], "lease_issued_at")
+    expires_at = _parse_timestamp(execution_lease["lease_expires_at"], "lease_expires_at")
+    current = _utc_now()
+    if expires_at <= issued_at:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_INVALID", "VALIDATION_FAILED", "execution lease lifetime is invalid"
+        )
+    if current < issued_at - timedelta(minutes=5):
+        raise SyncValidationError(
+            "EXECUTION_LEASE_NOT_ACTIVE", "VALIDATION_FAILED", "execution lease is not active yet"
+        )
+    if current > expires_at:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_EXPIRED", "VALIDATION_FAILED", "execution lease has expired"
         )
 
 
@@ -213,13 +385,33 @@ def new_sync_receipt(
     started_at: str,
     *,
     atlas_attestation: Mapping[str, Any],
-    trusted_public_keys: Mapping[str, bytes],
+    execution_lease: dict[str, Any] | None = None,
+    execution_lease_attestation: Mapping[str, Any] | None = None,
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     validate_handoff(
         handoff,
         atlas_attestation=atlas_attestation,
+        trusted_key_registry=trusted_key_registry,
         trusted_public_keys=trusted_public_keys,
     )
+    if trusted_key_registry is not None and (execution_lease is None or execution_lease_attestation is None):
+        raise SyncValidationError(
+            "EXECUTION_LEASE_REQUIRED", "VALIDATION_FAILED", "ATLAS-governed execution requires an execution lease"
+        )
+    if execution_lease is not None:
+        if execution_lease_attestation is None:
+            raise SyncValidationError(
+                "EXECUTION_LEASE_ATTESTATION_REQUIRED", "VALIDATION_FAILED", "execution lease attestation is required"
+            )
+        validate_execution_lease(
+            execution_lease,
+            handoff,
+            lease_attestation=execution_lease_attestation,
+            trusted_key_registry=trusted_key_registry,
+            trusted_public_keys=trusted_public_keys,
+        )
     receipt = {
         "sync_execution_id": canonical_sync_execution_id(handoff),
         "attempt": 1,
@@ -234,8 +426,12 @@ def new_sync_receipt(
             "source_plan_id": handoff["source_plan_id"],
             "source_work_unit_id": handoff["source_work_unit_id"],
             "handoff_attestation": deepcopy(atlas_attestation),
+            "execution_lease_id": execution_lease["execution_lease_id"] if execution_lease else None,
+            "lease_expires_at": execution_lease["lease_expires_at"] if execution_lease else None,
+            "execution_lease": deepcopy(execution_lease),
+            "execution_lease_attestation": deepcopy(execution_lease_attestation),
         },
-        "argus": {"version": "2.0.0-rc.5", "result_sha256": None},
+        "argus": {"version": "2.0.1-rc.1", "result_sha256": None},
         "state": "RECEIVED",
         "started_at": started_at,
         "completed_at": None,
@@ -309,20 +505,107 @@ def _require_receipt_handoff(receipt: dict[str, Any], handoff: dict[str, Any]) -
         )
 
 
+def _validate_receipt_execution_lease(
+    receipt: dict[str, Any],
+    handoff: dict[str, Any],
+    *,
+    trusted_key_registry: Mapping[str, Any] | None,
+    trusted_public_keys: Mapping[str, bytes] | None,
+) -> None:
+    atlas = receipt.get("atlas", {})
+    execution_lease = atlas.get("execution_lease")
+    lease_attestation = atlas.get("execution_lease_attestation")
+    lease_id = atlas.get("execution_lease_id")
+    if execution_lease is None:
+        if trusted_key_registry is not None:
+            raise SyncValidationError(
+                "EXECUTION_LEASE_REQUIRED", "VALIDATION_FAILED", "current synchronization has no execution lease"
+            )
+        return
+    if lease_attestation is None or not lease_id:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_RECEIPT_INVALID", "VALIDATION_FAILED", "execution lease receipt metadata is incomplete"
+        )
+    validate_execution_lease(
+        execution_lease,
+        handoff,
+        lease_attestation=lease_attestation,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+        expected_lease_id=lease_id,
+    )
+
+
+def renew_execution_lease(
+    receipt: dict[str, Any],
+    handoff: dict[str, Any],
+    execution_lease: dict[str, Any],
+    *,
+    execution_lease_attestation: Mapping[str, Any],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
+) -> dict[str, Any]:
+    validate_sync_receipt(receipt)
+    _require_receipt_handoff(receipt, handoff)
+    validate_handoff_integrity(
+        handoff,
+        atlas_attestation=receipt["atlas"]["handoff_attestation"],
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
+    current_lease_id = receipt["atlas"].get("execution_lease_id")
+    if not current_lease_id:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_RENEWAL_INVALID", "VALIDATION_FAILED", "no current execution lease can be superseded"
+        )
+    if execution_lease.get("supersedes_lease_id") != current_lease_id:
+        raise SyncValidationError(
+            "EXECUTION_LEASE_SUPERSESSION_MISMATCH", "VALIDATION_FAILED", "new lease does not supersede the current lease"
+        )
+    validate_execution_lease(
+        execution_lease,
+        handoff,
+        lease_attestation=execution_lease_attestation,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
+    renewed = deepcopy(receipt)
+    renewed["atlas"]["execution_lease_id"] = execution_lease["execution_lease_id"]
+    renewed["atlas"]["lease_expires_at"] = execution_lease["lease_expires_at"]
+    renewed["atlas"]["execution_lease"] = deepcopy(execution_lease)
+    renewed["atlas"]["execution_lease_attestation"] = deepcopy(execution_lease_attestation)
+    validate_sync_receipt(renewed)
+    return renewed
+
+
 def validate_result_correlation(
     result: dict[str, Any],
     handoff: dict[str, Any],
     receipt: dict[str, Any],
     *,
-    trusted_public_keys: Mapping[str, bytes],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     validate_sync_receipt(receipt)
     _require_receipt_handoff(receipt, handoff)
-    validate_handoff(
+    validate_handoff_integrity(
         handoff,
         atlas_attestation=receipt["atlas"]["handoff_attestation"],
+        trusted_key_registry=trusted_key_registry,
         trusted_public_keys=trusted_public_keys,
     )
+    _validate_receipt_execution_lease(
+        receipt,
+        handoff,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
+    if receipt["atlas"].get("execution_lease") is None:
+        validate_handoff(
+            handoff,
+            atlas_attestation=receipt["atlas"]["handoff_attestation"],
+            trusted_public_keys=trusted_public_keys or {},
+        )
     try:
         _RESULT_VALIDATOR.validate(result)
     except jsonschema.ValidationError as error:
@@ -377,15 +660,32 @@ def validate_result_correlation(
 
 
 def _restart_failed_sync(
-    receipt: dict[str, Any], handoff: dict[str, Any], *, trusted_public_keys: Mapping[str, bytes]
+    receipt: dict[str, Any],
+    handoff: dict[str, Any],
+    *,
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     validate_sync_receipt(receipt)
-    validate_handoff(
+    _require_receipt_handoff(receipt, handoff)
+    validate_handoff_integrity(
         handoff,
         atlas_attestation=receipt.get("atlas", {}).get("handoff_attestation", {}),
+        trusted_key_registry=trusted_key_registry,
         trusted_public_keys=trusted_public_keys,
     )
-    _require_receipt_handoff(receipt, handoff)
+    _validate_receipt_execution_lease(
+        receipt,
+        handoff,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
+    if receipt["atlas"].get("execution_lease") is None:
+        validate_handoff(
+            handoff,
+            atlas_attestation=receipt.get("atlas", {}).get("handoff_attestation", {}),
+            trusted_public_keys=trusted_public_keys or {},
+        )
     if receipt["state"] != "FAILED":
         raise SyncValidationError(
             "SYNC_NOT_RETRYABLE", "VALIDATION_FAILED", "only a failed current execution may restart"
@@ -401,9 +701,18 @@ def _restart_failed_sync(
 
 
 def retry_sync(
-    receipt: dict[str, Any], handoff: dict[str, Any], *, trusted_public_keys: Mapping[str, bytes]
+    receipt: dict[str, Any],
+    handoff: dict[str, Any],
+    *,
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
-    return _restart_failed_sync(receipt, handoff, trusted_public_keys=trusted_public_keys)
+    return _restart_failed_sync(
+        receipt,
+        handoff,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
 
 
 def resume_sync(
@@ -413,7 +722,8 @@ def resume_sync(
     active_sync_execution_id: str,
     stored_registry_fingerprint: str,
     actual_registry_fingerprint: str,
-    trusted_public_keys: Mapping[str, bytes],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     if active_sync_execution_id != receipt.get("sync_execution_id"):
         raise SyncValidationError(
@@ -430,7 +740,12 @@ def resume_sync(
             "VALIDATION_FAILED",
             "ARGUS canonical state changed and requires reconciliation",
         )
-    return _restart_failed_sync(receipt, handoff, trusted_public_keys=trusted_public_keys)
+    return _restart_failed_sync(
+        receipt,
+        handoff,
+        trusted_key_registry=trusted_key_registry,
+        trusted_public_keys=trusted_public_keys,
+    )
 
 
 def map_atlas_failure(condition: str) -> str:
@@ -459,7 +774,8 @@ def validate_action_authorization(
     receipt: dict[str, Any],
     *,
     approval_attestation: Mapping[str, Any],
-    trusted_public_keys: Mapping[str, bytes],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> None:
     try:
         _APPROVAL_VALIDATOR.validate(approval)
@@ -473,7 +789,13 @@ def validate_action_authorization(
             "APPROVAL_SCOPE_EMPTY", "AUTHORIZATION_REQUIRED", "canonical mutation requires explicit scope"
         )
     try:
-        _verify_atlas_attestation(approval, approval_attestation, trusted_public_keys)
+        _verify_atlas_attestation(
+            approval,
+            approval_attestation,
+            record_class="APPROVAL",
+            trusted_key_registry=trusted_key_registry,
+            trusted_public_keys=trusted_public_keys,
+        )
     except SyncValidationError as error:
         raise SyncValidationError(
             "APPROVAL_NOT_TRUSTED", "AUTHORIZATION_REQUIRED", str(error)
@@ -528,7 +850,8 @@ def authorize_action(
     expected_scope: list[str],
     *,
     approval_attestation: Mapping[str, Any],
-    trusted_public_keys: Mapping[str, bytes],
+    trusted_key_registry: Mapping[str, Any] | None = None,
+    trusted_public_keys: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     validate_sync_receipt(receipt)
     if receipt["state"] not in {"ACTIVE", "RESULT_READY"}:
@@ -543,6 +866,7 @@ def authorize_action(
         expected_scope,
         receipt,
         approval_attestation=approval_attestation,
+        trusted_key_registry=trusted_key_registry,
         trusted_public_keys=trusted_public_keys,
     )
     key = action_idempotency_key(action)
