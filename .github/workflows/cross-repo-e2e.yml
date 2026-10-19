@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: gferris418/atlas-os
-          ref: 3bfad80a84a8e7fa0bd68795b0e4442f55df9948
+          ref: 45a8bf828abb1ab5242c54f798c5c074fd797285
           token: ${{ secrets.ATLAS_READ_TOKEN }}
           path: atlas-os
           persist-credentials: false

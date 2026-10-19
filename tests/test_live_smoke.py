@@ -26,8 +26,8 @@ class LiveSmokeTests(unittest.TestCase):
         self.assertEqual(0, completed.returncode, completed.stderr)
         self.assertIn("ARGUS RETURNED", completed.stdout)
         self.assertIn("TEST_ONLY", completed.stdout)
-        self.assertIn("ATLAS 2.0.0-rc.11", completed.stdout)
-        self.assertIn("ARGUS 2.0.0-rc.4", completed.stdout)
+        self.assertIn("ATLAS 2.0.0-rc.12", completed.stdout)
+        self.assertIn("ARGUS 2.0.0-rc.5", completed.stdout)
         self.assertEqual("", completed.stderr)
 
     def test_ndjson_smoke_emits_parseable_start_and_result_events(self) -> None:
@@ -38,8 +38,8 @@ class LiveSmokeTests(unittest.TestCase):
         self.assertEqual(["started", "result"], [event["event"] for event in events])
         self.assertEqual("TEST_ONLY", events[0]["mode"])
         self.assertEqual("RETURNED", events[1]["state"])
-        self.assertEqual("2.0.0-rc.11", events[1]["atlas_version"])
-        self.assertEqual("2.0.0-rc.4", events[1]["argus_version"])
+        self.assertEqual("2.0.0-rc.12", events[1]["atlas_version"])
+        self.assertEqual("2.0.0-rc.5", events[1]["argus_version"])
         self.assertTrue(events[1]["result_sha256"].startswith("sha256:"))
 
 

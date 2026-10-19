@@ -235,7 +235,7 @@ def new_sync_receipt(
             "source_work_unit_id": handoff["source_work_unit_id"],
             "handoff_attestation": deepcopy(atlas_attestation),
         },
-        "argus": {"version": "2.0.0-rc.4", "result_sha256": None},
+        "argus": {"version": "2.0.0-rc.5", "result_sha256": None},
         "state": "RECEIVED",
         "started_at": started_at,
         "completed_at": None,

@@ -33,7 +33,7 @@ outcome = runtime.analyze(AnalysisEnvelope(
 ))
 ```
 
-The synchronization runtime pins ATLAS `2.0.0-rc.11`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. Neither runtime mutates the Master Registry by itself.
+The synchronization runtime pins ATLAS `2.0.0-rc.12` at commit `45a8bf828abb1ab5242c54f798c5c074fd797285`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. Neither runtime mutates the Master Registry by itself.
 
 The complete seam can be tested without persistent keys, network access, or
 registry writes. Compact text is the default; NDJSON is available for a
@@ -65,6 +65,8 @@ ARGUS does not activate from keywords, the mere mention of a government organiza
 
 The machine-readable contract is [`contracts/atlas/argus-activation-v1.json`](contracts/atlas/argus-activation-v1.json). ATLAS owns the live workflow, execution spine, plan, approvals, verification, and delivery. ARGUS supplies the specialist framework and methodology, may use scenario playbooks and operational SOPs, and returns domain analysis and proposed actions without creating a second execution system.
 
+External skills, search systems, capture methods, trade-intelligence tools and proposal systems remain bounded providers. They do not become ARGUS canonical semantics merely because they are installed or connected. See [`docs/architecture/capability-integration.md`](docs/architecture/capability-integration.md).
+
 ## Access Asia working-file lifecycle
 
 The ARGUS decision `PROMOTE_TO_PX` activates the tracked opportunity lineage; it does **not** move the working folder to a submission workspace.
@@ -86,66 +88,6 @@ A tender becoming live, I9 maturity, or an intention to bid does not by itself s
 
 There is no separate BID folder, only one physical working folder at a time, and the permanent identifier is preserved across every stage move. Opportunities that close without formal submission remain in Business Intelligence and may be archived there.
 
-Machine-readable policy: [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml).
-
-## Current persistence model: GitHub-first
-
-For the current candidate phase, this private repository is the **interim physical canonical store** for ARGUS structured intelligence, synthesized intelligence, and database-related artifacts.
-
-The logical ARGUS Master Registry remains platform-neutral. GitHub is the current storage implementation so the system can later shift to PostgreSQL, Supabase, Airtable, or another runtime without changing ARGUS identities or semantics.
-
-Repository storage:
-
-- `data/registry/` — canonical structured records, preferably JSON/JSONL;
-- `data/syntheses/` — synthesized intelligence in Markdown/JSON;
-- `data/exports/` — derived CSV/XLSX/JSON review and interchange views;
-- `registry/` — Registry contracts, schemas, mappings, SQL migrations and future database materialization artifacts.
-
-**Raw tender/source documents and operational working files are not stored in GitHub.** GitHub stores only structured facts, synthesized intelligence, provenance, source references/locators, hashes where useful, reconciliation decisions, and commercial assessments. Original tender documents, email payloads, scans, attachments and working opportunity/submission/project files remain in their authorized source systems/SharePoint lifecycle folders.
-
-See [`docs/architecture/github-first-canonical-store.md`](docs/architecture/github-first-canonical-store.md).
-
-## Core operating loop
-
-`Contextualize → Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
-
-`Contextualize` is the first ARGUS operation in ATLAS-governed execution. It converts the governed ATLAS domain context into opportunity-intelligence search and interpretation context without changing upstream authority.
-
-## 360° intelligence collection
-
-ARGUS uses the doctrine **360° breadth, decision-driven depth**.
-
-It examines all materially relevant intelligence lenses without requiring exhaustive collection. Coverage gaps feed the Research Frontier, which prioritizes only the questions likely to change the next commercial decision.
-
-Core lenses:
-
-- need / mission;
-- policy / strategy;
-- institution / stakeholders;
-- programme / project;
-- budget / funding;
-- procurement / acquisition;
-- technical / installed base;
-- supplier / competitor;
-- ecosystem / influence;
-- commercial participation;
-- timing / triggers;
-- internal intelligence / history.
-
-Coverage is recorded separately from evidence assurance and I0–I9 maturity.
-
-## Canonical record types
-
-- `ENTITY`
-- `PROJECT`
-- `PROCUREMENT`
-- `INTELLIGENCE`
-- `OPPORTUNITY`
-- `SUPPLIER_PRODUCT`
-- `KNOWLEDGE`
-
-360° collection does not introduce an eighth record type.
-
 ## Repository authority
 
 - Manifest: [`argus-intelligence.yaml`](argus-intelligence.yaml)
@@ -153,6 +95,7 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 - Access Asia lifecycle policy: [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml)
 - Core: [`spec/core.md`](spec/core.md)
 - ATLAS alignment: [`alignments/atlas-os.md`](alignments/atlas-os.md)
+- Capability integration: [`docs/architecture/capability-integration.md`](docs/architecture/capability-integration.md)
 - Pinned ATLAS handoff contract: [`contracts/atlas/domain-context-handoff-v1.schema.json`](contracts/atlas/domain-context-handoff-v1.schema.json)
 - Synchronization compatibility descriptor: [`contracts/atlas/synchronization-compatibility.yaml`](contracts/atlas/synchronization-compatibility.yaml)
 - Synchronization receipt schema: [`schemas/atlas-argus-sync-receipt.schema.json`](schemas/atlas-argus-sync-receipt.schema.json)
@@ -165,6 +108,6 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 
 ## Current status
 
-`2.0.0-rc.4` — candidate.
+`2.0.0-rc.5` — candidate.
 
-The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage.
+The ATLAS/ARGUS architecture, capability-provider boundaries, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage.
