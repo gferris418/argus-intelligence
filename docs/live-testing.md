@@ -25,3 +25,40 @@ result-correlation wiring. It intentionally performs no network collection,
 uses no production key, and writes nothing to the Master Registry. It does not
 prove autonomous source acquisition, production key distribution, branch
 protection, or live ChatGPT/Work deployment.
+
+## Real cross-repository test
+
+Place compatible checkouts beside one another and run from the ARGUS root:
+
+```text
+parent/
+├── atlas-os/
+└── argus-intelligence/
+```
+
+```bash
+python -m tools.cross_repo_e2e --atlas-repo ../atlas-os
+python -m tools.cross_repo_e2e --atlas-repo ../atlas-os --format ndjson
+python -m unittest discover -s tests/cross_repo -v
+```
+
+The command rejects an ATLAS checkout whose Git commit or manifest version
+does not exactly match the ARGUS compatibility descriptor. With the correct
+checkout it executes these real public seams:
+
+```text
+ATLAS execute + classify + align + handoff + route + attest
+  → ARGUS analyze + correlate + return
+  → ATLAS verify returned handoff receipt
+```
+
+It generates an ephemeral key in memory, performs no network collection and
+makes no registry write. This verifies the two codebases together; it still
+does not provide production key governance, external ChatGPT/Work evidence,
+or autonomous intelligence acquisition.
+
+The manual `Cross-repository E2E` GitHub workflow runs the same test. Because
+both repositories are private, configure the ARGUS repository secret
+`ATLAS_READ_TOKEN` with read-only Contents access to `gferris418/atlas-os`
+before dispatching it. The normal repository token is intentionally not
+broadened.
