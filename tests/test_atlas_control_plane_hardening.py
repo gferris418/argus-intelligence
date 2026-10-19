@@ -4,7 +4,6 @@ import base64
 import hashlib
 import json
 import unittest
-from copy import deepcopy
 from datetime import datetime, timezone
 from unittest.mock import patch
 
@@ -146,6 +145,20 @@ class AtlasControlPlaneHardeningTests(unittest.TestCase):
         result["result_sha256"] = "sha256:" + hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
         return result
 
+    def _initial_receipt(self, handoff: dict, lease: dict) -> dict:
+        with patch(
+            "tools.atlas_sync._utc_now",
+            return_value=datetime(2026, 10, 18, 0, 6, tzinfo=timezone.utc),
+        ):
+            return new_sync_receipt(
+                handoff,
+                "2026-10-18T00:06:00Z",
+                atlas_attestation=self._attestation(handoff),
+                execution_lease=lease,
+                execution_lease_attestation=self._attestation(lease),
+                trusted_key_registry=self._registry(),
+            )
+
     def test_activation_window_applies_only_to_initial_activation(self) -> None:
         handoff = self._handoff()
         with self.assertRaises(SyncValidationError) as caught:
@@ -164,15 +177,7 @@ class AtlasControlPlaneHardeningTests(unittest.TestCase):
     def test_active_execution_lease_allows_result_after_activation_window(self) -> None:
         handoff = self._handoff()
         lease = self._lease(handoff)
-        receipt = new_sync_receipt(
-            handoff,
-            "2026-10-18T00:06:00Z",
-            atlas_attestation=self._attestation(handoff),
-            execution_lease=lease,
-            execution_lease_attestation=self._attestation(lease),
-            trusted_key_registry=self._registry(),
-            activated_at="2026-10-18T00:06:00Z",
-        )
+        receipt = self._initial_receipt(handoff, lease)
         for state in ("VALIDATED", "ACCEPTED", "ACTIVE"):
             from tools.atlas_sync import transition_sync
             receipt = transition_sync(receipt, state)
@@ -209,15 +214,7 @@ class AtlasControlPlaneHardeningTests(unittest.TestCase):
     def test_lease_renewal_supersedes_old_lease_and_retry_uses_current_lease(self) -> None:
         handoff = self._handoff()
         first = self._lease(handoff)
-        receipt = new_sync_receipt(
-            handoff,
-            "2026-10-18T00:06:00Z",
-            atlas_attestation=self._attestation(handoff),
-            execution_lease=first,
-            execution_lease_attestation=self._attestation(first),
-            trusted_key_registry=self._registry(),
-            activated_at="2026-10-18T00:06:00Z",
-        )
+        receipt = self._initial_receipt(handoff, first)
         from tools.atlas_sync import transition_sync
         for state in ("VALIDATED", "ACCEPTED", "ACTIVE"):
             receipt = transition_sync(receipt, state)
