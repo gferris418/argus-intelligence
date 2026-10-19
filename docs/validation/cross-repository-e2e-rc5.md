@@ -11,19 +11,19 @@
 ## Evidence obtained
 
 - ATLAS rc.12 full validation suite passed before merge and again on merged `main`.
-- ARGUS rc.5 contract tests passed on the functional compatibility head before the final workflow-policy/documentation-only commits.
+- ARGUS rc.5 contract tests passed on the functional compatibility head before final workflow-policy/documentation-only commits.
 - Synchronization descriptor, receipt schema, runtime, smoke expectations, and cross-repository fixture use the exact immutable ATLAS rc.12 commit.
 - The ATLAS activation contract remained byte-identical to `sha256:3aa1abac8283e7f40418fe04e9882a5d241a0c6b323bcfab855a6f4eca74bac7`.
 
 ## Remote E2E attempt
 
-GitHub Actions run `39278351375` did not reach ATLAS/ARGUS compatibility logic. It stopped at checkout of the private ATLAS repository because `ATLAS_READ_TOKEN` was unavailable in the pull-request event context. This is an infrastructure/credential limitation, not a runtime compatibility failure.
+GitHub Actions run `39278351375` stopped before compatibility logic at checkout of the private ATLAS repository because `ATLAS_READ_TOKEN` was unavailable in the pull-request event context. This is an infrastructure/credential limitation, not a runtime compatibility failure.
 
-The cross-repository workflow is approval-gated `workflow_dispatch` only and continues to require a read-only `ATLAS_READ_TOKEN` for `gferris418/atlas-os`.
+The cross-repository workflow remains approval-gated `workflow_dispatch` and requires a read-only `ATLAS_READ_TOKEN` for `gferris418/atlas-os`.
 
 ## Operator release decision — 2026-10-19
 
-The repository owner explicitly directed release without waiting for the external-only credentialed E2E gate. The remote E2E requirement is accepted as a post-release verification item and is not represented as passed.
+The repository owner explicitly directed final release without waiting for the external-only credentialed E2E gate. The remote E2E requirement is accepted as a post-release verification item and is not represented as passed.
 
 ## Residual limitation
 
