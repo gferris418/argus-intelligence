@@ -33,7 +33,7 @@ outcome = runtime.analyze(AnalysisEnvelope(
 ))
 ```
 
-The synchronization runtime pins ATLAS `2.0.0-rc.12` at commit `45a8bf828abb1ab5242c54f798c5c074fd797285`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. Neither runtime mutates the Master Registry by itself.
+The synchronization runtime pins ATLAS `2.0.0` at commit `a533d092fb35f5c048a96f46c0201d5ce37871c7`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. The tested synchronization receipt protocol remains `2.0.0-rc.5` for backward-compatible wire behavior under the stable ARGUS `2.0.0` product release. Neither runtime mutates the Master Registry by itself.
 
 The complete seam can be tested without persistent keys, network access, or
 registry writes. Compact text is the default; NDJSON is available for a
@@ -108,6 +108,6 @@ There is no separate BID folder, only one physical working folder at a time, and
 
 ## Current status
 
-`2.0.0-rc.5` — candidate.
+`2.0.0` — released / stable.
 
-The ATLAS/ARGUS architecture, capability-provider boundaries, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage.
+The ATLAS/ARGUS architecture, capability-provider boundaries, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage. The credentialed private-repository remote E2E remains an explicitly disclosed post-release verification item and is not represented as passed.
