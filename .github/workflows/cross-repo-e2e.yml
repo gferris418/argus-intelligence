@@ -1,3 +1,4 @@
+# Verification probe: ensures the repository-scoped ATLAS deploy key is available on same-repository pull requests.
 name: Cross-repository E2E
 
 on:
