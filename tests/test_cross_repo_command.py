@@ -42,7 +42,7 @@ class CrossRepositoryCommandTests(unittest.TestCase):
         self.assertNotIn("pull_request:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
-        self.assertIn("ref: 45a8bf828abb1ab5242c54f798c5c074fd797285", workflow)
+        self.assertIn("ref: a533d092fb35f5c048a96f46c0201d5ce37871c7", workflow)
         self.assertIn("secrets.ATLAS_READ_TOKEN", workflow)
         self.assertEqual(2, workflow.count("persist-credentials: false"))
         self.assertIn("python -m unittest discover -s tests/cross_repo -v", workflow)
