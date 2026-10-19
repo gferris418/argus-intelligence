@@ -42,7 +42,8 @@ jobs:
         with:
           repository: gferris418/atlas-os
           ref: 53ae8723fe2939898015810a821f61a93ed8b9c8
-          token: ${{ secrets.ATLAS_READ_TOKEN }}
+          ssh-key: ${{ secrets.ATLAS_SSH_KEY }}
+          ssh-strict: true
           path: atlas-os
           persist-credentials: false
       - name: Set up Python

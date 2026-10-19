@@ -57,8 +57,9 @@ makes no registry write. This verifies the two codebases together; it still
 does not provide production key governance, external ChatGPT/Work evidence,
 or autonomous intelligence acquisition.
 
-The manual `Cross-repository E2E` GitHub workflow runs the same test. Because
-both repositories are private, configure the ARGUS repository secret
-`ATLAS_READ_TOKEN` with read-only Contents access to `gferris418/atlas-os`
-before dispatching it. The normal repository token is intentionally not
-broadened.
+The automatic `Cross-repository E2E` GitHub workflow runs the same test on
+compatibility-boundary pull requests and pushes to `main`, and can also be run
+manually. Because both repositories are private, ATLAS is checked out through a
+repository-scoped read-only deploy key. Its private half is stored only in the
+ARGUS Actions secret `ATLAS_SSH_KEY`; the ATLAS deploy key has read-only access,
+and the normal repository token is intentionally not broadened.
