@@ -518,6 +518,7 @@ class AtlasArgusSynchronizationTests(unittest.TestCase):
     def test_stale_handoff_is_rejected_even_with_matching_digest(self) -> None:
         handoff = load_fixture("ready-handoff.json")
         handoff["created_at"] = "2000-01-01T00:00:00Z"
+        handoff["activation_expires_at"] = "2000-01-02T00:00:00Z"
         handoff["payload_sha256"] = canonical_handoff_sha256(handoff)
         with self.assertRaises(SyncValidationError) as caught:
             validate_handoff(
