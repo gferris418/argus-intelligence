@@ -23,8 +23,8 @@
         "handoff_attestation"
       ],
       "properties": {
-        "version": {"const": "2.0.0-rc.12"},
-        "commit": {"const": "45a8bf828abb1ab5242c54f798c5c074fd797285"},
+        "version": {"const": "2.0.0"},
+        "commit": {"const": "a533d092fb35f5c048a96f46c0201d5ce37871c7"},
         "handoff_contract_version": {"const": "1.1.0"},
         "handoff_id": {"type": "string"},
         "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
