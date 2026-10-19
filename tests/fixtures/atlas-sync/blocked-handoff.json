@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.1.0",
+  "contract_version": "1.2.0",
   "handoff_id": "HANDOFF-ARGUS-BLOCKED-001",
   "source_task_id": "TASK-ARGUS-BLOCKED-001",
   "source_plan_id": "plan-argus-blocked-001",
@@ -7,6 +7,7 @@
   "producer": "ATLAS_OS",
   "consumer": "ARGUS",
   "created_at": "2026-10-18T07:00:00Z",
+  "activation_expires_at": "2026-10-19T07:00:00Z",
   "state": "BLOCKED",
   "domain_classification": {
     "status": "CLASSIFIED",
@@ -29,5 +30,5 @@
   },
   "unresolved_material": [],
   "risk_flags": [],
-  "payload_sha256": "sha256:ee4f4918fd6afa43fa01a2a62c85ca933ccb0b4cd9b955da2884ad9c43d951bc"
+  "payload_sha256": "sha256:916333b66d481d738773b701307e35eb2069cabb004802922e34e6032e1dd11f"
 }
