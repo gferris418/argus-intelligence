@@ -33,8 +33,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
 
     def test_sync_descriptor_pins_exact_atlas_baseline(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
-        self.assertEqual("2.0.0-rc.12", descriptor["atlas_version"])
-        self.assertEqual("45a8bf828abb1ab5242c54f798c5c074fd797285", descriptor["atlas_commit"])
+        self.assertEqual("2.0.0", descriptor["atlas_version"])
+        self.assertEqual("a533d092fb35f5c048a96f46c0201d5ce37871c7", descriptor["atlas_commit"])
         self.assertEqual("chatgpt-bootstrap-2026-10-19-r4", descriptor["control_revision"])
         self.assertEqual("1.1.0", descriptor["handoff_contract_version"])
         self.assertEqual(6, len(descriptor["source_contracts"]))
