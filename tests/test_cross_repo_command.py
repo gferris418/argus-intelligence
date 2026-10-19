@@ -39,7 +39,7 @@ class CrossRepositoryCommandTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("pull_request:", workflow)
+        self.assertNotIn("pull_request:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
         self.assertIn("ref: 45a8bf828abb1ab5242c54f798c5c074fd797285", workflow)
