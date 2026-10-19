@@ -124,7 +124,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
         self.assertIn("ref: 53ae8723fe2939898015810a821f61a93ed8b9c8", workflow)
-        self.assertIn("secrets.ATLAS_READ_TOKEN", workflow)
+        self.assertIn("ssh-key: ${{ secrets.ATLAS_SSH_KEY }}", workflow)
+        self.assertNotIn("ATLAS_READ_TOKEN", workflow)
         self.assertIn("python -m unittest discover -s tests/cross_repo -v", workflow)
 
     def test_ci_uses_immutable_actions_hash_locked_install_and_audit(self):
