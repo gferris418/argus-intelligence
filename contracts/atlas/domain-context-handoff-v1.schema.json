@@ -13,6 +13,7 @@
     "producer",
     "consumer",
     "created_at",
+    "activation_expires_at",
     "state",
     "domain_classification",
     "domain_alignment",
@@ -21,7 +22,7 @@
     "payload_sha256"
   ],
   "properties": {
-    "contract_version": {"const": "1.1.0"},
+    "contract_version": {"const": "1.2.0"},
     "handoff_id": {"type": "string", "pattern": "^HANDOFF-[A-Z0-9][A-Z0-9-]{2,95}$"},
     "source_task_id": {"type": "string", "pattern": "^TASK-[A-Z0-9][A-Z0-9-]{2,63}$"},
     "source_plan_id": {"type": "string", "minLength": 1},
@@ -29,6 +30,7 @@
     "producer": {"const": "ATLAS_OS"},
     "consumer": {"type": "string", "minLength": 1, "maxLength": 80},
     "created_at": {"type": "string", "format": "date-time"},
+    "activation_expires_at": {"type": "string", "format": "date-time"},
     "state": {"enum": ["READY", "PARTIAL", "BLOCKED"]},
     "domain_classification": {"$ref": "#/$defs/domainClassification"},
     "domain_alignment": {"$ref": "#/$defs/domainAlignment"},
