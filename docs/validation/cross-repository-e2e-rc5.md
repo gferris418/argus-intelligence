@@ -1,6 +1,6 @@
 # ATLAS ↔ ARGUS Cross-Repository E2E — rc.5
 
-**Status:** PENDING_REMOTE_PR_E2E  
+**Status:** BLOCKED_PENDING_MANUAL_REMOTE_E2E  
 **ARGUS candidate:** `2.0.0-rc.5`  
 **ARGUS PR:** `#35` (`release/argus-rc5-atlas-rc12`)  
 **ATLAS baseline:** `2.0.0-rc.12`  
@@ -31,12 +31,18 @@ The compatibility refresh must prove the real producer-consumer-return path rath
 | Gate | Required result | Current state |
 |---|---|---|
 | TDD RED | New rc.5/rc.12 expectations fail only because production still reports rc.4/rc.11 | PASS — 182 tests, 5 intended version/workflow failures |
-| ARGUS Contract Tests | Entire suite passes | PENDING |
-| Cross-repository E2E | `tests/cross_repo` passes against exact ATLAS commit | PENDING |
-| Text path | `ATLAS→ARGUS VERIFIED`, route `ACTIVATE`, receipt `RETURNED` | PENDING |
-| NDJSON path | `atlas_handoff → argus_result → atlas_verified` | PENDING |
-| Exact pin | Runtime descriptor and workflow use the same ATLAS commit | PENDING |
-| No canonical mutation | Fixture reports no Registry writes | PENDING |
+| ARGUS Contract Tests | Entire suite passes | PASS — workflow run `39278351403` on PR head `592a0f054a47efeae3e7673cb6ce1ce4868dc6ad` |
+| Cross-repository E2E | `tests/cross_repo` passes against exact ATLAS commit | BLOCKED — PR-triggered run `39278351375` could not check out private ATLAS because `ATLAS_READ_TOKEN` was not supplied to that event context |
+| Text path | `ATLAS→ARGUS VERIFIED`, route `ACTIVATE`, receipt `RETURNED` | PENDING MANUAL REMOTE E2E |
+| NDJSON path | `atlas_handoff → argus_result → atlas_verified` | PENDING MANUAL REMOTE E2E |
+| Exact pin | Runtime descriptor and workflow use the same ATLAS commit | PASS — `45a8bf828abb1ab5242c54f798c5c074fd797285` |
+| No canonical mutation | Fixture reports no Registry writes | PENDING MANUAL REMOTE E2E |
+
+## Infrastructure finding
+
+The failed PR-triggered E2E run did not execute ARGUS or ATLAS compatibility logic. It stopped in the `Checkout compatible ATLAS` step with GitHub Actions reporting `Input required and not supplied: token`. The workflow therefore remains `workflow_dispatch` only, matching the existing approval-gated cross-repository design. This avoids converting a missing-secret condition into a false compatibility failure and avoids exposing a private-repository read token to general PR-triggered execution.
+
+A final compatibility claim requires a manual `Cross-repository E2E` workflow dispatch on the final PR head from a context where `ATLAS_READ_TOKEN` is available. The resulting run ID and tested head SHA must be recorded here before merge.
 
 ## Historical integrity
 
@@ -44,4 +50,4 @@ The compatibility refresh must prove the real producer-consumer-return path rath
 
 ## Completion rule
 
-Do not change this record to `REMOTE_CI_PASS`, do not merge PR #35, and do not describe rc.5 as validated against rc.12 until both GitHub Actions workflows succeed on the exact final PR head. Record the final workflow run IDs and tested head SHA when that evidence exists.
+Do not change this record to `REMOTE_CI_PASS`, do not merge PR #35, and do not describe rc.5 as validated against rc.12 until both the Contract Tests workflow and a manually dispatched Cross-repository E2E workflow succeed on the exact final PR head. Record the final workflow run IDs and tested head SHA when that evidence exists.
