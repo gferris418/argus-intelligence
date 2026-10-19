@@ -39,7 +39,7 @@
       "additionalProperties": false,
       "required": ["version", "result_sha256"],
       "properties": {
-        "version": {"const": "2.0.0"},
+        "version": {"const": "2.0.0-rc.5"},
         "result_sha256": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"}
       }
     },
