@@ -1,19 +1,31 @@
 {
   "atlas_compatibility": {
-    "atlas_version": "2.0.0",
-    "atlas_commit": "a533d092fb35f5c048a96f46c0201d5ce37871c7",
+    "atlas_version": "2.0.1-rc.1",
+    "atlas_commit": "53ae8723fe2939898015810a821f61a93ed8b9c8",
     "control_revision": "chatgpt-bootstrap-2026-10-19-r4",
-    "handoff_contract_version": "1.1.0",
+    "handoff_contract_version": "1.2.0",
+    "execution_lease_contract_version": "1.0.0",
+    "signing_key_registry_version": "1.0.0",
     "source_contracts": {
       "domain_context_handoff": {
         "source_path": "schemas/domain-context-handoff.schema.json",
         "local_path": "contracts/atlas/domain-context-handoff-v1.schema.json",
-        "sha256": "fb2d5f87d1b98c2403656ddb56ffc738027aeafcee1f42be6ebc389608545cc6"
+        "sha256": "d23fe3fd3e8ef3c907acdb3f324fd2bf2a5f9d18576e8a04c41d768a151f0e81"
       },
       "domain_handoff_receipt": {
         "source_path": "schemas/domain-handoff-receipt.schema.json",
         "local_path": "contracts/atlas/domain-handoff-receipt-v1.schema.json",
-        "sha256": "17abe08ed4574cd59eab1c6a0bba48d53a54d7d1116dd60ac14fbb1cb267b738"
+        "sha256": "9aac6ee8b574408a50f30a7df797dd04cda87367d816f1ce6af64354690b61d4"
+      },
+      "execution_lease": {
+        "source_path": "schemas/execution-lease.schema.json",
+        "local_path": "contracts/atlas/execution-lease-v1.schema.json",
+        "sha256": "c2e25046011f5db3237fc8ee21950a04840111fcb6793ce69f3d334927ee8265"
+      },
+      "signing_key_registry": {
+        "source_path": "schemas/signing-key-registry.schema.json",
+        "local_path": "contracts/atlas/signing-key-registry-v1.schema.json",
+        "sha256": "312ab16ab496f89961d74375b2e69d22167f7ae57891dc66d285ebe9eeca69fc"
       },
       "approval": {
         "source_path": "schemas/approval.schema.json",
