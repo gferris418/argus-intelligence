@@ -35,7 +35,7 @@ class CrossRepositoryEndToEndTests(unittest.TestCase):
         self.assertIn("ATLAS→ARGUS VERIFIED", completed.stdout)
         self.assertIn("Route ACTIVATE", completed.stdout)
         self.assertIn("Receipt RETURNED", completed.stdout)
-        self.assertIn("ATLAS 2.0.0-rc.12", completed.stdout)
+        self.assertIn("ATLAS 2.0.0", completed.stdout)
         self.assertIn("ARGUS 2.0.0-rc.5", completed.stdout)
         self.assertIn("External collection none", completed.stdout)
         self.assertIn("Registry writes none", completed.stdout)
