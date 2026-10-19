@@ -25,10 +25,14 @@ FIXTURES = ROOT / "tests" / "fixtures" / "atlas-sync"
 
 
 class ArgusRuntimeTests(unittest.TestCase):
-    PRIVATE_KEY = bytes(range(1, 33))
     KEY_ID = "atlas-test-2026"
 
     def setUp(self) -> None:
+        self.private_key = Ed25519PrivateKey.generate()
+        self.public_key = self.private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
         clock = patch(
             "tools.atlas_sync._utc_now",
             return_value=datetime(2026, 10, 18, 8, 0, tzinfo=timezone.utc),
@@ -43,7 +47,7 @@ class ArgusRuntimeTests(unittest.TestCase):
         payload = json.dumps(
             record, sort_keys=True, separators=(",", ":"), ensure_ascii=False
         ).encode("utf-8")
-        signature = Ed25519PrivateKey.from_private_bytes(self.PRIVATE_KEY).sign(payload)
+        signature = self.private_key.sign(payload)
         return {
             "version": "1",
             "issuer": "ATLAS_OS",
@@ -53,14 +57,48 @@ class ArgusRuntimeTests(unittest.TestCase):
             "signature": base64.b64encode(signature).decode("ascii"),
         }
 
-    def _trusted_public_keys(self) -> dict[str, bytes]:
-        public_key = Ed25519PrivateKey.from_private_bytes(self.PRIVATE_KEY).public_key()
+    def _trusted_key_registry(self) -> dict:
         return {
-            self.KEY_ID: public_key.public_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PublicFormat.Raw,
-            )
+            "registry_version": "1.0.0",
+            "issuer": "ATLAS_OS",
+            "keys": [{
+                "key_id": self.KEY_ID,
+                "algorithm": "Ed25519",
+                "public_key_base64": base64.b64encode(self.public_key).decode("ascii"),
+                "activated_at": "2026-10-01T00:00:00Z",
+                "expires_at": "2026-12-31T23:59:59Z",
+                "status": "ACTIVE",
+                "issuer": "ATLAS_OS",
+                "allowed_record_classes": ["DOMAIN_CONTEXT_HANDOFF", "EXECUTION_LEASE", "APPROVAL"],
+                "supersedes": None,
+            }],
         }
+
+    def _lease(self, handoff: dict) -> dict:
+        return {
+            "contract_version": "1.0.0",
+            "execution_lease_id": "LEASE-ARGUS-RUNTIME-001",
+            "handoff_id": handoff["handoff_id"],
+            "handoff_payload_sha256": handoff["payload_sha256"],
+            "source_task_id": handoff["source_task_id"],
+            "source_plan_id": handoff["source_plan_id"],
+            "source_work_unit_id": handoff["source_work_unit_id"],
+            "producer": "ATLAS_OS",
+            "consumer": "ARGUS",
+            "issued_at": "2026-10-18T07:05:00Z",
+            "lease_expires_at": "2026-10-22T07:05:00Z",
+            "supersedes_lease_id": None,
+        }
+
+    def _envelope(self, handoff: dict) -> AnalysisEnvelope:
+        lease = self._lease(handoff)
+        return AnalysisEnvelope(
+            handoff=handoff,
+            atlas_attestation=self._attestation(handoff),
+            execution_lease=lease,
+            execution_lease_attestation=self._attestation(lease),
+            started_at="2026-10-18T07:00:00Z",
+        )
 
     @staticmethod
     def _method(handoff: dict) -> dict:
@@ -77,19 +115,16 @@ class ArgusRuntimeTests(unittest.TestCase):
     def test_analyze_owns_the_complete_governed_synchronization_path(self) -> None:
         handoff = self._handoff()
         original = deepcopy(handoff)
-        runtime = Argus(self._method, trusted_public_keys=self._trusted_public_keys())
+        runtime = Argus(self._method, trusted_key_registry=self._trusted_key_registry())
 
-        outcome = runtime.analyze(AnalysisEnvelope(
-            handoff=handoff,
-            atlas_attestation=self._attestation(handoff),
-            started_at="2026-10-18T07:00:00Z",
-        ))
+        outcome = runtime.analyze(self._envelope(handoff))
 
         self.assertEqual(original, handoff)
         self.assertEqual("ATLAS_GOVERNED", outcome.result["governance_mode"])
         self.assertEqual(outcome.receipt["sync_execution_id"], outcome.result["sync_execution_id"])
         self.assertEqual("RETURNED", outcome.receipt["state"])
-        self.assertEqual("2.0.0-rc.5", outcome.receipt["argus"]["version"])
+        self.assertEqual("2.0.1-rc.1", outcome.receipt["argus"]["version"])
+        self.assertEqual("LEASE-ARGUS-RUNTIME-001", outcome.receipt["atlas"]["execution_lease_id"])
         self.assertEqual(outcome.result["result_sha256"], outcome.receipt["argus"]["result_sha256"])
         self.assertEqual(handoff["handoff_id"], outcome.result["upstream_handoff"]["handoff_id"])
         self.assertLessEqual(len(outcome.compact_status.splitlines()), 3)
@@ -102,14 +137,10 @@ class ArgusRuntimeTests(unittest.TestCase):
             payload["governance_mode"] = "STANDALONE"
             return payload
 
-        runtime = Argus(spoofing_method, trusted_public_keys=self._trusted_public_keys())
+        runtime = Argus(spoofing_method, trusted_key_registry=self._trusted_key_registry())
 
         with self.assertRaises(SyncValidationError) as caught:
-            runtime.analyze(AnalysisEnvelope(
-                handoff=handoff,
-                atlas_attestation=self._attestation(handoff),
-                started_at="2026-10-18T07:00:00Z",
-            ))
+            runtime.analyze(self._envelope(handoff))
 
         self.assertEqual("DOMAIN_RESULT_RESERVED_FIELD", caught.exception.code)
 
@@ -119,18 +150,27 @@ class ArgusRuntimeTests(unittest.TestCase):
         def failing_method(_: dict) -> dict:
             raise RuntimeError("collector unavailable")
 
-        runtime = Argus(failing_method, trusted_public_keys=self._trusted_public_keys())
+        runtime = Argus(failing_method, trusted_key_registry=self._trusted_key_registry())
 
         with self.assertRaises(AnalysisExecutionError) as caught:
-            runtime.analyze(AnalysisEnvelope(
-                handoff=handoff,
-                atlas_attestation=self._attestation(handoff),
-                started_at="2026-10-18T07:00:00Z",
-            ))
+            runtime.analyze(self._envelope(handoff))
 
         self.assertEqual("FAILED", caught.exception.receipt["state"])
         self.assertEqual("DEPENDENCY_FAILED", caught.exception.receipt["failure_state"])
         self.assertIsInstance(caught.exception.__cause__, RuntimeError)
+
+    def test_public_runtime_rejects_missing_governed_trust_or_lease(self) -> None:
+        with self.assertRaises(ValueError):
+            Argus(self._method, trusted_key_registry={})
+        handoff = self._handoff()
+        with self.assertRaises(ValueError):
+            AnalysisEnvelope(
+                handoff=handoff,
+                atlas_attestation=self._attestation(handoff),
+                execution_lease={},
+                execution_lease_attestation={},
+                started_at="2026-10-18T07:00:00Z",
+            )
 
 
 if __name__ == "__main__":
