@@ -2,7 +2,9 @@
 
 ARGUS is Access Asia's government and public-sector opportunity-intelligence framework.
 
-Its purpose is to identify credible business before formal tender publication, connect fragmented policy/project/funding/procurement evidence, prevent duplicate opportunity creation, prioritize decision-changing research, and promote only commercially actionable opportunities into the permanent PX pursuit pipeline.
+Its purpose is to identify credible business before formal tender publication, connect fragmented policy/project/funding/procurement evidence, prevent duplicate opportunity creation, prioritize decision-changing research, and promote commercially actionable signals into a permanent PX opportunity lineage. **PX activation does not mean submission activation:** under the Access Asia operating overlay, all tracked opportunity working files remain in Business Intelligence until formal response-package execution actually begins.
+
+See [`ACCESS_ASIA.md`](ACCESS_ASIA.md) and [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml) for the current Access Asia working-file lifecycle.
 
 ## Production relationship with ATLAS OS
 
@@ -63,6 +65,29 @@ ARGUS does not activate from keywords, the mere mention of a government organiza
 
 The machine-readable contract is [`contracts/atlas/argus-activation-v1.json`](contracts/atlas/argus-activation-v1.json). ATLAS owns the live workflow, execution spine, plan, approvals, verification, and delivery. ARGUS supplies the specialist framework and methodology, may use scenario playbooks and operational SOPs, and returns domain analysis and proposed actions without creating a second execution system.
 
+## Access Asia working-file lifecycle
+
+The ARGUS decision `PROMOTE_TO_PX` activates the tracked opportunity lineage; it does **not** move the working folder to a submission workspace.
+
+Access Asia uses the following physical working-document lifecycle:
+
+```text
+ARGUS signal / intelligence
+  → PROMOTE_TO_PX or explicit tracked registration
+  → General/Business Intelligence/50_OPPORTUNITIES/[Year]_[PXnnnnn]_[ShortName]
+  → discovery / research / qualification / capture / live-tender review / bid-no-bid / pre-submission
+  → SUBMISSION_ACTIVE only
+  → General/REV/OPP Opportunities/[same ID]
+  → award or contract activation
+  → General/OPS/PRJ Projects/[same ID]
+```
+
+A tender becoming live, I9 maturity, or an intention to bid does not by itself set `SUBMISSION_ACTIVE`. `SUBMISSION_ACTIVE` means formal response-package execution has actually started for the specific solicitation after the bid decision.
+
+There is no separate BID folder, only one physical working folder at a time, and the permanent identifier is preserved across every stage move. Opportunities that close without formal submission remain in Business Intelligence and may be archived there.
+
+Machine-readable policy: [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml).
+
 ## Current persistence model: GitHub-first
 
 For the current candidate phase, this private repository is the **interim physical canonical store** for ARGUS structured intelligence, synthesized intelligence, and database-related artifacts.
@@ -76,7 +101,7 @@ Repository storage:
 - `data/exports/` — derived CSV/XLSX/JSON review and interchange views;
 - `registry/` — Registry contracts, schemas, mappings, SQL migrations and future database materialization artifacts.
 
-**Raw tender/source documents are not stored in GitHub.** GitHub stores only structured facts, synthesized intelligence, provenance, source references/locators, hashes where useful, reconciliation decisions, and commercial assessments. Original tender documents, email payloads, scans, attachments and other source files remain in their authorized source systems/document repositories.
+**Raw tender/source documents and operational working files are not stored in GitHub.** GitHub stores only structured facts, synthesized intelligence, provenance, source references/locators, hashes where useful, reconciliation decisions, and commercial assessments. Original tender documents, email payloads, scans, attachments and working opportunity/submission/project files remain in their authorized source systems/SharePoint lifecycle folders.
 
 See [`docs/architecture/github-first-canonical-store.md`](docs/architecture/github-first-canonical-store.md).
 
@@ -124,6 +149,8 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 ## Repository authority
 
 - Manifest: [`argus-intelligence.yaml`](argus-intelligence.yaml)
+- Access Asia operating overlay: [`ACCESS_ASIA.md`](ACCESS_ASIA.md)
+- Access Asia lifecycle policy: [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml)
 - Core: [`spec/core.md`](spec/core.md)
 - ATLAS alignment: [`alignments/atlas-os.md`](alignments/atlas-os.md)
 - Pinned ATLAS handoff contract: [`contracts/atlas/domain-context-handoff-v1.schema.json`](contracts/atlas/domain-context-handoff-v1.schema.json)
@@ -140,4 +167,4 @@ Coverage is recorded separately from evidence assurance and I0–I9 maturity.
 
 `2.0.0-rc.4` — candidate.
 
-The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, and governed ATLAS domain-context handoff are under CI validation. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical persistence layer while ARGUS usage and integration requirements mature.
+The ATLAS/ARGUS architecture, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage.
