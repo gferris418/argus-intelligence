@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.1.0",
+  "contract_version": "1.2.0",
   "handoff_id": "HANDOFF-ARGUS-READY-001",
   "source_task_id": "TASK-ARGUS-READY-001",
   "source_plan_id": "plan-argus-ready-001",
@@ -7,6 +7,7 @@
   "producer": "ATLAS_OS",
   "consumer": "ARGUS",
   "created_at": "2026-10-18T07:00:00Z",
+  "activation_expires_at": "2026-10-19T07:00:00Z",
   "state": "READY",
   "domain_classification": {
     "status": "CLASSIFIED",
@@ -29,5 +30,5 @@
   },
   "unresolved_material": [],
   "risk_flags": [],
-  "payload_sha256": "sha256:09301ac745aa21e909119ef99104d9540ea36a3c3080277e07a7e7cb6cc17044"
+  "payload_sha256": "sha256:c979c649be83eaedc22c3187fcbcea7363cac93965fa6f5c0697185a73639207"
 }
