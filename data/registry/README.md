@@ -10,6 +10,14 @@ Use JSON/JSONL conforming to the active ARGUS Registry schema.
 
 `records.jsonl` is the immutable initial GitHub canonical baseline imported from the accepted DTIF migration pilot. It remains authoritative for provenance of that initial migration state and should not be rewritten simply because a record later changes.
 
+### DTIF historical reconciliation
+
+`dtif-reconciliation-receipt.json` records the final archive-only disposition of the retired DTIF source estate. It pins the exact hashes of DB-001/DB-002/DB-003, fingerprints the previously accepted 131-record Wave-1 database state, and dispositions the remaining legacy classes without bulk-promoting stale or unverified records.
+
+The historical Wave-1 database is **not** a second canonical store. Its 119 legacy current/published procurement rows remain historical lineage because their accepted migration status explicitly left current state unverified. Any future reuse must be re-collected/reverified through normal ARGUS evidence and reconciliation controls before it can update current canonical state.
+
+The DTIF source workbooks remain retained read-only evidence; destructive deletion is not implied by archive-only disposition.
+
 ### Current-state records
 
 `current-index.json` is the current-record overlay index.

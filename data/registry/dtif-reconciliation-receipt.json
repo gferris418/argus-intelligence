@@ -1,0 +1,113 @@
+{
+  "control_id": "DTIF-RECONCILIATION",
+  "status": "RECONCILED_ARCHIVE_ONLY",
+  "effective_date": "2026-10-20",
+  "decision": "DTIF is retired from operational authority. Its source workbooks remain retained read-only migration evidence. Current ARGUS truth is governed by the GitHub canonical registry; legacy DTIF material may re-enter current truth only after current-source reverification and normal ARGUS reconciliation.",
+  "pilot": {
+    "id": "ARGUS-DTIF-MIGRATION-PILOT-001",
+    "version": "0.1.0",
+    "fixture_sha256": "2cfb99c9045eb8bf2739f39db3591b618307bda4b3cc1b301461bb259e50f2b9",
+    "acceptance": "PILOT_ACCEPTED_WITH_NON_BLOCKING_REFINEMENTS"
+  },
+  "legacy_sources": [
+    {
+      "logical_id": "DB-001",
+      "file": "20261014_01_Opportunities_Master_v2.0.0.xlsx",
+      "sha256": "1bd99cc3bf4f8b669c901fe198df2d6f6eeeb0c6f13f27272cfec296f2c60a77",
+      "authority": "READ_ONLY_LEGACY_MIGRATION_SOURCE",
+      "hash_verified_from_library_bytes": true
+    },
+    {
+      "logical_id": "DB-002",
+      "file": "20261014_02_Suppliers_Products_Master_v2.0.0.xlsx",
+      "sha256": "a3ef7ae0efed440d6ed27dea2721c1f31207bd44300ea2cb8cfd17531e60daf7",
+      "authority": "READ_ONLY_LEGACY_MIGRATION_SOURCE",
+      "hash_verified_from_library_bytes": true
+    },
+    {
+      "logical_id": "DB-003",
+      "file": "20261010_03_Pursuits_Bids_Projects_v1.1.0.xlsx",
+      "sha256": "26b204e536c3d2151df0e3b4da6cfaaac198c3e66d9b4585159542ba4b5803c2",
+      "authority": "READ_ONLY_LEGACY_MIGRATION_SOURCE",
+      "hash_verified_from_library_bytes": true
+    }
+  ],
+  "wave1_historical_snapshot": {
+    "verification_date": "2026-10-20",
+    "source": "Previously accepted ARGUS PostgreSQL staging state, re-read from the surviving Supabase ARGUS schema",
+    "registry_records": 131,
+    "wave1_procurement_records": 119,
+    "wave1_supporting_entities": 1,
+    "supporting_entity_id": "ENT-BD-AIR-FORCE",
+    "broken_relationship_targets": 0,
+    "wave1_status": "published_or_active_source_current_status_unverified",
+    "promoted_to_current_github_canonical": false,
+    "current_truth_treatment": "HISTORICAL_LINEAGE_REVERIFY_ON_TRIGGER",
+    "reason": "Wave-1 intentionally preserved legacy current/published labels as stale or unverified where not independently reverified. The later GitHub-first transition explicitly did not claim a fresh database export. Re-promoting these records as current truth would therefore overstate evidence quality.",
+    "table_fingerprints": {
+      "registry_record": {"rows": 131, "ordered_md5": "1b4e02ca56f4d02ca9b4af0e44348ddb"},
+      "record_alias": {"rows": 13, "ordered_md5": "feb5130b3fad796e090e46809febd293"},
+      "record_domain_classification": {"rows": 1, "ordered_md5": "15238b724278d3bd2a8a0220295b1d3f"},
+      "record_evidence": {"rows": 136, "ordered_md5": "d5ee2f484e0099024a6a5d2405eeb75b"},
+      "record_external_ref": {"rows": 135, "ordered_md5": "9e79ca7430bf06959fa98fcf593949a2"},
+      "record_related": {"rows": 130, "ordered_md5": "01a1719f6d3b59fd88146847dda4a554"},
+      "record_relationship": {"rows": 130, "ordered_md5": "16045bc0ece0c8f8594f760938d960e6"},
+      "record_standard_ref": {"rows": 0, "ordered_md5": "d41d8cd98f00b204e9800998ecf8427e"}
+    }
+  },
+  "legacy_class_dispositions": [
+    {
+      "class": "DB-001_CURRENT_PUBLISHED_WAVE1",
+      "count": 119,
+      "action": "HISTORICAL_LINEAGE_REVERIFY_ON_TRIGGER",
+      "bulk_import_prohibited": true,
+      "rationale": "The Wave-1 records were accepted as migration lineage but their current status remained unverified. Re-enter current canonical state only from current authoritative evidence."
+    },
+    {
+      "class": "DB-001_PLANNED_PURCHASE",
+      "count": 702,
+      "action": "RETAIN_READ_ONLY_REVERIFY_ON_TRIGGER",
+      "bulk_import_prohibited": true,
+      "rationale": "Planned-purchase records were deliberately deferred. A current requirement, budget, procurement-plan, tender or other authoritative trigger must be re-collected before creating/updating current ARGUS state."
+    },
+    {
+      "class": "DB-002_SUPPLIER_PRODUCT_RELATIONSHIPS",
+      "count": null,
+      "action": "RETAIN_READ_ONLY_REVERIFY_BEFORE_REUSE",
+      "bulk_import_prohibited": true,
+      "rationale": "Legacy supplier/product relationships were not independently reverified. Rebuild relationship claims from current supplier/OEM evidence before canonical reuse."
+    },
+    {
+      "class": "DB-003_PURSUIT_BUDGET",
+      "count": null,
+      "action": "RETAIN_READ_ONLY_REEVALUATE_BEFORE_ACTIVE_USE",
+      "bulk_import_prohibited": true,
+      "rationale": "Legacy pursuit/budget rows are intake/review material and may contain working assumptions. Re-evaluate against current commercial, communication and procurement evidence before active ARGUS or PX use."
+    }
+  ],
+  "canonical_replacement": {
+    "logical_store": "ARGUS Master Registry",
+    "physical_store": "GitHub",
+    "baseline": "data/registry/records.jsonl",
+    "baseline_receipt": "data/registry/baseline.json",
+    "current_overlay_index": "data/registry/current-index.json",
+    "rule": "Only current, reconciled evidence may update the current overlay. Historical DTIF state is not current truth merely because it was once labelled active, published or planned."
+  },
+  "archive_disposition": {
+    "action": "RETAIN_READ_ONLY_ARCHIVE_SOURCE",
+    "archive_only_ready": true,
+    "retain_original_source_bytes": true,
+    "delete_after_reconciliation": false,
+    "active_dtif_runtime_dependency": false,
+    "new_dtif_writes_allowed": false,
+    "reactivation_rule": "No DTIF runtime reactivation. Recover a claim from retained source evidence only through current ARGUS evidence acquisition, reconciliation and verification."
+  },
+  "claims": {
+    "fresh_database_export": false,
+    "bulk_dtif_cutover": false,
+    "legacy_current_status_treated_as_current_truth": false,
+    "all_legacy_classes_dispositioned": true,
+    "original_source_lineage_retained": true
+  },
+  "validation_report": "docs/validation/dtif-reconciliation-2026-10-20.md"
+}
