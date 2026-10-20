@@ -25,7 +25,7 @@
       ],
       "properties": {
         "version": {"const": "2.0.1"},
-        "commit": {"const": "53ae8723fe2939898015810a821f61a93ed8b9c8"},
+        "commit": {"const": "b8b8559c57eef5fbb97d914d924077ba20b1883d"},
         "handoff_contract_version": {"const": "1.2.0"},
         "handoff_id": {"type": "string"},
         "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
