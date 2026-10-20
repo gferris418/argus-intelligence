@@ -25,6 +25,34 @@ EXPECTED_SOURCES = {
     },
 }
 EXPECTED_PILOT_FIXTURE_SHA256 = "2cfb99c9045eb8bf2739f39db3591b618307bda4b3cc1b301461bb259e50f2b9"
+EXPECTED_SNAPSHOT = {
+    "registry_record": {"rows": 131, "ordered_md5": "1b4e02ca56f4d02ca9b4af0e44348ddb"},
+    "record_alias": {"rows": 13, "ordered_md5": "feb5130b3fad796e090e46809febd293"},
+    "record_domain_classification": {"rows": 1, "ordered_md5": "15238b724278d3bd2a8a0220295b1d3f"},
+    "record_evidence": {"rows": 136, "ordered_md5": "d5ee2f484e0099024a6a5d2405eeb75b"},
+    "record_external_ref": {"rows": 135, "ordered_md5": "9e79ca7430bf06959fa98fcf593949a2"},
+    "record_related": {"rows": 130, "ordered_md5": "01a1719f6d3b59fd88146847dda4a554"},
+    "record_relationship": {"rows": 130, "ordered_md5": "16045bc0ece0c8f8594f760938d960e6"},
+    "record_standard_ref": {"rows": 0, "ordered_md5": "d41d8cd98f00b204e9800998ecf8427e"},
+}
+EXPECTED_DISPOSITIONS = {
+    "DB-001_CURRENT_PUBLISHED_WAVE1": {
+        "count": 119,
+        "action": "HISTORICAL_LINEAGE_REVERIFY_ON_TRIGGER",
+    },
+    "DB-001_PLANNED_PURCHASE": {
+        "count": 702,
+        "action": "RETAIN_READ_ONLY_REVERIFY_ON_TRIGGER",
+    },
+    "DB-002_SUPPLIER_PRODUCT_RELATIONSHIPS": {
+        "count": None,
+        "action": "RETAIN_READ_ONLY_REVERIFY_BEFORE_REUSE",
+    },
+    "DB-003_PURSUIT_BUDGET": {
+        "count": None,
+        "action": "RETAIN_READ_ONLY_REEVALUATE_BEFORE_ACTIVE_USE",
+    },
+}
 
 
 def _read_json(path: Path):
@@ -36,10 +64,10 @@ def _read_jsonl(path: Path):
 
 
 class DTIFReconciliation(unittest.TestCase):
-    def test_reconciliation_receipt_exists_and_pins_verified_legacy_sources(self):
+    def test_reconciliation_receipt_pins_verified_legacy_sources(self):
         receipt = _read_json(RECEIPT_PATH)
         self.assertEqual("DTIF-RECONCILIATION", receipt["control_id"])
-        self.assertEqual("RECONCILED", receipt["status"])
+        self.assertEqual("RECONCILED_ARCHIVE_ONLY", receipt["status"])
         self.assertEqual("ARGUS-DTIF-MIGRATION-PILOT-001", receipt["pilot"]["id"])
         self.assertEqual("0.1.0", receipt["pilot"]["version"])
         self.assertEqual(EXPECTED_PILOT_FIXTURE_SHA256, receipt["pilot"]["fixture_sha256"])
@@ -49,6 +77,30 @@ class DTIFReconciliation(unittest.TestCase):
         }
         self.assertEqual(EXPECTED_SOURCES, actual_sources)
         self.assertTrue(all(source["hash_verified_from_library_bytes"] for source in receipt["legacy_sources"]))
+
+    def test_wave1_historical_snapshot_is_fingerprinted_not_repromoted(self):
+        receipt = _read_json(RECEIPT_PATH)
+        snapshot = receipt["wave1_historical_snapshot"]
+        self.assertEqual(131, snapshot["registry_records"])
+        self.assertEqual(119, snapshot["wave1_procurement_records"])
+        self.assertEqual(1, snapshot["wave1_supporting_entities"])
+        self.assertEqual(0, snapshot["broken_relationship_targets"])
+        self.assertEqual("published_or_active_source_current_status_unverified", snapshot["wave1_status"])
+        self.assertEqual(EXPECTED_SNAPSHOT, snapshot["table_fingerprints"])
+        self.assertFalse(snapshot["promoted_to_current_github_canonical"])
+        self.assertEqual(
+            "HISTORICAL_LINEAGE_REVERIFY_ON_TRIGGER",
+            snapshot["current_truth_treatment"],
+        )
+
+    def test_all_remaining_legacy_classes_have_explicit_non_bulk_disposition(self):
+        receipt = _read_json(RECEIPT_PATH)
+        actual = {
+            item["class"]: {"count": item["count"], "action": item["action"]}
+            for item in receipt["legacy_class_dispositions"]
+        }
+        self.assertEqual(EXPECTED_DISPOSITIONS, actual)
+        self.assertTrue(all(item["bulk_import_prohibited"] for item in receipt["legacy_class_dispositions"]))
 
     def test_canonical_baseline_is_bound_to_the_same_pilot_fixture(self):
         baseline = _read_json(BASELINE_PATH)
@@ -84,13 +136,16 @@ class DTIFReconciliation(unittest.TestCase):
                     f"{record['argus_id']} -> {relationship['target_argus_id']}",
                 )
 
-    def test_archive_disposition_retains_legacy_sources_and_does_not_claim_bulk_cutover(self):
+    def test_archive_disposition_retains_sources_and_does_not_claim_bulk_cutover(self):
         receipt = _read_json(RECEIPT_PATH)
-        self.assertEqual("RETAIN_READ_ONLY_ARCHIVE_SOURCE", receipt["archive_disposition"]["action"])
-        self.assertTrue(receipt["archive_disposition"]["retain_original_source_bytes"])
-        self.assertFalse(receipt["archive_disposition"]["delete_after_reconciliation"])
+        archive = receipt["archive_disposition"]
+        self.assertEqual("RETAIN_READ_ONLY_ARCHIVE_SOURCE", archive["action"])
+        self.assertTrue(archive["archive_only_ready"])
+        self.assertTrue(archive["retain_original_source_bytes"])
+        self.assertFalse(archive["delete_after_reconciliation"])
         self.assertFalse(receipt["claims"]["fresh_database_export"])
         self.assertFalse(receipt["claims"]["bulk_dtif_cutover"])
+        self.assertFalse(receipt["claims"]["legacy_current_status_treated_as_current_truth"])
         self.assertTrue(REPORT_PATH.is_file())
 
 
