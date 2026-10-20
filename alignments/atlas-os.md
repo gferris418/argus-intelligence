@@ -1,7 +1,7 @@
 # ARGUS ↔ ATLAS OS Alignment Contract
 
-**ARGUS version:** 2.0.0
-**Validated ATLAS baseline:** 2.0.0 at `a533d092fb35f5c048a96f46c0201d5ce37871c7` + Domain Context Handoff v1.1
+**ARGUS version:** 2.0.1
+**Validated ATLAS baseline:** 2.0.1 at `b8b8559c57eef5fbb97d914d924077ba20b1883d` + Domain Context Handoff v1.2
 **Status:** Released
 
 ## 1. Governing rule
@@ -92,7 +92,7 @@ Rules:
 7. ATLAS must reject mismatched, missing, mutated, stale or rejected handoff correlation before accepting the ARGUS result.
 8. `handoff_id`, contract version, consumer and `payload_sha256` must match exactly end-to-end.
 
-The executable synchronization boundary is implemented in `tools/atlas_sync.py`. It validates the pinned ATLAS contracts, verifies detached Ed25519 attestations with operator-pinned ATLAS public keys, maintains a local non-canonical synchronization receipt, rejects replay or stale results, reconciles retry/resume against the actual registry fingerprint, and binds proposed actions to exact ATLAS approval capabilities. Synchronization receipts do not create an eighth Master Registry record type.
+The executable synchronization boundary is implemented in `tools/atlas_sync.py`. It validates the pinned ATLAS contracts, verifies detached Ed25519 control records through the lifecycle-governed ATLAS signing-key registry, requires and validates a correlated execution lease after initial handoff activation, maintains a local non-canonical synchronization receipt, rejects replay, stale, expired or superseded execution state, reconciles retry/resume against the actual registry fingerprint, and binds proposed actions to exact ATLAS approval capabilities. Synchronization receipts do not create an eighth Master Registry record type.
 
 ## 5. Stage mapping
 
@@ -217,7 +217,7 @@ This distinction is mandatory.
 
 `ARGUS result → exact handoff correlation → proposed canonical action → ATLAS authorization/approval → governed ARGUS canonical store`
 
-Current physical canonical store: private GitHub `data/registry/` JSON/JSONL lineage. Future database materialization is an implementation change.
+Current physical canonical store: GitHub `data/registry/` JSON/JSONL lineage. Future database materialization is an implementation change.
 
 ### ATLAS persistence
 
