@@ -34,7 +34,7 @@ class CrossRepositoryCommandTests(unittest.TestCase):
         self.assertNotIn("Traceback", completed.stderr)
         self.assertEqual("", completed.stdout)
 
-    def test_automatic_workflow_pins_both_private_repository_boundaries(self) -> None:
+    def test_automatic_workflow_pins_public_atlas_boundary_without_secret(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(
             encoding="utf-8"
         )
@@ -43,8 +43,8 @@ class CrossRepositoryCommandTests(unittest.TestCase):
         self.assertIn("push:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
-        self.assertIn("ref: 53ae8723fe2939898015810a821f61a93ed8b9c8", workflow)
-        self.assertIn("ssh-key: ${{ secrets.ATLAS_SSH_KEY }}", workflow)
+        self.assertIn("ref: b8b8559c57eef5fbb97d914d924077ba20b1883d", workflow)
+        self.assertNotIn("ATLAS_SSH_KEY", workflow)
         self.assertNotIn("ATLAS_READ_TOKEN", workflow)
         self.assertEqual(2, workflow.count("persist-credentials: false"))
         self.assertIn("python -m unittest discover -s tests/cross_repo -v", workflow)

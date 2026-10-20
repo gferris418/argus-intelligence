@@ -2,9 +2,9 @@ schema_version: 1
 product:
   id: argus-intelligence
   name: ARGUS Intelligence
-  version: 2.0.1-rc.1
-  release_channel: candidate
-  status: CANDIDATE
+  version: 2.0.1
+  release_channel: stable
+  status: RELEASED
   classification: internal
 
 authority:
@@ -52,8 +52,8 @@ production_runtime:
       - non_access_asia_implementation
 
 atlas_compatibility:
-  validated_against: 2.0.1-rc.1
-  validated_against_commit: 53ae8723fe2939898015810a821f61a93ed8b9c8
+  validated_against: 2.0.1
+  validated_against_commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
   control_revision: chatgpt-bootstrap-2026-10-19-r4
   relationship: nested_domain_method
   rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
@@ -251,12 +251,12 @@ bangladesh_lifecycle_validation:
   live_registry_mutation: false
 
 canonical_ownership:
-  structured_intelligence: GitHub private repository data/registry under ARGUS Master Registry semantics
-  synthesized_intelligence: GitHub private repository data/syntheses
+  structured_intelligence: GitHub repository data/registry under ARGUS Master Registry semantics
+  synthesized_intelligence: GitHub repository data/syntheses
   communications: communication system; GitHub stores references/syntheses only
   original_documents: external document repository/source system; GitHub stores references/syntheses only
   post_px_commercial_pursuit: CRM when activated; GitHub preserves ARGUS canonical identity and synthesis
-  framework_governance_database_artifacts: GitHub private repository
+  framework_governance_database_artifacts: GitHub repository
 
 repository_storage_policy:
   architecture: docs/architecture/github-first-canonical-store.md
@@ -332,8 +332,8 @@ release_gates:
   - defence preprocurement signal test passes: PASS
   - cross-fiscal-year project lineage test passes: PASS
   - promotion-before-live-tender test passes: PASS
-  - ATLAS domain-context handoff pin and return-correlation contract: PASS_CANDIDATE
-  - ATLAS-ARGUS synchronization lifecycle, replay, resume and authorization contract: PASS_CANDIDATE
+  - ATLAS domain-context handoff pin and return-correlation contract: PASS
+  - ATLAS-ARGUS synchronization lifecycle, replay, resume and authorization contract: PASS
   - Bangladesh cross-source canonical data standard and observation contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS

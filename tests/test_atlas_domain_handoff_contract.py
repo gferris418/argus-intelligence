@@ -23,8 +23,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_argus_pins_the_atlas_handoff_and_lease_contracts(self):
         handoff_schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         lease_schema = json.loads(LEASE_SCHEMA_PATH.read_text())
-        self.assertIn("version: 2.0.1-rc.1", MANIFEST)
-        self.assertIn("release_channel: candidate", MANIFEST)
+        self.assertIn("version: 2.0.1", MANIFEST)
+        self.assertIn("release_channel: stable", MANIFEST)
         self.assertIn("atlas_domain_context_contract_version: 1.2.0", MANIFEST)
         self.assertIn("atlas_execution_lease_contract_version: 1.0.0", MANIFEST)
         self.assertIn("atlas_signing_key_registry_contract_version: 1.0.0", MANIFEST)
@@ -32,10 +32,10 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertEqual("1.2.0", handoff_schema["properties"]["contract_version"]["const"])
         self.assertEqual("1.0.0", lease_schema["properties"]["contract_version"]["const"])
 
-    def test_sync_descriptor_pins_exact_atlas_candidate(self):
+    def test_sync_descriptor_pins_exact_atlas_stable(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
-        self.assertEqual("2.0.1-rc.1", descriptor["atlas_version"])
-        self.assertEqual("53ae8723fe2939898015810a821f61a93ed8b9c8", descriptor["atlas_commit"])
+        self.assertEqual("2.0.1", descriptor["atlas_version"])
+        self.assertEqual("b8b8559c57eef5fbb97d914d924077ba20b1883d", descriptor["atlas_commit"])
         self.assertEqual("chatgpt-bootstrap-2026-10-19-r4", descriptor["control_revision"])
         self.assertEqual("1.2.0", descriptor["handoff_contract_version"])
         self.assertEqual("1.0.0", descriptor["execution_lease_contract_version"])
@@ -123,8 +123,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("push:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
-        self.assertIn("ref: 53ae8723fe2939898015810a821f61a93ed8b9c8", workflow)
-        self.assertIn("ssh-key: ${{ secrets.ATLAS_SSH_KEY }}", workflow)
+        self.assertIn("ref: b8b8559c57eef5fbb97d914d924077ba20b1883d", workflow)
+        self.assertNotIn("ATLAS_SSH_KEY", workflow)
         self.assertNotIn("ATLAS_READ_TOKEN", workflow)
         self.assertIn("python -m unittest discover -s tests/cross_repo -v", workflow)
 

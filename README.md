@@ -10,7 +10,7 @@ See [`ACCESS_ASIA.md`](ACCESS_ASIA.md) and [`profiles/access-asia-opportunity-li
 
 Within the Access Asia governed environment, **ATLAS OS is the execution-governance backbone**. ARGUS is a nested specialist domain method and does not create a second execution spine.
 
-ATLAS owns generic domain classification, taxonomy/product/service/capability context, material risk flags, and applicable law/standards/framework alignment. Before ARGUS executes, ATLAS transfers that context through the governed **Domain Context Handoff v1.1**.
+ATLAS owns generic domain classification, taxonomy/product/service/capability context, material risk flags, and applicable law/standards/framework alignment. Before ARGUS executes, ATLAS transfers that context through the governed **Domain Context Handoff v1.2**.
 
 Canonical execution flow:
 
@@ -25,15 +25,17 @@ The preferred executable interface is `Argus.analyze(AnalysisEnvelope)` in [`too
 ```python
 from tools.argus_runtime import AnalysisEnvelope, Argus
 
-runtime = Argus(domain_method, trusted_public_keys=operator_pinned_keys)
+runtime = Argus(domain_method, trusted_key_registry=operator_pinned_registry)
 outcome = runtime.analyze(AnalysisEnvelope(
     handoff=atlas_handoff,
     atlas_attestation=atlas_attestation,
+    execution_lease=execution_lease,
+    execution_lease_attestation=execution_lease_attestation,
     started_at="2026-10-19T01:00:00+06:00",
 ))
 ```
 
-The synchronization runtime pins ATLAS `2.0.0` at commit `a533d092fb35f5c048a96f46c0201d5ce37871c7`, verifies detached Ed25519 ATLAS attestations with operator-pinned public keys, rejects tampering and stale/replayed results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. The tested synchronization receipt protocol remains `2.0.0-rc.5` for backward-compatible wire behavior under the stable ARGUS `2.0.0` product release. Neither runtime mutates the Master Registry by itself.
+The synchronization runtime pins ATLAS `2.0.1` at commit `b8b8559c57eef5fbb97d914d924077ba20b1883d`, verifies detached Ed25519 ATLAS control records through the lifecycle-governed signing-key registry, requires a correlated execution lease after initial activation, rejects tampering and stale/replayed or superseded leases/results, preserves partial context, reconciles retry/resume against actual registry state, and binds proposed canonical actions to exact ATLAS approvals. Reusable compiled validators avoid reparsing unchanged schemas on every call. The tested synchronization receipt protocol is `2.0.1` under the stable ARGUS `2.0.1` product release. Neither runtime mutates the Master Registry by itself.
 
 The complete seam can be tested without persistent keys, network access, or
 registry writes. Compact text is the default; NDJSON is available for a
@@ -108,6 +110,6 @@ There is no separate BID folder, only one physical working folder at a time, and
 
 ## Current status
 
-`2.0.0` — released / stable.
+`2.0.1` — released / stable.
 
-The ATLAS/ARGUS architecture, capability-provider boundaries, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage. The credentialed private-repository remote E2E remains an explicitly disclosed post-release verification item and is not represented as passed.
+The ATLAS/ARGUS architecture, capability-provider boundaries, 360° collection contract, Registry compatibility design, representative Bangladesh lifecycle gates, governed ATLAS domain-context handoff, and Access Asia physical working-file lifecycle overlay are under repository governance. Operational database deployment remains deferred for the current phase; GitHub is the interim canonical structured-intelligence persistence layer while SharePoint holds the active working business documents for the current lifecycle stage. The credentialed cross-repository E2E was completed successfully before stable `2.0.1` promotion; after both repositories became public, the E2E checkout no longer requires a repository secret.

@@ -431,7 +431,7 @@ def new_sync_receipt(
             "execution_lease": deepcopy(execution_lease),
             "execution_lease_attestation": deepcopy(execution_lease_attestation),
         },
-        "argus": {"version": "2.0.1-rc.1", "result_sha256": None},
+        "argus": {"version": "2.0.1", "result_sha256": None},
         "state": "RECEIVED",
         "started_at": started_at,
         "completed_at": None,

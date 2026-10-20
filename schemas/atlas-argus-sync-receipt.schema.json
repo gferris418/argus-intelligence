@@ -24,8 +24,8 @@
         "execution_lease", "execution_lease_attestation"
       ],
       "properties": {
-        "version": {"const": "2.0.1-rc.1"},
-        "commit": {"const": "53ae8723fe2939898015810a821f61a93ed8b9c8"},
+        "version": {"const": "2.0.1"},
+        "commit": {"const": "b8b8559c57eef5fbb97d914d924077ba20b1883d"},
         "handoff_contract_version": {"const": "1.2.0"},
         "handoff_id": {"type": "string"},
         "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
@@ -49,7 +49,7 @@
       "additionalProperties": false,
       "required": ["version", "result_sha256"],
       "properties": {
-        "version": {"const": "2.0.1-rc.1"},
+        "version": {"const": "2.0.1"},
         "result_sha256": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"}
       }
     },

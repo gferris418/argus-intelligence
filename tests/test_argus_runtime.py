@@ -123,7 +123,7 @@ class ArgusRuntimeTests(unittest.TestCase):
         self.assertEqual("ATLAS_GOVERNED", outcome.result["governance_mode"])
         self.assertEqual(outcome.receipt["sync_execution_id"], outcome.result["sync_execution_id"])
         self.assertEqual("RETURNED", outcome.receipt["state"])
-        self.assertEqual("2.0.1-rc.1", outcome.receipt["argus"]["version"])
+        self.assertEqual("2.0.1", outcome.receipt["argus"]["version"])
         self.assertEqual("LEASE-ARGUS-RUNTIME-001", outcome.receipt["atlas"]["execution_lease_id"])
         self.assertEqual(outcome.result["result_sha256"], outcome.receipt["argus"]["result_sha256"])
         self.assertEqual(handoff["handoff_id"], outcome.result["upstream_handoff"]["handoff_id"])

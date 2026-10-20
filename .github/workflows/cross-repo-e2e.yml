@@ -41,9 +41,7 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: gferris418/atlas-os
-          ref: 53ae8723fe2939898015810a821f61a93ed8b9c8
-          ssh-key: ${{ secrets.ATLAS_SSH_KEY }}
-          ssh-strict: true
+          ref: b8b8559c57eef5fbb97d914d924077ba20b1883d
           path: atlas-os
           persist-credentials: false
       - name: Set up Python
