@@ -90,7 +90,27 @@ class ArgusRuntimeTests(unittest.TestCase):
             "supersedes_lease_id": None,
         }
 
-    def _envelope(self, handoff: dict) -> AnalysisEnvelope:
+    def _mission(self, handoff: dict) -> dict:
+        return {
+            "mission_id": "COLLECTION-RUNTIME-001",
+            "source_task_id": handoff["source_task_id"],
+            "source_plan_id": handoff["source_plan_id"],
+            "objective": "Collect evidence about the target.",
+            "collection_mode": "ARGUS_COLLECTION",
+            "collection_types": ["TARGET_PROFILE"],
+            "targets": [{"name": "ST Engineering", "target_type": "organization", "aliases": []}],
+            "collection_questions": ["What is the target profile?"],
+            "jurisdictions": ["Singapore"],
+            "time_horizon": "current",
+            "freshness_requirement": "CURRENT",
+            "collection_depth": "C2_DOSSIER",
+            "source_priorities": ["official"],
+            "source_exclusions": [],
+            "risk_flags": [],
+            "stopping_rule": "Stop when the target identity and material evidence are sufficiently corroborated.",
+        }
+
+    def _envelope(self, handoff: dict, *, mission: dict | None = None) -> AnalysisEnvelope:
         lease = self._lease(handoff)
         return AnalysisEnvelope(
             handoff=handoff,
@@ -98,6 +118,7 @@ class ArgusRuntimeTests(unittest.TestCase):
             execution_lease=lease,
             execution_lease_attestation=self._attestation(lease),
             started_at="2026-10-18T07:00:00Z",
+            collection_mission=mission,
         )
 
     @staticmethod
@@ -110,6 +131,20 @@ class ArgusRuntimeTests(unittest.TestCase):
             "evidence": [],
             "unknowns_conflicts": list(handoff["unresolved_material"]),
             "next_recommended_action": "Continue governed collection.",
+        }
+
+    @staticmethod
+    def _collection_method(runtime_input: dict) -> dict:
+        mission = runtime_input["collection_mission"]
+        return {
+            "objective": mission["objective"],
+            "collection_status": "SUFFICIENT",
+            "resolved_targets": [{"name": mission["targets"][0]["name"]}],
+            "findings": [{"claim": "Target resolved.", "claim_type": "FACT", "claim_condition": "CURRENT", "evidence_refs": []}],
+            "evidence": [],
+            "unknowns_conflicts": [],
+            "collection_gaps": [],
+            "next_collection_questions": [],
         }
 
     def test_analyze_owns_the_complete_governed_synchronization_path(self) -> None:
@@ -128,6 +163,42 @@ class ArgusRuntimeTests(unittest.TestCase):
         self.assertEqual(outcome.result["result_sha256"], outcome.receipt["argus"]["result_sha256"])
         self.assertEqual(handoff["handoff_id"], outcome.result["upstream_handoff"]["handoff_id"])
         self.assertLessEqual(len(outcome.compact_status.splitlines()), 3)
+
+    def test_collection_mission_is_validated_correlated_and_delivered_to_method(self) -> None:
+        handoff = self._handoff()
+        mission = self._mission(handoff)
+        original_handoff = deepcopy(handoff)
+        original_mission = deepcopy(mission)
+        captured: dict = {}
+
+        def method(runtime_input: dict) -> dict:
+            captured.update(deepcopy(runtime_input))
+            return self._collection_method(runtime_input)
+
+        runtime = Argus(method, trusted_key_registry=self._trusted_key_registry())
+        outcome = runtime.analyze(self._envelope(handoff, mission=mission))
+
+        self.assertEqual(original_handoff, handoff)
+        self.assertEqual(original_mission, mission)
+        self.assertEqual(original_handoff, captured["handoff"])
+        self.assertEqual(original_mission, captured["collection_mission"])
+        self.assertEqual("SUFFICIENT", outcome.result["collection_status"])
+        self.assertEqual(outcome.result["result_sha256"], outcome.receipt["argus"]["result_sha256"])
+        self.assertEqual("RETURNED", outcome.receipt["state"])
+        self.assertIn("Collection SUFFICIENT", outcome.compact_status)
+
+    def test_collection_mission_must_match_authenticated_handoff(self) -> None:
+        handoff = self._handoff()
+        mission = self._mission(handoff)
+        mission["source_task_id"] = "TASK-DIFFERENT-001"
+        with self.assertRaisesRegex(ValueError, "source_task_id"):
+            self._envelope(handoff, mission=mission)
+
+    def test_collection_package_requires_a_bound_mission(self) -> None:
+        handoff = self._handoff()
+        runtime = Argus(self._collection_method, trusted_key_registry=self._trusted_key_registry())
+        with self.assertRaises(AnalysisExecutionError):
+            runtime.analyze(self._envelope(handoff))
 
     def test_analyze_rejects_domain_methods_that_spoof_governance_fields(self) -> None:
         handoff = self._handoff()

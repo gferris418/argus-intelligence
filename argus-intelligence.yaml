@@ -1,8 +1,9 @@
-schema_version: 1
+schema_version: 2
 product:
   id: argus-intelligence
-  name: ARGUS Intelligence
-  version: 2.1.0-rc.1
+  name: ARGUS Intelligence Collection
+  version: 2.2.0-rc.1
+  previous_version: 2.1.0-rc.1
   release_channel: candidate
   status: CANDIDATE
   classification: internal
@@ -23,6 +24,8 @@ authority:
   bangladesh_pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
   bangladesh_observation_schema: schemas/bangladesh-observation.schema.json
   bangladesh_observation_schema_v1_1: schemas/bangladesh-observation-v1.1.schema.json
+  collection_mission_schema: schemas/collection-mission.schema.json
+  collection_package_schema: schemas/intelligence-collection-package.schema.json
   domain_result_schema: schemas/domain-result.schema.json
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_execution_lease_contract: contracts/atlas/execution-lease-v1.schema.json
@@ -32,25 +35,19 @@ authority:
   atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json
   synchronization_runtime: tools/atlas_sync.py
   analysis_runtime: tools/argus_runtime.py
-  live_smoke_runtime: tools/live_smoke.py
-  cross_repository_validation_runtime: tools/cross_repo_e2e.py
-  synchronization_validation_record: docs/validation/atlas-argus-synchronization-v1.md
-  runtime_simplification_validation: docs/validation/runtime-simplification-rc3.md
 
 scope:
-  primary: general strategic and decision intelligence
-  principle: Intelligence depth follows the decision need; ordinary search and task execution remain in ATLAS.
+  primary: ATLAS-governed structured intelligence collection
+  principle: Collection depth follows evidence need; analysis and decision remain in ATLAS.
   specializations:
     - government_public_sector_opportunity_intelligence
-    - strategic_intelligence
-    - market_intelligence
-    - competitive_intelligence
-    - stakeholder_intelligence
-    - political_economic_intelligence
-    - monitoring_intelligence
-    - forecasting_intelligence
-    - scenario_intelligence
-    - decision_intelligence
+    - target_intelligence
+    - procurement_intelligence
+    - supplier_competitor_collection
+    - stakeholder_collection
+    - installed_base_collection
+    - market_landscape_collection
+    - monitoring_collection
   access_asia_principle: Access Asia shall not wait for a tender to define an opportunity.
 
 production_runtime:
@@ -59,18 +56,14 @@ production_runtime:
     atlas_change_required: true
     standalone_argus: false
   standalone_mode:
-    permitted_for:
-      - portability
-      - testing
-      - recovery
-      - non_access_asia_implementation
+    permitted_for: [portability, testing, recovery, non_access_asia_implementation]
 
 atlas_compatibility:
   validated_against: 2.0.1
   validated_against_commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
   control_revision: chatgpt-bootstrap-2026-10-19-r4
-  relationship: nested_domain_method
-  rule: ATLAS owns request triage, authority, permissions, planning, approvals, and the governed domain-context handoff. ARGUS preserves ATLAS context and enriches intelligence-specific domain context after INTELLIGENCE activation.
+  relationship: nested_intelligence_collection_subsystem
+  rule: ATLAS owns Mission Control, Control Plane, collection-need routing, canonical taxonomy, planning, analysis, decisions, assurance, persistence, observability, Dashboard and delivery. ARGUS owns only the authorized intelligence collection mission and returned collection package.
   atlas_domain_context_contract_version: 1.2.0
   atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_execution_lease_contract_version: 1.0.0
@@ -79,38 +72,51 @@ atlas_compatibility:
   atlas_signing_key_registry_contract_path: contracts/atlas/signing-key-registry-v1.schema.json
   handoff_required_in_access_asia_production: true
   execution_lease_required_in_access_asia_production: true
-  accepted_handoff_states:
-    - READY
-    - PARTIAL
-  partial_handoff_semantics: ARGUS_ENRICHES
+  accepted_handoff_states: [READY, PARTIAL]
+  partial_handoff_semantics: ARGUS_ENRICHES_COLLECTION_CONTEXT
   blocked_handoff_execution: prohibited
   exact_return_correlation_required: true
   replay_and_stale_result_protection: enforced
   retry_resume_reconciliation: enforced
   action_authorization_binding: enforced
   atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry
-  activation_contract_version: 2.0.0
+  activation_contract_version: 3.0.0
   activation_authority: ATLAS_OS
-  activation_request_route: INTELLIGENCE
-  activation_capability: intelligence_analysis
+  activation_collection_modes: [ARGUS_COLLECTION, HYBRID]
+  activation_capability: intelligence_collection
   keyword_activation: false
   background_activation: false
   creates_execution_spine: false
   owns_planning: false
   owns_approvals: false
+  owns_analysis_and_decision: false
 
 operating_loop:
   - Contextualize
+  - Resolve_Targets
+  - Plan_Collection
   - Discover
+  - Acquire
   - Extract
-  - Resolve
-  - Reconcile
-  - Validate
-  - Assess
-  - Prioritize
-  - Decide
-  - Promote_or_Monitor
+  - Normalize
+  - Resolve_Entities
+  - Deduplicate
+  - Classify
+  - Corroborate
+  - Detect_Conflicts
+  - Assess_Coverage
+  - Package
   - Learn
+
+360_intelligence_collection:
+  doctrine: 360_degree_breadth_decision_driven_depth
+  breadth: all_materially_relevant_lenses
+  depth: decision_driven_by_research_frontier
+  exhaustive_collection_required: false
+  single_source_dependence_prohibited_when_material: true
+  lenses: [need_mission, policy_strategy, institution_stakeholders, programme_project, budget_funding, procurement_acquisition, technical_installed_base, supplier_competitor, ecosystem_influence, commercial_participation, timing_triggers, internal_intelligence]
+  coverage_states: [NOT_APPLICABLE, UNASSESSED, INSUFFICIENT, PARTIAL, ADEQUATE]
+  stopping_rule: stop when additional collection is unlikely to change collection sufficiency, material uncertainty or the next ATLAS action
 
 bangladesh_standardization:
   canonical_data_standard: profiles/bangladesh-data-standard.yaml
@@ -127,84 +133,16 @@ bangladesh_standardization:
   institution_graph_normalization: PASS
   pursuit_activation_modes: PASS
   tender_extension_and_retender_events: PASS
-  rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before route, reconciliation, maturity or commercial assessment.
-  preserve_raw_labels_and_values: true
-  sparse_observations_allowed: true
-  fabricate_missing_fields: false
-  source_observation_is_registry_record_type: false
-  atlas_domain_context_precedes_argus_normalization: true
-  preprocurement_layer_enabled: true
-  multi_lot_structure_preserved: true
-  procurement_milestone_structure_preserved: true
-  procurement_event_history_append_only: true
-  submission_deadline_and_tender_validity_extensions_are_distinct: true
-  retender_preserves_predecessor_procurement: true
-  retender_same_opportunity_by_default_after_reconciliation: true
-  development_partner_controls_separate_from_procurement_method: true
-  tender_portal_id_and_reference_are_distinct: true
-  institution_names_resolve_to_canonical_graph: true
-  officeholders_separate_from_institutions: true
-  supported_external_source_families:
-    - WORLD_BANK_PROCUREMENT_PLAN
-    - WORLD_BANK_PROCUREMENT_NOTICE
-    - ADB_PROJECT_PROCUREMENT
-    - AIIB_PROJECT_PROCUREMENT
-    - JICA_ODA_PROCUREMENT
-    - UNGM_NOTICE
-    - DEVELOPMENT_PARTNER_OTHER
+  rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before reconciliation and collection packaging.
 
 pursuit_activation:
-  modes:
-    - EARLY_REQUIREMENT_DEVELOPMENT
-    - PLANNED_PROCUREMENT_CAPTURE
-    - LIVE_TENDER_RESPONSE
+  modes: [EARLY_REQUIREMENT_DEVELOPMENT, PLANNED_PROCUREMENT_CAPTURE, LIVE_TENDER_RESPONSE]
   identity_rule: stage changes commercial action, not underlying opportunity identity
   supplier_engagement_can_begin_before_tender: true
-  customer_engagement_can_begin_before_tender_when_lawful: true
-  specification_input_must_preserve_competition: true
-  deadline_extension_replans_live_response: true
-  retender_reengages_suppliers_and_refreshes_compliance: true
   current_bangladesh_framework: PPR 2025
 
-360_intelligence_collection:
-  doctrine: 360_degree_breadth_decision_driven_depth
-  breadth: all_materially_relevant_lenses
-  depth: decision_driven_by_research_frontier
-  exhaustive_collection_required: false
-  single_source_dependence_prohibited_when_material: true
-  lenses:
-    - need_mission
-    - policy_strategy
-    - institution_stakeholders
-    - programme_project
-    - budget_funding
-    - procurement_acquisition
-    - technical_installed_base
-    - supplier_competitor
-    - ecosystem_influence
-    - commercial_participation
-    - timing_triggers
-    - internal_intelligence
-  coverage_states:
-    - NOT_APPLICABLE
-    - UNASSESSED
-    - INSUFFICIENT
-    - PARTIAL
-    - ADEQUATE
-  convergence:
-    distinguish_source_count_from_independent_lineages: true
-    copied_or_derivative_sources_do_not_add_independent_confirmation: true
-  stopping_rule: stop when additional collection is unlikely to change the domain decision or next action
-
 master_registry:
-  record_types:
-    - ENTITY
-    - PROJECT
-    - PROCUREMENT
-    - INTELLIGENCE
-    - OPPORTUNITY
-    - SUPPLIER_PRODUCT
-    - KNOWLEDGE
+  record_types: [ENTITY, PROJECT, PROCUREMENT, INTELLIGENCE, OPPORTUNITY, SUPPLIER_PRODUCT, KNOWLEDGE]
   logical_canonical_store: ARGUS Master Registry
   physical_canonical_store: github
   canonical_structured_path: data/registry
@@ -212,17 +150,10 @@ master_registry:
   derived_export_path: data/exports
   database_artifact_path: registry
   preferred_canonical_format: json_or_jsonl
-  allowed_supporting_formats:
-    - markdown
-    - csv
-    - xlsx_for_review_or_interchange
-    - yaml
-    - sql_for_database_artifacts
   raw_tender_documents_in_github: prohibited
   raw_source_documents_in_github: prohibited
   original_email_payloads_in_github: prohibited
   operational_database_runtime: deferred
-  future_database_materialization_must_preserve_argus_semantics: true
   new_record_type_for_collection: false
 
 canonical_baseline:
@@ -233,56 +164,19 @@ canonical_baseline:
   record_count: 11
   records_sha256: a43cb9555f3c82a827d16508d4e3af9764f4445e99df44853895eb2d505bbc31
   imported_from: ARGUS-DTIF-MIGRATION-PILOT-001 v0.1.0
-  source_fixture_sha256: 2cfb99c9045eb8bf2739f39db3591b618307bda4b3cc1b301461bb259e50f2b9
-  fresh_database_export: false
-  raw_tender_documents_imported: false
-  canonical_lineage_rule: governed Git commits and PRs define current structured lineage for this phase
 
 registry_compatibility:
-  validated_against_contract: ARGUS-REG-001 v0.2.0
-  validated_against_schema: ARGUS-SCHEMA-REG-001 v0.2.0
-  validated_schema_sha256: 2dad9c73dc0236395fe0418f6694ee53b478ccc51c86996d8bc00abff5f2f808
-  historical_api_baseline: Registry API v0.1.1
-  bangladesh_route_fields: PASS_ADDITIVE_ATTRIBUTES
-  collection_coverage: PASS_ADDITIVE_ATTRIBUTES
-  collection_gaps: PASS_ADDITIVE_ATTRIBUTES
-  source_convergence: PASS_ADDITIVE_ATTRIBUTES
   evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS
-  candidate_registry_schema: registry/schema/argus-master-registry-v0.2.1.json
-  candidate_registry_contract: registry/contract/master-registry-v0.2.1.md
-  candidate_physical_migration: registry/migrations/0.2.0-to-0.2.1-evidence.sql
   operational_database_deployment_required_for_current_phase: false
   database_materialization_work: deferred_until_runtime_need
-  validation_record: docs/validation/registry-schema-compatibility-rc2.md
-
-bangladesh_lifecycle_validation:
-  status: PASS
-  app_tender_amendment_award_reconciliation: PASS
-  defence_preproc_evaluation_standardization: PASS
-  cross_fiscal_adp_radp_lineage: PASS
-  promotion_before_live_tender: PASS
-  tender_extension_same_procurement_lineage: PASS
-  retender_successor_procurement_same_opportunity_by_default: PASS
-  validation_record: docs/validation/bangladesh-lifecycle-release-gates-rc2.md
-  live_registry_mutation: false
-
-canonical_ownership:
-  structured_intelligence: GitHub repository data/registry under ARGUS Master Registry semantics
-  synthesized_intelligence: GitHub repository data/syntheses
-  communications: communication system; GitHub stores references/syntheses only
-  original_documents: external document repository/source system; GitHub stores references/syntheses only
-  post_px_commercial_pursuit: CRM when activated; GitHub preserves ARGUS canonical identity and synthesis
-  framework_governance_database_artifacts: GitHub repository
 
 repository_storage_policy:
   architecture: docs/architecture/github-first-canonical-store.md
   primary_structured_format: JSON_JSONL
-  csv_role: derived_interchange_or_review
-  xlsx_role: derived_human_review_or_interchange_not_preferred_canonical
-  markdown_role: synthesized_intelligence_governance_and_decisions
   source_bytes_policy: reference_do_not_duplicate
   secrets_in_repository: prohibited
 
+maturity_scope: ACCESS_ASIA_PUBLIC_SECTOR_SPECIALIZATION_ONLY
 maturity:
   scale:
     I0: Signal
@@ -295,65 +189,32 @@ maturity:
     I7: Pre-Procurement
     I8: Procurement Imminent
     I9: Live
-  independent_dimensions:
-    - project_state
-    - funding_state
-    - procurement_state
-    - evidence_confidence
-    - commercial_attractiveness
-    - procurement_horizon
-    - strategic_fit
-    - blockers_and_unknowns
-    - collection_coverage
 
 evidence:
-  claim_types:
-    - FACT
-    - DERIVED
-    - INFERENCE
-    - ASSUMPTION
-    - UNKNOWN
-  claim_conditions:
-    - CURRENT
-    - STALE
-    - CONFLICT
+  claim_types: [FACT, DERIVED, INFERENCE, ASSUMPTION, UNKNOWN]
+  claim_conditions: [CURRENT, STALE, CONFLICT]
   atlas_assurance_is_independent: true
 
-decisions:
-  - MONITOR
-  - INVESTIGATE
-  - PROMOTE_TO_PX
-  - MERGE_EXISTING
-  - HOLD
-  - REJECT
+decision_scope: ACCESS_ASIA_PUBLIC_SECTOR_SPECIALIZATION_ONLY
+decisions: [MONITOR, INVESTIGATE, PROMOTE_TO_PX, MERGE_EXISTING, HOLD, REJECT]
 
 domain_result:
-  contract: schemas/domain-result.schema.json
+  generic_contract: schemas/intelligence-collection-package.schema.json
+  specialization_compatibility_contract: schemas/domain-result.schema.json
   final_user_output_owner: ATLAS OS
-  may_propose_domain_actions: true
   may_report_collection_coverage: true
   may_report_collection_gaps: true
-  atlas_governed_results_must_return_upstream_handoff_receipt: true
+  may_make_final_business_decision: false
 
 release_gates:
-  - ATLAS request-triage and general-intelligence activation contract: PASS
-  - Registry route/profile fields remain portable under ARGUS record contract: PASS
-  - collection coverage can be represented without creating a new canonical record type: PASS
-  - representative Bangladesh route compatibility tests pass: PASS
+  - ATLAS collection-need and ARGUS collection activation contract: PASS
+  - ARGUS does not own Mission Control, Control Plane, analysis, decisions, assurance, Dashboard or delivery: PASS
+  - generic collection mission and package schemas: PASS
+  - public-sector opportunity semantics remain specialization-only: PASS
+  - collection coverage remains representable without a new canonical record type: PASS
   - claim type and claim condition candidate schema contract: PASS
-  - GitHub-first canonical storage policy is defined and testable: PASS
-  - initial GitHub structured canonical baseline is committed and integrity-tested: PASS
+  - GitHub-first canonical storage policy remains defined: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
-  - 360-degree collection contract test passes: PASS
-  - APP/tender/amendment/award reconciliation avoids duplicate opportunities: PASS
-  - defence preprocurement signal test passes: PASS
-  - cross-fiscal-year project lineage test passes: PASS
-  - promotion-before-live-tender test passes: PASS
-  - ATLAS domain-context handoff pin and return-correlation contract: PASS
-  - ATLAS-ARGUS synchronization lifecycle, replay, resume and authorization contract: PASS
-  - Bangladesh cross-source canonical data standard and observation contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
-  - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS
-  - Bangladesh institution graph and naming contract: PASS
-  - Bangladesh pursuit activation modes and specification-integrity controls: PASS
   - Bangladesh tender extension and re-tender lifecycle events: PASS
+  - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS
