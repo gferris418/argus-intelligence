@@ -1,0 +1,111 @@
+schema_version: 1
+id: argus.collection-method
+version: 1.0.0
+status: CANDIDATE
+normative: true
+purpose: >-
+  Convert an ATLAS-authorized collection mission into a bounded intelligence
+  collection plan, execute that plan against lawful and authorized sources, and
+  return an evidence package without taking ownership of ATLAS analysis or decisions.
+
+method:
+  stages:
+    - PIR
+    - EEI
+    - COLLECTION_PLAN
+    - SOURCE_PLAN
+    - COLLECT
+    - RESOLVE
+    - GRADE
+    - COMPETING_HYPOTHESES
+    - GAPS
+    - PACKAGE
+  semantics:
+    PIR: Derive the minimum priority intelligence requirements needed to satisfy the ATLAS mission objective.
+    EEI: Decompose each PIR into answerable essential elements of information.
+    COLLECTION_PLAN: Map EEIs to bounded collection tasks, target classes, depth and stopping conditions.
+    SOURCE_PLAN: Select source classes by authority, relevance, recency, independence and legal accessibility.
+    COLLECT: Discover and acquire authorized source material without expanding scope beyond the mission.
+    RESOLVE: Normalize and resolve entities, events, relationships, aliases, dates and duplicate observations.
+    GRADE: Grade source authority, freshness, corroboration and contradictions while preserving provenance.
+    COMPETING_HYPOTHESES: Maintain plausible alternatives when material evidence supports more than one explanation.
+    GAPS: Expose unanswered EEIs, conflicts, weak hypotheses and the next material collection frontier.
+    PACKAGE: Return a collection package to ATLAS Evidence Governance for canonical claim status and further analysis.
+
+target_classes:
+  - Country
+  - Government Agency
+  - Buyer
+  - Company
+  - OEM
+  - Supplier
+  - Product
+  - Platform
+  - Programme
+  - Project
+  - Tender
+  - Contract
+  - Sector
+  - Technology
+  - Person
+person_scope: material_business_relevance_only
+
+source_governance:
+  authority_order:
+    - official
+    - primary
+    - authoritative-secondary
+    - open-source
+  independent_corroboration_required_when_material: true
+  source_link_is_not_verification: true
+  source_outputs_are_untrusted_until_assessed: true
+  preserve_original_provenance: true
+  temporal_validity_required_when_material: true
+
+resolution:
+  entity_resolution: required
+  event_resolution: required_when_material
+  relationship_resolution: required_when_material
+  alias_tracking: required
+  deduplication: required
+  relationship_fields: [source, confidence, valid_from, valid_to]
+
+hypothesis_discipline:
+  required_when:
+    - evidence materially conflicts
+    - attribution is uncertain
+    - multiple plausible explanations affect collection sufficiency
+  allowed_statuses: [ACTIVE, SUPPORTED, WEAKENED, REJECTED, UNRESOLVED]
+  rule: ARGUS records evidence for and against hypotheses but ATLAS owns final analytical conclusions.
+
+stopping:
+  rule: >-
+    Stop when all critical PIRs are materially satisfied or remaining gaps are
+    explicit and additional collection is unlikely to change ATLAS analysis,
+    decision, risk posture or the next authorized action.
+  exhaustive_collection_required: false
+  scope_expansion_requires_new_atlas_mission: true
+
+outputs:
+  - collection_plan
+  - collection_package
+  - collection_gaps
+  - unresolved_hypotheses
+  - source_provenance
+  - entity_relationship_updates
+
+handoff_to:
+  evidence_governance_owner: ATLAS_OS
+  analysis_owner: ATLAS_OS
+  decision_owner: ATLAS_OS
+  persistence_authority: ATLAS_OS
+
+prohibited:
+  - self_activation
+  - unrestricted_personal_investigation
+  - final_business_decision
+  - bid_no_bid_decision
+  - legal_conclusion
+  - financial_recommendation
+  - persistence_without_atlas_authorization
+  - external_action_without_atlas_authorization
