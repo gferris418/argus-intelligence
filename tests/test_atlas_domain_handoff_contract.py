@@ -3,8 +3,11 @@ import json
 import unittest
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
+MANIFEST_PATH = ROOT / "argus-intelligence.yaml"
+MANIFEST = MANIFEST_PATH.read_text()
 CORE = (ROOT / "spec" / "core.md").read_text()
 ALIGNMENT = (ROOT / "alignments" / "atlas-os.md").read_text()
 RESULT_SCHEMA = json.loads((ROOT / "schemas" / "domain-result.schema.json").read_text())
@@ -23,7 +26,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_argus_pins_the_atlas_handoff_and_lease_contracts(self):
         handoff_schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         lease_schema = json.loads(LEASE_SCHEMA_PATH.read_text())
-        self.assertIn("version: 2.1.0-rc.1", MANIFEST)
+        self.assertIn("version: 2.2.0-rc.1", MANIFEST)
         self.assertIn("release_channel: candidate", MANIFEST)
         self.assertIn("atlas_domain_context_contract_version: 1.2.0", MANIFEST)
         self.assertIn("atlas_execution_lease_contract_version: 1.0.0", MANIFEST)
@@ -68,7 +71,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
                 self.assertNotEqual("0" * 64, source["sha256"])
                 self.assertNotIn("<", source["sha256"])
 
-    def test_contextualize_is_first_argus_domain_operation(self):
+    def test_contextualize_is_first_legacy_public_sector_domain_operation(self):
         self.assertIn("Contextualize → Discover → Extract → Resolve → Reconcile", CORE)
         self.assertIn("ATLAS Domain Context", CORE)
         self.assertIn("must not redefine ATLAS taxonomy or standards conclusions", CORE)
@@ -80,7 +83,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("payload_sha256", ALIGNMENT)
         self.assertIn("reject mismatched", ALIGNMENT.lower())
 
-    def test_domain_result_requires_correlation_in_atlas_governed_mode(self):
+    def test_domain_result_remains_specialization_compatibility_contract(self):
         self.assertIn("governance_mode", RESULT_SCHEMA["required"])
         self.assertIn("upstream_handoff", RESULT_SCHEMA["properties"])
         conditional = RESULT_SCHEMA["allOf"][0]
@@ -91,12 +94,13 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertEqual("ARGUS", receipt["properties"]["consumer"]["const"])
         self.assertEqual("ACCEPTED", receipt["properties"]["status"]["const"])
 
-    def test_standalone_mode_remains_declared(self):
+    def test_standalone_mode_remains_declared_for_compatibility(self):
         modes = RESULT_SCHEMA["properties"]["governance_mode"]["enum"]
         self.assertIn("STANDALONE", modes)
         self.assertIn("ATLAS_GOVERNED", modes)
 
     def test_manifest_declares_coordinated_runtime_change_without_changing_production_authority(self):
+        manifest = yaml.safe_load(MANIFEST_PATH.read_text(encoding="utf-8"))
         self.assertIn(
             "atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml",
             MANIFEST,
@@ -111,13 +115,10 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("atlas_change_required: true", MANIFEST)
         self.assertIn("standalone_argus: false", MANIFEST)
         self.assertIn("atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry", MANIFEST)
-        record_type_block = MANIFEST.split("record_types:", 1)[1].split(
-            "logical_canonical_store:", 1
-        )[0]
-        self.assertEqual(7, sum(line.strip().startswith("- ") for line in record_type_block.splitlines()))
+        self.assertEqual(7, len(manifest["master_registry"]["record_types"]))
         self.assertTrue(SYNC_RECEIPT_SCHEMA_PATH.is_file())
 
-    def test_cross_repo_gate_is_automatic_and_pins_exact_atlas_commit(self):
+    def test_cross_repo_gate_preserves_historical_stable_compatibility_proof(self):
         workflow = CROSS_REPO_WORKFLOW_PATH.read_text(encoding="utf-8")
         self.assertIn("pull_request:", workflow)
         self.assertIn("push:", workflow)
