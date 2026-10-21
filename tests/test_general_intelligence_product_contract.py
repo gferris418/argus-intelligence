@@ -26,6 +26,19 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertEqual("2.0.0", compatibility["activation_contract_version"])
         self.assertEqual("ARGUS_ENRICHES", compatibility["partial_handoff_semantics"])
 
+    def test_machine_readable_general_intelligence_contracts_are_authoritative(self) -> None:
+        manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
+        authority = manifest["authority"]
+        self.assertEqual("spec/general-intelligence.yaml", authority["core"])
+        self.assertEqual("alignments/atlas-os-triage-v2.yaml", authority["atlas_alignment"])
+        self.assertEqual("spec/core.md", authority["public_sector_opportunity_doctrine"])
+        core = yaml.safe_load((ROOT / authority["core"]).read_text(encoding="utf-8"))
+        alignment = yaml.safe_load((ROOT / authority["atlas_alignment"]).read_text(encoding="utf-8"))
+        self.assertTrue(core["normative"])
+        self.assertEqual("INTELLIGENCE", core["activation"]["request_route"])
+        self.assertEqual(["GENERAL_SEARCH", "GENERAL_TASK"], alignment["routing"]["direct_routes"])
+        self.assertFalse(alignment["routing"]["government_mention_alone_activates_argus"])
+
     def test_manifest_preserves_atlas_governance_ownership(self) -> None:
         manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
         compatibility = manifest["atlas_compatibility"]
