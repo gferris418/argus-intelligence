@@ -1,67 +1,68 @@
-schema_version: 1
-id: argus.atlas-alignment.triage-v2
+schema_version: 2
+id: argus.atlas-alignment.collection-gate-v3
 status: CANDIDATE
-argus_version: 2.1.0-rc.1
-relationship: nested_specialist_method
+argus_version: 2.2.0-rc.1
+relationship: nested_intelligence_collection_subsystem
 
 atlas_contract:
   activation_authority: ATLAS_OS
-  request_route: INTELLIGENCE
-  capability: intelligence_analysis
+  activation_gate: COLLECTION_NEED_GATE
+  collection_modes: [ARGUS_COLLECTION, HYBRID]
+  capability: intelligence_collection
   activation_contract: contracts/atlas/argus-activation-v1.json
   domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   execution_lease_contract: contracts/atlas/execution-lease-v1.schema.json
   return_correlation_required: true
 
 routing:
-  first_gate: ATLAS_REQUEST_TRIAGE
-  direct_routes:
-    - GENERAL_SEARCH
-    - GENERAL_TASK
-  specialist_route: INTELLIGENCE
-  rule: >-
-    ATLAS performs only the minimum first-stage route decision. GENERAL_SEARCH
-    and GENERAL_TASK execute directly in ATLAS. INTELLIGENCE delegates to ARGUS
-    after governed routing and approval requirements are satisfied.
+  first_semantic_work: ATLAS_INTENT_AND_TARGET_INTERPRETATION
+  collection_gate: ATLAS_COLLECTION_NEED_GATE
+  modes:
+    NONE: No external collection is required.
+    ATLAS_DIRECT: Ordinary research or retrieval remains in ATLAS.
+    ARGUS_COLLECTION: ARGUS performs a bounded collection mission and returns evidence.
+    HYBRID: ARGUS collects while ATLAS retains substantive analysis or decision work.
   government_mention_alone_activates_argus: false
+  policy_analysis_alone_activates_argus: false
+  named_commercial_target_can_create_collection_need: true
+  buyer_product_or_procurement_target_can_create_collection_need: true
 
 handoff:
   accepted_states: [READY, PARTIAL]
-  partial_semantics: ARGUS_ENRICHES
+  partial_semantics: ARGUS_ENRICHES_COLLECTION_CONTEXT
   blocked_state: REJECT_DEPENDENT_EXECUTION
   atlas_owned_context_is_preserved: true
   material_upstream_change_requires_new_handoff: true
 
 ownership:
   atlas:
-    - mission_and_user_authority
+    - mission_control
     - control_plane
-    - request_triage
+    - intent_and_target_interpretation
+    - collection_need_gate
     - plan_and_work_units
     - permissions_and_approvals
-    - capability_and_provider_routing
-    - execution_state
+    - canonical_domain_context_and_taxonomy
+    - analysis_and_decision
     - assurance_and_verification
     - persistence_authorization
+    - observability
     - dashboard_projection
     - final_delivery
   argus:
-    - intelligence_domain_enrichment
-    - intelligence_collection_and_reconciliation
-    - strategic_market_opportunity_competitive_stakeholder_analysis
-    - political_economic_monitoring_forecasting_scenarios
-    - intelligence_decisions
-    - proposed_domain_actions
-
-performance:
-  deep_taxonomy_required_before_argus_activation: false
-  partial_domain_context_allowed: true
-  ordinary_requests_pay_specialist_cost: false
-  event_driven_control_state: true
+    - target_resolution
+    - collection_planning
+    - source_discovery_and_acquisition
+    - extraction_and_normalization
+    - entity_resolution_and_deduplication
+    - collection_side_classification_suggestions
+    - corroboration_and_source_reconciliation
+    - gap_conflict_and_coverage_assessment
+    - collection_package
 
 compatibility:
   historical_validated_atlas_baseline:
     version: 2.0.1
     commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
-  current_coordinated_change_requires_new_atlas_candidate: true
+  current_change_requires_coordinated_atlas_candidate: true
   historical_alignment_companion: alignments/atlas-os.md

@@ -1,99 +1,138 @@
-schema_version: 1
-id: argus.general-intelligence.core
-version: 2.1.0-rc.1
+schema_version: 2
+id: argus.intelligence-collection.core
+version: 2.2.0-rc.1
 status: CANDIDATE
 normative: true
 purpose: >-
-  Provide governed specialist intelligence analysis for strategic, market,
-  opportunity, competitive, stakeholder, political-economic, monitoring,
-  forecasting, scenario, and decision-intelligence objectives delegated by ATLAS.
+  Operate as the ATLAS-governed intelligence collection subsystem. ARGUS resolves
+  targets, plans collection, discovers and acquires sources, extracts and normalizes
+  evidence, resolves entities, deduplicates, classifies collection context,
+  corroborates claims, exposes gaps and conflicts, and returns a collection package.
+  ATLAS retains analysis, decision, assurance, persistence authorization and delivery.
 
 activation:
   authority: ATLAS_OS
-  request_route: INTELLIGENCE
-  capability: intelligence_analysis
+  gate: COLLECTION_NEED_GATE
+  collection_modes: [ARGUS_COLLECTION, HYBRID]
+  capability: intelligence_collection
   contract: contracts/atlas/argus-activation-v1.json
   keyword_activation: false
   background_activation: false
-  government_mention_is_sufficient: false
+  task_route_independent: true
 
-intelligence_types:
-  - STRATEGIC_INTELLIGENCE
-  - MARKET_INTELLIGENCE
-  - OPPORTUNITY_INTELLIGENCE
-  - COMPETITIVE_INTELLIGENCE
-  - STAKEHOLDER_INTELLIGENCE
-  - POLITICAL_ECONOMIC_INTELLIGENCE
-  - MONITORING_INTELLIGENCE
-  - FORECASTING_INTELLIGENCE
-  - SCENARIO_INTELLIGENCE
-  - DECISION_INTELLIGENCE
+collection_types:
+  - TARGET_PROFILE
+  - ENTITY_DOSSIER
+  - PRODUCT_CAPABILITY
+  - BUYER_REQUIREMENT
+  - PROCUREMENT_DISCOVERY
+  - PROCUREMENT_PLAN
+  - PROJECT_PIPELINE
+  - FUNDING_BUDGET
+  - SUPPLIER_LANDSCAPE
+  - COMPETITOR_LANDSCAPE
+  - STAKEHOLDER_NETWORK
+  - INSTALLED_BASE
+  - MARKET_LANDSCAPE
+  - OPPORTUNITY_DISCOVERY
+  - MONITORING
+
+collection_depths:
+  C0_IDENTITY: Resolve what the target is and its canonical aliases.
+  C1_PROFILE: Establish an authoritative basic profile.
+  C2_DOSSIER: Build a structured multi-source target dossier.
+  C3_OPPORTUNITY: Resolve buyer-product-project-procurement-funding ecosystem evidence.
+  C4_MONITOR: Maintain collection against defined material triggers.
 
 operating_loop:
   - Contextualize
+  - Resolve_Targets
+  - Plan_Collection
   - Discover
+  - Acquire
   - Extract
-  - Resolve
-  - Reconcile
-  - Validate
-  - Assess
-  - Prioritize
-  - Decide
-  - Promote_or_Monitor
+  - Normalize
+  - Resolve_Entities
+  - Deduplicate
+  - Classify
+  - Corroborate
+  - Detect_Conflicts
+  - Assess_Coverage
+  - Package
   - Learn
 
 ownership:
   atlas:
-    - request_triage
-    - execution_spine
+    - mission_control
+    - control_plane
+    - request_interpretation
+    - collection_need_gate
     - planning
     - permissions
     - approvals
-    - provider_routing
-    - execution_state
-    - independent_verification
+    - canonical_taxonomy_authority
+    - strategic_analysis
+    - forecasting_and_scenarios
+    - opportunity_qualification
+    - pursuit_decisions
+    - independent_assurance_and_verification
+    - persistence_authorization
+    - observability_and_dashboard
     - final_delivery
   argus:
-    - intelligence_domain_enrichment
-    - intelligence_methodology
+    - target_resolution
+    - collection_planning_within_authorized_mission
+    - source_discovery
+    - acquisition
+    - extraction
+    - normalization
+    - entity_resolution
+    - deduplication
+    - collection_classification_suggestions
     - source_and_signal_reconciliation
-    - intelligence_assessment
-    - forecasting_and_scenarios_when_requested
-    - domain_decisions_and_proposed_actions
-    - argus_canonical_semantics
+    - corroboration
+    - gap_and_conflict_detection
+    - collection_coverage
+    - collection_packaging
+    - collection_learning
 
 handoff:
   required_in_access_asia_production: true
   accepted_states: [READY, PARTIAL]
-  partial_semantics: ARGUS_ENRICHES
+  partial_semantics: ARGUS_ENRICHES_COLLECTION_CONTEXT
   blocked_execution: prohibited
   preserve_upstream_context: true
   exact_return_correlation: true
-  contract: contracts/atlas/domain-context-handoff-v1.schema.json
+  domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
+  collection_mission_contract: schemas/collection-mission.schema.json
+  collection_package_contract: schemas/intelligence-collection-package.schema.json
 
 performance:
+  ordinary_policy_analysis_executes_in_atlas: true
   ordinary_search_executes_in_atlas: true
   ordinary_task_executes_in_atlas: true
-  deep_domain_enrichment_before_activation: false
-  defer_intelligence_depth_until_needed: true
+  deep_collection_before_activation: false
   stopping_rule: >-
     Stop expanding collection when additional evidence is unlikely to change
-    the intelligence decision, confidence, material risk, or next action.
+    collection sufficiency, material uncertainty, identified gaps, or the next ATLAS action.
 
 specializations:
   public_sector_opportunity_intelligence:
     status: active
+    role: collection_profile
     doctrine: spec/core.md
     country_profiles:
       bangladesh: profiles/bangladesh.md
     access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
-    capability_alias: government_public_sector_opportunity_intelligence
-    alias_status: compatibility
+    legacy_maturity_scale: I0-I9
+    legacy_decisions_are_specialization_only: true
 
 invariants:
-  - ARGUS does not create a competing execution spine.
-  - ARGUS does not self-activate from topic keywords or organization names.
+  - ATLAS is the only operating architecture and execution spine.
+  - ARGUS never self-activates from a keyword or organization name alone; ATLAS interprets collection need.
+  - A policy or regulatory analysis does not activate ARGUS unless a structured collection mission is required.
+  - ARGUS collection output is evidence for ATLAS, not the final business decision.
+  - ARGUS may suggest taxonomy mappings but ATLAS owns canonical classification acceptance.
+  - Public-sector PX promotion semantics are a specialization and are not universal ARGUS output fields.
   - A PARTIAL handoff preserves unresolved material rather than guessing it away.
   - A BLOCKED handoff cannot authorize dependent ARGUS execution.
-  - ARGUS analysis does not imply ATLAS verification.
-  - Proposed external or canonical actions remain subject to ATLAS authorization and approval.
