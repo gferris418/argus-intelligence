@@ -128,6 +128,11 @@ bangladesh_standardization:
   observation_schema: schemas/bangladesh-observation-v1.1.schema.json
   bangladesh_data_standard_version: 1.3.0
   bangladesh_procurement_standard_version: 1.3.0
+  development_partner_procurement_normalization: PASS
+  egp_system_id_reference_no_separation: PASS
+  institution_graph_normalization: PASS
+  pursuit_activation_modes: PASS
+  tender_extension_and_retender_events: PASS
   rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before reconciliation and collection packaging.
 
 pursuit_activation:
@@ -159,6 +164,11 @@ canonical_baseline:
   record_count: 11
   records_sha256: a43cb9555f3c82a827d16508d4e3af9764f4445e99df44853895eb2d505bbc31
   imported_from: ARGUS-DTIF-MIGRATION-PILOT-001 v0.1.0
+
+registry_compatibility:
+  evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS
+  operational_database_deployment_required_for_current_phase: false
+  database_materialization_work: deferred_until_runtime_need
 
 repository_storage_policy:
   architecture: docs/architecture/github-first-canonical-store.md
@@ -202,5 +212,9 @@ release_gates:
   - generic collection mission and package schemas: PASS
   - public-sector opportunity semantics remain specialization-only: PASS
   - collection coverage remains representable without a new canonical record type: PASS
+  - claim type and claim condition candidate schema contract: PASS
   - GitHub-first canonical storage policy remains defined: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
+  - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
+  - Bangladesh tender extension and re-tender lifecycle events: PASS
+  - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS
