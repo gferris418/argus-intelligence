@@ -26,7 +26,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_argus_pins_the_atlas_handoff_and_lease_contracts(self):
         handoff_schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         lease_schema = json.loads(LEASE_SCHEMA_PATH.read_text())
-        self.assertIn("version: 2.2.0-rc.1", MANIFEST)
+        self.assertIn("version: 2.2.0-rc.2", MANIFEST)
         self.assertIn("release_channel: candidate", MANIFEST)
         self.assertIn("atlas_domain_context_contract_version: 1.2.0", MANIFEST)
         self.assertIn("atlas_execution_lease_contract_version: 1.0.0", MANIFEST)
