@@ -1,14 +1,16 @@
 schema_version: 2
 id: argus.intelligence-collection.core
-version: 2.2.0-rc.1
+version: 2.2.0-rc.2
 status: CANDIDATE
 normative: true
 purpose: >-
   Operate as the ATLAS-governed intelligence collection subsystem. ARGUS resolves
-  targets, plans collection, discovers and acquires sources, extracts and normalizes
-  evidence, resolves entities, deduplicates, classifies collection context,
-  corroborates claims, exposes gaps and conflicts, and returns a collection package.
-  ATLAS retains analysis, decision, assurance, persistence authorization and delivery.
+  targets, derives bounded priority intelligence requirements and essential elements
+  of information, plans collection and sources, discovers and acquires evidence,
+  resolves entities/events/relationships, grades and corroborates evidence, maintains
+  competing hypotheses where material, exposes gaps and conflicts, and returns a
+  collection package. ATLAS retains analysis, decision, assurance, persistence
+  authorization and delivery.
 
 activation:
   authority: ATLAS_OS
@@ -19,6 +21,12 @@ activation:
   keyword_activation: false
   background_activation: false
   task_route_independent: true
+
+collection_method:
+  contract: spec/collection-method.yaml
+  plan_schema: schemas/collection-plan.schema.json
+  derives_from_atlas_mission: true
+  atlas_mission_remains_authoritative_scope: true
 
 collection_types:
   - TARGET_PROFILE
@@ -47,17 +55,22 @@ collection_depths:
 operating_loop:
   - Contextualize
   - Resolve_Targets
+  - Derive_PIR
+  - Derive_EEI
   - Plan_Collection
+  - Plan_Sources
   - Discover
   - Acquire
   - Extract
   - Normalize
-  - Resolve_Entities
+  - Resolve_Entities_Events_Relationships
   - Deduplicate
   - Classify
+  - Grade_Evidence
   - Corroborate
+  - Competing_Hypotheses
   - Detect_Conflicts
-  - Assess_Coverage
+  - Assess_Coverage_And_Gaps
   - Package
   - Learn
 
@@ -71,6 +84,7 @@ ownership:
     - permissions
     - approvals
     - canonical_taxonomy_authority
+    - evidence_governance
     - strategic_analysis
     - forecasting_and_scenarios
     - opportunity_qualification
@@ -81,16 +95,20 @@ ownership:
     - final_delivery
   argus:
     - target_resolution
+    - pir_and_eei_derivation_within_authorized_mission
     - collection_planning_within_authorized_mission
+    - source_planning
     - source_discovery
     - acquisition
     - extraction
     - normalization
-    - entity_resolution
+    - entity_event_relationship_resolution
     - deduplication
     - collection_classification_suggestions
     - source_and_signal_reconciliation
+    - evidence_grading_proposals
     - corroboration
+    - competing_hypothesis_tracking
     - gap_and_conflict_detection
     - collection_coverage
     - collection_packaging
@@ -105,6 +123,7 @@ handoff:
   exact_return_correlation: true
   domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   collection_mission_contract: schemas/collection-mission.schema.json
+  collection_plan_contract: schemas/collection-plan.schema.json
   collection_package_contract: schemas/intelligence-collection-package.schema.json
 
 performance:
@@ -113,8 +132,9 @@ performance:
   ordinary_task_executes_in_atlas: true
   deep_collection_before_activation: false
   stopping_rule: >-
-    Stop expanding collection when additional evidence is unlikely to change
-    collection sufficiency, material uncertainty, identified gaps, or the next ATLAS action.
+    Stop expanding collection when critical PIRs are materially satisfied or
+    additional evidence is unlikely to change collection sufficiency, material
+    uncertainty, identified gaps, or the next ATLAS action.
 
 specializations:
   public_sector_opportunity_intelligence:
@@ -131,8 +151,10 @@ invariants:
   - ATLAS is the only operating architecture and execution spine.
   - ARGUS never self-activates from a keyword or organization name alone; ATLAS interprets collection need.
   - A policy or regulatory analysis does not activate ARGUS unless a structured collection mission is required.
+  - PIR and EEI may refine the mission into answerable collection questions but may not expand ATLAS-authorized scope.
+  - Persons are collected only when materially and legitimately relevant to an authorized business or intelligence question.
   - ARGUS collection output is evidence for ATLAS, not the final business decision.
-  - ARGUS may suggest taxonomy mappings but ATLAS owns canonical classification acceptance.
+  - ARGUS may propose evidence grades and taxonomy mappings but ATLAS owns canonical evidence and classification acceptance.
   - Public-sector PX promotion semantics are a specialization and are not universal ARGUS output fields.
   - A PARTIAL handoff preserves unresolved material rather than guessing it away.
   - A BLOCKED handoff cannot authorize dependent ARGUS execution.
