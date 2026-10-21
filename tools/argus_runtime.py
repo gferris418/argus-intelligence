@@ -1,12 +1,16 @@
-"""One deep public interface for ATLAS-governed ARGUS analysis."""
+"""One deep public interface for ATLAS-governed ARGUS analysis and collection."""
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass
+from pathlib import Path
 from time import perf_counter_ns
 from typing import Any
+
+import jsonschema
 
 from tools.atlas_sync import (
     SyncValidationError,
@@ -15,6 +19,16 @@ from tools.atlas_sync import (
     transition_sync,
     validate_result_correlation,
     validate_sync_receipt,
+)
+from tools.collection_sync import validate_collection_result_correlation
+
+ROOT = Path(__file__).resolve().parents[1]
+_COLLECTION_MISSION_SCHEMA = json.loads(
+    (ROOT / "schemas/collection-mission.schema.json").read_text(encoding="utf-8")
+)
+_COLLECTION_MISSION_VALIDATOR = jsonschema.Draft202012Validator(
+    _COLLECTION_MISSION_SCHEMA,
+    format_checker=jsonschema.FormatChecker(),
 )
 
 _RESERVED_RESULT_FIELDS = {
@@ -38,13 +52,14 @@ class AnalysisExecutionError(RuntimeError):
 
 @dataclass(frozen=True)
 class AnalysisEnvelope:
-    """Authenticated ATLAS context and lease required for one ARGUS analysis."""
+    """Authenticated ATLAS context, lease, and optional collection mission for one ARGUS execution."""
 
     handoff: Mapping[str, Any]
     atlas_attestation: Mapping[str, Any]
     execution_lease: Mapping[str, Any]
     execution_lease_attestation: Mapping[str, Any]
     started_at: str
+    collection_mission: Mapping[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if not self.started_at.strip():
@@ -60,6 +75,19 @@ class AnalysisEnvelope:
                 raise ValueError(f"analysis {field_name} is required")
             object.__setattr__(self, field_name, deepcopy(value))
 
+        if self.collection_mission is not None:
+            mission = deepcopy(dict(self.collection_mission))
+            try:
+                _COLLECTION_MISSION_VALIDATOR.validate(mission)
+            except jsonschema.ValidationError as error:
+                raise ValueError(f"invalid collection mission: {error.message}") from error
+            handoff = dict(self.handoff)
+            if mission["source_task_id"] != handoff.get("source_task_id"):
+                raise ValueError("collection mission source_task_id does not match authenticated handoff")
+            if mission["source_plan_id"] != handoff.get("source_plan_id"):
+                raise ValueError("collection mission source_plan_id does not match authenticated handoff")
+            object.__setattr__(self, "collection_mission", mission)
+
 
 @dataclass(frozen=True)
 class AnalysisOutcome:
@@ -73,6 +101,12 @@ class AnalysisOutcome:
     def compact_status(self) -> str:
         result = self.result
         receipt = self.receipt
+        if "collection_status" in result:
+            return "\n".join((
+                f"ARGUS {receipt['state']} | {self.duration_ms} ms | {receipt['sync_execution_id']}",
+                f"Objective {result['objective']} | Collection {result['collection_status']} | Targets {len(result['resolved_targets'])}",
+                f"Evidence {len(result['evidence'])} | Gaps {len(result['collection_gaps'])} | Unknowns {len(result['unknowns_conflicts'])}",
+            ))
         return "\n".join((
             f"ARGUS {receipt['state']} | {self.duration_ms} ms | {receipt['sync_execution_id']}",
             f"Objective {result['objective']} | Decision {result['decision']} | Maturity {result['maturity']}",
@@ -99,7 +133,7 @@ class Argus:
         self._trusted_key_registry = registry
 
     def analyze(self, envelope: AnalysisEnvelope) -> AnalysisOutcome:
-        """Validate, execute, correlate, and return one governed domain result."""
+        """Validate, execute, correlate, and return one governed domain result or collection package."""
 
         started = perf_counter_ns()
         handoff = deepcopy(dict(envelope.handoff))
@@ -114,8 +148,15 @@ class Argus:
         for state in ("VALIDATED", "ACCEPTED", "ACTIVE"):
             receipt = transition_sync(receipt, state)
 
+        method_input = deepcopy(handoff)
+        if envelope.collection_mission is not None:
+            method_input = {
+                "handoff": deepcopy(handoff),
+                "collection_mission": deepcopy(dict(envelope.collection_mission)),
+            }
+
         try:
-            payload = self._method(deepcopy(handoff))
+            payload = self._method(method_input)
         except Exception as error:
             failed = transition_sync(receipt, "FAILED")
             failed["failure_state"] = "DEPENDENCY_FAILED"
@@ -150,12 +191,27 @@ class Argus:
             },
         })
         result["result_sha256"] = canonical_result_sha256(result)
-        receipt = validate_result_correlation(
-            result,
-            handoff,
-            receipt,
-            trusted_key_registry=self._trusted_key_registry,
-        )
+
+        if "collection_status" in result:
+            if envelope.collection_mission is None:
+                raise SyncValidationError(
+                    "COLLECTION_MISSION_REQUIRED",
+                    "VALIDATION_FAILED",
+                    "generic collection packages require a validated collection mission",
+                )
+            receipt = validate_collection_result_correlation(
+                result,
+                handoff,
+                receipt,
+                trusted_key_registry=self._trusted_key_registry,
+            )
+        else:
+            receipt = validate_result_correlation(
+                result,
+                handoff,
+                receipt,
+                trusted_key_registry=self._trusted_key_registry,
+            )
         receipt = transition_sync(receipt, "RETURNED")
         duration_ms = max(0, round((perf_counter_ns() - started) / 1_000_000))
         return AnalysisOutcome(result=result, receipt=receipt, duration_ms=duration_ms)
