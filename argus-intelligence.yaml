@@ -2,15 +2,17 @@ schema_version: 1
 product:
   id: argus-intelligence
   name: ARGUS Intelligence
-  version: 2.0.1
-  release_channel: stable
-  status: RELEASED
+  version: 2.1.0-rc.1
+  release_channel: candidate
+  status: CANDIDATE
   classification: internal
 
 authority:
   manifest: argus-intelligence.yaml
-  core: spec/core.md
-  atlas_alignment: alignments/atlas-os.md
+  core: spec/general-intelligence.yaml
+  public_sector_opportunity_doctrine: spec/core.md
+  atlas_alignment: alignments/atlas-os-triage-v2.yaml
+  historical_atlas_alignment: alignments/atlas-os.md
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
@@ -36,13 +38,25 @@ authority:
   runtime_simplification_validation: docs/validation/runtime-simplification-rc3.md
 
 scope:
-  primary: pre-bid government and public-sector opportunity intelligence
-  principle: Access Asia shall not wait for a tender to define an opportunity.
+  primary: general strategic and decision intelligence
+  principle: Intelligence depth follows the decision need; ordinary search and task execution remain in ATLAS.
+  specializations:
+    - government_public_sector_opportunity_intelligence
+    - strategic_intelligence
+    - market_intelligence
+    - competitive_intelligence
+    - stakeholder_intelligence
+    - political_economic_intelligence
+    - monitoring_intelligence
+    - forecasting_intelligence
+    - scenario_intelligence
+    - decision_intelligence
+  access_asia_principle: Access Asia shall not wait for a tender to define an opportunity.
 
 production_runtime:
   access_asia:
     governance_backbone: ATLAS OS
-    atlas_change_required: false
+    atlas_change_required: true
     standalone_argus: false
   standalone_mode:
     permitted_for:
@@ -56,7 +70,7 @@ atlas_compatibility:
   validated_against_commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
   control_revision: chatgpt-bootstrap-2026-10-19-r4
   relationship: nested_domain_method
-  rule: ARGUS consumes ATLAS-owned domain classification and framework alignment through the governed domain-context handoff and does not redefine them.
+  rule: ATLAS owns request triage, authority, permissions, planning, approvals, and the governed domain-context handoff. ARGUS preserves ATLAS context and enriches intelligence-specific domain context after INTELLIGENCE activation.
   atlas_domain_context_contract_version: 1.2.0
   atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_execution_lease_contract_version: 1.0.0
@@ -68,15 +82,17 @@ atlas_compatibility:
   accepted_handoff_states:
     - READY
     - PARTIAL
+  partial_handoff_semantics: ARGUS_ENRICHES
   blocked_handoff_execution: prohibited
   exact_return_correlation_required: true
   replay_and_stale_result_protection: enforced
   retry_resume_reconciliation: enforced
   action_authorization_binding: enforced
   atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry
-  activation_contract_version: 1.0.0
+  activation_contract_version: 2.0.0
   activation_authority: ATLAS_OS
-  activation_capability: government_public_sector_opportunity_intelligence
+  activation_request_route: INTELLIGENCE
+  activation_capability: intelligence_analysis
   keyword_activation: false
   background_activation: false
   creates_execution_spine: false
@@ -320,6 +336,7 @@ domain_result:
   atlas_governed_results_must_return_upstream_handoff_receipt: true
 
 release_gates:
+  - ATLAS request-triage and general-intelligence activation contract: PASS
   - Registry route/profile fields remain portable under ARGUS record contract: PASS
   - collection coverage can be represented without creating a new canonical record type: PASS
   - representative Bangladesh route compatibility tests pass: PASS

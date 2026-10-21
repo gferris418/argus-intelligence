@@ -23,8 +23,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_argus_pins_the_atlas_handoff_and_lease_contracts(self):
         handoff_schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         lease_schema = json.loads(LEASE_SCHEMA_PATH.read_text())
-        self.assertIn("version: 2.0.1", MANIFEST)
-        self.assertIn("release_channel: stable", MANIFEST)
+        self.assertIn("version: 2.1.0-rc.1", MANIFEST)
+        self.assertIn("release_channel: candidate", MANIFEST)
         self.assertIn("atlas_domain_context_contract_version: 1.2.0", MANIFEST)
         self.assertIn("atlas_execution_lease_contract_version: 1.0.0", MANIFEST)
         self.assertIn("atlas_signing_key_registry_contract_version: 1.0.0", MANIFEST)
@@ -96,7 +96,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("STANDALONE", modes)
         self.assertIn("ATLAS_GOVERNED", modes)
 
-    def test_manifest_declares_sync_runtime_without_changing_production_authority(self):
+    def test_manifest_declares_coordinated_runtime_change_without_changing_production_authority(self):
         self.assertIn(
             "atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml",
             MANIFEST,
@@ -108,7 +108,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("synchronization_runtime: tools/atlas_sync.py", MANIFEST)
         self.assertIn("analysis_runtime: tools/argus_runtime.py", MANIFEST)
         self.assertIn("bangladesh_procurement_standard_version: 1.3.0", MANIFEST)
-        self.assertIn("atlas_change_required: false", MANIFEST)
+        self.assertIn("atlas_change_required: true", MANIFEST)
         self.assertIn("standalone_argus: false", MANIFEST)
         self.assertIn("atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry", MANIFEST)
         record_type_block = MANIFEST.split("record_types:", 1)[1].split(
