@@ -2,8 +2,8 @@ schema_version: 2
 product:
   id: argus-intelligence
   name: ARGUS Intelligence Collection
-  version: 2.2.0-rc.1
-  previous_version: 2.1.0-rc.1
+  version: 2.2.0-rc.2
+  previous_version: 2.2.0-rc.1
   release_channel: candidate
   status: CANDIDATE
   classification: internal
@@ -11,6 +11,8 @@ product:
 authority:
   manifest: argus-intelligence.yaml
   core: spec/general-intelligence.yaml
+  collection_method: spec/collection-method.yaml
+  collection_plan_schema: schemas/collection-plan.schema.json
   public_sector_opportunity_doctrine: spec/core.md
   atlas_alignment: alignments/atlas-os-triage-v2.yaml
   historical_atlas_alignment: alignments/atlas-os.md
@@ -59,9 +61,9 @@ production_runtime:
     permitted_for: [portability, testing, recovery, non_access_asia_implementation]
 
 atlas_compatibility:
-  validated_against: 2.0.1
-  validated_against_commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
-  control_revision: chatgpt-bootstrap-2026-10-19-r4
+  validated_against: 2.0.2-rc.5
+  validated_against_commit: 401a4ef030be77a2a5a635fa0ff50f538101b4e3
+  control_revision: atlas-bootstrap-2026-10-22-r9
   relationship: nested_intelligence_collection_subsystem
   rule: ATLAS owns Mission Control, Control Plane, collection-need routing, canonical taxonomy, planning, analysis, decisions, assurance, persistence, observability, Dashboard and delivery. ARGUS owns only the authorized intelligence collection mission and returned collection package.
   atlas_domain_context_contract_version: 1.2.0
@@ -94,17 +96,22 @@ atlas_compatibility:
 operating_loop:
   - Contextualize
   - Resolve_Targets
+  - Derive_PIR
+  - Derive_EEI
   - Plan_Collection
+  - Plan_Sources
   - Discover
   - Acquire
   - Extract
   - Normalize
-  - Resolve_Entities
+  - Resolve_Entities_Events_Relationships
   - Deduplicate
   - Classify
+  - Grade_Evidence
   - Corroborate
+  - Competing_Hypotheses
   - Detect_Conflicts
-  - Assess_Coverage
+  - Assess_Coverage_And_Gaps
   - Package
   - Learn
 
@@ -208,6 +215,7 @@ domain_result:
 
 release_gates:
   - ATLAS collection-need and ARGUS collection activation contract: PASS
+  - canonical PIR/EEI collection method and collection-plan schema: PASS
   - ARGUS does not own Mission Control, Control Plane, analysis, decisions, assurance, Dashboard or delivery: PASS
   - generic collection mission and package schemas: PASS
   - public-sector opportunity semantics remain specialization-only: PASS
