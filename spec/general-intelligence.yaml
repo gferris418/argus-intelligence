@@ -1,0 +1,99 @@
+schema_version: 1
+id: argus.general-intelligence.core
+version: 2.1.0-rc.1
+status: CANDIDATE
+normative: true
+purpose: >-
+  Provide governed specialist intelligence analysis for strategic, market,
+  opportunity, competitive, stakeholder, political-economic, monitoring,
+  forecasting, scenario, and decision-intelligence objectives delegated by ATLAS.
+
+activation:
+  authority: ATLAS_OS
+  request_route: INTELLIGENCE
+  capability: intelligence_analysis
+  contract: contracts/atlas/argus-activation-v1.json
+  keyword_activation: false
+  background_activation: false
+  government_mention_is_sufficient: false
+
+intelligence_types:
+  - STRATEGIC_INTELLIGENCE
+  - MARKET_INTELLIGENCE
+  - OPPORTUNITY_INTELLIGENCE
+  - COMPETITIVE_INTELLIGENCE
+  - STAKEHOLDER_INTELLIGENCE
+  - POLITICAL_ECONOMIC_INTELLIGENCE
+  - MONITORING_INTELLIGENCE
+  - FORECASTING_INTELLIGENCE
+  - SCENARIO_INTELLIGENCE
+  - DECISION_INTELLIGENCE
+
+operating_loop:
+  - Contextualize
+  - Discover
+  - Extract
+  - Resolve
+  - Reconcile
+  - Validate
+  - Assess
+  - Prioritize
+  - Decide
+  - Promote_or_Monitor
+  - Learn
+
+ownership:
+  atlas:
+    - request_triage
+    - execution_spine
+    - planning
+    - permissions
+    - approvals
+    - provider_routing
+    - execution_state
+    - independent_verification
+    - final_delivery
+  argus:
+    - intelligence_domain_enrichment
+    - intelligence_methodology
+    - source_and_signal_reconciliation
+    - intelligence_assessment
+    - forecasting_and_scenarios_when_requested
+    - domain_decisions_and_proposed_actions
+    - argus_canonical_semantics
+
+handoff:
+  required_in_access_asia_production: true
+  accepted_states: [READY, PARTIAL]
+  partial_semantics: ARGUS_ENRICHES
+  blocked_execution: prohibited
+  preserve_upstream_context: true
+  exact_return_correlation: true
+  contract: contracts/atlas/domain-context-handoff-v1.schema.json
+
+performance:
+  ordinary_search_executes_in_atlas: true
+  ordinary_task_executes_in_atlas: true
+  deep_domain_enrichment_before_activation: false
+  defer_intelligence_depth_until_needed: true
+  stopping_rule: >-
+    Stop expanding collection when additional evidence is unlikely to change
+    the intelligence decision, confidence, material risk, or next action.
+
+specializations:
+  public_sector_opportunity_intelligence:
+    status: active
+    doctrine: spec/core.md
+    country_profiles:
+      bangladesh: profiles/bangladesh.md
+    access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
+    capability_alias: government_public_sector_opportunity_intelligence
+    alias_status: compatibility
+
+invariants:
+  - ARGUS does not create a competing execution spine.
+  - ARGUS does not self-activate from topic keywords or organization names.
+  - A PARTIAL handoff preserves unresolved material rather than guessing it away.
+  - A BLOCKED handoff cannot authorize dependent ARGUS execution.
+  - ARGUS analysis does not imply ATLAS verification.
+  - Proposed external or canonical actions remain subject to ATLAS authorization and approval.
