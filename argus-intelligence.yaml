@@ -9,8 +9,10 @@ product:
 
 authority:
   manifest: argus-intelligence.yaml
-  core: spec/core.md
-  atlas_alignment: alignments/atlas-os.md
+  core: spec/general-intelligence.yaml
+  public_sector_opportunity_doctrine: spec/core.md
+  atlas_alignment: alignments/atlas-os-triage-v2.yaml
+  historical_atlas_alignment: alignments/atlas-os.md
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
