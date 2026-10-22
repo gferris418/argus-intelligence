@@ -30,6 +30,9 @@ class CanonicalIdentityOperationalDatabase(unittest.TestCase):
             "ITM",
             "ENT",
             "PER",
+            "OPP",
+            "INT",
+            "KNO",
             "AWD",
             "CTR",
             "EVT",
@@ -41,10 +44,12 @@ class CanonicalIdentityOperationalDatabase(unittest.TestCase):
             self.assertIn(token, text)
         self.assertIn("supplier_is_entity_role", text)
         self.assertIn("title_alone_never_deduplicates", text)
+        self.assertIn("single_writer", text)
 
     def test_sql_schema_builds_with_core_integrity_constraints(self):
         self.assertTrue(SQL.exists())
         sql = SQL.read_text()
+        self.assertIn("PRAGMA journal_mode = DELETE", sql)
         with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
             db = sqlite3.connect(tmp.name)
             db.executescript(sql)
@@ -58,6 +63,7 @@ class CanonicalIdentityOperationalDatabase(unittest.TestCase):
                 "source_records",
                 "events",
                 "observations",
+                "legacy_registry_records",
                 "change_log",
             ):
                 self.assertIn(table, tables)
@@ -76,7 +82,14 @@ class CanonicalIdentityOperationalDatabase(unittest.TestCase):
         self.assertTrue(TOOL.exists())
         self.assertTrue(DOC.exists())
         tool = TOOL.read_text()
-        for token in ("create-db", "integrity-check", "create-object", "add-external-id", "add-relationship"):
+        for token in (
+            "create-db",
+            "integrity-check",
+            "create-object",
+            "add-external-id",
+            "add-relationship",
+            "import-legacy-registry",
+        ):
             self.assertIn(token, tool)
 
 
