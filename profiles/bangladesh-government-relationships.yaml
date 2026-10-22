@@ -1,0 +1,234 @@
+document_id: ARGUS-BD-GOV-REL-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+purpose: >-
+  Define evidence-bounded government, project, procurement and coordination relationships
+  for Bangladesh opportunity intelligence without inferring functional authority from hierarchy.
+
+relationship_classes:
+  hierarchical:
+    PARENT_OF:
+      what: {definition: source institution is the evidenced administrative parent of target institution}
+      who: {source_role: parent_institution, target_role: child_institution}
+      when: {validity: time_bounded_when_restructured}
+      where: {scope_required: true}
+      why: {purpose: preserve institutional structure without implying procurement authority}
+      which: {relationship_class: hierarchical}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: navigation_and_identity_resolution}
+    CHILD_OF:
+      what: {definition: inverse evidenced administrative relationship of PARENT_OF}
+      who: {source_role: child_institution, target_role: parent_institution}
+      when: {validity: time_bounded_when_restructured}
+      where: {scope_required: true}
+      why: {purpose: preserve inverse institutional structure}
+      which: {relationship_class: hierarchical}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: navigation_and_identity_resolution}
+    SUPERVISES:
+      what: {definition: source institution has evidenced supervisory responsibility over target}
+      who: {source_role: supervisor, target_role: supervised_party}
+      when: {validity: evidence_period}
+      where: {scope_required: true}
+      why: {purpose: identify oversight relationship}
+      which: {relationship_class: hierarchical}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: authority_path_context}
+    REPORTS_TO:
+      what: {definition: source institution has evidenced reporting relationship to target}
+      who: {source_role: reporting_party, target_role: receiving_authority}
+      when: {validity: evidence_period}
+      where: {scope_required: true}
+      why: {purpose: identify reporting chain}
+      which: {relationship_class: hierarchical}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: authority_path_context}
+    ADMINISTERS:
+      what: {definition: source institution administratively manages target body or programme}
+      who: {source_role: administrator, target_role: administered_object}
+      when: {validity: evidence_period}
+      where: {scope_required: true}
+      why: {purpose: distinguish administration from ownership or procurement}
+      which: {relationship_class: hierarchical}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: institutional_context}
+    OPERATES_THROUGH:
+      what: {definition: source institution carries out an evidenced function through target}
+      who: {source_role: principal_party, target_role: operating_body}
+      when: {validity: evidence_period}
+      where: {scope_required: true}
+      why: {purpose: preserve delegated operating structure}
+      which: {relationship_class: hierarchical}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: institutional_context}
+
+  functional:
+    SPONSORS:
+      what: {definition: source party formally sponsors a requirement programme or project}
+      who: {source_role: sponsor, target_role: sponsored_object}
+      when: {validity: evidenced_sponsorship_period}
+      where: {scope_required: true}
+      why: {purpose: identify political_or_administrative sponsorship}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: authority_path}
+    OWNS_REQUIREMENT:
+      what: {definition: source party owns the evidenced operational or public-service need}
+      who: {source_role: need_owner, target_role: requirement}
+      when: {validity: requirement_lifecycle}
+      where: {scope_required: true}
+      why: {purpose: anchor the opportunity to the genuine government need}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: requirement_lineage}
+    IMPLEMENTS:
+      what: {definition: source party is evidenced as implementing project programme or activity}
+      who: {source_role: implementing_party, target_role: implemented_object}
+      when: {validity: implementation_period}
+      where: {scope_required: true}
+      why: {purpose: resolve delivery responsibility}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: authority_path}
+    PROCURES_FOR:
+      what: {definition: source procuring entity conducts procurement for target need owner or end user}
+      who: {source_role: procuring_entity, target_role: beneficiary_or_need_owner}
+      when: {validity: procurement_scope_period}
+      where: {scope_required: true}
+      why: {purpose: distinguish procurer from end user}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: procurement_route}
+    USES:
+      what: {definition: source party operates or consumes the target capability}
+      who: {source_role: end_user, target_role: capability_or_asset}
+      when: {validity: operational_period}
+      where: {scope_required: true}
+      why: {purpose: identify operational beneficiary}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: solution_fit}
+    FUNDS:
+      what: {definition: source party provides evidenced funding for target object}
+      who: {source_role: funding_party, target_role: funded_object}
+      when: {validity: funding_period}
+      where: {scope_required: true}
+      why: {purpose: resolve funding path}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {capture_amount_when_published: true}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: funding_state}
+    APPROVES:
+      what: {definition: party has evidenced authority to approve a defined project procurement award contract or decision}
+      who: {source_role: approving_party, target_role: governed_object_or_party}
+      when: {validity: evidenced_authority_period}
+      where: {scope_required: true}
+      why: {purpose: identify the decision authority controlling progression}
+      which: {approval_type_must_be_preserved: true}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {authority_threshold: {required_when_published: true}}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: approval_path_and_research_frontier}
+    EVALUATES:
+      what: {definition: source party performs evidenced evaluation of target submission solution or procurement}
+      who: {source_role: evaluator, target_role: evaluated_object}
+      when: {validity: evaluation_period}
+      where: {scope_required: true}
+      why: {purpose: identify evaluation authority}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: stakeholder_map}
+    MONITORS:
+      what: {definition: source party has evidenced monitoring responsibility over target}
+      who: {source_role: monitoring_authority, target_role: monitored_object}
+      when: {validity: monitoring_period}
+      where: {scope_required: true}
+      why: {purpose: identify implementation oversight}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {value: NOT_APPLICABLE}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: implementation_context}
+    REGULATES:
+      what: {definition: source party has evidenced regulatory authority over target activity or sector}
+      who: {source_role: regulator, target_role: regulated_object}
+      when: {validity: regulatory_period}
+      where: {scope_required: true}
+      why: {purpose: identify regulatory constraints}
+      which: {relationship_class: functional}
+      how: {inferred_from_hierarchy_only: false}
+      how_much_or_many: {threshold_when_material: true}
+      evidence: {authoritative_source_required: true}
+      decision_impact: {use: commercial_participation}
+
+  coordination:
+    COORDINATES_WITH:
+      what: {definition: parties have evidenced coordination responsibility}
+    JOINTLY_REVIEWS:
+      what: {definition: parties jointly review an evidenced object or decision}
+    JOINTLY_IMPLEMENTS:
+      what: {definition: parties jointly implement an evidenced project programme or action}
+    ADVISES:
+      what: {definition: source party has evidenced advisory role to target}
+    PROVIDES_OVERSIGHT_TO:
+      what: {definition: source party provides evidenced oversight to target}
+
+project_procurement_roles:
+  - NEED_OWNER
+  - SPONSOR
+  - PROJECT_OWNER
+  - IMPLEMENTING_AGENCY
+  - PROJECT_OFFICE
+  - END_USER
+  - PROCURING_ENTITY
+  - APPROVING_AUTHORITY
+  - FUNDER
+  - MONITORING_AUTHORITY
+  - REGULATOR
+
+authority_path:
+  unknown_policy: PRESERVE_AS_UNRESOLVED
+  role_value_contract: [party_ref, evidence_refs, confidence, valid_from, valid_to, scope]
+  roles:
+    need_owner: {}
+    sponsor: {}
+    project_owner: {}
+    implementing_agency: {}
+    funding_authority: {}
+    approving_authority: {}
+    procuring_entity: {}
+    evaluation_authority: {}
+    end_user: {}
+    monitoring_authority: {}
+
+quality_rules:
+  - Functional authority is never inferred solely from administrative hierarchy.
+  - Missing authority-path roles remain unresolved and enter the Research Frontier when decision-material.
+  - Relationship validity and scope are preserved when institutions restructure or responsibilities change.
+  - One institution may hold multiple evidenced roles without collapsing those roles into one generic buyer field.
