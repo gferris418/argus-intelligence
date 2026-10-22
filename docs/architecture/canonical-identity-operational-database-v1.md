@@ -5,7 +5,7 @@
 ARGUS uses a **three-layer identity model**, one company-wide canonical commercial graph and one mutable operational structured store.
 
 - **GitHub** is authoritative for schemas, identity rules, commercial-data rules, migration logic, tests, release contracts and code.
-- **SharePoint SQLite** is authoritative for the current mutable ARGUS/Access Asia canonical commercial structured state used by ATLAS/ARGUS in production.
+- **SharePoint SQLite** remains the **current mutable operational ARGUS structured state** and is authoritative for the current mutable ARGUS/Access Asia canonical commercial structured state used by ATLAS/ARGUS in production.
 - Existing GitHub JSON/JSONL registry records remain migration/audit/bootstrap material and versioned release evidence; they are not a parallel routine write store after database activation.
 - SharePoint source and working documents remain files and are referenced by source records rather than copied into public Git.
 - HubSpot owns Access Asia CRM relationship/engagement state and contactability, while referencing ARGUS canonical organization/person identities rather than defining a competing enterprise identity universe.
