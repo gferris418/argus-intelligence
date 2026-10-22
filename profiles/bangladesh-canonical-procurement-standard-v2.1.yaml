@@ -1,0 +1,125 @@
+document_id: ARGUS-BD-PROC-STD-0021
+version: 2.1.0
+status: CANDIDATE
+country: Bangladesh
+country_code: BD
+candidate_write_contract: schemas/bangladesh-procurement-v2.1.schema.json
+international_alignment: profiles/bangladesh-procurement-international-alignment-v1.0.yaml
+supersedes_candidate:
+  - profiles/bangladesh-canonical-procurement-standard-v2.0.yaml
+production_authority: profiles/bangladesh-canonical-procurement-standard-v1.3.yaml
+production_rule: v1.3 remains the active production authority until a separate governed migration and release decision approves v2.1.
+
+purpose: >-
+  Provide one portal-neutral canonical procurement model for Bangladesh covering BPPA, e-GP,
+  DGDP/e-DP, PPP, SOE/autonomous bodies, agency-specific notices and development-partner
+  procurement while remaining export-compatible with OCDS lifecycle concepts and preserving
+  Bangladesh-specific source semantics.
+
+architecture:
+  canonical_object: PROCUREMENT
+  database_identity: procurement_id
+  lifecycle_sections:
+    - parties
+    - planning
+    - tender
+    - awards
+    - contracts
+    - implementation_within_contract
+  cross_cutting_sections:
+    - identifiers
+    - related_processes
+    - notices
+    - documents
+    - events
+    - complaints
+    - source_releases
+    - observations
+    - intelligence
+  change_model:
+    source_releases: immutable
+    events: append_only
+    compiled_record: latest_effective_state
+  source_documents_in_git: reference_only
+
+core_invariants:
+  - procurement_id is canonical and independent of portal-native identifiers.
+  - One procurement cycle may have many external identifiers from many source systems.
+  - The underlying requirement_ref may survive cancellation, extension, reissue and re-tender.
+  - Buyer, procuring entity, implementing agency, end user, approving authority, funder and supplier are separate roles.
+  - Planning, tender, award, contract and implementation are separate lifecycle stages.
+  - Source category and method labels are preserved independently from normalized interpretation.
+  - Project total cost, procurement estimate, bid value, evaluated value, award value and contract value are separate monetary concepts.
+  - Notices, documents, milestones, events and source releases are separate record types.
+  - A source change never destroys prior authoritative values.
+  - Missing fields remain absent or UNKNOWN.
+  - ARGUS intelligence never overwrites official source facts.
+
+international_alignment:
+  lifecycle_backbone: OCDS_1_1_5
+  planning_references:
+    - WORLD_BANK_STEP
+    - ADB_PROCUREMENT_PLAN
+  award_transparency_reference: WORLD_BANK_IPF_PROCUREMENT_REGULATIONS_7TH_EDITION_2025
+  procurement_planning_reference: ADB_PROCUREMENT_REGULATIONS
+  localization_rule: >-
+    International structures guide the canonical model, but Bangladesh legal terms, portal IDs,
+    DGDP/e-DP terminology and source-specific procedures are retained as source-native fields or
+    controlled extensions rather than rewritten into foreign terminology.
+
+bangladesh_source_coverage:
+  - BPPA
+  - e-GP
+  - DGDP
+  - e-DP
+  - PPP Authority
+  - Ministry_Division_Agency_SOE_native_sources
+  - Planning_Commission_ADP_RADP
+  - IMED_ePMIS
+  - ERD_AIMS
+  - Development_Partner_Procurement
+
+minimum_database_contract:
+  required:
+    - procurement_id
+    - jurisdiction
+    - title
+    - record_state
+    - record_revision
+  evidence_principle: >-
+    Canonical records may be sparse when sources are sparse. Do not fabricate project codes,
+    package numbers, estimates, dates, classifications or parties merely to populate the schema.
+
+source_change_rule:
+  description: >-
+    Each materially new publication or source change should create an immutable source_release.
+    The canonical record is the compiled current view; historical values remain recoverable from
+    source releases and append-only events.
+
+award_rule:
+  bidder_information: preserve_when_publicly_available
+  opening_and_evaluated_values: separate
+  rejection_reason: preserve_when_published
+  notification_of_intention_and_standstill: separate_milestones
+  successful_supplier: canonical_party_reference
+  final_contract_price: separate_from_award_and_bid_estimates
+  beneficial_ownership: disclosure_state_and_source_reference_only_in_procurement_record
+
+implementation_rule:
+  transactions: typed
+  modifications: typed
+  milestones: typed
+  physical_and_financial_progress: separate
+  completion: actual_completion_at
+
+migration_gate:
+  live_registry_mutation: prohibited_until_approved
+  v2_0_evidence_preserved: true
+  v2_1_requires:
+    - representative_BPPA_eGP_fixture
+    - representative_DGDP_eDP_fixture
+    - representative_World_Bank_fixture
+    - representative_ADB_fixture
+    - no_material_information_loss
+    - contract_tests_pass
+    - cross_repository_ATLAS_ARGUS_validation

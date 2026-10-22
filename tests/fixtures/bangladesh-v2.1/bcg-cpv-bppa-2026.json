@@ -1,0 +1,329 @@
+{
+  "procurement_id": "PROC-BD-BCG-CPV-2026-CYCLE-01",
+  "jurisdiction": "BD",
+  "language": "en",
+  "title": "Construction and Delivery of 4 (Four) Coastal Patrol Vessels (CPV)",
+  "record_state": "CURRENT",
+  "record_revision": 1,
+  "identifiers": [
+    {
+      "scheme": "TENDER_REFERENCE_NO",
+      "value": "44.08.2680.033.02.106.26.160",
+      "scope": "PROCESS",
+      "source_system": "BPPA",
+      "source_label": "Invitation Reference No"
+    },
+    {
+      "scheme": "PE_CODE",
+      "value": "224392800",
+      "scope": "PROCESS",
+      "source_system": "BPPA",
+      "source_label": "Procuring Entity Code"
+    },
+    {
+      "scheme": "NOTICE_ID",
+      "value": "98162",
+      "scope": "NOTICE",
+      "source_system": "BPPA",
+      "source_label": "BPPA advertisement record"
+    }
+  ],
+  "parties": [
+    {
+      "party_id": "ENT-BD-MOHA",
+      "roles": ["SPONSORING_MINISTRY"],
+      "source_name": "Ministry of Home Affairs",
+      "source_ref": "BPPA-98162"
+    },
+    {
+      "party_id": "ENT-BD-BCGF",
+      "roles": ["AGENCY", "END_USER"],
+      "source_name": "Bangladesh Coast Guard Force",
+      "source_ref": "BPPA-98162"
+    },
+    {
+      "party_id": "ENT-BD-BCGF-PD",
+      "roles": ["PROCURING_ENTITY", "PROJECT_OFFICE"],
+      "source_name": "Project Director",
+      "contact_designation": "Project Director",
+      "contact_phone": "01769440455",
+      "contact_address": "Bangladesh Coast Guard Headquarters, Agargaon Administrative Area, Block#E, Plot#12/B, Sher-E-Bangla Nagor, Dhaka-1207",
+      "source_ref": "BPPA-98162"
+    },
+    {
+      "party_id": "ENT-BD-GOB",
+      "roles": ["FUNDER"],
+      "source_name": "Government of Bangladesh",
+      "source_ref": "BPPA-98162"
+    }
+  ],
+  "planning": {
+    "budget": {
+      "budget_type": "Development Budget",
+      "source_ref": "BPPA-98162"
+    },
+    "financing": [
+      {
+        "source_party_id": "ENT-BD-GOB",
+        "instrument": "Government allocation",
+        "status": "SOURCE_STATED",
+        "scope": "PROCUREMENT",
+        "source_ref": "BPPA-98162"
+      }
+    ]
+  },
+  "tender": {
+    "route": "BD-UNKNOWN",
+    "main_procurement_category": "WORKS",
+    "category_source_label": "Works",
+    "method_normalized": "OPEN",
+    "method_source_label": "ICT One Stage & Two envelope Tendering Method",
+    "competition_scope": "INTERNATIONAL",
+    "configuration": "ONE_STAGE_TWO_ENVELOPE",
+    "status_raw": "Active",
+    "status_normalized": "ACTIVE",
+    "lots": [
+      {
+        "lot_id": "LOT-1",
+        "lot_reference": "WD-2",
+        "title": "Construction and Delivery of 4 (Four) Coastal Patrol Vessels (CPV)",
+        "delivery_location": {
+          "country": "BD",
+          "district": "Dhaka"
+        },
+        "completion_period": "36 Months after signing the contract",
+        "item_refs": ["ITEM-CPV"]
+      }
+    ],
+    "items": [
+      {
+        "item_id": "ITEM-CPV",
+        "description": "Coastal Patrol Vessel (CPV)",
+        "quantity": 4,
+        "unit": "VESSEL",
+        "lot_ref": "LOT-1"
+      }
+    ],
+    "milestones": [
+      {
+        "milestone_id": "M-PREBID",
+        "type": "PREBID_MEETING",
+        "due_at": "2026-09-08T11:00:00+06:00",
+        "status": "SCHEDULED",
+        "source_ref": "BPPA-98162"
+      },
+      {
+        "milestone_id": "M-SALE-END",
+        "type": "DOCUMENT_SALE_END",
+        "due_at": "2026-10-28",
+        "original_due_at": "2026-09-28",
+        "status": "CURRENT_EFFECTIVE",
+        "source_ref": "BPPA-98162-CORR-20261019"
+      },
+      {
+        "milestone_id": "M-CLOSE",
+        "type": "SUBMISSION_DEADLINE",
+        "due_at": "2026-10-29T12:00:00+06:00",
+        "original_due_at": "2026-09-29T12:00:00+06:00",
+        "status": "CURRENT_EFFECTIVE",
+        "source_ref": "BPPA-98162-CORR-20261019"
+      },
+      {
+        "milestone_id": "M-OPEN",
+        "type": "OPENING",
+        "due_at": "2026-10-29T12:30:00+06:00",
+        "original_due_at": "2026-09-29T12:30:00+06:00",
+        "status": "CURRENT_EFFECTIVE",
+        "source_ref": "BPPA-98162-CORR-20261019"
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "REQ-EXP-01",
+        "type": "EXPERIENCE",
+        "text": "Must have experience of at least 10 (Ten) years of shipbuilding and delivering Combat vessels/Patrol crafts.",
+        "normalized_value": {
+          "minimum_years": 10,
+          "experience_domain": "shipbuilding and delivery of combat vessels/patrol crafts"
+        },
+        "mandatory": true,
+        "source_ref": "BPPA-98162"
+      }
+    ],
+    "fees": [
+      {
+        "fee_id": "FEE-DOC-01",
+        "type": "TENDER_DOCUMENT",
+        "value": {
+          "amount": 100000,
+          "currency": "BDT",
+          "raw_text": "BDT 1,00,000.00 (Taka One Lac Only) Non-Refundable"
+        },
+        "refundable": false,
+        "source_ref": "BPPA-98162"
+      }
+    ],
+    "securities": [
+      {
+        "security_id": "SEC-TENDER-01",
+        "type": "TENDER_SECURITY",
+        "value": {
+          "amount": 230000000,
+          "currency": "BDT",
+          "raw_text": "BDT 23,00,00,000.00 (Taka Twenty-Three Crore Only)"
+        },
+        "lot_ref": "LOT-1",
+        "source_ref": "BPPA-98162"
+      }
+    ]
+  },
+  "notices": [
+    {
+      "notice_id": "BPPA-98162-IFT",
+      "notice_type": "IFT",
+      "stage": "TENDER",
+      "published_at": "2026-08-18",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "status": "CORRIGENDUM"
+    },
+    {
+      "notice_id": "BPPA-98162-CORR-20260915",
+      "notice_type": "CORRIGENDUM",
+      "stage": "TENDER",
+      "published_at": "2026-09-20",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "status": "ACTIVE"
+    },
+    {
+      "notice_id": "BPPA-98162-CORR-20261001",
+      "notice_type": "CORRIGENDUM",
+      "stage": "TENDER",
+      "published_at": "2026-10-01",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "status": "ACTIVE"
+    },
+    {
+      "notice_id": "BPPA-98162-CORR-20261019",
+      "notice_type": "CORRIGENDUM",
+      "stage": "TENDER",
+      "published_at": "2026-10-19",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "status": "ACTIVE"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "EV-PUBLISH-20260818",
+      "type": "PUBLICATION",
+      "occurred_at": "2026-08-18",
+      "notice_ref": "BPPA-98162-IFT",
+      "source_ref": "BPPA-98162"
+    },
+    {
+      "event_id": "EV-EXT-20260915",
+      "type": "DEADLINE_EXTENSION",
+      "occurred_at": "2026-09-15",
+      "notice_ref": "BPPA-98162-CORR-20260915",
+      "changes": [
+        {"field": "tender.milestones.SUBMISSION_DEADLINE", "previous_value": "2026-09-29T12:00:00+06:00", "new_value": "2026-10-14T12:00:00+06:00"},
+        {"field": "tender.milestones.OPENING", "previous_value": "2026-09-29T12:30:00+06:00", "new_value": "2026-10-14T12:30:00+06:00"}
+      ],
+      "source_ref": "BPPA-98162-CORR-20260915"
+    },
+    {
+      "event_id": "EV-EXT-20261001",
+      "type": "DEADLINE_EXTENSION",
+      "occurred_at": "2026-10-01",
+      "notice_ref": "BPPA-98162-CORR-20261001",
+      "changes": [
+        {"field": "tender.milestones.SUBMISSION_DEADLINE", "previous_value": "2026-10-14T12:00:00+06:00", "new_value": "2026-10-25T12:00:00+06:00"},
+        {"field": "tender.milestones.OPENING", "previous_value": "2026-10-14T12:30:00+06:00", "new_value": "2026-10-25T12:30:00+06:00"}
+      ],
+      "source_ref": "BPPA-98162-CORR-20261001"
+    },
+    {
+      "event_id": "EV-EXT-20261019",
+      "type": "DEADLINE_EXTENSION",
+      "occurred_at": "2026-10-19",
+      "notice_ref": "BPPA-98162-CORR-20261019",
+      "changes": [
+        {"field": "tender.milestones.SUBMISSION_DEADLINE", "previous_value": "2026-10-25T12:00:00+06:00", "new_value": "2026-10-29T12:00:00+06:00"},
+        {"field": "tender.milestones.OPENING", "previous_value": "2026-10-25T12:30:00+06:00", "new_value": "2026-10-29T12:30:00+06:00"}
+      ],
+      "source_ref": "BPPA-98162-CORR-20261019"
+    }
+  ],
+  "source_releases": [
+    {
+      "release_id": "REL-BPPA-98162-20260818",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "release_type": "TENDER",
+      "recorded_at": "2026-08-18T00:00:00+06:00",
+      "published_at": "2026-08-18",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "change_summary": "Initial Invitation for Tender publication",
+      "immutable": true
+    },
+    {
+      "release_id": "REL-BPPA-98162-20260920",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "release_type": "AMENDMENT",
+      "recorded_at": "2026-09-20T00:00:00+06:00",
+      "published_at": "2026-09-20",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "supersedes_release_id": "REL-BPPA-98162-20260818",
+      "change_summary": "Corrigendum dated 15 September 2026 extended selling, closing and opening dates",
+      "immutable": true
+    },
+    {
+      "release_id": "REL-BPPA-98162-20261001",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "release_type": "AMENDMENT",
+      "recorded_at": "2026-10-01T00:00:00+06:00",
+      "published_at": "2026-10-01",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "supersedes_release_id": "REL-BPPA-98162-20260920",
+      "change_summary": "Corrigendum dated 1 October 2026 extended selling, closing and opening dates",
+      "immutable": true
+    },
+    {
+      "release_id": "REL-BPPA-98162-20261019",
+      "source_system": "BPPA",
+      "source_record_id": "98162",
+      "release_type": "AMENDMENT",
+      "recorded_at": "2026-10-19T00:00:00+06:00",
+      "published_at": "2026-10-19",
+      "source_locator": "https://www.bppa.gov.bd/advertisement-works/details-98162.html",
+      "supersedes_release_id": "REL-BPPA-98162-20261001",
+      "change_summary": "Corrigendum dated 19 October 2026 extended selling, closing and opening dates",
+      "immutable": true
+    }
+  ],
+  "intelligence": {
+    "lifecycle_stage": "S6",
+    "opportunity_mode": "REACT",
+    "material_unknowns": [
+      "Project/Programme Code not published in the BPPA notice",
+      "Project/Programme Name not published in the BPPA notice",
+      "Tender Package No not published in the BPPA notice"
+    ],
+    "next_collection_action": "Resolve upstream project and package lineage from authoritative Bangladesh planning/procurement sources."
+  },
+  "ocds_alignment": {
+    "schema_version": "1.1.5",
+    "release_tags": ["tender", "tenderAmendment"],
+    "mapping_status": "PARTIAL",
+    "mapped_at": "2026-10-22T19:00:00+06:00"
+  }
+}
