@@ -1,19 +1,24 @@
 # ARGUS Core
 
-**Version:** 2.0.0-rc.4
+**Version:** 2.1.0-rc.1  
 **Status:** Candidate  
-**Scope:** Pre-bid government and public-sector opportunity intelligence
+**Scope:** Government and public-sector commercial opportunity intelligence
 
 ## 1. Purpose
 
-ARGUS identifies, develops, validates, reconciles, prioritizes and promotes government/public-sector opportunity intelligence before detailed supplier engagement, capture, bid preparation, contract execution or project delivery.
+ARGUS identifies, develops, validates, reconciles, prioritizes and promotes government/public-sector opportunity intelligence before and through formal procurement, while preserving a continuous evidence-backed lineage from policy/need to project, procurement, supplier strategy and follow-on opportunity.
 
 ARGUS is designed to answer, with evidence:
 
 - What is likely to be procured?
 - Why is it needed?
 - Who owns, funds, procures, operates or uses the requirement?
+- Where does the buyer sit in the government hierarchy?
 - Which policy, programme, project, installed base, event or capability gap creates the need?
+- Does the requirement or opportunity already exist in the internal canonical registry?
+- Has an authoritative procurement signal been published?
+- What does Access Asia already know from authorized internal customer intelligence?
+- Which products, OEMs, suppliers, competitors and delivery models are relevant?
 - How mature is the requirement?
 - How mature are the project, funding and procurement paths?
 - How close is procurement?
@@ -26,11 +31,11 @@ ARGUS is designed to answer, with evidence:
 
 ## 2. Product boundary
 
-ARGUS is a government opportunity-intelligence framework. It is not primarily:
+ARGUS is a government commercial-opportunity intelligence framework. It is not primarily:
 
 - a generic memory system;
 - an operating system;
-- an ATLAS subsystem;
+- a second orchestration/control plane;
 - a CRM;
 - a tender portal;
 - an email system;
@@ -57,31 +62,55 @@ ARGUS works forward and backward across that chain and across related institutio
 
 Within the Access Asia governed environment, ATLAS OS is the execution-governance backbone.
 
-ATLAS owns the generic domain classification, taxonomy references, material risk flags, and domain-framework/standards alignment. Before substantive ARGUS execution, ATLAS transfers that context through the governed domain-context handoff contract.
+ATLAS owns generic intent/target interpretation, taxonomy references, material risk flags, mission authorization, approvals, persistence authorization, verification and final delivery. Before substantive ARGUS execution, ATLAS transfers the governed domain context plus one bounded collection mission.
 
-ARGUS must not redefine ATLAS taxonomy or standards conclusions. ARGUS may enrich them only for government-opportunity intelligence: terminology, aliases, solution adjacency, local context, installed base, supplier/competitor relationships, procurement routes, commercial meaning and discovery semantics.
+ARGUS must not redefine ATLAS taxonomy, approval, security or persistence conclusions. ARGUS may enrich the mission for government-commercial intelligence: institutional hierarchy, terminology, aliases, solution adjacency, local context, installed base, supplier/competitor relationships, procurement routes, commercial meaning and discovery semantics.
 
-The handoff is mandatory in Access Asia production. ARGUS must validate the pinned ATLAS handoff schema, preserve unresolved facets and risk flags, reject `BLOCKED` handoffs for dependent execution, and return the exact `handoff_id`, contract version and `payload_sha256` in the domain result.
+The handoff is mandatory in Access Asia production. ARGUS validates the pinned handoff and collection-mission schemas, preserves unresolved facets and risk flags, rejects `BLOCKED` handoffs for dependent execution, and returns the exact handoff correlation in the domain result.
 
-Canonical flow:
+Normal execution uses **one handoff and one return**:
 
-`ATLAS classification/alignment → ATLAS Domain Context → ARGUS Contextualize → ARGUS domain method → ARGUS domain result + handoff receipt + proposed domain actions → ATLAS correlation verification/approval → authorized action(s) → ATLAS delivery`
+`ATLAS understand/normalize/frame/route → ATLAS governed handoff + collection mission → ARGUS bounded-autonomous investigation → ARGUS domain result + proposed batched mutation → ATLAS verify/approve/persist → ATLAS delivery`
+
+ARGUS does not return to ATLAS for routine research choices. Within an accepted mission and lease, ARGUS may follow evidence leads, choose lawful source routes, resolve identities, search official procurement sources, inspect authorized internal intelligence, investigate suppliers/products/competitors and continue decision-relevant research until the stopping rule is met.
+
+ARGUS escalates before normal return only when one of these conditions is material:
+
+- `MATERIAL_SCOPE_CHANGE` — evidence shows the mission target itself must materially change;
+- `AUTHORIZATION_REQUIRED` — a consequential external action or governed mutation requires ATLAS approval/authorization;
+- `POLICY_OR_SECURITY_CONFLICT` — policy, legal, security or access controls prohibit or constrain the next action;
+- `MATERIAL_AMBIGUITY` — continuing would risk investigating or mutating the wrong real-world object.
+
+Unknown project IDs, budgets, quantities, technical specifications, suppliers, procurement routes or lifecycle states are research questions, not callback triggers by themselves.
 
 Standalone ARGUS execution is reserved for portability, testing, recovery or non-Access-Asia implementations.
 
-The preferred executable interface is `Argus.analyze(AnalysisEnvelope)`. It owns the governed synchronization lifecycle and protected result correlation around an injected ARGUS domain method. The lower-level synchronization functions remain available for recovery, retry/resume, authorization, and compatible integrations; callers should not manually recreate the standard analysis path.
+The preferred executable interface is `Argus.analyze(AnalysisEnvelope)`. It owns the governed synchronization lifecycle and protected result correlation around an injected ARGUS domain method. Lower-level synchronization functions remain available for recovery, retry/resume, authorization and compatible integrations; callers should not manually recreate the standard path.
 
-## 5. Canonical operating loop
+## 5. Canonical operating model
 
-`Contextualize → Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
+### 5.1 Institution-first autonomous startup
 
-### Contextualize
-Consume the governed ATLAS Domain Context and translate it into an ARGUS opportunity-intelligence context without changing ATLAS-owned classifications or standards conclusions. Contextualization may add domain terminology, aliases, related solution classes, capability-to-solution relationships, jurisdiction-specific interpretation, search expansion and commercial meaning.
+For a government-commercial target, ARGUS performs this deterministic startup before broad collection:
 
-A `PARTIAL` ATLAS handoff may be used only with unresolved material preserved explicitly. A `BLOCKED` handoff cannot authorize dependent ARGUS execution.
+1. `RESOLVE_INSTITUTIONAL_HIERARCHY` — resolve country → ministry/division → agency/authority → subordinate unit/project office/procuring entity → end user/operator where evidence supports the chain.
+2. `CHECK_INTERNAL_CANONICAL_REGISTRY` — search the current ARGUS registry for the buyer, requirement, project, procurement, tender and opportunity using official identifiers first and progressively weaker identity evidence only when needed.
+3. `RECONCILE_OPPORTUNITY_IDENTITY` — decide whether the observation is an existing object, a clearly distinct new candidate, or materially ambiguous.
+4. `CHECK_OFFICIAL_PROCUREMENT_SOURCES` — determine whether the requirement has become externally visible in the applicable authority/platform/agency/development-partner channels.
+5. `CHECK_INTERNAL_CUSTOMER_INTELLIGENCE` — inspect authorized Access Asia customer intelligence, working files, CRM relationship context, prior meetings/correspondence/proposals/quotations and relevant historical records without duplicating their canonical masters.
+6. `BUILD_RESEARCH_FRONTIER` — reconcile public and internal evidence, contradictions and material unknowns; rank gaps by expected decision impact.
+7. `EXECUTE_ADAPTIVE_360_COLLECTION` — activate only the intelligence capabilities that can materially change the commercial decision.
+
+The deterministic startup rule places official procurement sources before internal customer intelligence after canonical-registry identity reconciliation. This ordering establishes the external procurement state first while still reusing internal intelligence before broader market collection.
+
+The mission uses a **transient mission context** for queries run, sources inspected, discovered entities, hypotheses, contradictions, open questions, closed questions and next-best actions. This context exists only for the mission and does not create an eighth canonical registry record type.
+
+After startup, the adaptive loop is:
+
+`Discover → Extract → Resolve → Reconcile → Validate → Assess → Prioritize → Decide → Promote/Monitor → Learn`
 
 ### Discover
-Find relevant signals through one or more discovery vectors and materially relevant 360° collection lenses, using the contextualized taxonomy/product/capability vocabulary to improve recall and avoid category errors.
+Find relevant signals through one or more discovery vectors and materially relevant 360° collection lenses, using contextualized taxonomy/product/capability vocabulary to improve recall and avoid category errors.
 
 ### Extract
 Convert evidence into structured candidate facts, identifiers, actors, dates, values, scope and source references.
@@ -143,34 +172,36 @@ Minimum envelope:
 
 `argus_id`, `record_type`, `canonical_name_or_title`, `status`, `related_argus_ids`, `evidence_refs`, `external_refs`, `created_at`, `updated_at`.
 
-360° collection does **not** create an eighth record type. Coverage is assessment metadata attached to the relevant ARGUS result or record context.
+360° collection and transient mission context do **not** create an eighth record type. Mission coordination state is execution-local; durable facts are persisted only into their proper canonical objects after governed verification and authorization.
 
 ## 8. Canonical ownership
 
 Use one canonical owner per information class:
 
-- ARGUS Master Registry semantics — structured intelligence truth;
-- current physical implementation — governed GitHub `data/registry/` JSON/JSONL lineage;
+- current mutable ARGUS structured state — SharePoint SQLite `General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite`;
+- ARGUS schema, identity rules, migration logic, tests, methods and release snapshots — ARGUS GitHub;
 - communication system — communication truth;
 - external document repository/source system — original document/evidence truth;
-- CRM — active post-PX commercial-pursuit truth when activated;
-- governed framework repository / ATLAS Library — framework, alignment, decision and task artifacts;
+- HubSpot — CRM company/contact identity, relationship, interaction and deal truth;
+- SharePoint business-intelligence/opportunity/project folders — original/working business documents and lifecycle files;
 - analytical engines — derived projections only;
 - research tools — evidence sources, not canonical truth;
 - monitoring tools — change detection, not opportunity authority.
 
-**Rule:** store each item once in its natural canonical home and link elsewhere. Raw tender/source documents do not belong in the ARGUS GitHub canonical data store.
+**Rule:** store each item once in its natural canonical home and link elsewhere. Raw tender/source documents and CRM master data do not belong in public ARGUS GitHub.
 
 ## 9. Discovery vectors
 
 ARGUS supports converging discovery vectors, including:
 
 - policy/top-down;
+- institution/buyer-downward;
 - product-to-buyer reverse discovery;
 - procurement-backward;
 - historical/installed-base;
 - funding-led;
 - ecosystem-led;
+- supplier/product-led;
 - trigger-event.
 
 Contextualization expands governed ATLAS classifications into search/discovery vocabulary such as aliases, abbreviations, adjacent solution classes, mission terms and local terminology. These enrichments are ARGUS discovery semantics, not replacement taxonomy authority.
@@ -242,13 +273,22 @@ Where a claim is material, ARGUS should prefer independent convergence across co
 
 Single-source dependence is permitted only when the source is sufficiently authoritative for the claim or when additional independent confirmation would not materially affect the decision.
 
-### 10.6 Internal-first collection
+### 10.6 Ordered startup and internal reuse
 
-360° collection does not mean external-first collection. ARGUS should reuse authorized internal intelligence before duplicating external research.
+ARGUS reuses authorized internal intelligence while preserving the institution-first startup sequence. The default order for a government-commercial mission is:
 
-Typical order:
+`institution hierarchy → ARGUS canonical registry → identity reconciliation → official procurement sources → internal customer intelligence → Research Frontier → adaptive external/internal 360° collection`
 
-`ARGUS Registry → existing PX/opportunities → communications → documents → supplier/product/installed-base history → knowledge/prior research → external collection appropriate to the task`
+The purpose is not to force every source into every mission. It is to establish buyer context and object identity early, detect authoritative procurement signals quickly, reuse Access Asia knowledge before duplicating broad research, and then spend effort only on material gaps.
+
+Internal customer intelligence may include, where authorized and relevant:
+
+- SharePoint customer/opportunity/project files and prior research;
+- HubSpot company/contact relationship state, interactions, notes and deals;
+- prior correspondence, meetings, proposals, quotations and supplier/customer history;
+- previous ARGUS observations, opportunities, supplier/product records and lessons.
+
+Canonical masters remain in their owning systems; ARGUS uses pointers/references rather than copying CRM or source-document masters.
 
 ### 10.7 Proportionality and stopping rule
 
@@ -260,10 +300,13 @@ Stop expanding collection when additional work is unlikely to change:
 - I0–I9 maturity;
 - route/institution/funding/procurement interpretation;
 - merge/new-candidate judgment;
+- supplier/product/competitor strategy;
 - `MONITOR`, `INVESTIGATE`, `PROMOTE_TO_PX`, `MERGE_EXISTING`, `HOLD` or `REJECT`;
 - next action or next material trigger.
 
-A weak early signal may justify only a few lens checks. A promotion recommendation may require broader coverage. A live tender may not require reconstructing every historical policy source when that work would not change the current decision.
+A weak early signal may justify only a few lens checks. A promotion recommendation may require broader coverage. A live tender may not require reconstruction of every historic policy source when that work would not change the current decision.
+
+Independent safe reads may run in parallel after the deterministic startup dependencies are satisfied. Canonical mutations remain serialized.
 
 ## 11. Identity and reconciliation
 
@@ -275,7 +318,12 @@ Identity states:
 - `UNRESOLVED`
 - `DISTINCT`
 
-Only `EXACT` and sufficiently evidenced `HIGH_CONFIDENCE_MATCH` should normally auto-merge.
+Identity behavior under the bounded-autonomous mission is explicit:
+
+- `EXACT` and `HIGH_CONFIDENCE_MATCH` continue without user confirmation on the existing canonical object when supported by adequate identity evidence;
+- `DISTINCT` continues as a new candidate without user confirmation when the evidence clearly establishes a different real-world object;
+- `PROBABLE_MATCH` and `UNRESOLVED` are the identity-confirmation escalation seam when choosing incorrectly could duplicate, merge or mutate the wrong opportunity;
+- title similarity alone never authorizes a merge.
 
 Procurement reconciliation outcomes:
 
@@ -286,7 +334,7 @@ Procurement reconciliation outcomes:
 - `DUPLICATE`
 - `SUPERSEDING_UPDATE`
 
-A new document, tender, amendment or award does not automatically create a new commercial opportunity.
+A new document, tender, amendment, re-tender or award does not automatically create a new commercial opportunity. One underlying requirement/opportunity may link to multiple procurement cycles, packages and solicitations.
 
 ## 12. Evidence semantics
 
@@ -351,13 +399,13 @@ Assess separately where material:
 
 Maintain only decision-relevant unresolved questions and collection gaps.
 
-A question belongs in the Research Frontier when its answer may materially change the reality of the signal, maturity, timing, institutional path, funding path, procurement path, commercial attractiveness, duplicate/merge result, promotion decision or next action.
+A question belongs in the Research Frontier when its answer may materially change the reality of the signal, maturity, timing, institutional path, funding path, procurement path, commercial attractiveness, duplicate/merge result, supplier strategy, promotion decision or next action.
 
 The 360° coverage matrix exposes gaps; the Research Frontier decides which gaps deserve further work.
 
-Stop expanding a research branch when additional evidence is unlikely to change the next decision.
+Within a bounded ATLAS mission, ARGUS owns the ordering of internal research branches and may follow new evidence leads without requesting a new ATLAS callback. ATLAS owns the outer mission scope, authorization, approvals and execution lease. A new handoff is required only when an escalation condition is met, particularly a material scope/classification change.
 
-When ATLAS governs execution, the Research Frontier proposes the domain research priority; ATLAS owns work-unit creation, routing and execution timing. If new authoritative evidence materially changes the ATLAS-owned classification or framework alignment, ARGUS returns that finding to ATLAS and waits for a new handoff rather than silently modifying the upstream context.
+Stop expanding a research branch when additional evidence is unlikely to change the next commercial decision.
 
 ## 15. Domain decisions
 
@@ -376,7 +424,7 @@ A decision is analytical. Any state mutation is a separate proposed domain actio
 
 ## 16. Domain result contract
 
-ARGUS returns a structured domain result to the governing runtime. It is not automatically the final user-facing answer.
+ARGUS returns one structured domain result to the governing runtime under the normal one-handoff/one-return path. It is not automatically the final user-facing answer.
 
 In `ATLAS_GOVERNED` mode, the result must contain the exact accepted upstream handoff receipt so ATLAS can verify `contract_version`, `handoff_id`, `payload_sha256` and consumer identity before accepting the result.
 
@@ -388,6 +436,7 @@ The result contains, proportionately:
 - domain decision;
 - I0–I9 maturity;
 - institutional chain;
+- existing/new/ambiguous identity outcome;
 - project/funding/procurement state;
 - commercial relevance;
 - evidence and provenance;
@@ -395,29 +444,37 @@ The result contains, proportionately:
 - collection gaps where material;
 - unknowns/conflicts;
 - Research Frontier;
+- supplier/product/competitor assessment where material;
 - next material trigger;
 - next recommended action;
-- proposed domain/registry actions.
+- proposed domain/registry actions as one batched mutation proposal when persistence is useful.
 
 The machine-readable contract is defined in `schemas/domain-result.schema.json`.
 
-## 17. Domain actions and current persistence
+## 17. Domain actions and persistence
 
-ARGUS structured intelligence is currently canonicalized through the governed GitHub-first store under `data/registry/`, with JSON/JSONL as the preferred machine representation. Database/API materialization is deferred and remains an implementation option rather than a Core dependency.
+Current mutable ARGUS structured state is canonical in the governed SharePoint SQLite store:
 
-An ARGUS canonical mutation is a domain action, not ATLAS task-library persistence.
+`General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite`
+
+ARGUS GitHub remains authoritative for schema, canonical identity rules, migration logic, tests, methods and versioned release snapshots. GitHub registry JSON/JSONL is migration/bootstrap/audit or release-snapshot material, not a competing live write target.
+
+An ARGUS canonical mutation is a domain action, not an automatic side effect of research.
 
 Under ATLAS governance:
 
-1. ATLAS provides the validated domain-context handoff.
-2. ARGUS validates and accepts the handoff, then contextualizes it without redefining ATLAS-owned semantics.
-3. ARGUS produces the domain result, exact upstream handoff receipt and any proposed action.
-4. ATLAS verifies the return correlation, material claims, authorization and approval requirements.
-5. An authorized canonical mutation is executed through the current governed store/adapter.
-6. ATLAS verifies the mutation result and separately persists its own task artifact/receipt where required.
-7. ATLAS delivers the verified result.
+1. ATLAS provides the validated domain-context handoff, collection mission and execution lease.
+2. ARGUS performs the institution-first startup and bounded-autonomous investigation.
+3. ARGUS returns the domain result, exact upstream handoff correlation and, where useful, one proposed mutation bundle.
+4. ATLAS verifies return correlation, material claims, identity resolution, authorization and approval requirements.
+5. ATLAS fetches the latest SharePoint SQLite target, verifies target metadata/version and database integrity, and resolves canonical identity again before mutation.
+6. Authorized changes are applied locally in one serialized transaction with provenance and mutation-log entries.
+7. Integrity/foreign-key checks run, the SharePoint target is re-checked, the same file is replaced, and the uploaded result is verified.
+8. ATLAS delivers the verified result.
 
-Saving a report never proves that the ARGUS canonical structured state changed. A canonical structured mutation never substitutes for required ATLAS task-artifact persistence.
+ARGUS should not persist every intermediate discovery. Candidate observations and relationships remain in transient mission context until a decision-sufficient result can be proposed as a coherent batch.
+
+Saving a report never proves that canonical structured state changed. A canonical structured mutation never substitutes for required ATLAS verification or business-file persistence.
 
 ## 18. PX promotion and downstream handoff
 
@@ -435,7 +492,7 @@ Monitoring detects changes; it does not create opportunities directly.
 
 Monitoring should be event- and lens-aware. Triggers may target funding changes, project approvals, procurement notices, technical obsolescence, institutional changes, consultant appointments, supplier moves, policy changes or other material events.
 
-A detected event re-enters normal ARGUS contextualization, resolution, reconciliation, validation, assessment and decision logic. If the event changes ATLAS-owned domain classification/framework context materially, ATLAS must issue a new domain-context handoff before dependent analysis continues.
+A detected event re-enters normal ARGUS institutional/identity reconciliation, validation, assessment and decision logic. If the event changes ATLAS-owned mission scope/classification materially, ARGUS raises `MATERIAL_SCOPE_CHANGE` before dependent work continues.
 
 ## 20. Portability
 
@@ -454,6 +511,7 @@ Before adding any feature, tool, database, workflow or application, ask:
 5. Does it materially improve opportunity intelligence or a commercial decision?
 6. Does it belong pre-PX or downstream?
 7. Is ARGUS the correct owner, or is the capability already owned by ATLAS?
-8. Does the feature improve contextualization, 360° coverage, evidence quality, reconciliation or decision quality without encouraging indiscriminate collection?
+8. Does the feature improve institutional resolution, 360° coverage, evidence quality, reconciliation or decision quality without encouraging indiscriminate collection?
+9. Does it preserve the one-handoff/one-return seam and avoid routine cross-application callbacks?
 
 If not, keep it outside ARGUS Core.

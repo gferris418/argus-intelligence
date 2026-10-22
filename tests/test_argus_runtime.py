@@ -107,6 +107,35 @@ class ArgusRuntimeTests(unittest.TestCase):
             "source_priorities": ["official"],
             "source_exclusions": [],
             "risk_flags": [],
+            "execution_policy": {
+                "handoff_pattern": "ONE_HANDOFF_ONE_RETURN",
+                "autonomy_mode": "BOUNDED_AUTONOMOUS",
+                "startup_sequence": [
+                    "RESOLVE_INSTITUTIONAL_HIERARCHY",
+                    "CHECK_INTERNAL_CANONICAL_REGISTRY",
+                    "RECONCILE_OPPORTUNITY_IDENTITY",
+                    "CHECK_OFFICIAL_PROCUREMENT_SOURCES",
+                    "CHECK_INTERNAL_CUSTOMER_INTELLIGENCE",
+                    "BUILD_RESEARCH_FRONTIER",
+                    "EXECUTE_ADAPTIVE_360_COLLECTION",
+                ],
+                "identity_resolution": {
+                    "auto_reuse": ["EXACT", "HIGH_CONFIDENCE_MATCH"],
+                    "auto_new_candidate": ["DISTINCT"],
+                    "escalate": ["PROBABLE_MATCH", "UNRESOLVED"],
+                },
+                "identity_confirmation": "AMBIGUOUS_ONLY",
+                "escalation_conditions": [
+                    "MATERIAL_SCOPE_CHANGE",
+                    "AUTHORIZATION_REQUIRED",
+                    "POLICY_OR_SECURITY_CONFLICT",
+                    "MATERIAL_AMBIGUITY",
+                ],
+                "follow_evidence_leads_without_callback": True,
+                "parallel_safe_reads": True,
+                "persistence_mode": "PROPOSE_BATCH_THEN_ATLAS_COMMIT",
+                "mission_context": "TRANSIENT_ONLY",
+            },
             "stopping_rule": "Stop when the target identity and material evidence are sufficiently corroborated.",
         }
 
@@ -182,6 +211,15 @@ class ArgusRuntimeTests(unittest.TestCase):
         self.assertEqual(original_mission, mission)
         self.assertEqual(original_handoff, captured["handoff"])
         self.assertEqual(original_mission, captured["collection_mission"])
+        self.assertEqual(
+            {
+                "storage": "TRANSIENT_ONLY",
+                "startup_sequence": original_mission["execution_policy"]["startup_sequence"],
+                "follow_evidence_leads_without_callback": True,
+                "parallel_safe_reads": True,
+            },
+            captured["mission_context_policy"],
+        )
         self.assertEqual("SUFFICIENT", outcome.result["collection_status"])
         self.assertEqual(outcome.result["result_sha256"], outcome.receipt["argus"]["result_sha256"])
         self.assertEqual("RETURNED", outcome.receipt["state"])

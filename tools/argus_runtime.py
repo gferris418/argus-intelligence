@@ -150,9 +150,17 @@ class Argus:
 
         method_input = deepcopy(handoff)
         if envelope.collection_mission is not None:
+            mission = deepcopy(dict(envelope.collection_mission))
+            execution_policy = deepcopy(dict(mission["execution_policy"]))
             method_input = {
                 "handoff": deepcopy(handoff),
-                "collection_mission": deepcopy(dict(envelope.collection_mission)),
+                "collection_mission": mission,
+                "mission_context_policy": {
+                    "storage": execution_policy["mission_context"],
+                    "startup_sequence": deepcopy(execution_policy["startup_sequence"]),
+                    "follow_evidence_leads_without_callback": execution_policy["follow_evidence_leads_without_callback"],
+                    "parallel_safe_reads": execution_policy["parallel_safe_reads"],
+                },
             }
 
         try:

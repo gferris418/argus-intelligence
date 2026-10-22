@@ -1,13 +1,68 @@
-schema_version: 1
+schema_version: 2
 id: argus.collection-method
-version: 1.1.0
+version: 1.2.0
 status: CANDIDATE
 normative: true
 purpose: >-
-  Convert an ATLAS-authorized collection mission into a bounded intelligence
-  collection plan, execute that plan against lawful and authorized sources, learn
-  from every search attempt, and return an evidence package without taking ownership
-  of ATLAS analysis or decisions.
+  Convert one ATLAS-authorized collection mission into a bounded-autonomous
+  government-commercial intelligence investigation, execute the material research
+  internally without routine ATLAS callbacks, learn from every search attempt, and
+  return one decision-ready evidence package plus an optional batched mutation proposal.
+
+execution:
+  handoff_pattern: ONE_HANDOFF_ONE_RETURN
+  autonomy_mode: BOUNDED_AUTONOMOUS
+  mission_context: TRANSIENT_ONLY
+  follow_evidence_leads_without_callback: true
+  parallel_safe_reads: true
+  persistence_mode: PROPOSE_BATCH_THEN_ATLAS_COMMIT
+  startup_sequence:
+    - RESOLVE_INSTITUTIONAL_HIERARCHY
+    - CHECK_INTERNAL_CANONICAL_REGISTRY
+    - RECONCILE_OPPORTUNITY_IDENTITY
+    - CHECK_OFFICIAL_PROCUREMENT_SOURCES
+    - CHECK_INTERNAL_CUSTOMER_INTELLIGENCE
+    - BUILD_RESEARCH_FRONTIER
+    - EXECUTE_ADAPTIVE_360_COLLECTION
+  escalation_conditions:
+    - MATERIAL_SCOPE_CHANGE
+    - AUTHORIZATION_REQUIRED
+    - POLICY_OR_SECURITY_CONFLICT
+    - MATERIAL_AMBIGUITY
+
+startup_semantics:
+  RESOLVE_INSTITUTIONAL_HIERARCHY: >-
+    Resolve country, ministry/division, agency/authority, subordinate unit/project office,
+    procuring entity, end user and operator only as far as evidence supports them. Reuse
+    existing canonical institution records where identity is resolved.
+  CHECK_INTERNAL_CANONICAL_REGISTRY: >-
+    Search current canonical ARGUS objects before broad external collection using exact
+    official identifiers first, then project/package/procurement relationships, buyer plus
+    reference, requirement semantics and other corroborating identity attributes. Never
+    merge on title similarity alone.
+  RECONCILE_OPPORTUNITY_IDENTITY: >-
+    EXACT and HIGH_CONFIDENCE_MATCH continue on the existing object without user
+    confirmation. DISTINCT continues as a new candidate. PROBABLE_MATCH or UNRESOLVED
+    escalates only when choosing incorrectly could duplicate, merge or mutate the wrong
+    opportunity or real-world object.
+  CHECK_OFFICIAL_PROCUREMENT_SOURCES: >-
+    Determine whether the requirement has become externally visible using the applicable
+    country route, procurement authority/platform, procuring-entity source, project/funding
+    systems and development-partner sources. Not-found remains UNKNOWN rather than absent.
+  CHECK_INTERNAL_CUSTOMER_INTELLIGENCE: >-
+    Reuse authorized customer and relationship intelligence from SharePoint, HubSpot,
+    prior correspondence, meetings, proposals, quotations, project/opportunity files and
+    existing ARGUS knowledge. Keep canonical masters in their owning systems and use
+    references rather than copies.
+  BUILD_RESEARCH_FRONTIER: >-
+    Reconcile internal and external evidence, preserve contradictions and rank only
+    unresolved questions whose answers may materially change identity, maturity, timing,
+    procurement interpretation, supplier strategy, commercial attractiveness or next action.
+  EXECUTE_ADAPTIVE_360_COLLECTION: >-
+    Activate only the materially useful demand, government, project/funding, procurement,
+    technical/installed-base, supplier/product, competitor, ecosystem and commercial
+    participation capabilities. Independent safe reads may run in parallel after their
+    startup dependencies are satisfied.
 
 method:
   stages:
@@ -22,18 +77,27 @@ method:
     - COMPETING_HYPOTHESES
     - GAPS
     - PACKAGE
+  pre_stage_policy: execution.startup_sequence
   semantics:
-    PIR: Derive the minimum priority intelligence requirements needed to satisfy the ATLAS mission objective.
+    PIR: Derive only the priority intelligence requirements that can change the commercial decision after the governed startup sequence has established hierarchy, identity and initial source state.
     EEI: Decompose each PIR into answerable essential elements of information.
-    COLLECTION_PLAN: Map EEIs to bounded collection tasks, target classes, depth and stopping conditions.
-    SOURCE_PLAN: Select source classes by authority, relevance, recency, independence and legal accessibility.
-    COLLECT: Discover and acquire authorized source material without expanding scope beyond the mission.
+    COLLECTION_PLAN: Map EEIs to bounded collection tasks, target classes, safe-read dependencies and stopping conditions.
+    SOURCE_PLAN: Select the narrowest competent source set by authority, relevance, recency, independence, legal accessibility and expected information gain.
+    COLLECT: Discover and acquire authorized source material without expanding scope beyond the mission; follow material evidence leads internally without routine ATLAS callbacks.
     SEARCH_LEARNING: Record information gain, source performance, terminology, failures, new unknowns, hypothesis movement and the recommended next search for every search attempt.
-    RESOLVE: Normalize and resolve entities, events, relationships, aliases, dates and duplicate observations.
+    RESOLVE: Normalize and resolve entities, events, relationships, aliases, dates, duplicate observations and existing-vs-new opportunity identity.
     GRADE: Grade source authority, freshness, corroboration and contradictions while preserving provenance.
     COMPETING_HYPOTHESES: Maintain plausible alternatives when material evidence supports more than one explanation.
-    GAPS: Expose unanswered EEIs, conflicts, weak hypotheses and the next material collection frontier.
-    PACKAGE: Return a collection package to ATLAS Evidence Governance for canonical claim status and further analysis.
+    GAPS: Expose unanswered EEIs, conflicts, weak hypotheses and the next material Research Frontier item.
+    PACKAGE: Return one collection/domain package to ATLAS with evidence, identity outcome, coverage, gaps and optional batched mutation proposal.
+
+identity_resolution:
+  states: [EXACT, HIGH_CONFIDENCE_MATCH, PROBABLE_MATCH, UNRESOLVED, DISTINCT]
+  auto_reuse: [EXACT, HIGH_CONFIDENCE_MATCH]
+  auto_new_candidate: [DISTINCT]
+  user_confirmation_escalation: [PROBABLE_MATCH, UNRESOLVED]
+  title_similarity_alone_can_merge: false
+  new_tender_implies_new_opportunity: false
 
 search_learning:
   authority: spec/continuous-learning.yaml
@@ -48,7 +112,10 @@ search_learning:
 
 target_classes:
   - Country
+  - Ministry
   - Government Agency
+  - Procuring Entity
+  - End User
   - Buyer
   - Company
   - OEM
@@ -57,6 +124,9 @@ target_classes:
   - Platform
   - Programme
   - Project
+  - Requirement
+  - Procurement Plan
+  - Procurement Package
   - Tender
   - Contract
   - Sector
@@ -70,14 +140,19 @@ source_governance:
     - primary
     - authoritative-secondary
     - open-source
+  internal_reuse_before_broad_external_research: true
+  official_procurement_check_precedes_internal_customer_intelligence_in_startup: true
   independent_corroboration_required_when_material: true
   source_link_is_not_verification: true
   source_outputs_are_untrusted_until_assessed: true
   preserve_original_provenance: true
   temporal_validity_required_when_material: true
+  not_found_means_does_not_exist: false
 
 resolution:
   entity_resolution: required
+  institutional_hierarchy_resolution: required_for_government_targets
+  opportunity_identity_resolution: required_before_new_opportunity_creation
   event_resolution: required_when_material
   relationship_resolution: required_when_material
   alias_tracking: required
@@ -86,28 +161,43 @@ resolution:
 
 hypothesis_discipline:
   required_when:
-    - evidence materially conflicts
-    - attribution is uncertain
-    - multiple plausible explanations affect collection sufficiency
+    - evidence_materially_conflicts
+    - attribution_is_uncertain
+    - multiple_plausible_explanations_affect_collection_sufficiency
   allowed_statuses: [ACTIVE, SUPPORTED, WEAKENED, REJECTED, UNRESOLVED]
-  rule: ARGUS records evidence for and against hypotheses but ATLAS owns final analytical conclusions.
+  rule: ARGUS records evidence for and against hypotheses but ATLAS owns authoritative final business decisions.
+
+parallelism:
+  independent_safe_reads: allowed
+  dependent_startup_steps: ordered
+  authority_or_approval_parallelization: prohibited
+  canonical_mutation_concurrency: prohibited
 
 stopping:
   rule: >-
-    Stop when all critical PIRs are materially satisfied or remaining gaps are
-    explicit and additional collection is unlikely to change ATLAS analysis,
-    decision, risk posture or the next authorized action.
+    Stop when critical PIRs are materially satisfied or remaining gaps are explicit and
+    additional collection is unlikely to change the commercial decision, identity/merge
+    outcome, maturity, institutional/funding/procurement interpretation, supplier strategy,
+    risk posture or next authorized action.
   exhaustive_collection_required: false
   scope_expansion_requires_new_atlas_mission: true
 
 outputs:
+  - institutional_hierarchy
+  - identity_resolution
+  - official_procurement_state
+  - internal_customer_intelligence_summary
   - collection_plan
   - collection_package
+  - collection_coverage
   - collection_gaps
+  - research_frontier
   - unresolved_hypotheses
   - source_provenance
   - entity_relationship_updates
+  - supplier_product_competitor_assessment
   - research_learning_records
+  - proposed_mutation_batch
 
 handoff_to:
   evidence_governance_owner: ATLAS_OS
@@ -117,6 +207,9 @@ handoff_to:
 
 prohibited:
   - self_activation
+  - second_orchestration_spine
+  - routine_callback_for_research_choice
+  - canonical_intelligence_case_record_for_mission_coordination
   - unrestricted_personal_investigation
   - final_business_decision
   - bid_no_bid_decision

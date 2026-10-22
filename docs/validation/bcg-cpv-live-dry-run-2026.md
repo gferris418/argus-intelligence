@@ -1,294 +1,306 @@
 # Live End-to-End Dry Run — Bangladesh Coast Guard Coastal Patrol Vessel
 
 **Scenario:** Coastal Patrol Vessel for Bangladesh Coast Guard  
-**As of:** 2026-10-18  
-**Status:** Architecture validation candidate  
-**Purpose:** Show exactly how information moves from ATLAS OS into ARGUS, through Bangladesh normalization/reconciliation, and back to ATLAS without duplicate opportunity creation or semantic drift.
+**As of:** 2026-10-22  
+**Status:** Autonomous-flow validation candidate  
+**Purpose:** Validate the one-handoff/one-return, institution-first ARGUS workflow against a real Bangladesh Coast Guard procurement and the active ARGUS operational registry.
 
-## Official evidence used
+## Evidence baseline
 
-### Bangladesh Public Procurement Authority
+### BPPA solicitation
 
-Official solicitation:
-`https://bppa.gov.bd/advertisement-works/details-98162.html`
+Official procurement evidence establishes:
 
-Observed material facts:
-- Ministry of Home Affairs;
-- Bangladesh Coast Guard Force;
+- Ministry/Division: Ministry of Home Affairs;
+- Agency: Bangladesh Coast Guard Force;
 - Procuring Entity: Project Director;
 - PE Code: `224392800`;
 - Invitation Reference: `44.08.2680.033.02.106.26.160`;
+- Invitation For: Works;
 - Procurement Method: `ICT One Stage & Two envelope Tendering Method`;
 - Budget and Source: `Development Budget GOB`;
-- Tender title: `Construction and Delivery of 4 (Four) in No. Coastal Patrol Vessel (CPV)`;
+- Project/Programme Code: blank on the BPPA record;
+- Project/Programme Name: blank on the BPPA record;
+- Tender Package No: blank on the BPPA record;
+- Tender Package Name: `Construction and Delivery of 4 (Four) in No. Coastal Patrol Vessel (CPV)`;
 - Lot No: `1`;
 - Lot Identification: `WD-2`;
-- latest corrigendum status: Active;
-- latest closing: `2026-10-25 12:00 Asia/Dhaka`;
-- latest opening: `2026-10-25 12:30 Asia/Dhaka`;
-- minimum stated experience: 10 years of shipbuilding and delivery of combat vessels/patrol craft, with other qualifications in the tender documents.
+- stated experience: at least 10 years of shipbuilding and delivery of combat vessels/patrol crafts;
+- tender document price: BDT 100,000 non-refundable;
+- tender security: BDT 23 crore;
+- completion period: 36 months after contract signing.
 
-### Bangladesh Planning Commission — ADP
+Corrigendum history is append-only. The latest published corrigendum in the captured BPPA record is dated 19 October 2026 and sets:
 
-Official ADP page:
-`https://adp.plancomm.gov.bd/exp/press-book.php?action=allocation&fiscal_year=2025&view=html`
+- last selling date: 28 October 2026;
+- closing: 29 October 2026, 12:00 PM;
+- opening: 29 October 2026, 12:30 PM;
+- status: Active.
 
-Observed material facts:
-- Implementing Agency: Coast Guard;
-- Project Code: `224392800`;
-- Project: `Acquisition of Replacement Vessel to Increase the Capacity of Bangladesh Coast Guard (1st Revised)`;
-- implementation period: `2023-11-01` to `2027-06-30`;
-- status: Approved;
-- financing: GoB.
+### Active ARGUS operational registry
 
-### UN Statistics Division classifications
+The current SharePoint SQLite materialization already contains the CPV lineage, including:
 
-- ISIC Rev.4 `3011` — Building of ships and floating structures.
-- CPC Ver.2.1 `49319` — Other vessels, including the applicable broader vessel class.
-- CPC Ver.2.1 `88821` — Ship building services.
-- HS candidates under heading 8906 include `890610` (warships) and `890690` (other vessels). ARGUS does not choose between them; that remains unresolved in ATLAS until authoritative product/customs evidence establishes the correct subheading.
+- procurement process `PROC-BCG-LT001`;
+- derived requirement `REQ-BD-000001`;
+- solicitation `TND-BD-000001`;
+- lot `LOT-BD-000001`;
+- item `ITM-BD-000001`;
+- source record `SRC-BD-000001`;
+- publication/corrigendum history.
 
-## Process trace
+The BPPA blank project/programme/package fields remain unknown; no upstream project/package identity is fabricated merely to complete the hierarchy.
+
+---
+
+## Runtime trace
 
 ### 1. User seed
 
 Input:
+
 `Coastal Patrol Vessel for Bangladesh Coast Guard`
 
-Output forwarded to ATLAS:
-A business-intelligence seed only. It is not treated as proof of a project, funding, procurement, or new opportunity.
+ATLAS interprets this as a Bangladesh government-commercial intelligence request concerning a named public-sector end user and a specific maritime capability/product class. The seed is not itself proof of a project, procurement or new opportunity.
 
-### 2. ATLAS task classification
+### 2. ATLAS three-step preprocessing
 
-ATLAS identifies the work as research + analysis + decision support in Bangladesh government/public-sector procurement context.
+ATLAS performs only:
 
-Output:
-Governed execution context.
+1. **Understand + Normalize** — normalize the subject to Coastal Patrol Vessel / Bangladesh Coast Guard.
+2. **Minimal Domain Framing** — Bangladesh; maritime-security/public-sector context; named government buyer/end user; shipbuilding/vessel capability.
+3. **Route** — `ARGUS_COLLECTION`.
 
-### 3. ATLAS domain classification
+ATLAS does not try to solve the project, funding, procurement, supplier or competitor questions itself.
 
-ATLAS resolves the generic domain before ARGUS discovery:
-- jurisdiction: Bangladesh;
-- operator context: Bangladesh Coast Guard / maritime security;
-- supplier industry: ISIC 3011;
-- product class: CPC 49319;
-- shipbuilding service class: CPC 88821;
-- capability context: maritime patrol/law enforcement/surveillance/interdiction/SAR;
-- HS subheading unresolved between candidate codes pending authoritative evidence.
+### 3. One governed collection mission
 
-Output:
-A governed domain-classification snapshot.
+ATLAS creates one collection mission with:
 
-### 4. ATLAS domain/framework alignment
+- `handoff_pattern = ONE_HANDOFF_ONE_RETURN`;
+- `autonomy_mode = BOUNDED_AUTONOMOUS`;
+- `identity_confirmation = AMBIGUOUS_ONLY`;
+- `follow_evidence_leads_without_callback = true`;
+- `parallel_safe_reads = true`;
+- `persistence_mode = PROPOSE_BATCH_THEN_ATLAS_COMMIT`;
+- `mission_context = TRANSIENT_ONLY`.
 
-ATLAS records applicable procurement/domain framework context and unresolved technical standards/classification-society requirements.
+The mission authorizes research, not consequential external action or uncontrolled persistence.
 
-Output:
-Domain alignment plus unresolved material.
+### 4. ARGUS — resolve institutional hierarchy first
 
-### 5. ATLAS domain-context handoff
+ARGUS establishes the evidence-supported chain:
 
-ATLAS sends an immutable handoff to ARGUS with:
-- handoff ID;
-- task ID;
-- classification snapshot;
-- taxonomy references;
-- alignment state;
-- unresolved items;
-- risk flags;
-- payload SHA-256.
+`Bangladesh → Ministry of Home Affairs → Bangladesh Coast Guard Force → Project Director / Procuring Entity`
 
-This case may proceed as `PARTIAL` because unresolved HS/technical standards do not block opportunity intelligence.
-
-### 6. ARGUS Contextualize
-
-ARGUS does not redefine the ATLAS taxonomy. It converts the governed context into opportunity-search semantics:
-- Coastal Patrol Vessel;
-- CPV;
-- patrol vessel;
-- patrol craft;
-- related/adjacent vessel classes;
-- Bangladesh Coast Guard;
-- known identifiers such as `WD-2` and the invitation reference.
+The published notice establishes the Ministry, Agency and PE roles. ARGUS does not silently assume additional project, directorate or operational-command nodes that the evidence does not establish.
 
 Output:
-ARGUS search/context expansion.
 
-### 7. ARGUS Registry lookup
+- resolved government hierarchy;
+- reusable canonical institution references;
+- unresolved downstream institutional roles retained as unknown where needed.
 
-ARGUS searches GitHub canonical Registry first.
+### 5. ARGUS — check the internal canonical registry before creating anything
 
-Existing lineage found:
-- `ENT-BD-COAST-GUARD`;
-- `PRJ-BCG-CPV-WD2`;
-- `PROC-BCG-LT001`.
+ARGUS searches the current operational registry using, in order where available:
 
-Output:
-Candidate existing lineage. No new opportunity is created.
+1. official invitation/reference identifiers;
+2. source-system identifiers;
+3. buyer + procurement/requirement relationships;
+4. buyer + CPV product/capability + quantity;
+5. semantic similarity only as candidate evidence.
 
-### 8. Bangladesh source normalization
-
-Official observations are mapped into the canonical Bangladesh field vocabulary.
-
-Examples:
-- `Ministry/Division` -> `institution.ministry_name`;
-- `Agency` -> `institution.organization_name`;
-- `Procuring Entity Code` -> `institution.pe_code`;
-- Planning Commission `Project Code` -> `project.code`;
-- `Budget and Source of Funds` -> separate `funding.budget_type` and `funding.source`;
-- `Procurement Method` -> `procurement.method`;
-- `Invitation Reference No` -> `solicitation.reference_no`;
-- `Lot No` -> `procurement.lot_no`;
-- `Identification` -> `procurement.lot_identification`;
-- latest corrigendum closing/opening dates -> current solicitation dates.
-
-Important typed-identifier result:
-`institution.pe_code` and `project.code` both equal `224392800` in the two official sources. ARGUS preserves both typed fields and does not merge them merely because the string values are equal.
-
-Important semantic correction:
-The BPPA page leaves `Tender Package No` blank while publishing Lot `1`, Identification `WD-2`. Therefore `WD-2` is not coerced into `procurement.package_no`. The Bangladesh Data Standard now models lot number and lot identification explicitly.
-
-### 9. Resolve and reconcile
-
-ARGUS compares current official evidence to the existing Registry lineage.
-
-Result:
-`MATCHED_EXISTING`
-
-Why:
-- same Coast Guard institutional context;
-- same four-CPV requirement;
-- same `WD-2` identifier already present in legacy lineage;
-- current official BPPA event resolves the previous stale procurement state;
-- Planning Commission confirms an approved GoB replacement-vessel project in the same institutional context.
+Existing CPV lineage is found.
 
 Output:
-Refresh existing lineage; do not create another opportunity.
 
-### 10. 360-degree coverage assessment
+`identity_state = EXACT / HIGH_CONFIDENCE_MATCH` (depending on the exact identifier evidence available to the runtime)
 
-Current coverage:
-- need/mission: ADEQUATE;
-- institution/stakeholders: ADEQUATE;
-- programme/project: ADEQUATE;
-- budget/funding: ADEQUATE;
-- procurement/acquisition: ADEQUATE;
-- timing/triggers: ADEQUATE;
-- policy/strategy: PARTIAL;
-- technical/installed base: INSUFFICIENT;
-- supplier/competitor: INSUFFICIENT;
-- ecosystem/influence: PARTIAL;
-- commercial participation: INSUFFICIENT;
-- internal intelligence: PARTIAL.
+Action:
+
+Continue on the existing lineage. **Do not ask the user whether to create another opportunity.**
+
+If the evidence had only produced `PROBABLE_MATCH` or `UNRESOLVED`, the system would stop at this seam and ask once before a duplicate/merge-sensitive action.
+
+### 6. ARGUS — check official procurement sources
+
+Because the existing lineage is resolved, ARGUS checks competent Bangladesh publication sources according to the evidenced route rather than guessing the portal from the product name.
+
+The BPPA notice confirms a formal procurement for four CPVs and a current corrigendum chain.
+
+Key normalization:
+
+- Invitation Reference → solicitation external identifier;
+- Ministry / Agency / PE remain separate roles;
+- `WD-2` remains Lot Identification, not Tender Package No.;
+- blank Project/Programme Code, Project/Programme Name and Tender Package No remain `UNKNOWN`;
+- each corrigendum becomes an immutable event/release rather than overwriting history.
 
 Output:
-Coverage matrix + material gaps.
 
-### 11. ARGUS assessment
+- formal procurement confirmed;
+- lifecycle is at least live-solicitation/tender stage;
+- official current dates updated from the latest authoritative event;
+- no duplicate commercial opportunity created.
 
-Current state as of 2026-10-18:
-- maturity: `I9`;
-- maturity condition: CURRENT;
-- procurement state: OPEN;
-- closing: 2026-10-25 12:00 Asia/Dhaka;
-- project state: APPROVED;
-- funding: GoB development budget evidenced;
-- Bangladesh route: `BD-DEV-GOB`;
-- decision: `INVESTIGATE`.
+### 7. ARGUS — check internal customer intelligence
 
-This explicitly solves the earlier temporal-maturity problem: the maturity is tied to an `as_of` date and current evidence rather than inheriting a stale historical I9 state.
+Only after external procurement state and identity are resolved does ARGUS query authorized Access Asia internal customer intelligence relevant to this buyer/requirement:
 
-### 12. Research Frontier
+- existing ARGUS observations/knowledge linked to Bangladesh Coast Guard or the CPV lineage;
+- SharePoint Business Intelligence/opportunity/project records;
+- HubSpot buyer/customer relationship context, interactions, notes and deals where authorized;
+- prior correspondence, meeting notes, quotations, proposals and concept material;
+- supplier/product/installed-base history and previous research.
 
-The highest-value question is not whether a tender exists; that is now verified.
+The purpose is to answer:
 
-Priority question:
-`Does Access Asia have a commercially viable participation path before the 2026-10-25 closing date, considering full tender eligibility/specification requirements, suitable shipyard/OEM partners, representation/team structure, bid security and commercial economics?`
+- Did Access Asia know about this requirement before tender publication?
+- Which Coast Guard/customer relationships or discussions relate to it?
+- Have any shipyards/OEMs already been considered or contacted?
+- Is there prior technical, budget, project or competitor knowledge?
+- Is there an existing Access Asia commercial position that changes the next action?
 
-This is decision-driven because the answer changes the next action.
+Internal evidence is used for Access Asia history/relationship claims and corroboration. It is not treated as independent proof of government approval or procurement unless the source itself has that authority.
 
-### 13. ARGUS domain result
+### 8. ARGUS — reconcile internal and official evidence
 
-ARGUS returns:
-- current `I9` state;
-- `INVESTIGATE` decision;
-- existing lineage identity;
-- no new opportunity;
-- current normalized facts and provenance;
-- Research Frontier;
-- proposed actions to refresh the existing procurement record and continue decision-driven research.
+ARGUS creates one mission-local picture:
 
-### 14. ATLAS return receipt
-
-ARGUS returns the exact upstream handoff/correlation identifiers. ATLAS verifies that the domain result corresponds to the same handoff and task.
-
-Mismatch, stale handoff, missing receipt, or changed upstream context must fail closed.
-
-### 15. ATLAS verification / authorization
-
-ATLAS verifies:
-- current official sources;
-- evidence/claim separation;
-- no duplicate opportunity;
-- no silent taxonomy override;
-- no unauthorized permanent PX creation.
-
-### 16. GitHub persistence boundary
-
-The dry run itself performs no canonical Registry mutation.
-
-A later governed production write may persist:
-- normalized current procurement state;
-- source locators;
-- current dates/status;
-- synthesized assessment;
-- Research Frontier;
-- evidence references.
-
-It must not upload the raw tender document or attachments to GitHub.
-
-### 17. User delivery
-
-ATLAS presents decision-ready intelligence, not a raw source dump.
-
-## Architecture findings
-
-### PASS
-- ATLAS classification before ARGUS discovery;
-- immutable ATLAS -> ARGUS handoff;
-- ARGUS contextualization without taxonomy duplication;
-- internal-first Registry lookup;
-- cross-source normalization;
-- typed identifiers preserved;
-- one-lineage reconciliation;
-- current time-qualified maturity;
-- 360-degree coverage;
-- decision-driven Research Frontier;
-- structured-only GitHub persistence.
-
-### Data-standard improvement discovered
-
-The live BPPA page distinguishes:
-- Tender Package No.;
-- Lot No.;
-- Lot Identification.
-
-The prior Bangladesh standard did not model lot number/lot identification separately. The dry run therefore adds:
-- `procurement.lot_no`;
-- `procurement.lot_identification`.
-
-### Additional datapoints observed but not yet canonicalized
-
-The official BPPA notice also exposes:
-- tender document price;
-- tender security amount;
+**Known from official evidence**
+- Ministry of Home Affairs;
+- Bangladesh Coast Guard Force;
+- Project Director as PE;
+- four CPVs;
+- GoB Development Budget;
+- ICT One Stage & Two Envelope method;
+- eligibility baseline;
+- tender security;
 - completion period;
-- pre-tender meeting details.
+- current corrigendum dates.
 
-These are preserved in the scenario as unmapped material datapoints and should be considered in the next Bangladesh Data Standard expansion rather than being forced into incorrect existing fields.
+**Known from internal canonical state**
+- the procurement/requirement/solicitation/lot/item lineage already exists;
+- publication/corrigendum observations are already part of the case history.
 
-## Dry-run decision
+**Still material / potentially unknown**
+- upstream official project/programme identity if not independently evidenced;
+- exact approved budget/project lineage;
+- full technical specification and evaluation conditions from tender documents;
+- installed-base and replacement rationale;
+- incumbent/likely competitors;
+- qualified and willing international shipyards/OEMs;
+- Access Asia relationship/positioning history;
+- participation path and partner conflicts.
 
-**Architecture result: PASS WITH DATA-DICTIONARY REFINEMENT.**
+### 9. ARGUS — build the Research Frontier
 
-No ATLAS architecture change is required. ARGUS Bangladesh normalization improves through the additive lot fields. The next recommended step after merge is to extend the Bangladesh canonical dictionary for common tender-commercial fields, then rerun the same scenario as a production canonical-write simulation.
+ARGUS ranks only questions capable of changing the commercial decision.
+
+For a live CPV tender, likely high-value questions are:
+
+1. What full technical and commercial eligibility requirements can disqualify a bidder?
+2. Which shipyards/OEMs meet the relevant patrol/combat-vessel references and delivery requirements?
+3. Which candidates are export-feasible, commercially available and willing to partner with Access Asia?
+4. Does Access Asia already have customer/OEM relationships or conflicting representations relevant to the tender?
+5. Which competitors/incumbents are materially likely?
+6. Does upstream project/budget intelligence change the pursuit or supplier strategy?
+
+Low-value historical research is deferred when it would not change participation or strategy before the live deadline.
+
+### 10. ARGUS — adaptive 360° collection
+
+ARGUS activates only the branches needed to close the Research Frontier:
+
+- `institution_stakeholders` — if decision-maker/role gaps remain;
+- `programme_project` / `budget_funding` — if upstream lineage affects strategy;
+- `procurement_acquisition` — full tender/corrigendum/eligibility/evaluation picture;
+- `technical_installed_base` — specifications, vessel class, replacement/expansion context;
+- `internal_intelligence` — Access Asia position/history;
+- `supplier_competitor` — suitable OEM/shipyard universe, references, competitors;
+- `ecosystem_influence` — consultants/integrators/partners if material;
+- `commercial_participation` — export, JV/local representation, security, delivery, service/support constraints;
+- `timing_triggers` — closing dates, extensions and other events.
+
+Independent safe reads may run in parallel after startup dependencies are satisfied. ARGUS does not call ATLAS after every search or newly discovered lead.
+
+### 11. Decision sufficiency
+
+ARGUS stops expanding research when additional collection is unlikely to change:
+
+- existing-vs-new identity;
+- current procurement/lifecycle interpretation;
+- participation feasibility;
+- supplier shortlist/strategy;
+- commercial risk;
+- next Access Asia action.
+
+The stopping question is **“Can more research materially change the decision?”**, not “Is there anything else we could search?”
+
+### 12. One ARGUS return
+
+ARGUS returns one structured package containing proportionately:
+
+- resolved institutional hierarchy;
+- existing/new/ambiguous identity outcome;
+- official procurement state;
+- internal customer-intelligence summary;
+- 360° coverage;
+- evidence/provenance;
+- Research Frontier and remaining material unknowns;
+- supplier/product/competitor assessment where material;
+- recommended next action;
+- one proposed mutation batch where persistence is useful.
+
+Normal result for this case:
+
+- use existing CPV lineage;
+- do not create another opportunity merely because a tender/corrigendum was observed;
+- update current source/event/observation state as needed;
+- focus remaining research on decision-relevant tender, internal-positioning and supplier/competitor gaps.
+
+### 13. ATLAS verifies and persists once
+
+ATLAS verifies result/handoff correlation, evidence, identity outcome, approval requirements and the proposed mutation batch.
+
+If canonical persistence is authorized:
+
+`fetch latest SharePoint SQLite → verify version/integrity → resolve identity again → apply one local transaction → preserve provenance/mutation log → integrity + FK checks → re-check target → replace same file → verify uploaded state`
+
+ARGUS does not persist every intermediate discovery.
+
+---
+
+## Callback test
+
+The following are **not** ARGUS→ATLAS callback reasons:
+
+- project name is missing;
+- budget is unknown;
+- one source returns zero results;
+- supplier universe has not been built yet;
+- another official portal/source should be searched;
+- a competitor lead appears;
+- a tender document requires deeper extraction.
+
+The following **are** callback/escalation reasons:
+
+- `MATERIAL_SCOPE_CHANGE`;
+- `AUTHORIZATION_REQUIRED`;
+- `POLICY_OR_SECURITY_CONFLICT`;
+- `MATERIAL_AMBIGUITY`, including a probable/unresolved existing-opportunity match where the wrong choice could create or merge the wrong object.
+
+## Architecture result
+
+**PASS — institution-first, identity-aware, one-handoff/one-return design.**
+
+The CPV case validates the intended separation:
+
+- ATLAS compiles, authorizes, verifies and persists;
+- ARGUS resolves the institution and canonical identity before broad research;
+- official procurement evidence is checked before internal customer intelligence in the deterministic startup;
+- ARGUS then performs adaptive 360° research without routine callbacks;
+- no new `IntelligenceCase` canonical object is created for mission coordination;
+- current mutable state remains in the single SharePoint SQLite registry;
+- one underlying opportunity may contain multiple procurement/source events without duplicate opportunity creation.

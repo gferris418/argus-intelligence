@@ -71,10 +71,12 @@ class AtlasDomainHandoffContract(unittest.TestCase):
                 self.assertNotEqual("0" * 64, source["sha256"])
                 self.assertNotIn("<", source["sha256"])
 
-    def test_contextualize_is_first_legacy_public_sector_domain_operation(self):
-        self.assertIn("Contextualize → Discover → Extract → Resolve → Reconcile", CORE)
-        self.assertIn("ATLAS Domain Context", CORE)
-        self.assertIn("must not redefine ATLAS taxonomy or standards conclusions", CORE)
+    def test_bounded_autonomous_startup_still_consumes_governed_atlas_context(self):
+        self.assertIn("one handoff and one return", CORE)
+        self.assertIn("Institution-first autonomous startup", CORE)
+        self.assertIn("ATLAS", CORE)
+        self.assertIn("ARGUS must not redefine ATLAS taxonomy", CORE)
+        self.assertIn("MATERIAL_SCOPE_CHANGE", CORE)
 
     def test_alignment_requires_validated_handoff_before_argus_execution(self):
         self.assertIn("ATLAS Domain Context → ARGUS Contextualize", ALIGNMENT)
