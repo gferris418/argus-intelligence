@@ -8,17 +8,20 @@ icon: radar
 ARGUS is the **ATLAS-governed government commercial opportunity intelligence system** for Access Asia. It identifies government needs, programmes, projects, budgets, approvals and procurements as early as legitimately observable; develops commercial opportunity hypotheses before a formal tender exists; tracks them through the full public-sector lifecycle; and identifies suitable international OEMs, suppliers, solution providers and contractors.
 
 **Current candidate:** `3.0.0-rc.2`  
-**Current ATLAS compatibility:** `ATLAS-OS 3.0.1` at `7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc`
+**Current ATLAS compatibility:** `ATLAS-OS 3.0.2` at `95e78eb4f386c7434193014811ef8d2ce5254c30`
 
 ## ATLAS governance boundary
 
 ATLAS OS remains the operating architecture and owns Mission Control, Control Plane authority, preprocessing, routing, permissions, approvals, canonical taxonomy, canonical evidence acceptance, authoritative commercial priority, pursuit decisions, persistence authorization, observability, verification, Dashboard and final delivery.
 
+When ATLAS is active, every user prompt enters Mission Control first. Mission Control is the governance entry gate and does not add a fourth preprocessing step. The ATLAS preprocessing sequence remains exactly **Understand + Normalize → Minimal Domain Framing → Route**.
+
 ARGUS is the bounded provider for semantic capability `intelligence_collection`. It does not self-activate. ATLAS must route to `ARGUS` or `MULTI_CAPABILITY`, and explicit user approval for `ARGUS_ACTIVATION` is required before ARGUS executes. Every ARGUS result returns to ATLAS; ATLAS remains next-step authority.
 
 ```text
 USER / EVENT
-  -> ATLAS Mission Control + Control Plane
+  -> ATLAS Mission Control [FIRST GOVERNANCE GATE]
+  -> ATLAS Control Plane
   -> Understand + Normalize
   -> Minimal Domain Framing
   -> Route

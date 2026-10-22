@@ -89,15 +89,16 @@ production_runtime:
     permitted_for: [portability, testing, recovery, non_access_asia_implementation]
 
 atlas_compatibility:
-  last_validated_base: 3.0.1
-  last_validated_base_commit: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
-  last_validated_control_revision: chatgpt-plugin-bootstrap-v1
+  last_validated_base: 3.0.2
+  last_validated_base_commit: 95e78eb4f386c7434193014811ef8d2ce5254c30
+  last_validated_control_revision: chatgpt-plugin-bootstrap-v1.0.1
   required_next_target: null
   relationship: bounded_intelligence_collection_provider
   activation_authority: ATLAS
   next_step_authority: ATLAS
   provider_return_target: ATLAS
   explicit_user_approval_required: true
+  mission_control_first_required: true
   activation_capability: intelligence_collection
   provider: argus
   approval_key: ARGUS_ACTIVATION
@@ -107,8 +108,9 @@ atlas_compatibility:
     ATLAS owns Mission Control, Control Plane, preprocessing, routing, approvals,
     evidence acceptance, authoritative commercial priority, pursuit decisions,
     persistence, observability, Dashboard, every next step after provider return,
-    verification and delivery. ARGUS owns only the authorized bounded intelligence
-    mission and returns its collection package to ATLAS.
+    verification and delivery. Mission Control precedes preprocessing whenever ATLAS
+    is active. ARGUS owns only the authorized bounded intelligence mission and returns
+    its collection package to ATLAS.
   keyword_activation: false
   background_activation: false
   creates_execution_spine: false
@@ -349,7 +351,7 @@ domain_result:
   may_make_final_business_decision: false
 
 release_gates:
-  - ATLAS 3.0.1 bounded intelligence-collection provider contract: PASS
+  - ATLAS 3.0.2 Mission Control-first bounded intelligence-collection provider contract: PASS
   - explicit ARGUS activation approval and provider return to ATLAS: PASS
   - legacy signed synchronization transport remains backward-compatible: PASS
   - canonical PIR/EEI collection method and collection-plan schema remain authoritative: PASS
