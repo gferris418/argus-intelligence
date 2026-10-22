@@ -1,0 +1,296 @@
+document_id: ACCESS-ASIA-COMMERCIAL-DATA-001
+version: 1.0.0
+status: ACTIVE
+owner: Access Asia Limited
+canonical_graph_owner: ARGUS
+scope: company-wide commercial intelligence, pursuit, bid, project, finance and reporting data
+
+core_principle: enter_once_identify_once_relate_once_derive_views
+
+rules:
+  one_real_world_object_one_canonical_identity: true
+  one_material_fact_one_provenance_backed_record: true
+  relationships_are_first_class: true
+  department_views_are_derived: true
+  department_databases_allowed: false
+  material_facts_require_provenance: true
+  history_is_append_only: true
+  silent_overwrite_of_conflicting_observations: false
+  duplicate_master_records_by_department: prohibited
+  source_documents_embedded_in_database: false
+  reports_are_sources_of_truth: false
+
+canonical_layers:
+  MASTER_DATA:
+    - ORGANIZATION
+    - PERSON
+    - PRODUCT
+    - PRODUCT_CATEGORY
+    - SECTOR
+    - GEOGRAPHY
+  EXTERNAL_INTELLIGENCE:
+    - POLICY
+    - STRATEGY
+    - PROGRAMME
+    - PROJECT
+    - REQUIREMENT
+    - FINANCING
+    - PROCUREMENT_PLAN
+    - PROCUREMENT_PACKAGE
+    - PROCUREMENT_PROCESS
+    - SOLICITATION
+    - LOT
+    - ITEM
+  ACCESS_ASIA_COMMERCIAL:
+    - OPPORTUNITY
+    - BID
+    - AWARD
+    - ACCESS_ASIA_PROJECT
+    - CONTRACT
+  EVIDENCE_HISTORY:
+    - SOURCE_RECORD
+    - SOURCE_RELEASE
+    - EVENT
+    - OBSERVATION
+    - DOCUMENT_REFERENCE
+    - RELATIONSHIP
+  FINANCIAL_ANALYTICS:
+    - FINANCIAL_FACT
+    - COMMISSION_ENTITLEMENT
+    - INVOICE_FACT
+    - PAYMENT_FACT
+    - COST_FACT
+
+organization_role_model:
+  principle: organization_identity_is_canonical_role_is_contextual
+  roles:
+    - CUSTOMER
+    - BUYER
+    - PROCURING_ENTITY
+    - END_USER
+    - IMPLEMENTING_AGENCY
+    - APPROVING_AUTHORITY
+    - FUNDING_AGENCY
+    - DEVELOPMENT_PARTNER
+    - LENDER
+    - OEM
+    - SUPPLIER
+    - CONTRACTOR
+    - PRINCIPAL
+    - PARTNER
+    - DISTRIBUTOR
+    - AGENT
+    - COMPETITOR
+  rule: the same organization may hold multiple roles simultaneously or across different opportunities
+
+commercial_lineage:
+  px:
+    meaning: permanent Access Asia commercial lineage identifier
+    authority: ATLAS_OS
+    pattern: YYYY_PXNNNNN_SHORTNAME
+    assigned_when: PROMOTE_TO_PX
+    immutable_after_assignment: true
+    preserve_through_bid_award_project: true
+    preserve_through_sharepoint_stage_moves: true
+  objects:
+    - OPPORTUNITY
+    - BID
+    - AWARD
+    - ACCESS_ASIA_PROJECT
+  child_identifiers:
+    bid_pattern: BID-PXNNNNN-NN
+    award_pattern: AWD-PXNNNNN-NN
+    access_asia_project_pattern: AAPJ-PXNNNNN
+  invariants:
+    - opportunity_is_not_tender
+    - bid_is_not_opportunity
+    - award_is_not_bid
+    - access_asia_project_is_not_government_project
+    - retender_does_not_automatically_create_new_px
+    - one_px_may_link_to_multiple_procurement_cycles_or_tenders
+
+fact_model:
+  current_state_is_derived_from_observations_and_events: true
+  provenance_required:
+    - source_record_or_internal_authorized_source
+    - observed_at
+    - claim_state
+  conflict_policy: retain_all_supported_observations_and_mark_conflict_or_scope_difference
+  correction_policy: append_new_observation_or_event_and_preserve_prior_history
+
+value_semantics:
+  - government_project_value
+  - procurement_estimated_value
+  - tender_value
+  - bid_value
+  - evaluated_value
+  - award_value
+  - contract_value
+  - access_asia_revenue_value
+  - commission_value
+  - expected_margin
+  - actual_margin
+  - invoiced_value
+  - collected_value
+  - direct_cost
+  - cash_exposure
+
+financial_fact_rules:
+  currency_required: true
+  value_type_required: true
+  px_id_when_commercially_attributable: required
+  project_id_when_execution_attributable: required_when_known
+  contract_id_when_contract_attributable: required_when_known
+  supporting_document_reference: preferred
+  binary_financial_documents_live_in: SHAREPOINT
+
+system_ownership:
+  ARGUS_SHAREPOINT_SQLITE:
+    owns:
+      - canonical_organization_identity
+      - canonical_person_identity_when_material
+      - canonical_product_and_solution_identity
+      - government_and_market_intelligence
+      - requirements_and_procurement_lineage
+      - canonical_tenders
+      - px_opportunities
+      - bids
+      - awards
+      - access_asia_projects
+      - structured_contract_facts
+      - structured_financial_facts
+      - canonical_relationships
+      - evidence_provenance_and_history
+  HUBSPOT:
+    owns:
+      - access_asia_relationship_state
+      - contactability_and_contact_details
+      - emails_calls_meetings_and_notes
+      - crm_deals_and_pipeline_workflow
+      - crm_tasks_and_followups
+    rule: HubSpot references ARGUS canonical organization/person identities and does not create a competing enterprise identity universe
+  SHAREPOINT:
+    owns:
+      - source_documents
+      - working_documents
+      - tender_files
+      - proposals_and_bid_files
+      - contracts_and_project_files
+      - financial_evidence_documents
+      - opportunity_and_project_working_folders
+  ARGUS_GITHUB:
+    owns:
+      - schemas
+      - identity_rules
+      - migration_logic
+      - intelligence_methods
+      - tests
+      - release_snapshots
+  ATLAS_GITHUB:
+    owns:
+      - routing
+      - governance
+      - approvals
+      - persistence_policy
+      - execution_control
+
+cross_system_linking:
+  principle: pointers_not_copies
+  organization_key: canonical_organization_id
+  person_key: canonical_person_id
+  opportunity_key: commercial_px_id
+  project_key: access_asia_project_id
+  source_document_key: sharepoint_logical_reference
+  crm_native_ids_in_public_git: prohibited
+  personal_contact_data_in_public_git: prohibited
+
+department_views:
+  MARKETING:
+    grain: market_signal_product_sector_customer
+    typical_metrics:
+      - opportunity_origin
+      - sector_demand
+      - product_demand
+      - customer_demand
+      - oem_relationship_yield
+      - proactive_vs_tender_discovery
+  SALES:
+    grain: px_opportunity
+    typical_metrics:
+      - pipeline_value
+      - weighted_pipeline
+      - stage
+      - probability
+      - expected_close_or_award
+      - win_rate
+      - sales_cycle
+  BUSINESS_DEVELOPMENT:
+    grain: requirement_project_opportunity
+    typical_metrics:
+      - early_stage_pipeline
+      - pre_tender_detection
+      - policy_to_project_lineage
+      - funding_visibility
+      - supplier_coverage
+      - positioning_status
+  OPERATIONS:
+    grain: access_asia_project
+    typical_metrics:
+      - milestone_status
+      - delivery_status
+      - supplier_obligations
+      - customer_obligations
+      - issues
+      - acceptance
+      - warranty
+  FINANCE:
+    grain: financial_fact_by_px_project_contract
+    typical_metrics:
+      - award_value
+      - contract_value
+      - expected_revenue
+      - invoiced_revenue
+      - collected_revenue
+      - commission_receivable
+      - commission_received
+      - cost
+      - margin
+      - receivables
+      - cash_exposure
+  MANAGEMENT:
+    grain: company_portfolio
+    typical_metrics:
+      - pipeline
+      - bookings
+      - revenue
+      - margin
+      - cash
+      - win_rate
+      - customer_concentration
+      - principal_concentration
+      - sector_mix
+
+reporting_model:
+  approach: canonical_graph_plus_derived_fact_views
+  fact_views:
+    - FACT_OPPORTUNITY
+    - FACT_BID
+    - FACT_AWARD
+    - FACT_PROJECT
+    - FACT_PROCUREMENT
+    - FACT_REVENUE
+    - FACT_COST
+    - FACT_ACTIVITY
+  dimensions:
+    - DIM_ORGANIZATION
+    - DIM_PRODUCT
+    - DIM_SECTOR
+    - DIM_GEOGRAPHY
+    - DIM_TIME
+    - DIM_FUNDING_SOURCE
+  rule: reporting_views_must_not_mutate_or_duplicate_canonical_masters
+
+migration_policy:
+  live_database_mutation_in_this_standard_release: false
+  next_step: define_and_test_backward_compatible_sqlite_migration_before_operational_activation
+  production_store_remains: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite

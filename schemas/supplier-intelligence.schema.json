@@ -2,18 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/gferris418/argus-intelligence/schemas/supplier-intelligence.schema.json",
   "title": "ARGUS Supplier Intelligence",
-  "description": "ARGUS intelligence overlay for a supplier/OEM/company whose CRM master identity and Access Asia relationship are canonical in HubSpot.",
+  "description": "ARGUS intelligence overlay for a canonical ARGUS ORGANIZATION acting as supplier/OEM/contractor/partner. HubSpot is an optional CRM engagement mirror, not the canonical supplier identity authority.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["supplier_id", "crm_ref", "capabilities", "partnerability", "evidence_refs"],
+  "required": ["supplier_id", "capabilities", "partnerability", "evidence_refs"],
   "properties": {
     "supplier_id": {
       "type": "string",
       "minLength": 1,
-      "description": "Stable ARGUS supplier/party identity used as the cross-system integration key."
+      "description": "Stable ARGUS canonical ORGANIZATION identity used as the cross-system supplier/party integration key."
     },
     "crm_ref": {
-      "type": "object",
+      "type": ["object", "null"],
       "additionalProperties": false,
       "required": ["system", "object_type", "integration_key"],
       "properties": {
@@ -22,7 +22,7 @@
         "integration_key": {
           "type": "string",
           "minLength": 1,
-          "description": "Stable cross-system key. Prefer the ARGUS supplier/party identity mirrored into a HubSpot custom property rather than committing HubSpot-native IDs."
+          "description": "Stable cross-system key mirrored into HubSpot when Access Asia actively manages a CRM relationship with the organization."
         },
         "company_id": {
           "type": ["string", "null"],
@@ -32,11 +32,11 @@
     },
     "legal_name": {
       "type": ["string", "null"],
-      "description": "Optional non-canonical display snapshot only. HubSpot owns the current CRM company identity."
+      "description": "Optional canonical/display snapshot for the ARGUS organization."
     },
     "country": {
       "type": ["string", "null"],
-      "description": "Optional non-canonical intelligence/display snapshot only. Current CRM company profile data is resolved from HubSpot when required."
+      "description": "Optional canonical/display snapshot for the ARGUS organization."
     },
     "parent_company": {"type": ["string", "null"]},
     "business_units": {"type": "array", "items": {"type": "string"}},

@@ -1,6 +1,6 @@
 schema_version: 2
 registry_id: access-asia-system-of-record
-version: 1.1.0
+version: 1.2.0
 effective_date: 2026-10-22
 scope: Access Asia ATLAS/ARGUS/CRM/document persistence routing
 
@@ -40,6 +40,7 @@ systems:
     role: argus_schema_governance_code_migrations_and_versioned_release_snapshots
     owns:
       - canonical_identity_standard
+      - commercial_data_standard
       - database_schema
       - migration_logic
       - government_commercial_intelligence_method
@@ -51,23 +52,35 @@ systems:
       - versioned_registry_baselines_and_release_snapshots
     excludes:
       - current_mutable_operational_argus_state
-      - crm_master_identity
       - crm_relationship_history
+      - personal_contactability_data
       - raw_source_documents
       - working_business_documents
 
   argus_sharepoint_sqlite:
-    role: canonical_current_mutable_argus_operational_structured_state
+    role: canonical_current_mutable_commercial_and_argus_operational_structured_state
     format: SQLite
     logical_name: ARGUS Master Registry
     logical_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
     schema_authority: schemas/argus-operational-store-v1.sql
     identity_authority: profiles/canonical-object-identity-standard-v1.0.yaml
+    commercial_data_authority: profiles/access-asia-commercial-data-standard-v1.0.yaml
     mutation_model: single_writer_fetch_latest_modify_transactionally_verify_replace
     version_history: SHAREPOINT_FILE_VERSIONS
     public_git_item_ids: prohibited
     owns:
+      - canonical_commercial_graph
       - canonical_objects_current_state
+      - canonical_organization_identity
+      - canonical_person_identity_when_material
+      - canonical_product_and_solution_identity
+      - government_project_requirement_and_procurement_lineage
+      - px_opportunities
+      - bids
+      - awards
+      - access_asia_projects
+      - structured_contract_facts
+      - structured_financial_facts
       - external_identifiers
       - canonical_relationships
       - source_record_index
@@ -78,14 +91,16 @@ systems:
       - operational_mutation_log
 
   hubspot:
-    role: canonical_crm
+    role: canonical_crm_relationship_and_engagement_system
     owns:
-      - company_identity_and_profile
-      - contact_identity_and_contact_details
       - access_asia_relationship_state
+      - contactability_and_contact_details
       - commercial_interactions
-      - crm_deals_and_pipeline
+      - crm_deals_and_pipeline_workflow
       - crm_tasks_notes_calls_and_emails
+    mirrors:
+      - argus_organization_identity_for_engaged_accounts
+      - argus_person_identity_when_a_crm_contact_is_required
     cross_system_key:
       preferred_property: argus_party_id
       value_source: stable_argus_organization_id
@@ -115,8 +130,24 @@ systems:
     sharing_query_parameter_storage_in_public_git: prohibited
 
 persistence_routing:
-  CRM_COMPANY: HUBSPOT
-  CRM_CONTACT: HUBSPOT
+  CANONICAL_ORGANIZATION: ARGUS_SHAREPOINT_SQLITE
+  CANONICAL_PERSON: ARGUS_SHAREPOINT_SQLITE
+  CANONICAL_PRODUCT: ARGUS_SHAREPOINT_SQLITE
+  CANONICAL_PRODUCT_CATEGORY: ARGUS_SHAREPOINT_SQLITE
+  CANONICAL_SECTOR: ARGUS_SHAREPOINT_SQLITE
+  CANONICAL_GEOGRAPHY: ARGUS_SHAREPOINT_SQLITE
+  GOVERNMENT_PROJECT: ARGUS_SHAREPOINT_SQLITE
+  REQUIREMENT: ARGUS_SHAREPOINT_SQLITE
+  PROCUREMENT: ARGUS_SHAREPOINT_SQLITE
+  TENDER: ARGUS_SHAREPOINT_SQLITE
+  PX_OPPORTUNITY: ARGUS_SHAREPOINT_SQLITE
+  BID: ARGUS_SHAREPOINT_SQLITE
+  AWARD: ARGUS_SHAREPOINT_SQLITE
+  ACCESS_ASIA_PROJECT: ARGUS_SHAREPOINT_SQLITE
+  CONTRACT_FACT: ARGUS_SHAREPOINT_SQLITE
+  FINANCIAL_FACT: ARGUS_SHAREPOINT_SQLITE
+  CRM_COMPANY_MIRROR: HUBSPOT
+  CRM_CONTACTABILITY: HUBSPOT
   CRM_RELATIONSHIP: HUBSPOT
   CRM_DEAL: HUBSPOT
   CRM_INTERACTION: HUBSPOT
@@ -124,6 +155,7 @@ persistence_routing:
   WORKING_DOCUMENT: SHAREPOINT
   OPPORTUNITY_FOLDER: SHAREPOINT
   PROJECT_DOCUMENT: SHAREPOINT
+  FINANCIAL_EVIDENCE_DOCUMENT: SHAREPOINT
   ARGUS_CURRENT_STRUCTURED_STATE: ARGUS_SHAREPOINT_SQLITE
   ARGUS_CANONICAL_OBJECT: ARGUS_SHAREPOINT_SQLITE
   ARGUS_OPPORTUNITY: ARGUS_SHAREPOINT_SQLITE
@@ -132,6 +164,7 @@ persistence_routing:
   ARGUS_MATCH_CURRENT_STATE: ARGUS_SHAREPOINT_SQLITE
   ARGUS_SCHEMA: ARGUS_GITHUB
   ARGUS_IDENTITY_RULES: ARGUS_GITHUB
+  ARGUS_COMMERCIAL_DATA_RULES: ARGUS_GITHUB
   ARGUS_MIGRATION: ARGUS_GITHUB
   ARGUS_RELEASE_SNAPSHOT: ARGUS_GITHUB
   ARGUS_EVIDENCE_REFERENCE: ARGUS_SHAREPOINT_SQLITE
@@ -141,15 +174,31 @@ persistence_routing:
 
 cross_system_linking:
   preferred_pattern: stable_integration_key_plus_runtime_resolution
+  organization_key: canonical_organization_id
+  person_key: canonical_person_id
   hubspot_key: argus_party_id
   opportunity_keys:
     - argus_opportunity_id
     - commercial_px_id
+  bid_key: canonical_bid_id
+  project_key: access_asia_project_id
   sharepoint_reference: logical_site_and_folder_path
   database_object_key: canonical_id
   database_primary_key: internal_uuid
   parallel_live_argus_databases: prohibited
   public_git_copy_of_current_mutable_database: prohibited
+
+reporting_policy:
+  principle: derived_views_over_canonical_graph
+  department_master_databases: prohibited
+  views:
+    - MARKETING
+    - SALES
+    - BUSINESS_DEVELOPMENT
+    - OPERATIONS
+    - FINANCE
+    - MANAGEMENT
+  reports_are_sources_of_truth: false
 
 operational_database_protocol:
   open_sqlite_in_place_over_sharepoint_sync: prohibited
