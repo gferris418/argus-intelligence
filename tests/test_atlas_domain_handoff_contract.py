@@ -48,7 +48,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertEqual("backward_compatibility_only", legacy["status"])
         self.assertEqual("1.2.0", legacy["handoff_contract_version"])
         self.assertEqual("1.0.0", legacy["execution_lease_contract_version"])
-        self.assertEqual("1.0.0", handoff_schema["properties"]["contract_version"]["const"])
+        self.assertEqual("1.2.0", handoff_schema["properties"]["contract_version"]["const"])
         self.assertEqual("1.0.0", lease_schema["properties"]["contract_version"]["const"])
 
     def test_sync_descriptor_pins_exact_historical_atlas_stable(self):
