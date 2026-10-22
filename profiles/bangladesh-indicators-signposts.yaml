@@ -1,0 +1,73 @@
+document_id: ARGUS-BD-INDICATORS-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+rules:
+  event_detection_forces_progression: false
+  reassessment_required_when_material: true
+  contradictions_must_be_preserved: true
+
+events:
+  POLICY_ADOPTED: {state_effect: reassess_policy_support}
+  POLICY_REVISED: {state_effect: reassess_policy_support}
+  REQUIREMENT_IDENTIFIED: {state_effect: reassess_need_state}
+  PROJECT_CONCEPT_IDENTIFIED: {state_effect: reassess_project_state}
+  PROJECT_SUBMITTED: {state_effect: reassess_project_state}
+  PROJECT_APPRAISAL: {state_effect: reassess_project_state}
+  PROJECT_APPROVED: {state_effect: reassess_project_state}
+  PROJECT_REVISED: {state_effect: reassess_project_and_requirement_lineage}
+  ADP_INCLUDED: {state_effect: reassess_project_and_funding_state}
+  RADP_CHANGED: {state_effect: reassess_project_funding_and_timing}
+  ALLOCATION_INCREASED: {state_effect: strengthen_funding_or_timing_hypothesis}
+  ALLOCATION_REDUCED: {state_effect: weaken_funding_or_timing_hypothesis}
+  FINANCING_PROPOSED: {state_effect: reassess_funding_state}
+  FINANCING_SIGNED: {state_effect: reassess_funding_state}
+  CONSULTANT_APPOINTED: {state_effect: reassess_project_and_preprocurement_signal}
+  PROCUREMENT_STRATEGY_SIGNAL: {state_effect: reassess_procurement_state}
+  APP_CREATED: {state_effect: reassess_procurement_state_and_requirement_lineage}
+  PACKAGE_CREATED: {state_effect: reassess_procurement_state_and_requirement_lineage}
+
+event_contract:
+  required_fields:
+    - what_happened
+    - who_caused_or_owns
+    - when_occurred
+    - where_scope
+    - why_material
+    - which_state_axes_affected
+    - how_detected
+    - amount_or_quantity_change
+    - evidence_refs
+    - confidence
+    - possible_implications
+
+hypothesis_contract:
+  required_fields:
+    - preferred_hypothesis
+    - material_alternatives
+    - disconfirming_evidence
+    - key_assumptions
+  hypothesis_fields:
+    - hypothesis_id
+    - statement
+    - status
+    - supporting_evidence
+    - contradicting_evidence
+    - discriminating_evidence
+    - assumptions
+    - indicators_to_watch
+
+research_frontier:
+  required_fields:
+    - question
+    - who_or_what_is_unresolved
+    - why_it_matters
+    - decision_affected
+    - current_uncertainty
+    - information_value
+    - urgency
+    - preferred_source_family
+    - likely_cost_or_effort
+    - stopping_condition
+    - priority
+  rule: prioritize decision-changing uncertainty and stop when added research is unlikely to change the decision
