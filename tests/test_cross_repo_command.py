@@ -11,6 +11,7 @@ from tools.cross_repo_e2e import _prepare_atlas_import
 
 
 ROOT = Path(__file__).resolve().parents[1]
+ATLAS_COMMIT = "7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc"
 
 
 class CrossRepositoryCommandTests(unittest.TestCase):
@@ -43,7 +44,7 @@ class CrossRepositoryCommandTests(unittest.TestCase):
         self.assertIn("push:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
-        self.assertIn("ref: b8b8559c57eef5fbb97d914d924077ba20b1883d", workflow)
+        self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
         self.assertNotIn("ATLAS_SSH_KEY", workflow)
         self.assertNotIn("ATLAS_READ_TOKEN", workflow)
         self.assertEqual(2, workflow.count("persist-credentials: false"))
@@ -53,14 +54,18 @@ class CrossRepositoryCommandTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             atlas = Path(directory)
             (atlas / "atlas_runtime").mkdir()
-            (atlas / "registries").mkdir()
+            (atlas / "integrations").mkdir()
             (atlas / "atlas-os.yaml").write_text(
                 "product:\n  version: test-version\n", encoding="utf-8"
             )
             runtime = atlas / "atlas_runtime" / "__init__.py"
             runtime.write_text("VALUE = 'committed'\n", encoding="utf-8")
-            (atlas / "registries" / "domain-methods.yaml").write_text(
-                "registry: {}\n", encoding="utf-8"
+            (atlas / "integrations" / "argus.yaml").write_text(
+                "capability: intelligence_collection\nactivation_authority: ATLAS\nnext_step_authority: ATLAS\nexplicit_user_approval_required: true\n",
+                encoding="utf-8",
+            )
+            (atlas / "integrations" / "chatgpt-bootstrap.yaml").write_text(
+                "version: 1.0.0\n", encoding="utf-8"
             )
             for command in (
                 ["git", "init", "-q"],
@@ -81,7 +86,18 @@ class CrossRepositoryCommandTests(unittest.TestCase):
 
             with patch(
                 "tools.cross_repo_e2e._load_compatibility",
-                return_value={"atlas_commit": head, "atlas_version": "test-version"},
+                return_value={
+                    "atlas": {
+                        "commit": head,
+                        "version": "test-version",
+                        "integration_path": "integrations/argus.yaml",
+                    },
+                    "contract": {
+                        "capability": "intelligence_collection",
+                        "activation_authority": "ATLAS",
+                        "next_step_authority": "ATLAS",
+                    },
+                },
             ), self.assertRaisesRegex(ValueError, "tracked files differ"):
                 _prepare_atlas_import(atlas)
 
