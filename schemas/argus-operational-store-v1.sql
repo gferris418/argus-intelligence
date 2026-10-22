@@ -110,15 +110,16 @@ CREATE TABLE IF NOT EXISTS external_identifier (
     scheme TEXT NOT NULL,
     value TEXT NOT NULL,
     scope TEXT NOT NULL DEFAULT 'OBJECT',
+    namespace TEXT NOT NULL DEFAULT '',
     source_record_id TEXT REFERENCES source_record(source_record_id),
     valid_from TEXT,
     valid_to TEXT,
     created_at TEXT NOT NULL,
-    UNIQUE (source_system, scheme, value, scope)
+    UNIQUE (source_system, scheme, namespace, value, scope)
 );
 
 CREATE INDEX IF NOT EXISTS idx_external_identifier_object ON external_identifier(object_internal_id);
-CREATE INDEX IF NOT EXISTS idx_external_identifier_lookup ON external_identifier(source_system, scheme, value);
+CREATE INDEX IF NOT EXISTS idx_external_identifier_lookup ON external_identifier(source_system, scheme, namespace, value);
 
 CREATE TABLE IF NOT EXISTS relationship (
     relationship_id TEXT PRIMARY KEY,
