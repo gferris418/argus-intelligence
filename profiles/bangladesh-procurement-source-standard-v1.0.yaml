@@ -1,0 +1,431 @@
+document_id: ARGUS-BD-PROC-SOURCE-STD-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+country_code: BD
+effective_date: 2026-10-22
+owner: ARGUS
+purpose: >-
+  Standardize how ARGUS understands Bangladesh procurement-information sources: what each
+  authority, platform, approval body, project system, funding system and procuring entity
+  can normally reveal; which information phase each source is useful for; and how to
+  normalize evidence without assuming that all sources expose the same fields.
+
+scope:
+  includes:
+    - general_public_procurement
+    - defence_procurement
+    - development_projects
+    - development_partner_financed_procurement
+    - public_private_partnerships
+    - state_owned_and_autonomous_entities
+    - local_public_bodies
+    - upstream_project_budget_and_approval_signals
+    - downstream_award_implementation_and_follow_on_signals
+  does_not_replace:
+    - profiles/bangladesh-canonical-procurement-standard-v1.3.yaml
+    - profiles/bangladesh-source-mappings-v1.3.yaml
+    - profiles/bangladesh-institution-standard.yaml
+  does_not_redefine_argus_lifecycle: true
+
+core_rules:
+  - Authority, transaction platform, approval body, project system, funding system and procuring entity are distinct source roles.
+  - Search by information phase and expected source capability, not by portal popularity.
+  - Use the earliest authoritative source likely to contain the material signal.
+  - Do not assume every procurement appears first in e-GP.
+  - Do not assume defence procurement follows the same public visibility pattern as general e-GP procurement.
+  - Do not assume development-partner procurement is fully represented in one Bangladesh portal.
+  - A source may be authoritative for one claim type and weak for another.
+  - Not found publicly does not mean does not exist.
+  - Missing information remains UNKNOWN; never manufacture completeness.
+  - Preserve source-specific identifiers and terminology before normalization.
+  - Cross-reference project, package, tender, award and institution identifiers across sources before creating a new opportunity.
+  - Current legal, procedural and system-availability claims require runtime revalidation before material reliance.
+
+source_role_types:
+  - PROCUREMENT_POLICY_AND_OVERSIGHT_AUTHORITY
+  - TRANSACTION_AND_PUBLICATION_PLATFORM
+  - SPECIALIST_PROCUREMENT_AUTHORITY
+  - PROJECT_PLANNING_AND_APPROVAL_SOURCE
+  - IMPLEMENTATION_MONITORING_SOURCE
+  - FUNDING_AND_DEVELOPMENT_PARTNER_SOURCE
+  - HIGH_LEVEL_APPROVAL_SOURCE
+  - BUDGET_AND_FINANCIAL_CONTROL_SOURCE
+  - PPP_PIPELINE_AND_TRANSACTION_SOURCE
+  - PROCURING_ENTITY_NATIVE_SOURCE
+  - DEVELOPMENT_PARTNER_PROCUREMENT_SOURCE
+  - LEGAL_AND_GAZETTE_SOURCE
+
+access_classes:
+  PUBLIC_STRUCTURED: searchable_public_database_or_table
+  PUBLIC_DOCUMENT: public_pdf_gazette_notice_or_document
+  PUBLIC_SUMMARY: public_summary_or_index_with_incomplete_detail
+  LOGIN_REQUIRED: valid_system_exists_but_material_detail_requires_account
+  RESTRICTED: authorized_users_only
+  NOT_PUBLISHED: normally_not_publicly_disclosed
+  UNKNOWN: accessibility_not_verified
+
+information_phases:
+  - NEED_POLICY_SIGNAL
+  - CONCEPT_PROPOSAL
+  - PROJECT_APPROVAL
+  - FUNDING_ALLOCATION
+  - PROCUREMENT_PLANNING
+  - PRE_PROCUREMENT
+  - SOLICITATION
+  - EVALUATION_AWARD
+  - IMPLEMENTATION
+  - COMPLETION_FOLLOW_ON
+
+source_families:
+  BPPA:
+    name: Bangladesh Public Procurement Authority
+    source_role: PROCUREMENT_POLICY_AND_OVERSIGHT_AUTHORITY
+    expected_information:
+      - public_procurement_law_rules_policy_guidance
+      - standard_procurement_documents
+      - circulars_clarifications_and_procedure_material
+      - procurement_performance_and_oversight_information
+      - debarment_or_review_information_when_published
+      - public_procurement_notices_or_award_context_when_exposed
+    strongest_for:
+      - legal_and_procedural_context
+      - procurement_method_and_compliance_context
+      - oversight_and_historical_context
+    information_phases: [PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD]
+    runtime_note: Do not treat BPPA policy authority as the same thing as the e-GP transaction platform.
+
+  EGP:
+    name: National electronic Government Procurement platform
+    source_role: TRANSACTION_AND_PUBLICATION_PLATFORM
+    expected_information:
+      - annual_procurement_plans
+      - ministry_division_agency_and_procuring_entity
+      - project_and_package_information
+      - package_number_description_and_procurement_method
+      - tender_reoi_rfp_rfq_and_other_solicitation_notices
+      - tender_documents_and_pre_tender_information_when_public
+      - amendments_corrigenda_and_deadline_changes
+      - opening_evaluation_and_award_signals_where_public
+      - noa_loi_contract_and_awarded_contract_information_where_public
+      - contract_management_or_implementation_signals_where_public
+      - debarment_performance_or_experience_information_where_public
+    strongest_for:
+      - procurement_plan_to_award_chain
+      - package_and_tender_identity
+      - formal_general_public_procurement
+    information_phases: [PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD, IMPLEMENTATION]
+    intelligence_priority: APP_and_package_information_are_important_pre_tender_signals
+
+  DGDP_EDP:
+    name: Directorate General Defence Purchase and e-DP
+    source_role: SPECIALIST_PROCUREMENT_AUTHORITY
+    expected_information:
+      - defence_tenders_and_notices
+      - service_or_wing_context_when_published
+      - tender_reference_title_type_and_dates
+      - amendments_and_deadline_changes
+      - supplier_enlistment_and_defence_procurement_policy_material
+      - evaluation_re_evaluation_standardization_or_pre_procurement_notices_when_published
+      - specifications_or_schedule_information_when_public
+    strongest_for:
+      - defence_acquisition
+      - defence_pre_procurement_signals
+      - defence_supplier_enlistment
+    information_phases: [CONCEPT_PROPOSAL, PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD]
+    runtime_note: Treat published evaluation or standardization activity as an early signal, not automatically as a live tender.
+
+  PLANNING_ADP:
+    name: Planning Commission and ADP/RADP project information
+    source_role: PROJECT_PLANNING_AND_APPROVAL_SOURCE
+    expected_information:
+      - project_name_and_code
+      - ministry_division_and_implementing_agency
+      - sector_and_subsector
+      - approval_or_processing_status_when_available
+      - implementation_period
+      - project_cost
+      - government_and_project_aid_components
+      - annual_allocation_and_cumulative_expenditure_when_available
+      - approved_and_unapproved_project_signals
+    strongest_for:
+      - pre_tender_project_discovery
+      - project_approval_and_funding_path
+      - implementing_agency_resolution
+    information_phases: [NEED_POLICY_SIGNAL, CONCEPT_PROPOSAL, PROJECT_APPROVAL, FUNDING_ALLOCATION, PROCUREMENT_PLANNING]
+
+  ECNEC_NEC:
+    name: ECNEC and NEC approval signals
+    source_role: HIGH_LEVEL_APPROVAL_SOURCE
+    expected_information:
+      - project_approval_or_revision_signals
+      - approved_project_cost_or_scope_summary_when_published
+      - ministry_division_or_implementing_agency_context
+    strongest_for:
+      - confirming_high_level_project_approval
+      - revision_or_expansion_signals
+    information_phases: [PROJECT_APPROVAL, FUNDING_ALLOCATION]
+    runtime_note: Public detail may be summary-level; correlate with Planning Commission and implementing-agency sources.
+
+  IMED_EPMIS:
+    name: Implementation Monitoring and Evaluation Division and project monitoring systems
+    source_role: IMPLEMENTATION_MONITORING_SOURCE
+    expected_information:
+      - implementation_progress
+      - monitoring_and_evaluation_outputs
+      - project_status_and_delay_signals
+      - completion_or_follow_on_context
+      - procurement_or_contract_monitoring_fields_when exposed
+    strongest_for:
+      - implementation_confirmation
+      - delay_and_execution_signals
+      - completion_successor_and_follow_on_research
+    information_phases: [PROJECT_APPROVAL, IMPLEMENTATION, COMPLETION_FOLLOW_ON]
+
+  ERD_AIMS:
+    name: Economic Relations Division and Aid Information Management System
+    source_role: FUNDING_AND_DEVELOPMENT_PARTNER_SOURCE
+    expected_information:
+      - development_partner
+      - executing_or_implementing_agency
+      - project_title_and_partner_identifiers
+      - financing_type
+      - agreement_or_commitment_information
+      - implementation_status
+      - commitments_disbursements_and_expenditure_when_available
+      - sector_and_geographic_context
+    strongest_for:
+      - externally_financed_project_discovery
+      - financing_confirmation
+      - development_partner_resolution
+    information_phases: [CONCEPT_PROPOSAL, PROJECT_APPROVAL, FUNDING_ALLOCATION, PROCUREMENT_PLANNING, IMPLEMENTATION]
+
+  CABINET_CCGP_CCEA:
+    name: Cabinet Division including CCGP and CCEA approval signals
+    source_role: HIGH_LEVEL_APPROVAL_SOURCE
+    expected_information:
+      - purchase_or_economic_approval_signals_when_public
+      - committee_decision_context
+      - high_value_or_special_route_approval_context_when published
+    strongest_for:
+      - approval_signal_confirmation
+      - special_or_high_level_purchase_path_context
+    information_phases: [PROJECT_APPROVAL, FUNDING_ALLOCATION, PROCUREMENT_PLANNING, EVALUATION_AWARD]
+    runtime_note: Do not assume a complete public searchable procurement database exists for all committee actions.
+
+  FINANCE_BUDGET:
+    name: Finance Division and public budget sources
+    source_role: BUDGET_AND_FINANCIAL_CONTROL_SOURCE
+    expected_information:
+      - national_budget_and_ministry_allocations
+      - development_or_operational_budget_context
+      - funding_release_or_financial_control_signals_when_public
+    strongest_for:
+      - funding_support_confirmation
+      - budget_context
+    information_phases: [PROJECT_APPROVAL, FUNDING_ALLOCATION, PROCUREMENT_PLANNING, IMPLEMENTATION]
+    runtime_note: Do not assume internal iBAS++ transaction detail is publicly accessible.
+
+  PPP_AUTHORITY:
+    name: Public Private Partnership Authority
+    source_role: PPP_PIPELINE_AND_TRANSACTION_SOURCE
+    expected_information:
+      - ppp_project_pipeline
+      - project_profile_and_status
+      - contracting_authority
+      - development_bidding_and_implementation_stage
+      - eoi_ifb_prequalification_and_related_notices
+      - corrigenda_and_transaction_updates
+    strongest_for:
+      - early_ppp_pipeline_discovery
+      - ppp_transaction_stage
+    information_phases: [CONCEPT_PROPOSAL, PROJECT_APPROVAL, PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD, IMPLEMENTATION]
+
+  PROCURING_ENTITY_NATIVE:
+    name: Ministry division agency SOE autonomous body local public body or end-user native source
+    source_role: PROCURING_ENTITY_NATIVE_SOURCE
+    expected_information:
+      - strategic_and_annual_plans
+      - annual_reports
+      - project_and_budget_notices
+      - feasibility_or_study_material_when_public
+      - procurement_plan_and_tender_notices
+      - specifications_and_committee_notices_when_public
+      - implementation_and_completion_updates
+    strongest_for:
+      - earliest_operational_need_signal
+      - institution_specific_context
+      - implementation_and_installed_base_context
+    information_phases: [NEED_POLICY_SIGNAL, CONCEPT_PROPOSAL, PROJECT_APPROVAL, FUNDING_ALLOCATION, PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD, IMPLEMENTATION, COMPLETION_FOLLOW_ON]
+    runtime_note: Formal procurement should be reconciled with the applicable national or specialist procurement channel.
+
+  DEVELOPMENT_PARTNER:
+    name: Development partner lender donor or bilateral procurement source
+    source_role: DEVELOPMENT_PARTNER_PROCUREMENT_SOURCE
+    expected_information:
+      - project_and_financing_documents
+      - procurement_plans
+      - consultant_and_prequalification_notices
+      - bid_notices
+      - prior_review_or_procurement_status_when public
+      - contract_awards
+      - implementation_and_disbursement_context
+    strongest_for:
+      - partner_financed_procurement
+      - procurement_plan_and_early_package_discovery
+    information_phases: [CONCEPT_PROPOSAL, PROJECT_APPROVAL, FUNDING_ALLOCATION, PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD, IMPLEMENTATION]
+    runtime_note: Correlate with ERD_AIMS, Planning_ADP and the Bangladesh implementing entity rather than treating the partner portal as the sole authority.
+
+  GAZETTE_LEGAL:
+    name: Bangladesh Gazette and other official legal publications
+    source_role: LEGAL_AND_GAZETTE_SOURCE
+    expected_information:
+      - laws_rules_amendments_and_effective_dates
+      - official_notifications
+      - legally_material_orders_or_publications
+    strongest_for:
+      - current_legal_authority
+      - effective_date_confirmation
+    information_phases: [NEED_POLICY_SIGNAL, PROCUREMENT_PLANNING, PRE_PROCUREMENT, SOLICITATION, EVALUATION_AWARD]
+
+route_defaults:
+  BD_GEN_EGP:
+    primary_sources: [EGP, BPPA, PROCURING_ENTITY_NATIVE]
+    supporting_sources: [PLANNING_ADP, FINANCE_BUDGET, IMED_EPMIS, GAZETTE_LEGAL]
+  BD_DEV_GOB:
+    primary_sources: [PLANNING_ADP, PROCURING_ENTITY_NATIVE, EGP]
+    supporting_sources: [ECNEC_NEC, FINANCE_BUDGET, IMED_EPMIS, BPPA]
+  BD_DEV_DP:
+    primary_sources: [ERD_AIMS, DEVELOPMENT_PARTNER, PLANNING_ADP, PROCURING_ENTITY_NATIVE]
+    supporting_sources: [EGP, IMED_EPMIS, FINANCE_BUDGET]
+  BD_DEF_DGDP:
+    primary_sources: [DGDP_EDP, PROCURING_ENTITY_NATIVE]
+    supporting_sources: [FINANCE_BUDGET, PLANNING_ADP, GAZETTE_LEGAL]
+    note: Use e-GP only where applicable and evidenced; do not assume it is the sole defence channel.
+  BD_PPP:
+    primary_sources: [PPP_AUTHORITY, PROCURING_ENTITY_NATIVE]
+    supporting_sources: [CABINET_CCGP_CCEA, DEVELOPMENT_PARTNER, FINANCE_BUDGET]
+  BD_SOE_AUT:
+    primary_sources: [PROCURING_ENTITY_NATIVE, EGP]
+    supporting_sources: [FINANCE_BUDGET, PLANNING_ADP, IMED_EPMIS]
+  BD_G2G_STRAT:
+    primary_sources: [PROCURING_ENTITY_NATIVE, CABINET_CCGP_CCEA, GAZETTE_LEGAL]
+    supporting_sources: [FINANCE_BUDGET, ERD_AIMS, DEVELOPMENT_PARTNER]
+  BD_LOCAL:
+    primary_sources: [PROCURING_ENTITY_NATIVE, EGP]
+    supporting_sources: [BPPA, FINANCE_BUDGET]
+
+stage_aware_search_order:
+  NEED_POLICY_SIGNAL: [PROCURING_ENTITY_NATIVE, GAZETTE_LEGAL, PLANNING_ADP, PPP_AUTHORITY, DEVELOPMENT_PARTNER]
+  CONCEPT_PROPOSAL: [PROCURING_ENTITY_NATIVE, PLANNING_ADP, ERD_AIMS, PPP_AUTHORITY, DGDP_EDP, DEVELOPMENT_PARTNER]
+  PROJECT_APPROVAL: [PLANNING_ADP, ECNEC_NEC, PROCURING_ENTITY_NATIVE, ERD_AIMS, CABINET_CCGP_CCEA]
+  FUNDING_ALLOCATION: [PLANNING_ADP, FINANCE_BUDGET, ERD_AIMS, DEVELOPMENT_PARTNER, PROCURING_ENTITY_NATIVE]
+  PROCUREMENT_PLANNING: [EGP, PROCURING_ENTITY_NATIVE, DGDP_EDP, DEVELOPMENT_PARTNER, PPP_AUTHORITY]
+  PRE_PROCUREMENT: [DGDP_EDP, EGP, PROCURING_ENTITY_NATIVE, DEVELOPMENT_PARTNER, PPP_AUTHORITY]
+  SOLICITATION: [EGP, DGDP_EDP, PPP_AUTHORITY, PROCURING_ENTITY_NATIVE, DEVELOPMENT_PARTNER]
+  EVALUATION_AWARD: [EGP, DGDP_EDP, PROCURING_ENTITY_NATIVE, DEVELOPMENT_PARTNER, CABINET_CCGP_CCEA]
+  IMPLEMENTATION: [IMED_EPMIS, PROCURING_ENTITY_NATIVE, EGP, ERD_AIMS, DEVELOPMENT_PARTNER]
+  COMPLETION_FOLLOW_ON: [IMED_EPMIS, PROCURING_ENTITY_NATIVE, EGP, DEVELOPMENT_PARTNER]
+
+canonical_procurement_intelligence_record:
+  source:
+    - source_authority
+    - source_system
+    - source_url
+    - source_record_id
+    - source_record_type
+    - publication_date
+    - observation_date
+    - access_class
+  regime:
+    - procurement_route
+    - procurement_regime
+    - applicable_rules
+    - funding_regime
+  organization:
+    - ministry
+    - division
+    - organization
+    - procuring_agency
+    - procuring_entity
+    - end_user
+    - implementing_agency
+    - approving_authority
+  project:
+    - project_name
+    - project_code
+    - adp_or_radp_code
+    - approval_status
+    - implementation_period
+    - project_cost
+    - annual_allocation
+    - funding_source
+    - development_partner
+  procurement:
+    - procurement_plan_id
+    - package_no
+    - package_description
+    - procurement_nature
+    - procurement_type
+    - procurement_method
+    - estimated_cost
+    - procurement_status
+  solicitation:
+    - tender_id
+    - reference_no
+    - tender_title
+    - notice_type
+    - publication_date
+    - document_sale_period
+    - pre_bid_date
+    - closing_date
+    - opening_date
+    - amendment_or_corrigendum
+  requirement:
+    - product_or_service
+    - quantity
+    - specification
+    - qualification
+    - standards
+    - delivery_requirement
+    - installation_or_location
+  award:
+    - noa_date
+    - awardee
+    - award_value
+    - contract_date
+  execution:
+    - contract_start
+    - contract_end
+    - work_status
+    - implementation_progress
+    - variation
+    - payment_or_disbursement_signal
+    - completion_status
+  intelligence:
+    - lifecycle_stage
+    - evidence_strength
+    - confidence
+    - contradictions
+    - unknowns
+    - related_records
+
+collection_algorithm:
+  - determine_the_information_phase_or_material_unknown
+  - select_the_authoritative_source_family_most_likely_to_hold_that_information
+  - query_or_inspect_that_source
+  - preserve_raw_identifiers_and_source_wording
+  - normalize_into_the_canonical_procurement_vocabulary
+  - cross_reference_upstream_downstream_and_adjacent_sources
+  - reconcile_conflicts_and_duplicates
+  - leave_unsupported_fields_UNKNOWN
+  - update_research_frontier_and_learning_record
+
+runtime_revalidation:
+  required_for:
+    - current_law_and_rules
+    - current_platform_availability
+    - current_public_access_scope
+    - current_procurement_channel
+    - current_source_field_availability
+  principle: Cached source capability guides collection; current evidence determines conclusions.
