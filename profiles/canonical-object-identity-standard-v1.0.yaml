@@ -1,11 +1,11 @@
 document_id: ARGUS-CANONICAL-IDENTITY-001
-version: 1.0.0
+version: 1.1.0
 status: ACTIVE
 owner: ARGUS
 purpose: >-
   Give every distinct ARGUS object, source record, event and observation a stable identity while
-  preventing portal IDs, titles, amendments and repeated publications from creating duplicate
-  real-world objects.
+  preventing portal IDs, titles, amendments, repeated publications and department-specific views
+  from creating duplicate real-world or business objects.
 
 identity_layers:
   CANONICAL_OBJECT:
@@ -32,7 +32,9 @@ core_rules:
   - An official re-tender/reissue creates a new procurement/solicitation cycle when evidenced, while the underlying REQUIREMENT lineage normally survives.
   - Buyer, procuring entity, implementing agency, end user, funder, supplier and OEM are roles of ORGANIZATION objects, not separate identity classes.
   - A supplier or OEM therefore receives an ORGANIZATION identity; role is relationship/context data.
+  - HubSpot may mirror an ARGUS organization/person for CRM work but does not create a competing enterprise identity.
   - Every relationship row, source record, event, observation, external identifier and attribute also receives its own immutable database ID.
+  - Departmental reporting views never create new canonical identities merely because Marketing, Sales, Business Development, Operations or Finance uses the data.
 
 canonical_object_types:
   POLICY: {prefix: POL, description: Government policy or authoritative policy instrument}
@@ -51,9 +53,14 @@ canonical_object_types:
   ORGANIZATION: {prefix: ENT, description: Ministry, agency, authority, PE, funder, OEM, supplier, contractor or other organization}
   PERSON: {prefix: PER, description: Person when material and lawfully retained}
   PRODUCT: {prefix: PRD, description: Product, platform, solution or service offering}
+  PRODUCT_CATEGORY: {prefix: PCAT, description: Stable classification grouping products, platforms, solutions or services}
+  SECTOR: {prefix: SEC, description: Stable business or government sector classification}
+  GEOGRAPHY: {prefix: GEO, description: Geographic market or jurisdiction classification when first-class identity is useful}
   FINANCING: {prefix: FND, description: Financing instrument or facility}
   DOCUMENT: {prefix: DOC, description: Material document requiring first-class identity}
   OPPORTUNITY: {prefix: OPP, description: Commercial opportunity; existing ARGUS-OPP-YYYY-NNNNNN IDs remain valid}
+  BID: {prefix: BID, description: Access Asia or principal response/submission against a procurement or commercial request}
+  ACCESS_ASIA_PROJECT: {prefix: AAPJ, description: Access Asia execution project created after award/contract activation; distinct from an external government PROJECT}
 
 policy_to_tender_lineage:
   - POLICY
@@ -69,6 +76,15 @@ policy_to_tender_lineage:
   - ITEM
   - AWARD
   - CONTRACT
+
+access_asia_commercial_lineage:
+  permanent_lineage_key: commercial_px_id
+  objects:
+    - OPPORTUNITY
+    - BID
+    - AWARD
+    - ACCESS_ASIA_PROJECT
+  rule: commercial_px_id remains immutable after ATLAS assignment and is preserved across bid, award, project execution and SharePoint stage moves
 
 identity_resolution_order:
   - exact_authoritative_identifier
