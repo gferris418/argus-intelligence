@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import shutil
 import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
 
-from tools.argus_operational_db import apply_commercial_graph_migration, initialize_database
+from tools.argus_operational_db import initialize_database
+from tools.commercial_graph_migration import apply_commercial_graph_migration
 
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATION = ROOT / "registry" / "migrations" / "1.0.0-to-1.1.0-commercial-graph.sql"
