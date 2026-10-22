@@ -31,7 +31,8 @@ authority:
   bangladesh_extended_source_mappings: profiles/bangladesh-source-mappings-v1.3.yaml
   bangladesh_institution_standard: profiles/bangladesh-institution-standard.yaml
   bangladesh_pursuit_activation: profiles/bangladesh-pursuit-activation.yaml
-  bangladesh_observation_schema: schemas/bangladesh-observation-v1.1.schema.json
+  bangladesh_observation_schema: schemas/bangladesh-observation.schema.json
+  bangladesh_observation_schema_v1_1: schemas/bangladesh-observation-v1.1.schema.json
   collection_mission_schema: schemas/collection-mission.schema.json
   collection_package_schema: schemas/intelligence-collection-package.schema.json
   domain_result_schema: schemas/domain-result.schema.json
@@ -295,6 +296,7 @@ release_gates:
   - Supplier partnerability and opportunity-supplier matching are machine-readable: CANDIDATE
   - Rapid Tender Mode and event-driven early warning are machine-readable: CANDIDATE
   - Qualification is advisory and ATLAS retains authoritative pursuit decisions: CANDIDATE
-  - claim type and claim condition schema contract remains valid: PASS
+  - claim type and claim condition candidate schema contract: PASS
+  - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - GitHub-first canonical storage policy remains defined: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
