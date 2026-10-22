@@ -1,0 +1,539 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://argus.accessasia.example/schemas/bangladesh-procurement-v2.1.schema.json",
+  "title": "ARGUS Bangladesh Canonical Procurement v2.1 Candidate",
+  "description": "Portal-neutral Bangladesh procurement database schema aligned to OCDS lifecycle concepts and extended for World Bank, ADB, BPPA/e-GP, DGDP/e-DP, PPP, SOE, agency and development-partner procurement. This is a candidate successor to v2.0; v1.3 remains the active production authority until governed migration approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["procurement_id", "jurisdiction", "title", "record_state", "record_revision"],
+  "properties": {
+    "procurement_id": {"type": "string", "minLength": 1, "description": "Permanent ARGUS identifier for one contracting/procurement process or cycle. Never use a portal-native tender ID as the canonical database key."},
+    "ocid": {"type": ["string", "null"], "description": "Optional Open Contracting ID used for OCDS export or interchange after an OCID policy/prefix is established."},
+    "jurisdiction": {"const": "BD", "description": "ISO-style jurisdiction code for Bangladesh."},
+    "language": {"type": "string", "default": "en", "description": "Default record language using an ISO 639-1/BCP47-compatible tag."},
+    "requirement_ref": {"type": ["string", "null"], "description": "Stable reference to the underlying government/commercial need that can persist across original tender, cancellation, reissue and re-tender cycles."},
+    "title": {"type": "string", "minLength": 1, "description": "Normalized human-readable procurement title."},
+    "description": {"type": ["string", "null"], "description": "Concise normalized procurement scope description."},
+    "record_state": {"type": "string", "enum": ["CANDIDATE", "CURRENT", "SUPERSEDED", "ARCHIVED"], "description": "State of the database record, not the procurement process."},
+    "record_revision": {"type": "integer", "minimum": 1, "description": "Monotonic revision of the compiled canonical database record."},
+    "identifiers": {"type": "array", "items": {"$ref": "#/$defs/identifier"}, "description": "Typed external identifiers from all source systems."},
+    "related_processes": {"type": "array", "items": {"$ref": "#/$defs/related_process"}, "description": "Relationships to predecessor, successor, planning, framework, project or related contracting processes."},
+    "parties": {"type": "array", "items": {"$ref": "#/$defs/party_link"}, "description": "References to canonical organizations/persons and their functional procurement roles."},
+    "planning": {"$ref": "#/$defs/planning"},
+    "tender": {"$ref": "#/$defs/tender"},
+    "notices": {"type": "array", "items": {"$ref": "#/$defs/notice"}, "description": "Published notices across planning, tender, award, contract and implementation stages."},
+    "documents": {"type": "array", "items": {"$ref": "#/$defs/document"}, "description": "Referenced tender, specification, BOQ, drawing, corrigendum, award, contract and implementation documents."},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}, "description": "Append-only lifecycle events and material changes."},
+    "awards": {"type": "array", "items": {"$ref": "#/$defs/award"}, "description": "Award decisions; multiple awards are permitted."},
+    "contracts": {"type": "array", "items": {"$ref": "#/$defs/contract"}, "description": "Legally established contracts and their implementation state."},
+    "complaints": {"type": "array", "items": {"$ref": "#/$defs/complaint"}, "description": "Procurement-related complaints when lawfully/publicly evidenced."},
+    "source_releases": {"type": "array", "items": {"$ref": "#/$defs/source_release"}, "description": "Immutable source-change records used to preserve the history behind the compiled current record."},
+    "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}, "description": "Field-level provenance and evidence states."},
+    "intelligence": {"$ref": "#/$defs/intelligence"},
+    "ocds_alignment": {"$ref": "#/$defs/ocds_alignment"}
+  },
+  "$defs": {
+    "date_or_datetime": {"type": ["string", "null"], "minLength": 1},
+    "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+    "money": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {"type": ["number", "null"], "minimum": 0},
+        "currency": {"$ref": "#/$defs/currency"},
+        "raw_text": {"type": ["string", "null"]}
+      }
+    },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "value", "scope"],
+      "properties": {
+        "scheme": {"type": "string", "enum": ["APP_ID", "EGP_TENDER_ID", "TENDER_REFERENCE_NO", "DGDP_TENDER_NO", "PACKAGE_NO", "LOT_NO", "PROJECT_CODE", "PE_CODE", "NOTICE_ID", "AWARD_ID", "CONTRACT_ID", "FINANCING_REFERENCE", "OTHER"]},
+        "value": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "enum": ["PROJECT", "PLAN", "PACKAGE", "PROCESS", "LOT", "NOTICE", "AWARD", "CONTRACT", "FINANCING", "OTHER"]},
+        "source_system": {"type": ["string", "null"]},
+        "source_label": {"type": ["string", "null"]}
+      }
+    },
+    "related_process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relationship", "identifier"],
+      "properties": {
+        "relationship": {"type": "string", "enum": ["PARENT", "CHILD", "PRIOR", "SUCCESSOR", "PLANNING", "PROJECT", "FRAMEWORK", "RETENDER_OF", "REPLACES", "REPLACED_BY", "OTHER"]},
+        "identifier": {"type": "string", "minLength": 1},
+        "scheme": {"type": ["string", "null"]},
+        "source_system": {"type": ["string", "null"]},
+        "title": {"type": ["string", "null"]}
+      }
+    },
+    "party_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["party_id", "roles"],
+      "properties": {
+        "party_id": {"type": "string", "minLength": 1, "description": "Canonical ENTITY identifier."},
+        "roles": {"type": "array", "minItems": 1, "items": {"type": "string", "enum": ["SPONSORING_MINISTRY", "PARENT_DIVISION", "AGENCY", "IMPLEMENTING_AGENCY", "BUYER", "PROCURING_ENTITY", "PROCUREMENT_AGENT", "PROCUREMENT_UNIT", "END_USER", "PROJECT_OFFICE", "APPROVING_AUTHORITY", "FUNDER", "DEVELOPMENT_PARTNER", "REGULATOR", "TENDERER", "SUPPLIER", "CONSULTANT", "CONTRACTOR", "OTHER"]}},
+        "source_name": {"type": ["string", "null"]},
+        "source_identifier": {"type": ["string", "null"]},
+        "unit_label": {"type": ["string", "null"], "description": "Source-published wing, section, cell or unit such as DGDP Navy Wing / NP-8."},
+        "contact_name": {"type": ["string", "null"]},
+        "contact_designation": {"type": ["string", "null"]},
+        "contact_email": {"type": ["string", "null"]},
+        "contact_phone": {"type": ["string", "null"]},
+        "contact_address": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "budget_type": {"type": ["string", "null"], "description": "Development, Revenue, Own Fund or other source-stated budget classification."},
+        "fiscal_year": {"type": ["string", "null"]},
+        "amount": {"$ref": "#/$defs/money"},
+        "line_reference": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "financing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_party_id": {"type": ["string", "null"]},
+        "instrument": {"type": ["string", "null"], "description": "Government allocation, loan, grant, credit, own fund, G2G or other financing form."},
+        "reference": {"type": ["string", "null"]},
+        "value": {"$ref": "#/$defs/money"},
+        "commitment_date": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]},
+        "conditions": {"type": "array", "items": {"type": "string"}},
+        "scope": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "procurement_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plan_id": {"type": ["string", "null"], "description": "APP, STEP, ADB procurement-plan or other planning identifier."},
+        "plan_type": {"type": ["string", "null"], "enum": ["APP", "WORLD_BANK_STEP", "ADB_PROCUREMENT_PLAN", "PROJECT_PROCUREMENT_PLAN", "AGENCY_PROCUREMENT_PLAN", "OTHER", null]},
+        "plan_version": {"type": ["string", "null"]},
+        "plan_status": {"type": ["string", "null"]},
+        "period_start": {"$ref": "#/$defs/date_or_datetime"},
+        "period_end": {"$ref": "#/$defs/date_or_datetime"},
+        "package_description": {"type": ["string", "null"]},
+        "estimated_cost": {"$ref": "#/$defs/money"},
+        "procurement_method_source": {"type": ["string", "null"]},
+        "bidding_document_type": {"type": ["string", "null"], "description": "Planned standard bidding/procurement document type where published."},
+        "review_type": {"type": ["string", "null"], "description": "Prior review, post review or source-specific lender review procedure."},
+        "expected_advertisement_at": {"$ref": "#/$defs/date_or_datetime"},
+        "contract_supervision_arrangement": {"type": ["string", "null"]},
+        "source_system": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "planning": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rationale": {"type": ["string", "null"], "description": "Published rationale/need for the procurement, when available."},
+        "project_title": {"type": ["string", "null"]},
+        "project_code": {"type": ["string", "null"]},
+        "project_status": {"type": ["string", "null"]},
+        "project_total_cost": {"$ref": "#/$defs/money"},
+        "implementation_period_start": {"$ref": "#/$defs/date_or_datetime"},
+        "implementation_period_end": {"$ref": "#/$defs/date_or_datetime"},
+        "budget": {"$ref": "#/$defs/budget"},
+        "financing": {"type": "array", "items": {"$ref": "#/$defs/financing"}},
+        "procurement_plan": {"$ref": "#/$defs/procurement_plan"}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "id"],
+      "properties": {
+        "scheme": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1},
+        "description": {"type": ["string", "null"]},
+        "uri": {"type": ["string", "null"]}
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "country": {"type": ["string", "null"], "default": "BD"},
+        "district": {"type": ["string", "null"]},
+        "administrative_area": {"type": ["string", "null"]},
+        "address": {"type": ["string", "null"]},
+        "description": {"type": ["string", "null"]}
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "description"],
+      "properties": {
+        "item_id": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "quantity": {"type": ["number", "null"], "minimum": 0},
+        "unit": {"type": ["string", "null"]},
+        "estimated_value": {"$ref": "#/$defs/money"},
+        "classifications": {"type": "array", "items": {"$ref": "#/$defs/classification"}},
+        "delivery_location": {"$ref": "#/$defs/location"},
+        "lot_ref": {"type": ["string", "null"]}
+      }
+    },
+    "lot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lot_id"],
+      "properties": {
+        "lot_id": {"type": "string", "minLength": 1},
+        "lot_reference": {"type": ["string", "null"]},
+        "title": {"type": ["string", "null"]},
+        "description": {"type": ["string", "null"]},
+        "estimated_value": {"$ref": "#/$defs/money"},
+        "delivery_location": {"$ref": "#/$defs/location"},
+        "completion_period": {"type": ["string", "null"]},
+        "item_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start_at": {"$ref": "#/$defs/date_or_datetime"},
+        "end_at": {"$ref": "#/$defs/date_or_datetime"},
+        "original_start_at": {"$ref": "#/$defs/date_or_datetime"},
+        "original_end_at": {"$ref": "#/$defs/date_or_datetime"}
+      }
+    },
+    "milestone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["milestone_id", "type"],
+      "properties": {
+        "milestone_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["PROCUREMENT_DOCUMENT_READY", "EXPECTED_PUBLICATION", "DOCUMENT_SALE_START", "DOCUMENT_SALE_END", "PREBID_MEETING", "CLARIFICATION_DEADLINE", "SECURITY_DEADLINE", "SUBMISSION_DEADLINE", "OPENING", "VALIDITY_END", "SECURITY_VALIDITY_END", "EVALUATION_COMPLETE", "INTENTION_TO_AWARD", "STANDSTILL_END", "EXPECTED_AWARD", "CONTRACT_AWARD_NOTICE", "CONTRACT_SIGNING", "DELIVERY", "COMPLETION"]},
+        "due_at": {"$ref": "#/$defs/date_or_datetime"},
+        "original_due_at": {"$ref": "#/$defs/date_or_datetime"},
+        "date_met": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "type", "text"],
+      "properties": {
+        "requirement_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["REGISTRATION", "ENLISTMENT", "LEGAL", "EXPERIENCE", "FINANCIAL_CAPACITY", "TECHNICAL_CAPABILITY", "OEM_AUTHORIZATION", "SOURCE_COUNTRY", "LOCAL_PARTICIPATION", "JV_REQUIREMENT", "STANDARD_CERTIFICATION", "SUSTAINABILITY", "SECURITY_CLEARANCE", "OTHER"]},
+        "text": {"type": "string", "minLength": 1},
+        "normalized_value": {},
+        "mandatory": {"type": ["boolean", "null"]},
+        "scope": {"type": ["string", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "fee": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fee_id", "type"],
+      "properties": {
+        "fee_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["TENDER_DOCUMENT", "SCHEDULE_PURCHASE", "REGISTRATION", "OTHER"]},
+        "value": {"$ref": "#/$defs/money"},
+        "refundable": {"type": ["boolean", "null"]},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["security_id", "type"],
+      "properties": {
+        "security_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["TENDER_SECURITY", "PERFORMANCE_SECURITY", "ADVANCE_PAYMENT_GUARANTEE", "RETENTION", "OTHER"]},
+        "value": {"$ref": "#/$defs/money"},
+        "percentage": {"type": ["number", "null"], "minimum": 0},
+        "validity_until": {"$ref": "#/$defs/date_or_datetime"},
+        "lot_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "submission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["submission_id"],
+      "properties": {
+        "submission_id": {"type": "string", "minLength": 1},
+        "bidder_party_ids": {"type": "array", "items": {"type": "string"}},
+        "lot_refs": {"type": "array", "items": {"type": "string"}},
+        "submitted_at": {"$ref": "#/$defs/date_or_datetime"},
+        "opening_value": {"$ref": "#/$defs/money"},
+        "evaluated_value": {"$ref": "#/$defs/money"},
+        "status": {"type": ["string", "null"], "enum": ["RECEIVED", "OPENED", "RESPONSIVE", "NON_RESPONSIVE", "REJECTED", "WITHDRAWN", "SELECTED", "NOT_EVALUATED", "UNKNOWN", null]},
+        "rejection_reason": {"type": ["string", "null"]},
+        "rank": {"type": ["integer", "null"], "minimum": 1},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "tender": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "route": {"type": ["string", "null"], "enum": ["BD-GEN-EGP", "BD-DEV-GOB", "BD-DEV-DP", "BD-DEF-DGDP", "BD-SOE-AUT", "BD-PPP", "BD-G2G-STRAT", "BD-LOCAL", "BD-UNKNOWN", null]},
+        "main_procurement_category": {"type": ["string", "null"], "enum": ["GOODS", "WORKS", "CONSULTING_SERVICES", "NON_CONSULTING_SERVICES", "MIXED", "OTHER", null]},
+        "category_source_label": {"type": ["string", "null"], "description": "Exact source category such as BPPA Invitation For: Works; never silently overwrite it with analyst interpretation."},
+        "method_normalized": {"type": ["string", "null"], "enum": ["OPEN", "SELECTIVE", "LIMITED", "DIRECT", "REQUEST_FOR_QUOTATION", "FRAMEWORK", "OTHER", null]},
+        "method_source_code": {"type": ["string", "null"]},
+        "method_source_label": {"type": ["string", "null"]},
+        "competition_scope": {"type": ["string", "null"], "enum": ["NATIONAL", "INTERNATIONAL", "RESTRICTED_BY_FINANCING", "OTHER", null]},
+        "configuration": {"type": ["string", "null"], "enum": ["ONE_STAGE_ONE_ENVELOPE", "ONE_STAGE_TWO_ENVELOPE", "TWO_STAGE", "TWO_STAGE_TWO_ENVELOPE", "THREE_ENVELOPE", "OTHER", null]},
+        "status_raw": {"type": ["string", "null"]},
+        "status_normalized": {"type": ["string", "null"], "enum": ["PLANNED", "ACTIVE", "EVALUATION", "AWARDED", "CANCELLED", "REISSUED", "COMPLETED", "UNKNOWN", null]},
+        "estimated_value": {"$ref": "#/$defs/money"},
+        "tender_period": {"$ref": "#/$defs/period"},
+        "enquiry_period": {"$ref": "#/$defs/period"},
+        "award_period": {"$ref": "#/$defs/period"},
+        "lots": {"type": "array", "items": {"$ref": "#/$defs/lot"}},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/item"}},
+        "milestones": {"type": "array", "items": {"$ref": "#/$defs/milestone"}},
+        "requirements": {"type": "array", "items": {"$ref": "#/$defs/requirement"}},
+        "fees": {"type": "array", "items": {"$ref": "#/$defs/fee"}},
+        "securities": {"type": "array", "items": {"$ref": "#/$defs/security"}},
+        "submissions": {"type": "array", "items": {"$ref": "#/$defs/submission"}}
+      }
+    },
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["notice_id", "notice_type", "source_system"],
+      "properties": {
+        "notice_id": {"type": "string", "minLength": 1},
+        "notice_type": {"type": "string", "enum": ["GENERAL_PROCUREMENT_NOTICE", "PROCUREMENT_PLAN", "EOI", "PREQUALIFICATION", "IFT", "RFB", "RFP", "RFQ", "CORRIGENDUM", "ADDENDUM", "CLARIFICATION", "INTENTION_TO_AWARD", "CONTRACT_AWARD", "CANCELLATION", "RETENDER", "IMPLEMENTATION_UPDATE", "OTHER"]},
+        "stage": {"type": ["string", "null"], "enum": ["PLANNING", "TENDER", "AWARD", "CONTRACT", "IMPLEMENTATION", "OTHER", null]},
+        "version": {"type": ["integer", "string", "null"]},
+        "published_at": {"$ref": "#/$defs/date_or_datetime"},
+        "source_system": {"type": "string", "minLength": 1},
+        "source_record_id": {"type": ["string", "null"]},
+        "source_locator": {"type": ["string", "null"]},
+        "status": {"type": ["string", "null"]}
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "document_type"],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1},
+        "document_type": {"type": "string", "enum": ["NOTICE", "TENDER_DOCUMENT", "STANDARD_BIDDING_DOCUMENT", "SPECIFICATION", "BOQ", "DRAWING", "TOR", "EVALUATION_REPORT", "CORRIGENDUM", "ADDENDUM", "CLARIFICATION", "AWARD_NOTICE", "CONTRACT", "IMPLEMENTATION_REPORT", "OTHER"]},
+        "stage": {"type": ["string", "null"]},
+        "title": {"type": ["string", "null"]},
+        "description": {"type": ["string", "null"]},
+        "url": {"type": ["string", "null"]},
+        "format": {"type": ["string", "null"]},
+        "language": {"type": ["string", "null"]},
+        "published_at": {"$ref": "#/$defs/date_or_datetime"},
+        "content_hash": {"type": ["string", "null"]},
+        "source_system": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]},
+        "lot_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field"],
+      "properties": {
+        "field": {"type": "string", "minLength": 1},
+        "previous_value": {},
+        "new_value": {}
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "type"],
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["PUBLICATION", "CORRIGENDUM", "ADDENDUM", "CLARIFICATION", "DEADLINE_EXTENSION", "OPENING_DATE_CHANGE", "VALIDITY_EXTENSION", "SECURITY_VALIDITY_EXTENSION", "CANCELLATION", "RETENDER", "REISSUE", "INTENTION_TO_AWARD", "AWARD", "CONTRACT_SIGNING", "CONTRACT_MODIFICATION", "PAYMENT", "COMPLETION", "TERMINATION"]},
+        "occurred_at": {"$ref": "#/$defs/date_or_datetime"},
+        "notice_ref": {"type": ["string", "null"]},
+        "reason_raw": {"type": ["string", "null"]},
+        "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "award": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["award_id"],
+      "properties": {
+        "award_id": {"type": "string", "minLength": 1},
+        "status": {"type": ["string", "null"]},
+        "date": {"$ref": "#/$defs/date_or_datetime"},
+        "supplier_party_ids": {"type": "array", "items": {"type": "string"}},
+        "lot_refs": {"type": "array", "items": {"type": "string"}},
+        "value": {"$ref": "#/$defs/money"},
+        "scope_summary": {"type": ["string", "null"]},
+        "contract_duration": {"type": ["string", "null"], "description": "Published duration summary where available in the award notice."},
+        "notification_of_intention_at": {"$ref": "#/$defs/date_or_datetime"},
+        "standstill_end_at": {"$ref": "#/$defs/date_or_datetime"},
+        "contract_award_notice_at": {"$ref": "#/$defs/date_or_datetime"},
+        "approval_reference": {"type": ["string", "null"]},
+        "beneficial_ownership_disclosed": {"type": ["boolean", "null"], "description": "Whether a beneficial-ownership disclosure was publicly required/published for this award; personal details should be governed separately."},
+        "beneficial_ownership_source_ref": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "transaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transaction_id"],
+      "properties": {
+        "transaction_id": {"type": "string", "minLength": 1},
+        "payer_party_id": {"type": ["string", "null"]},
+        "payee_party_id": {"type": ["string", "null"]},
+        "value": {"$ref": "#/$defs/money"},
+        "date": {"$ref": "#/$defs/date_or_datetime"},
+        "description": {"type": ["string", "null"]},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "modification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["modification_id"],
+      "properties": {
+        "modification_id": {"type": "string", "minLength": 1},
+        "type": {"type": ["string", "null"]},
+        "date": {"$ref": "#/$defs/date_or_datetime"},
+        "rationale": {"type": ["string", "null"]},
+        "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {"type": ["string", "null"]},
+        "physical_progress_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "financial_progress_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "period": {"$ref": "#/$defs/period"},
+        "actual_completion_at": {"$ref": "#/$defs/date_or_datetime"},
+        "current_value": {"$ref": "#/$defs/money"},
+        "milestones": {"type": "array", "items": {"$ref": "#/$defs/milestone"}},
+        "transactions": {"type": "array", "items": {"$ref": "#/$defs/transaction"}},
+        "modifications": {"type": "array", "items": {"$ref": "#/$defs/modification"}}
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_id"],
+      "properties": {
+        "contract_id": {"type": "string", "minLength": 1},
+        "contract_number": {"type": ["string", "null"]},
+        "award_ref": {"type": ["string", "null"]},
+        "supplier_party_ids": {"type": "array", "items": {"type": "string"}},
+        "title": {"type": ["string", "null"]},
+        "description": {"type": ["string", "null"]},
+        "value": {"$ref": "#/$defs/money"},
+        "signed_at": {"$ref": "#/$defs/date_or_datetime"},
+        "period": {"$ref": "#/$defs/period"},
+        "status": {"type": ["string", "null"]},
+        "implementation": {"$ref": "#/$defs/implementation"}
+      }
+    },
+    "complaint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complaint_id"],
+      "properties": {
+        "complaint_id": {"type": "string", "minLength": 1},
+        "complainant_party_id": {"type": ["string", "null"]},
+        "received_at": {"$ref": "#/$defs/date_or_datetime"},
+        "status": {"type": ["string", "null"]},
+        "subject": {"type": ["string", "null"]},
+        "resolution": {"type": ["string", "null"]},
+        "resolved_at": {"$ref": "#/$defs/date_or_datetime"},
+        "source_ref": {"type": ["string", "null"]}
+      }
+    },
+    "source_release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["release_id", "source_system", "recorded_at", "release_type", "immutable"],
+      "properties": {
+        "release_id": {"type": "string", "minLength": 1},
+        "source_system": {"type": "string", "minLength": 1},
+        "source_record_id": {"type": ["string", "null"]},
+        "release_type": {"type": "string", "enum": ["PLANNING", "TENDER", "AMENDMENT", "AWARD", "CONTRACT", "IMPLEMENTATION", "OTHER"]},
+        "recorded_at": {"type": "string", "minLength": 1},
+        "published_at": {"$ref": "#/$defs/date_or_datetime"},
+        "source_locator": {"type": ["string", "null"]},
+        "content_hash": {"type": ["string", "null"]},
+        "supersedes_release_id": {"type": ["string", "null"]},
+        "change_summary": {"type": ["string", "null"]},
+        "immutable": {"const": true}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observation_id", "field_path", "source_system", "observed_at", "claim_type", "condition"],
+      "properties": {
+        "observation_id": {"type": "string", "minLength": 1},
+        "field_path": {"type": "string", "minLength": 1},
+        "value": {},
+        "raw_label": {"type": ["string", "null"]},
+        "raw_value": {},
+        "source_id": {"type": ["string", "null"]},
+        "source_system": {"type": "string", "minLength": 1},
+        "source_locator": {"type": ["string", "null"]},
+        "source_access_class": {"type": ["string", "null"], "enum": ["PUBLIC_STRUCTURED", "PUBLIC_DOCUMENT", "PUBLIC_SUMMARY", "LOGIN_REQUIRED", "RESTRICTED", "NOT_PUBLISHED", "UNKNOWN", null]},
+        "observed_at": {"type": "string", "minLength": 1},
+        "published_at": {"$ref": "#/$defs/date_or_datetime"},
+        "claim_type": {"type": "string", "enum": ["FACT", "DERIVED", "INFERENCE", "ASSUMPTION", "UNKNOWN"]},
+        "condition": {"type": "string", "enum": ["CURRENT", "STALE", "CONFLICT", "UNKNOWN"]},
+        "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "assurance": {"type": ["string", "null"]}
+      }
+    },
+    "intelligence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lifecycle_stage": {"type": ["string", "null"], "pattern": "^S[0-9]$"},
+        "opportunity_mode": {"type": ["string", "null"], "enum": ["SHAPE", "POSITION", "REACT", "EXPAND", null]},
+        "material_unknowns": {"type": "array", "items": {"type": "string"}},
+        "contradictions": {"type": "array", "items": {"type": "string"}},
+        "supplier_discovery_state": {"type": ["string", "null"]},
+        "next_collection_action": {"type": ["string", "null"]}
+      }
+    },
+    "ocds_alignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {"type": "string", "const": "1.1.5"},
+        "release_tags": {"type": "array", "items": {"type": "string"}},
+        "extensions": {"type": "array", "items": {"type": "string"}},
+        "mapping_status": {"type": ["string", "null"], "enum": ["NOT_MAPPED", "PARTIAL", "MAPPED", "VALIDATED", null]},
+        "mapped_at": {"$ref": "#/$defs/date_or_datetime"}
+      }
+    }
+  },
+  "x-lifecycle-model": "OCDS-compatible planning -> tender -> awards -> contracts -> implementation, with Bangladesh-specific extensions and immutable source release history.",
+  "x-production-status": "CANDIDATE_ONLY",
+  "version": "2.1.0-candidate"
+}
