@@ -5,7 +5,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools import argus_operational_db as db
+from tools.argus_operational_migrate import (
+    LATEST_SCHEMA_VERSION,
+    LATEST_USER_VERSION,
+    initialize_latest_database,
+    migrate_database,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_SCHEMA = ROOT / "schemas" / "argus-operational-store-v1.sql"
@@ -21,15 +26,12 @@ EXPECTED_NEW_TYPES = {
 
 class CommercialGraphStoreMigrationTests(unittest.TestCase):
     def test_migration_api_exists(self) -> None:
-        self.assertTrue(
-            hasattr(db, "migrate_database"),
-            "operational DB must expose an idempotent migrate_database API",
-        )
+        self.assertTrue(callable(migrate_database))
+        self.assertTrue(callable(initialize_latest_database))
+        self.assertEqual("1.1.0", LATEST_SCHEMA_VERSION)
+        self.assertEqual(2, LATEST_USER_VERSION)
 
     def test_existing_v1_database_migrates_additively_without_data_loss(self) -> None:
-        self.assertTrue(hasattr(db, "migrate_database"))
-        migrate_database = getattr(db, "migrate_database")
-
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "registry.sqlite"
             conn = sqlite3.connect(path)
@@ -73,9 +75,6 @@ class CommercialGraphStoreMigrationTests(unittest.TestCase):
                 conn.close()
 
     def test_migration_is_idempotent(self) -> None:
-        self.assertTrue(hasattr(db, "migrate_database"))
-        migrate_database = getattr(db, "migrate_database")
-
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "registry.sqlite"
             conn = sqlite3.connect(path)
@@ -96,18 +95,22 @@ class CommercialGraphStoreMigrationTests(unittest.TestCase):
                     ).fetchone()[0],
                 )
                 self.assertEqual("1.1.0", dict(conn.execute("SELECT key,value FROM schema_meta"))["schema_version"])
+                self.assertEqual("ok", conn.execute("PRAGMA integrity_check").fetchone()[0])
+                self.assertEqual([], conn.execute("PRAGMA foreign_key_check").fetchall())
             finally:
                 conn.close()
 
     def test_new_database_initialization_finishes_at_latest_schema(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "registry.sqlite"
-            db.initialize_database(path)
+            initialize_latest_database(path)
             conn = sqlite3.connect(path)
             try:
                 meta = dict(conn.execute("SELECT key, value FROM schema_meta"))
                 self.assertEqual("1.1.0", meta["schema_version"])
                 self.assertEqual(2, conn.execute("PRAGMA user_version").fetchone()[0])
+                self.assertEqual("ok", conn.execute("PRAGMA integrity_check").fetchone()[0])
+                self.assertEqual([], conn.execute("PRAGMA foreign_key_check").fetchall())
             finally:
                 conn.close()
 
