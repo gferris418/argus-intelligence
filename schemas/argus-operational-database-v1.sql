@@ -110,6 +110,17 @@ CREATE TABLE IF NOT EXISTS observations (
 CREATE INDEX IF NOT EXISTS idx_observations_subject ON observations(subject_uuid);
 CREATE INDEX IF NOT EXISTS idx_observations_field ON observations(field_path);
 
+CREATE TABLE IF NOT EXISTS legacy_registry_records (
+  legacy_id TEXT PRIMARY KEY,
+  legacy_record_type TEXT NOT NULL,
+  source_schema_version TEXT,
+  migration_status TEXT NOT NULL,
+  mapped_object_uuid TEXT REFERENCES canonical_objects(internal_uuid),
+  raw_json TEXT NOT NULL,
+  imported_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_legacy_mapped_object ON legacy_registry_records(mapped_object_uuid);
+
 CREATE TABLE IF NOT EXISTS change_log (
   change_id TEXT PRIMARY KEY,
   changed_at TEXT NOT NULL,
