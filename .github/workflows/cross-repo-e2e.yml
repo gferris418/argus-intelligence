@@ -8,10 +8,12 @@ on:
       - 'argus-intelligence.yaml'
       - 'alignments/atlas-os-triage-v2.yaml'
       - 'contracts/atlas/current-integration.yaml'
+      - 'contracts/atlas/plugin-release-impact.yaml'
       - 'tools/atlas_v3_provider.py'
       - 'tools/cross_repo_e2e.py'
       - 'tests/cross_repo/**'
       - 'tests/test_cross_repo_command.py'
+      - 'tests/test_plugin_release_impact_contract.py'
       - '.github/workflows/cross-repo-e2e.yml'
   push:
     branches: [main]
@@ -19,10 +21,12 @@ on:
       - 'argus-intelligence.yaml'
       - 'alignments/atlas-os-triage-v2.yaml'
       - 'contracts/atlas/current-integration.yaml'
+      - 'contracts/atlas/plugin-release-impact.yaml'
       - 'tools/atlas_v3_provider.py'
       - 'tools/cross_repo_e2e.py'
       - 'tests/cross_repo/**'
       - 'tests/test_cross_repo_command.py'
+      - 'tests/test_plugin_release_impact_contract.py'
       - '.github/workflows/cross-repo-e2e.yml'
 
 permissions:

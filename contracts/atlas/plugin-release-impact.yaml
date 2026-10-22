@@ -1,0 +1,54 @@
+version: 1.0.0
+status: CURRENT
+chatgpt_plugin:
+  name: atlas-os
+  release_owner: ATLAS
+  canonical_repository: gferris418/atlas-os
+  publication_mechanism: plugin_creator_guarded_update
+  direct_argus_plugin_publication: false
+default:
+  plugin_release_required: false
+  rule: >-
+    ARGUS internal implementation changes do not by themselves require a ChatGPT
+    plugin release because ATLAS is the ChatGPT-facing control plane.
+boundary_changes:
+  plugin_review_required: true
+  atlas_release_decision_required: true
+  categories:
+    - activation_contract
+    - provider_return_contract
+    - approval_contract
+    - route_mechanisms
+    - capability_identity
+    - provider_identity
+    - atlas_authority_boundary
+  paths:
+    - contracts/atlas/current-integration.yaml
+    - contracts/atlas/argus-activation-v1.json
+    - alignments/atlas-os-triage-v2.yaml
+    - tools/atlas_v3_provider.py
+  rule: >-
+    A boundary change must be reviewed by ATLAS. If ATLAS routing, approval,
+    provider-return, or packaged skill semantics change, ATLAS must produce a new
+    guarded atlas-os plugin release bundle and publish it against the existing plugin identity.
+internal_changes:
+  plugin_release_required: false
+  categories:
+    - source_collectors
+    - extraction
+    - normalization
+    - corroboration
+    - scoring
+    - internal_storage
+    - internal_schema_without_atlas_interface_change
+    - supplier_research_logic
+    - opportunity_research_logic
+validation:
+  required:
+    - contract-tests
+  boundary_change_requires:
+    - cross-repository-e2e
+traceability:
+  current_atlas_integration: contracts/atlas/current-integration.yaml
+  atlas_release_policy: .github/plugin-release-policy.yaml
+  rule: pointers_not_copies
