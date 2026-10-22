@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc"
+ATLAS_COMMIT = "2b73cd58a877690429754b5de66920e0f364143b"
 
 
 class AtlasV3ProviderContractTests(unittest.TestCase):
@@ -17,7 +17,7 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("3.0.0-rc.1", manifest["product"]["previous_version"])
         self.assertFalse(manifest["production_runtime"]["access_asia"]["atlas_change_required"])
         compatibility = manifest["atlas_compatibility"]
-        self.assertEqual("3.0.1", compatibility["last_validated_base"])
+        self.assertEqual("3.0.2", compatibility["last_validated_base"])
         self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
         self.assertEqual("bounded_intelligence_collection_provider", compatibility["relationship"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
@@ -31,7 +31,7 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         )
         self.assertEqual("1.0.0", descriptor["version"])
         self.assertEqual("gferris418/atlas-os", descriptor["atlas"]["repository"])
-        self.assertEqual("3.0.1", descriptor["atlas"]["version"])
+        self.assertEqual("3.0.2", descriptor["atlas"]["version"])
         self.assertEqual(ATLAS_COMMIT, descriptor["atlas"]["commit"])
         contract = descriptor["contract"]
         self.assertEqual("intelligence_collection", contract["capability"])
@@ -75,10 +75,10 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             provider.execute(module.ProviderEnvelope(atlas_result=pending))
 
-    def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_1(self) -> None:
+    def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_2(self) -> None:
         alignment = yaml.safe_load((ROOT / "alignments" / "atlas-os-triage-v2.yaml").read_text(encoding="utf-8"))
         current = alignment["compatibility"]["current_validated_atlas"]
-        self.assertEqual("3.0.1", current["version"])
+        self.assertEqual("3.0.2", current["version"])
         self.assertEqual(ATLAS_COMMIT, current["commit"])
         self.assertFalse(alignment["compatibility"]["current_change_requires_coordinated_atlas_candidate"])
         workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(encoding="utf-8")
