@@ -1,0 +1,85 @@
+document_id: ARGUS-BD-UPSTREAM-SOURCES-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+extends: profiles/bangladesh-source-mappings.yaml
+
+registry_policy:
+  verified_central_anchors: true
+  opportunity_driven_lazy_enrichment: true
+  bulk_import_government_entities: false
+  authoritative_confirmation_required_for_hierarchy_or_role_change: true
+
+source_families:
+  CABINET_ALLOCATION_OF_BUSINESS:
+    who_publishes: Cabinet Division or other current authoritative government source
+    what_it_contains: allocation of government functions and institutional responsibility
+    when_updated: on authoritative revision
+    where_accessed: official government source
+    why_useful: resolves mandate and institutional responsibility upstream of procurement
+    which_claims_it_can_support: [institution_mandate, administrative_responsibility]
+    how_normalized: map institution names and mandates to canonical institution graph
+    limitations: does not by itself prove project approval procurement authority or live acquisition
+  NATIONAL_GOVERNMENT_DIRECTORY:
+    who_publishes: Bangladesh National Portal or other current authoritative directory
+    what_it_contains: ministries divisions directorates departments and linked public bodies
+    when_updated: periodically by publisher
+    where_accessed: official government directory
+    why_useful: resolves canonical institution identity and navigation anchors
+    which_claims_it_can_support: [institution_identity, official_domain, administrative_hierarchy]
+    how_normalized: resolve aliases to institution_id with validity evidence
+    limitations: directory completeness and freshness must be checked; hierarchy does not prove functional authority
+  MINISTRY_POLICY_STRATEGY:
+    who_publishes: responsible ministry division or agency
+    what_it_contains: policy strategy plans priorities and reform programmes
+    when_updated: when policy or strategy is issued or revised
+    where_accessed: official ministry agency publication
+    why_useful: generates top-down need and programme hypotheses before procurement
+    which_claims_it_can_support: [policy_priority, mission_need, programme_context]
+    how_normalized: attach policy evidence to requirement and institution graph
+    limitations: policy aspiration alone is not procurement evidence
+  PROJECT_PROCESSING:
+    who_publishes: Planning Commission ministry implementing agency or other competent authority
+    what_it_contains: concept appraisal processing review approval and revision signals
+    when_updated: throughout project lifecycle
+    where_accessed: official planning and project-processing source
+    why_useful: detects projects before procurement plans or tenders appear
+    which_claims_it_can_support: [project_state, approval_path, implementing_agency]
+    how_normalized: link official project identifiers and dates to opportunity requirement_ref
+    limitations: draft or appraisal status must not be inferred from titles alone
+  BUDGET_FINANCE_DOCUMENT:
+    who_publishes: Ministry of Finance ministry division agency or other competent authority
+    what_it_contains: budget allocation financing expenditure or fiscal authorization evidence
+    when_updated: budget cycle revisions and implementation reporting
+    where_accessed: official budget finance source
+    why_useful: distinguishes funding hypothesis from evidenced allocation
+    which_claims_it_can_support: [funding_state, allocation, fiscal_timing]
+    how_normalized: preserve fiscal year amount currency scope and source date
+    limitations: budget indication does not automatically establish procurement allocation
+  PUBLIC_INVESTMENT_PROGRAMMING:
+    who_publishes: Planning Commission IMED or other competent planning authority
+    what_it_contains: ADP RADP programme project and public-investment scheduling evidence
+    when_updated: annual and revised planning cycles
+    where_accessed: official planning source
+    why_useful: identifies approved or programmed development activity before package publication
+    which_claims_it_can_support: [project_state, funding_context, timing]
+    how_normalized: link project identifiers fiscal cycle and implementing agency to opportunity
+    limitations: inclusion does not automatically establish a tender or package
+  AGENCY_ANNUAL_REPORT:
+    who_publishes: public agency authority SOE board corporation or other public body
+    what_it_contains: completed ongoing and planned activities budgets assets performance and institutional priorities
+    when_updated: typically annual
+    where_accessed: official agency publication
+    why_useful: supports installed-base history recurring demand and programme context
+    which_claims_it_can_support: [installed_base, historical_project, agency_priority, implementation_evidence]
+    how_normalized: extract dated claims and reconcile entities projects and assets
+    limitations: narrative plans may be aspirational and require transaction-level corroboration
+  GOVERNMENT_GAZETTE:
+    who_publishes: Government of Bangladesh authorized gazette publisher
+    what_it_contains: enacted legal instruments notifications orders and other formally published government acts
+    when_updated: upon official publication
+    where_accessed: official gazette source
+    why_useful: establishes authoritative legal or institutional changes when within scope
+    which_claims_it_can_support: [legal_effect, institutional_change, formal_notification]
+    how_normalized: preserve instrument title publication date effective date scope and source locator
+    limitations: interpretation of legal effect must be revalidated when decision-material
