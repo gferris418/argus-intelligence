@@ -37,7 +37,22 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertTrue(core["normative"])
         self.assertTrue(method["normative"])
         self.assertTrue(opportunity["normative"])
-        self.assertEqual(["PIR", "EEI", "COLLECTION_PLAN", "SOURCE_PLAN", "COLLECT", "RESOLVE", "GRADE", "COMPETING_HYPOTHESES", "GAPS", "PACKAGE"], method["method"]["stages"])
+        self.assertEqual(
+            [
+                "PIR",
+                "EEI",
+                "COLLECTION_PLAN",
+                "SOURCE_PLAN",
+                "COLLECT",
+                "SEARCH_LEARNING",
+                "RESOLVE",
+                "GRADE",
+                "COMPETING_HYPOTHESES",
+                "GAPS",
+                "PACKAGE",
+            ],
+            method["method"]["stages"],
+        )
         self.assertIn("Country", method["target_classes"])
         self.assertIn("Tender", method["target_classes"])
         self.assertIn("Person", method["target_classes"])
@@ -56,6 +71,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertIn("collection_package", method["outputs"])
         self.assertIn("collection_gaps", method["outputs"])
         self.assertIn("unresolved_hypotheses", method["outputs"])
+        self.assertIn("research_learning_records", method["outputs"])
         self.assertNotIn("final_business_decision", method["outputs"])
         self.assertEqual("ATLAS_OS", method["handoff_to"]["analysis_owner"])
         self.assertEqual("ATLAS_OS", method["handoff_to"]["decision_owner"])
