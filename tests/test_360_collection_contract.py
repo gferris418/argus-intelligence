@@ -96,7 +96,11 @@ class Collection360ContractTests(unittest.TestCase):
         self.assertIn("execution_policy", schema["required"])
         policy = schema["properties"]["execution_policy"]
         self.assertFalse(policy["additionalProperties"])
-        self.assertEqual(STARTUP_SEQUENCE, policy["properties"]["startup_sequence"]["prefixItems"])
+        sequence_schema = policy["properties"]["startup_sequence"]
+        self.assertEqual(STARTUP_SEQUENCE, [item["const"] for item in sequence_schema["prefixItems"]])
+        self.assertEqual("ONE_HANDOFF_ONE_RETURN", policy["properties"]["handoff_pattern"]["const"])
+        self.assertEqual("AMBIGUOUS_ONLY", policy["properties"]["identity_confirmation"]["const"])
+        self.assertEqual("TRANSIENT_ONLY", policy["properties"]["mission_context"]["const"])
 
     def test_core_requires_ambiguity_only_user_escalation_after_identity_resolution(self) -> None:
         text = CORE.read_text(encoding="utf-8")
