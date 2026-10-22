@@ -16,6 +16,8 @@ atlas_contract:
   legacy_transport: contracts/atlas/synchronization-compatibility.yaml
 
 routing:
+  prompt_entry: MISSION_CONTROL_FIRST
+  prompt_entry_scope: every_user_prompt_while_atlas_active
   first_semantic_work: ATLAS_UNDERSTAND_AND_NORMALIZE
   pre_execution_flow: [UNDERSTAND_AND_NORMALIZE, MINIMAL_DOMAIN_FRAMING, ROUTE]
   modes:
@@ -73,8 +75,8 @@ compatibility:
     version: 2.0.1
     commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
   current_validated_atlas:
-    version: 3.0.1
-    commit: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
-    control_revision: chatgpt-plugin-bootstrap-v1
+    version: 3.0.2
+    commit: 95e78eb4f386c7434193014811ef8d2ce5254c30
+    control_revision: chatgpt-plugin-bootstrap-v1.0.1
   current_change_requires_coordinated_atlas_candidate: false
   historical_alignment_companion: alignments/atlas-os.md
