@@ -1,0 +1,109 @@
+document_id: ARGUS-BD-ROUTES-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+route_rules:
+  route_is_hypothesis_until_evidenced: true
+  different_packages_may_use_different_routes: true
+  better_evidence_may_supersede_route: true
+
+routes:
+  BD-GEN-EGP:
+    who: {expected_roles: [SPONSORING_MINISTRY, PROCURING_ENTITY, END_USER]}
+    what: {definition: general public procurement using Bangladesh public procurement channels including e-GP where applicable}
+    when: {earliest_use: credible_general_procurement_context, exit_condition: better_route_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [BPPA, EGP]}
+    why: {commercial_reason: establish general public procurement route and participation path}
+    which: {related_routes: [BD-DEV-GOB, BD-SOE-AUT, BD-LOCAL]}
+    how: {discovery_sequence: [resolve_need, resolve_PE, search_APP, search_package, search_tender]}
+    how_much_or_many: {capture_when_evidenced: [estimated_value, budget, quantity]}
+    evidence: {preferred_source_families: [BPPA_EGP_APP, OFFICIAL_AGENCY_PROCUREMENT]}
+    decision_impact: {promotion_signposts: [APP_OR_PLAN_SIGNAL, PACKAGE_IDENTIFIED, LIVE]}
+  BD-DEV-GOB:
+    who: {expected_roles: [SPONSORING_MINISTRY, IMPLEMENTING_AGENCY, PROJECT_OFFICE, PROCURING_ENTITY, APPROVING_AUTHORITY]}
+    what: {definition: development-project acquisition financed materially through Government of Bangladesh mechanisms}
+    when: {earliest_use: credible_development_project_context, exit_condition: route_superseded_by_better_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [PLANNING_PROJECT_SOURCES, ADP_RADP, BPPA_EGP]}
+    why: {commercial_reason: permits opportunity discovery before formal procurement}
+    which: {related_routes: [BD-DEV-DP, BD-G2G-STRAT]}
+    how: {discovery_sequence: [resolve_project, resolve_implementer, resolve_approval, resolve_funding, search_procurement_plan, search_package]}
+    how_much_or_many: {capture_when_evidenced: [project_cost, current_allocation, package_estimated_value]}
+    evidence: {preferred_source_families: [PLANNING_DPP_TAPP, IMED_ADP, BPPA_EGP_APP]}
+    decision_impact: {promotion_signposts: [APPROVED, ADP_RADP_INCLUDED, PACKAGE_IDENTIFIED]}
+  BD-DEV-DP:
+    who: {expected_roles: [SPONSORING_MINISTRY, IMPLEMENTING_AGENCY, DEVELOPMENT_PARTNER, PROCURING_ENTITY]}
+    what: {definition: development-partner financed procurement influenced by loan grant or project-aid arrangements}
+    when: {earliest_use: credible_external_financing_context, exit_condition: route_superseded_by_better_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [ERD_AIMS, DEVELOPMENT_PARTNER_PORTAL, BPPA_EGP]}
+    why: {commercial_reason: identify financier rules and procurement path before solicitation}
+    which: {related_routes: [BD-DEV-GOB, BD-G2G-STRAT]}
+    how: {discovery_sequence: [resolve_financier, resolve_project, resolve_executing_agency, resolve_procurement_plan, search_package]}
+    how_much_or_many: {capture_when_evidenced: [financing_amount, project_cost, package_estimated_value]}
+    evidence: {preferred_source_families: [ERD_AIMS, DEVELOPMENT_PARTNER_PROCUREMENT, PLANNING_DPP_TAPP]}
+    decision_impact: {promotion_signposts: [FINANCING_APPROVED_OR_SIGNED, PROCUREMENT_STRATEGY_SIGNAL, PACKAGE_IDENTIFIED]}
+  BD-DEF-DGDP:
+    who: {expected_roles: [SERVICE_END_USER, REQUIREMENT_OWNER, DGDP, APPROVING_AUTHORITY, EVALUATION_AUTHORITY]}
+    what: {definition: defence acquisition progressing through DGDP e-DP or other evidenced defence procurement path}
+    when: {earliest_use: evidenced_defence_requirement_or_acquisition_context, exit_condition: better_route_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [DGDP, EDP, SERVICE_OFFICIAL_SOURCES]}
+    why: {commercial_reason: distinguish service need evaluation standardization and procurement-office roles}
+    which: {related_routes: [BD-G2G-STRAT, BD-UNKNOWN]}
+    how: {discovery_sequence: [resolve_service_need, resolve_end_user, resolve_evaluation_or_standardization, resolve_DGDP_path, search_notice_or_tender]}
+    how_much_or_many: {capture_when_evidenced: [quantity, estimated_value, delivery_scope]}
+    evidence: {preferred_source_families: [DGDP_EDP, OFFICIAL_DEFENCE_SOURCE, AUTHORIZED_INTERNAL_HISTORY]}
+    decision_impact: {promotion_signposts: [PROCUREMENT_STRATEGY_SIGNAL, PRE_PROCUREMENT, LIVE]}
+  BD-SOE-AUT:
+    who: {expected_roles: [SOE_OR_AUTHORITY, BOARD_OR_APPROVER, PROCURING_ENTITY, END_USER]}
+    what: {definition: procurement by state-owned enterprise autonomous authority corporation board or similar public body}
+    when: {earliest_use: evidenced_entity_budget_project_or_procurement_context, exit_condition: better_route_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [ENTITY_PORTAL, BPPA_EGP]}
+    why: {commercial_reason: resolve entity-specific approval budget and procurement channels}
+    which: {related_routes: [BD-GEN-EGP, BD-DEV-GOB]}
+    how: {discovery_sequence: [resolve_entity, resolve_budget_or_project, resolve_approval, search_plan, search_package]}
+    how_much_or_many: {capture_when_evidenced: [entity_budget, project_cost, package_value]}
+    evidence: {preferred_source_families: [AGENCY_ANNUAL_REPORT, OFFICIAL_AGENCY_PROCUREMENT, BPPA_EGP_APP]}
+    decision_impact: {promotion_signposts: [APPROVED, APP_OR_PLAN_SIGNAL, LIVE]}
+  BD-PPP:
+    who: {expected_roles: [CONTRACTING_AUTHORITY, PPP_AUTHORITY, TRANSACTION_ADVISER, PRIVATE_PARTNER]}
+    what: {definition: public-private partnership concession or transaction-led opportunity}
+    when: {earliest_use: credible_PPP_project_or_transaction_context, exit_condition: route_superseded_by_better_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [PPP_AUTHORITY, CONTRACTING_AUTHORITY]}
+    why: {commercial_reason: distinguish transaction development from ordinary public procurement}
+    which: {related_routes: [BD-DEV-GOB, BD-G2G-STRAT]}
+    how: {discovery_sequence: [resolve_PPP_project, resolve_contracting_authority, resolve_transaction_adviser, track_EOI_IFB_prequalification]}
+    how_much_or_many: {capture_when_evidenced: [project_value, concession_term, financing_requirement]}
+    evidence: {preferred_source_families: [PPP_PROJECT_PORTAL, OFFICIAL_CONTRACTING_AUTHORITY]}
+    decision_impact: {promotion_signposts: [PROJECT_APPROVED, TRANSACTION_ADVISER_APPOINTED, PRE_PROCUREMENT]}
+  BD-G2G-STRAT:
+    who: {expected_roles: [GOVERNMENT_COUNTERPART, SPONSORING_AUTHORITY, IMPLEMENTING_ENTITY, APPROVING_AUTHORITY]}
+    what: {definition: bilateral government-to-government direct or specially structured strategic acquisition}
+    when: {earliest_use: authoritative_bilateral_or_strategic_signal, exit_condition: route_disproved_or_superseded}
+    where: {jurisdiction: Bangladesh, typical_systems: [OFFICIAL_BILATERAL_SOURCE, GOVERNMENT_GAZETTE]}
+    why: {commercial_reason: identify non-standard acquisition and financing pathway without assuming exemption}
+    which: {related_routes: [BD-DEV-DP, BD-DEF-DGDP, BD-DEV-GOB]}
+    how: {discovery_sequence: [resolve_counterparts, resolve_authority, resolve_financing, resolve_selection_or_procurement_step]}
+    how_much_or_many: {capture_when_evidenced: [agreement_value, financing_amount, quantity]}
+    evidence: {preferred_source_families: [OFFICIAL_GOVERNMENT_STATEMENT, GOVERNMENT_GAZETTE, FINANCING_AGREEMENT]}
+    decision_impact: {promotion_signposts: [FORMAL_NEGOTIATION, FINANCING_SIGNED, SELECTION_STEP]}
+  BD-LOCAL:
+    who: {expected_roles: [LOCAL_PUBLIC_BODY, PROCURING_ENTITY, END_USER, APPROVING_AUTHORITY]}
+    what: {definition: procurement by local government municipality city corporation or decentralized public body}
+    when: {earliest_use: credible_local_public_body_context, exit_condition: better_route_evidence}
+    where: {jurisdiction: Bangladesh, typical_systems: [LOCAL_BODY_PORTAL, BPPA_EGP]}
+    why: {commercial_reason: distinguish decentralized ownership approval and procurement}
+    which: {related_routes: [BD-GEN-EGP, BD-DEV-GOB]}
+    how: {discovery_sequence: [resolve_local_body, resolve_funding, resolve_PE, search_plan, search_tender]}
+    how_much_or_many: {capture_when_evidenced: [allocation, estimated_value, quantity]}
+    evidence: {preferred_source_families: [OFFICIAL_LOCAL_BODY, BPPA_EGP_APP]}
+    decision_impact: {promotion_signposts: [APP_OR_PLAN_SIGNAL, PACKAGE_IDENTIFIED, LIVE]}
+  BD-UNKNOWN:
+    who: {expected_roles: [UNRESOLVED]}
+    what: {definition: temporary route state where available evidence cannot safely discriminate the acquisition path}
+    when: {earliest_use: insufficient_route_evidence, exit_condition: material_route_evidence_obtained}
+    where: {jurisdiction: Bangladesh, typical_systems: [MULTI_SOURCE_RESEARCH]}
+    why: {commercial_reason: prevent premature route assumptions}
+    which: {related_routes: [ALL_BANGLADESH_ROUTES]}
+    how: {discovery_sequence: [identify_route_discriminators, collect_authoritative_evidence, compare_alternatives]}
+    how_much_or_many: {capture_when_evidenced: [NOT_APPLICABLE]}
+    evidence: {preferred_source_families: [AUTHORITATIVE_ROUTE_DISCRIMINATORS]}
+    decision_impact: {promotion_signposts: [ROUTE_RESOLVED]}
