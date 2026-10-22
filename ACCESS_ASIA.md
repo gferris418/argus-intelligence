@@ -18,25 +18,25 @@ When ATLAS authorizes `PROMOTE_TO_PX` or explicit commercial-pipeline registrati
 
 The PX identifier does not replace the ARGUS opportunity identifier; both remain linked to the same underlying opportunity.
 
-## Pre-PX working state
+## Pre-PX and tracked working state
 
-Pre-PX opportunity intelligence may be tracked structurally in the ARGUS Master Registry without requiring a SharePoint folder. When working documents are needed before promotion, the governed pre-PX home is:
+Pre-PX opportunity intelligence may be tracked structurally in the ARGUS Master Registry without requiring a SharePoint folder. When working documents are needed, the governed working home is:
 
 `General/Business Intelligence/50_OPPORTUNITIES`
 
-Typical work includes discovery, research, problem/need definition, government-project tracking, qualification, OEM/supplier research, solution shaping, partnerability analysis, procurement monitoring and Rapid Tender review.
+`PROMOTE_TO_PX` assigns the commercial identity but **does not move the opportunity out of Business Intelligence**. The same working folder remains under `50_OPPORTUNITIES` through discovery, research, qualification, customer/OEM engagement, capture, live-tender review, bid/no-bid preparation and all pre-submission work.
 
 Tender publication alone does not create a PX identity and does not imply `SUBMISSION_ACTIVE`.
 
-## PX promotion
+## Submission activation
 
-When ATLAS authorizes commercial pipeline promotion, the opportunity receives its `[Year]_[PXnnnnn]_[ShortName]` identity. If a physical pre-PX working folder exists, move the entire lineage to:
+Only when ATLAS determines that `SUBMISSION_ACTIVE` is true — formal response-package execution has actually started for a specific solicitation after the bid decision — move the existing folder, without copying it, to:
 
 `General/REV/OPP Opportunities/[PX ID]`
 
 Do not create a separate BID folder and do not duplicate the opportunity folder.
 
-All promoted pre-award commercial pursuit work remains within that same REV/OPP lineage, including supplier/OEM engagement, customer engagement, capture, tender analysis, bid/no-bid, compliance planning and submission execution.
+The same REV/OPP lineage then holds submission execution, clarifications, negotiations and pre-award activity.
 
 ## Project transition
 
@@ -51,12 +51,15 @@ Preserve both:
 
 ## Non-submission outcomes
 
-Pre-PX opportunities that remain `MONITOR`, `HOLD`, `REJECT`, `CANCELLED` or `CLOSED_BEFORE_SUBMISSION` stay in Business Intelligence and may be archived there. An ARGUS opportunity does not require procurement to occur in order to remain historically useful intelligence.
+Opportunities that remain `MONITOR`, `HOLD`, `REJECT`, `CANCELLED` or `CLOSED_BEFORE_SUBMISSION` stay in Business Intelligence and may be archived there. An ARGUS opportunity does not require procurement to occur in order to remain historically useful intelligence.
 
 ## Canonical ownership
 
-- **ARGUS Master Registry:** structured government-commercial opportunity, supplier, event and evidence intelligence.
-- **SharePoint:** working business documents for the current governed lifecycle stage.
-- **ATLAS OS:** Mission Control, permissions, authoritative priority, `PROMOTE_TO_PX`, pursuit/bid decisions, external-action authorization, persistence governance and verification.
+- **HubSpot:** canonical CRM identity, company/contact master data, Access Asia relationship state, communications/interactions and deal records for suppliers, customers and other commercial parties.
+- **ARGUS Master Registry:** structured government-commercial intelligence, opportunity intelligence, supplier capability/partnerability assessment, events, evidence, matches and public-sector institutional intelligence. ARGUS links to CRM parties rather than duplicating their CRM master data.
+- **SharePoint:** original/working documents and the governed opportunity/project file lineage for the current business lifecycle stage.
+- **ATLAS OS:** Mission Control, permissions, authoritative priority, `PROMOTE_TO_PX`, pursuit/bid decisions, external-action authorization, persistence routing, governance and verification.
 
-The rule is: ARGUS identifies, develops, matches and recommends; ATLAS authorizes commercial state changes and actions.
+Cross-system integration follows **pointers, not copies**. A record should carry stable foreign references or integration keys to the canonical owner rather than replicate the owner's full record.
+
+The rule is: ARGUS identifies, develops, matches and recommends; ATLAS authorizes commercial state changes and actions; HubSpot owns CRM party/relationship state; SharePoint owns documents and working files.
