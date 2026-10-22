@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -43,31 +44,83 @@ def initialize_database(path: str | Path, schema_path: str | Path = SCHEMA_PATH)
     return path
 
 
-def next_canonical_id(conn: sqlite3.Connection, object_type: str, jurisdiction: str = "BD") -> str:
+def _active_prefix(conn: sqlite3.Connection, object_type: str) -> str:
     object_type = object_type.upper()
-    jurisdiction = jurisdiction.upper()
     prefix_row = conn.execute(
         "SELECT prefix FROM object_type_registry WHERE object_type = ? AND active = 1",
         (object_type,),
     ).fetchone()
     if prefix_row is None:
         raise ValueError(f"Unknown or inactive object type: {object_type}")
-    prefix = prefix_row[0]
+    return str(prefix_row[0])
+
+
+def _reserve_explicit_canonical_id(
+    conn: sqlite3.Connection,
+    *,
+    object_type: str,
+    jurisdiction: str,
+    canonical_id: str,
+) -> None:
+    """Advance the sequence when an explicit ID belongs to this generated namespace.
+
+    Legacy/non-standard IDs remain valid identities but do not alter generated sequences.
+    """
+    object_type = object_type.upper()
+    jurisdiction = jurisdiction.upper()
+    prefix = _active_prefix(conn, object_type)
+    match = re.fullmatch(
+        rf"{re.escape(prefix)}-{re.escape(jurisdiction)}-(\d{{6}})",
+        canonical_id,
+    )
+    if match is None:
+        return
+    reserved_value = int(match.group(1))
     row = conn.execute(
         "SELECT next_value FROM id_sequence WHERE object_type = ? AND jurisdiction = ?",
         (object_type, jurisdiction),
     ).fetchone()
+    required_next = reserved_value + 1
     if row is None:
-        sequence = 1
         conn.execute(
             "INSERT INTO id_sequence(object_type, jurisdiction, next_value) VALUES (?,?,?)",
-            (object_type, jurisdiction, 2),
+            (object_type, jurisdiction, required_next),
         )
-    else:
-        sequence = int(row[0])
+    elif int(row[0]) < required_next:
         conn.execute(
             "UPDATE id_sequence SET next_value = ? WHERE object_type = ? AND jurisdiction = ?",
-            (sequence + 1, object_type, jurisdiction),
+            (required_next, object_type, jurisdiction),
+        )
+
+
+def next_canonical_id(conn: sqlite3.Connection, object_type: str, jurisdiction: str = "BD") -> str:
+    object_type = object_type.upper()
+    jurisdiction = jurisdiction.upper()
+    prefix = _active_prefix(conn, object_type)
+    row = conn.execute(
+        "SELECT next_value FROM id_sequence WHERE object_type = ? AND jurisdiction = ?",
+        (object_type, jurisdiction),
+    ).fetchone()
+    sequence = 1 if row is None else int(row[0])
+
+    # Skip any identity already present, including identities restored/imported before
+    # sequence state was initialized.
+    while conn.execute(
+        "SELECT 1 FROM canonical_object WHERE canonical_id = ?",
+        (f"{prefix}-{jurisdiction}-{sequence:06d}",),
+    ).fetchone() is not None:
+        sequence += 1
+
+    next_value = sequence + 1
+    if row is None:
+        conn.execute(
+            "INSERT INTO id_sequence(object_type, jurisdiction, next_value) VALUES (?,?,?)",
+            (object_type, jurisdiction, next_value),
+        )
+    else:
+        conn.execute(
+            "UPDATE id_sequence SET next_value = ? WHERE object_type = ? AND jurisdiction = ?",
+            (next_value, object_type, jurisdiction),
         )
     return f"{prefix}-{jurisdiction}-{sequence:06d}"
 
@@ -89,6 +142,8 @@ def upsert_canonical_object(
     No fuzzy/title-based matching occurs here. Callers must reconcile identity before
     supplying an existing canonical_id. If canonical_id is omitted a new identity is issued.
     """
+    object_type = object_type.upper()
+    jurisdiction = jurisdiction.upper()
     now = utc_now()
     existing = None
     if canonical_id:
@@ -101,9 +156,22 @@ def upsert_canonical_object(
             "UPDATE canonical_object SET title=?, description=?, status=?, updated_at=? WHERE internal_id=?",
             (title, description, status, now, existing["internal_id"]),
         )
+        _reserve_explicit_canonical_id(
+            conn,
+            object_type=object_type,
+            jurisdiction=jurisdiction,
+            canonical_id=canonical_id,
+        )
         return {"internal_id": existing["internal_id"], "canonical_id": existing["canonical_id"]}
     if canonical_id is None:
         canonical_id = next_canonical_id(conn, object_type, jurisdiction)
+    else:
+        _reserve_explicit_canonical_id(
+            conn,
+            object_type=object_type,
+            jurisdiction=jurisdiction,
+            canonical_id=canonical_id,
+        )
     if internal_id is None:
         internal_id = str(uuid.uuid4())
     conn.execute(
@@ -116,8 +184,8 @@ def upsert_canonical_object(
         (
             internal_id,
             canonical_id,
-            object_type.upper(),
-            jurisdiction.upper(),
+            object_type,
+            jurisdiction,
             title,
             description,
             status,
@@ -191,7 +259,16 @@ def add_external_identifier(
             scope, source_record_id, created_at
         ) VALUES (?,?,?,?,?,?,?,?)
         """,
-        (identifier_id, object_internal_id, source_system, scheme, value, scope, source_record_id, utc_now()),
+        (
+            identifier_id,
+            object_internal_id,
+            source_system,
+            scheme,
+            value,
+            scope,
+            source_record_id,
+            utc_now(),
+        ),
     )
     return identifier_id
 
@@ -238,7 +315,7 @@ def record_event(
     occurred_at: str | None = None,
     published_at: str | None = None,
     source_record_id: str | None = None,
-    payload: dict[str, Any] | None = None,
+    payload: Any = None,
     canonical_event_id: str | None = None,
 ) -> str:
     event_id = str(uuid.uuid4())
@@ -269,10 +346,10 @@ def record_observation(
     *,
     subject_object_internal_id: str,
     field_path: str,
-    source_record_id: str | None = None,
     value: Any = None,
     raw_label: str | None = None,
     raw_value: str | None = None,
+    source_record_id: str | None = None,
     observed_at: str | None = None,
     published_at: str | None = None,
     claim_type: str = "FACT",
@@ -336,6 +413,9 @@ def sha256_file(path: str | Path) -> str:
 
 
 def integrity_check(path: str | Path) -> str:
+    path = Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Operational database does not exist: {path}")
     conn = connect_database(path)
     try:
         return str(conn.execute("PRAGMA integrity_check").fetchone()[0])
