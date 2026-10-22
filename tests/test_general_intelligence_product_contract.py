@@ -15,7 +15,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         product = manifest["product"]
         scope = manifest["scope"]
         compatibility = manifest["atlas_compatibility"]
-        self.assertEqual("2.2.0-rc.1", product["version"])
+        self.assertEqual("2.2.0-rc.2", product["version"])
         self.assertEqual("candidate", product["release_channel"])
         self.assertEqual("CANDIDATE", product["status"])
         self.assertEqual("ATLAS-governed structured intelligence collection", scope["primary"])
@@ -28,13 +28,34 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
         authority = manifest["authority"]
         core = yaml.safe_load((ROOT / authority["core"]).read_text(encoding="utf-8"))
+        method = yaml.safe_load((ROOT / authority["collection_method"]).read_text(encoding="utf-8"))
+        plan_schema = json.loads((ROOT / authority["collection_plan_schema"]).read_text(encoding="utf-8"))
         alignment = yaml.safe_load((ROOT / authority["atlas_alignment"]).read_text(encoding="utf-8"))
         activation = json.loads((ROOT / authority["atlas_activation_contract"]).read_text(encoding="utf-8"))
         self.assertTrue(core["normative"])
+        self.assertTrue(method["normative"])
+        self.assertEqual(["PIR", "EEI", "COLLECTION_PLAN", "SOURCE_PLAN", "COLLECT", "RESOLVE", "GRADE", "COMPETING_HYPOTHESES", "GAPS", "PACKAGE"], method["method"]["stages"])
+        self.assertIn("Country", method["target_classes"])
+        self.assertIn("Tender", method["target_classes"])
+        self.assertIn("Person", method["target_classes"])
+        self.assertEqual("material_business_relevance_only", method["person_scope"])
+        self.assertIn("priority_intelligence_requirements", plan_schema["required"])
+        self.assertIn("essential_elements_of_information", plan_schema["required"])
+        self.assertIn("competing_hypotheses", plan_schema["required"])
         self.assertEqual(["ARGUS_COLLECTION", "HYBRID"], core["activation"]["collection_modes"])
         self.assertEqual("COLLECTION_NEED_GATE", alignment["atlas_contract"]["activation_gate"])
         self.assertEqual("intelligence_collection", activation["required_capability"])
         self.assertFalse(alignment["routing"]["policy_analysis_alone_activates_argus"])
+
+    def test_collection_method_stops_before_atlas_analysis_and_decision(self) -> None:
+        manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
+        method = yaml.safe_load((ROOT / manifest["authority"]["collection_method"]).read_text(encoding="utf-8"))
+        self.assertIn("collection_package", method["outputs"])
+        self.assertIn("collection_gaps", method["outputs"])
+        self.assertIn("unresolved_hypotheses", method["outputs"])
+        self.assertNotIn("final_business_decision", method["outputs"])
+        self.assertEqual("ATLAS_OS", method["handoff_to"]["analysis_owner"])
+        self.assertEqual("ATLAS_OS", method["handoff_to"]["decision_owner"])
 
     def test_manifest_preserves_atlas_governance_ownership(self) -> None:
         manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))

@@ -1,7 +1,7 @@
 schema_version: 2
 id: argus.atlas-alignment.collection-gate-v3
 status: CANDIDATE
-argus_version: 2.2.0-rc.1
+argus_version: 2.2.0-rc.2
 relationship: nested_intelligence_collection_subsystem
 
 atlas_contract:
@@ -33,6 +33,8 @@ handoff:
   blocked_state: REJECT_DEPENDENT_EXECUTION
   atlas_owned_context_is_preserved: true
   material_upstream_change_requires_new_handoff: true
+  argus_internal_collection_method: spec/collection-method.yaml
+  argus_internal_collection_plan: schemas/collection-plan.schema.json
 
 ownership:
   atlas:
@@ -43,6 +45,7 @@ ownership:
     - plan_and_work_units
     - permissions_and_approvals
     - canonical_domain_context_and_taxonomy
+    - evidence_governance
     - analysis_and_decision
     - assurance_and_verification
     - persistence_authorization
@@ -51,12 +54,15 @@ ownership:
     - final_delivery
   argus:
     - target_resolution
-    - collection_planning
+    - pir_and_eei_derivation_within_mission
+    - collection_and_source_planning
     - source_discovery_and_acquisition
     - extraction_and_normalization
-    - entity_resolution_and_deduplication
+    - entity_event_relationship_resolution_and_deduplication
     - collection_side_classification_suggestions
+    - evidence_grading_proposals
     - corroboration_and_source_reconciliation
+    - competing_hypothesis_tracking
     - gap_conflict_and_coverage_assessment
     - collection_package
 
@@ -64,5 +70,9 @@ compatibility:
   historical_validated_atlas_baseline:
     version: 2.0.1
     commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
+  current_validated_atlas_candidate:
+    version: 2.0.2-rc.5
+    commit: 401a4ef030be77a2a5a635fa0ff50f538101b4e3
+    control_revision: atlas-bootstrap-2026-10-22-r9
   current_change_requires_coordinated_atlas_candidate: true
   historical_alignment_companion: alignments/atlas-os.md
