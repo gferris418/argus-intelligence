@@ -1,0 +1,89 @@
+from __future__ import annotations
+
+import importlib
+import unittest
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+ATLAS_COMMIT = "7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc"
+
+
+class AtlasV3ProviderContractTests(unittest.TestCase):
+    def test_manifest_declares_current_atlas_v3_compatibility(self) -> None:
+        manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
+        self.assertEqual("3.0.0-rc.2", manifest["product"]["version"])
+        self.assertEqual("3.0.0-rc.1", manifest["product"]["previous_version"])
+        self.assertFalse(manifest["production_runtime"]["access_asia"]["atlas_change_required"])
+        compatibility = manifest["atlas_compatibility"]
+        self.assertEqual("3.0.1", compatibility["last_validated_base"])
+        self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
+        self.assertEqual("bounded_intelligence_collection_provider", compatibility["relationship"])
+        self.assertEqual("ATLAS", compatibility["activation_authority"])
+        self.assertEqual("ATLAS", compatibility["next_step_authority"])
+        self.assertTrue(compatibility["explicit_user_approval_required"])
+        self.assertEqual("contracts/atlas/current-integration.yaml", manifest["authority"]["atlas_current_integration"])
+
+    def test_current_integration_descriptor_pins_immutable_atlas_release(self) -> None:
+        descriptor = yaml.safe_load(
+            (ROOT / "contracts" / "atlas" / "current-integration.yaml").read_text(encoding="utf-8")
+        )
+        self.assertEqual("1.0.0", descriptor["version"])
+        self.assertEqual("gferris418/atlas-os", descriptor["atlas"]["repository"])
+        self.assertEqual("3.0.1", descriptor["atlas"]["version"])
+        self.assertEqual(ATLAS_COMMIT, descriptor["atlas"]["commit"])
+        contract = descriptor["contract"]
+        self.assertEqual("intelligence_collection", contract["capability"])
+        self.assertEqual("argus", contract["provider"])
+        self.assertEqual("ARGUS_ACTIVATION", contract["approval_key"])
+        self.assertEqual("ATLAS", contract["activation_authority"])
+        self.assertEqual("ATLAS", contract["next_step_authority"])
+        self.assertEqual("ATLAS", contract["provider_return_target"])
+        self.assertTrue(contract["explicit_user_approval_required"])
+        self.assertEqual("backward_compatibility_only", descriptor["legacy_transport"]["status"])
+
+    def test_provider_adapter_accepts_only_approved_atlas_argus_routes(self) -> None:
+        module = importlib.import_module("tools.atlas_v3_provider")
+        provider = module.ArgusProvider(lambda context: {"evidence": [], "collection_status": "COMPLETE"})
+        atlas_result = {
+            "task_id": "ATLAS-TEST-001",
+            "state": "READY",
+            "normalized_objective": "Build a supplier landscape for coastal surveillance radar",
+            "domain_framing": {"jurisdiction": None, "risk_flags": ["defense_or_dual_use"]},
+            "pre_execution_flow": ["UNDERSTAND_AND_NORMALIZE", "MINIMAL_DOMAIN_FRAMING", "ROUTE"],
+            "route": {
+                "mechanism": "ARGUS",
+                "capability": "intelligence_collection",
+                "provider": "argus",
+                "approval_required": True,
+                "approval_status": "APPROVED",
+                "reason": "test",
+            },
+            "next_step_authority": "ATLAS",
+            "provider_return_target": "ATLAS",
+        }
+        outcome = provider.execute(module.ProviderEnvelope(atlas_result=atlas_result))
+        self.assertEqual("ARGUS", outcome.provider)
+        self.assertEqual("intelligence_collection", outcome.capability)
+        self.assertEqual("ATLAS", outcome.return_target)
+        self.assertEqual("ATLAS", outcome.next_step_authority)
+        self.assertEqual("ATLAS-TEST-001", outcome.result["source_task_id"])
+        self.assertEqual("COMPLETE", outcome.result["collection_status"])
+
+        pending = {**atlas_result, "route": {**atlas_result["route"], "approval_status": "PENDING"}}
+        with self.assertRaises(ValueError):
+            provider.execute(module.ProviderEnvelope(atlas_result=pending))
+
+    def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_1(self) -> None:
+        alignment = yaml.safe_load((ROOT / "alignments" / "atlas-os-triage-v2.yaml").read_text(encoding="utf-8"))
+        current = alignment["compatibility"]["current_validated_atlas"]
+        self.assertEqual("3.0.1", current["version"])
+        self.assertEqual(ATLAS_COMMIT, current["commit"])
+        self.assertFalse(alignment["compatibility"]["current_change_requires_coordinated_atlas_candidate"])
+        workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(encoding="utf-8")
+        self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
+
+
+if __name__ == "__main__":
+    unittest.main()
