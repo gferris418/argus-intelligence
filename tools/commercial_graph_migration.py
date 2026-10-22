@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MIGRATION = ROOT / "registry" / "migrations" / "1.0.0-to-1.1.0-commercial-graph.sql"
 SUPPORTED_SOURCE_VERSIONS = {"1.0.0", "1.1.0"}
 TARGET_VERSION = "1.1.0"
+TARGET_USER_VERSION = 2
 
 
 def _schema_version(conn: sqlite3.Connection) -> str:
@@ -32,10 +33,12 @@ def apply_commercial_graph_migration(
     database: str | Path,
     migration_path: str | Path = DEFAULT_MIGRATION,
 ) -> Path:
-    """Apply the additive Access Asia canonical-commercial-graph migration.
+    """Apply or re-assert the additive Access Asia commercial-graph migration.
 
-    Existing canonical IDs and business records are preserved. The migration is
-    explicitly version-gated and idempotent at 1.1.0.
+    Existing canonical IDs and business records are preserved. Supported 1.0.0 and
+    1.1.0 databases both execute the idempotent migration SQL so schema objects and
+    both version markers are brought back to the complete 1.1.0 contract even after
+    a legacy initializer has reset ``PRAGMA user_version``.
     """
     database = Path(database)
     if not database.is_file():
@@ -54,15 +57,15 @@ def apply_commercial_graph_migration(
                 f"Unsupported operational schema version {source_version}; expected one of "
                 f"{sorted(SUPPORTED_SOURCE_VERSIONS)}"
             )
-        if source_version == TARGET_VERSION:
-            return database
 
         sql = migration_path.read_text(encoding="utf-8")
         conn.executescript(sql)
         if _schema_version(conn) != TARGET_VERSION:
             raise RuntimeError("Commercial graph migration did not set schema_version=1.1.0")
-        if int(conn.execute("PRAGMA user_version").fetchone()[0]) != 2:
-            raise RuntimeError("Commercial graph migration did not set PRAGMA user_version=2")
+        if int(conn.execute("PRAGMA user_version").fetchone()[0]) != TARGET_USER_VERSION:
+            raise RuntimeError(
+                f"Commercial graph migration did not set PRAGMA user_version={TARGET_USER_VERSION}"
+            )
         _assert_database_health(conn)
     finally:
         conn.close()
