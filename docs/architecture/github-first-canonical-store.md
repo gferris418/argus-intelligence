@@ -74,7 +74,7 @@ Use **JSON or JSONL** for canonical ARGUS records because it is deterministic, m
 - **YAML** — manifests/configuration.
 - **SQL** — database schemas/migrations/materialization scripts only.
 
-## Tender/source-document rule
+## Raw tender/source documents
 
 GitHub MUST NOT contain raw tender documents or other original source-document payloads.
 
