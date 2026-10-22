@@ -1,0 +1,26 @@
+version: 1.0.0
+status: CURRENT
+atlas:
+  repository: gferris418/atlas-os
+  version: 3.0.1
+  commit: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
+  integration_path: integrations/argus.yaml
+  chatgpt_bootstrap_path: integrations/chatgpt-bootstrap.yaml
+  runtime_entrypoint: atlas_runtime
+contract:
+  capability: intelligence_collection
+  provider: argus
+  approval_key: ARGUS_ACTIVATION
+  activation_authority: ATLAS
+  next_step_authority: ATLAS
+  provider_return_target: ATLAS
+  explicit_user_approval_required: true
+  accepted_route_mechanisms: [ARGUS, MULTI_CAPABILITY]
+  pre_execution_flow: [UNDERSTAND_AND_NORMALIZE, MINIMAL_DOMAIN_FRAMING, ROUTE]
+  direct_search_remains_atlas_owned: true
+  argus_creates_execution_spine: false
+  argus_owns_final_business_decision: false
+legacy_transport:
+  descriptor: contracts/atlas/synchronization-compatibility.yaml
+  status: backward_compatibility_only
+  note: The signed ATLAS 2.x synchronization seam remains testable for backward compatibility but is not the current ATLAS 3 integration authority.

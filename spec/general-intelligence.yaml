@@ -1,6 +1,6 @@
 schema_version: 3
 id: argus.intelligence-collection.core
-version: 3.0.0-rc.1
+version: 3.0.0-rc.2
 status: CANDIDATE
 normative: true
 purpose: >-
@@ -10,19 +10,22 @@ purpose: >-
   government need-to-delivery lifecycle; builds international supplier universes;
   assesses supplier partnerability; matches demand and supply; computes advisory
   opportunity qualification; monitors material events; and returns an evidence-backed
-  collection package to ATLAS. ATLAS retains the operating architecture, canonical
-  evidence acceptance, authoritative commercial priority, pursuit decisions, approvals,
-  persistence authorization, observability and final delivery.
+  collection package to ATLAS. ATLAS retains the operating architecture, routing,
+  approvals, canonical evidence acceptance, authoritative commercial priority, pursuit
+  decisions, persistence authorization, observability, verification and final delivery.
 
 activation:
-  authority: ATLAS_OS
-  gate: COLLECTION_NEED_GATE
-  collection_modes: [ARGUS_COLLECTION, HYBRID]
+  authority: ATLAS
+  mechanism: ROUTE
+  route_mechanisms: [ARGUS, MULTI_CAPABILITY]
   capability: intelligence_collection
+  provider: argus
+  approval_key: ARGUS_ACTIVATION
+  explicit_user_approval_required: true
   contract: contracts/atlas/argus-activation-v1.json
+  current_integration: contracts/atlas/current-integration.yaml
   keyword_activation: false
   background_activation: false
-  task_route_independent: true
 
 collection_method:
   contract: spec/collection-method.yaml
@@ -112,8 +115,9 @@ ownership:
   atlas:
     - mission_control
     - control_plane
-    - request_interpretation
-    - collection_need_gate
+    - understand_and_normalize
+    - minimal_domain_framing
+    - routing
     - planning
     - permissions
     - approvals
@@ -129,6 +133,8 @@ ownership:
     - independent_assurance_and_verification
     - persistence_authorization
     - observability_and_dashboard
+    - provider_return_reconciliation
+    - every_next_step
     - final_delivery
   argus:
     - target_resolution
@@ -162,13 +168,12 @@ ownership:
     - collection_learning
 
 handoff:
-  required_in_access_asia_production: true
-  accepted_states: [READY, PARTIAL]
-  partial_semantics: ARGUS_ENRICHES_COLLECTION_CONTEXT
-  blocked_execution: prohibited
+  current_runtime_adapter: tools/atlas_v3_provider.py
+  atlas_route_state_required: READY
+  explicit_activation_approval_required: true
+  provider_return_target: ATLAS
+  next_step_authority: ATLAS
   preserve_upstream_context: true
-  exact_return_correlation: true
-  domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   collection_mission_contract: schemas/collection-mission.schema.json
   collection_plan_contract: schemas/collection-plan.schema.json
   collection_package_contract: schemas/intelligence-collection-package.schema.json
@@ -176,6 +181,9 @@ handoff:
   opportunity_event_contract: schemas/opportunity-event.schema.json
   supplier_intelligence_contract: schemas/supplier-intelligence.schema.json
   supplier_match_contract: schemas/opportunity-supplier-match.schema.json
+  legacy_signed_transport:
+    status: backward_compatibility_only
+    descriptor: contracts/atlas/synchronization-compatibility.yaml
 
 performance:
   ordinary_policy_analysis_executes_in_atlas: true
@@ -203,8 +211,11 @@ specializations:
 
 invariants:
   - ATLAS is the only operating architecture and execution spine.
-  - ARGUS never self-activates from a keyword or organization name alone; ATLAS interprets collection need.
-  - A policy or regulatory analysis does not activate ARGUS unless a structured collection mission is required.
+  - ATLAS uses exactly Understand + Normalize -> Minimal Domain Framing -> Route before substantive execution.
+  - ARGUS never self-activates from a keyword or organization name alone; ATLAS decides whether structured collection is required.
+  - ARGUS activation requires explicit user approval.
+  - Direct factual retrieval remains an ATLAS direct-search or research task when structured intelligence collection is unnecessary.
+  - Every ARGUS result returns to ATLAS and ATLAS owns the next step.
   - PIR and EEI may refine the mission into answerable collection questions but may not expand ATLAS-authorized scope.
   - Persons are collected only when materially and legitimately relevant to an authorized business or intelligence question.
   - ARGUS output is evidence and advisory commercial intelligence for ATLAS, not the final business decision.
@@ -213,5 +224,3 @@ invariants:
   - A tender does not automatically create an opportunity; one opportunity may link to multiple procurement packages, tenders, rebids or follow-ons.
   - ARGUS may develop legitimate opportunity hypotheses but may not assert a government project exists without evidence.
   - Opportunity development may support legitimate market education and pre-procurement engagement but never bribery, collusion, improper influence, unlawful specification manipulation or confidential bid-information acquisition.
-  - A PARTIAL handoff preserves unresolved material rather than guessing it away.
-  - A BLOCKED handoff cannot authorize dependent ARGUS execution.

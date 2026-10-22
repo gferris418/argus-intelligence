@@ -15,15 +15,16 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         product = manifest["product"]
         scope = manifest["scope"]
         compatibility = manifest["atlas_compatibility"]
-        self.assertEqual("3.0.0-rc.1", product["version"])
+        self.assertEqual("3.0.0-rc.2", product["version"])
         self.assertEqual("candidate", product["release_channel"])
         self.assertEqual("CANDIDATE", product["status"])
         self.assertEqual("ATLAS-governed government commercial opportunity intelligence", scope["primary"])
         self.assertIn("government_public_sector_opportunity_intelligence", scope["specializations"])
         self.assertIn("opportunity_engine", scope)
-        self.assertEqual(["ARGUS_COLLECTION", "HYBRID"], compatibility["activation_collection_modes"])
         self.assertEqual("intelligence_collection", compatibility["activation_capability"])
-        self.assertEqual("3.0.0", compatibility["activation_contract_version"])
+        self.assertEqual("ARGUS_ACTIVATION", compatibility["approval_key"])
+        self.assertTrue(compatibility["explicit_user_approval_required"])
+        self.assertEqual("ATLAS", compatibility["provider_return_target"])
 
     def test_machine_readable_collection_contracts_are_authoritative(self) -> None:
         manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
@@ -34,6 +35,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         plan_schema = json.loads((ROOT / authority["collection_plan_schema"]).read_text(encoding="utf-8"))
         alignment = yaml.safe_load((ROOT / authority["atlas_alignment"]).read_text(encoding="utf-8"))
         activation = json.loads((ROOT / authority["atlas_activation_contract"]).read_text(encoding="utf-8"))
+        current = yaml.safe_load((ROOT / authority["atlas_current_integration"]).read_text(encoding="utf-8"))
         self.assertTrue(core["normative"])
         self.assertTrue(method["normative"])
         self.assertTrue(opportunity["normative"])
@@ -60,9 +62,12 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertIn("priority_intelligence_requirements", plan_schema["required"])
         self.assertIn("essential_elements_of_information", plan_schema["required"])
         self.assertIn("competing_hypotheses", plan_schema["required"])
-        self.assertEqual(["ARGUS_COLLECTION", "HYBRID"], core["activation"]["collection_modes"])
-        self.assertEqual("COLLECTION_NEED_GATE", alignment["atlas_contract"]["activation_gate"])
+        self.assertEqual(["ARGUS", "MULTI_CAPABILITY"], core["activation"]["route_mechanisms"])
+        self.assertEqual("ATLAS", alignment["atlas_contract"]["activation_authority"])
         self.assertEqual("intelligence_collection", activation["required_capability"])
+        self.assertEqual("ARGUS_ACTIVATION", activation["required_approval_key"])
+        self.assertTrue(activation["explicit_user_approval_required"])
+        self.assertEqual("ATLAS", current["contract"]["next_step_authority"])
         self.assertFalse(alignment["routing"]["policy_analysis_alone_activates_argus"])
 
     def test_collection_method_stops_before_atlas_final_business_decision(self) -> None:
@@ -83,7 +88,9 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertFalse(compatibility["owns_planning"])
         self.assertFalse(compatibility["owns_approvals"])
         self.assertFalse(compatibility["owns_final_business_decision"])
-        self.assertTrue(compatibility["handoff_required_in_access_asia_production"])
+        self.assertEqual("ATLAS", compatibility["activation_authority"])
+        self.assertEqual("ATLAS", compatibility["next_step_authority"])
+        self.assertEqual("backward_compatibility_only", compatibility["legacy_signed_transport"]["status"])
 
 
 if __name__ == "__main__":

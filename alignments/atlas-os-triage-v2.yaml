@@ -1,50 +1,51 @@
-schema_version: 2
-id: argus.atlas-alignment.collection-gate-v3
+schema_version: 3
+id: argus.atlas-alignment.bounded-provider-v3
 status: CANDIDATE
-argus_version: 2.2.0-rc.2
-relationship: nested_intelligence_collection_subsystem
+argus_version: 3.0.0-rc.2
+relationship: bounded_intelligence_collection_provider
 
 atlas_contract:
-  activation_authority: ATLAS_OS
-  activation_gate: COLLECTION_NEED_GATE
-  collection_modes: [ARGUS_COLLECTION, HYBRID]
+  activation_authority: ATLAS
+  next_step_authority: ATLAS
+  provider_return_target: ATLAS
+  explicit_user_approval_required: true
+  approval_key: ARGUS_ACTIVATION
   capability: intelligence_collection
-  activation_contract: contracts/atlas/argus-activation-v1.json
-  domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
-  execution_lease_contract: contracts/atlas/execution-lease-v1.schema.json
-  return_correlation_required: true
+  provider: argus
+  current_integration: contracts/atlas/current-integration.yaml
+  legacy_transport: contracts/atlas/synchronization-compatibility.yaml
 
 routing:
-  first_semantic_work: ATLAS_INTENT_AND_TARGET_INTERPRETATION
-  collection_gate: ATLAS_COLLECTION_NEED_GATE
+  first_semantic_work: ATLAS_UNDERSTAND_AND_NORMALIZE
+  pre_execution_flow: [UNDERSTAND_AND_NORMALIZE, MINIMAL_DOMAIN_FRAMING, ROUTE]
   modes:
     NONE: No external collection is required.
-    ATLAS_DIRECT: Ordinary research or retrieval remains in ATLAS.
-    ARGUS_COLLECTION: ARGUS performs a bounded collection mission and returns evidence.
-    HYBRID: ARGUS collects while ATLAS retains substantive analysis or decision work.
+    DIRECT_SEARCH: Ordinary current factual retrieval remains in ATLAS.
+    ARGUS: ARGUS performs one bounded intelligence-collection mission and returns the package to ATLAS.
+    MULTI_CAPABILITY: ARGUS collects while ATLAS retains analysis, comparison, forecast, scenario or decision work.
   government_mention_alone_activates_argus: false
   policy_analysis_alone_activates_argus: false
-  named_commercial_target_can_create_collection_need: true
-  buyer_product_or_procurement_target_can_create_collection_need: true
+  tender_lookup_alone_activates_argus: false
+  structured_collection_requires_argus: true
 
 handoff:
-  accepted_states: [READY, PARTIAL]
-  partial_semantics: ARGUS_ENRICHES_COLLECTION_CONTEXT
-  blocked_state: REJECT_DEPENDENT_EXECUTION
+  current_runtime_adapter: tools/atlas_v3_provider.py
+  atlas_route_state_required: READY
+  atlas_activation_approval_required: APPROVED
   atlas_owned_context_is_preserved: true
-  material_upstream_change_requires_new_handoff: true
+  result_return_target: ATLAS
   argus_internal_collection_method: spec/collection-method.yaml
   argus_internal_collection_plan: schemas/collection-plan.schema.json
+  legacy_signed_transport_status: backward_compatibility_only
 
 ownership:
   atlas:
     - mission_control
     - control_plane
     - intent_and_target_interpretation
-    - collection_need_gate
-    - plan_and_work_units
+    - minimal_domain_framing
+    - routing
     - permissions_and_approvals
-    - canonical_domain_context_and_taxonomy
     - evidence_governance
     - analysis_and_decision
     - assurance_and_verification
@@ -52,6 +53,7 @@ ownership:
     - observability
     - dashboard_projection
     - final_delivery
+    - every_next_step_after_provider_return
   argus:
     - target_resolution
     - pir_and_eei_derivation_within_mission
@@ -70,9 +72,9 @@ compatibility:
   historical_validated_atlas_baseline:
     version: 2.0.1
     commit: b8b8559c57eef5fbb97d914d924077ba20b1883d
-  current_validated_atlas_candidate:
-    version: 2.0.2-rc.5
-    commit: 401a4ef030be77a2a5a635fa0ff50f538101b4e3
-    control_revision: atlas-bootstrap-2026-10-22-r9
-  current_change_requires_coordinated_atlas_candidate: true
+  current_validated_atlas:
+    version: 3.0.1
+    commit: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
+    control_revision: chatgpt-plugin-bootstrap-v1
+  current_change_requires_coordinated_atlas_candidate: false
   historical_alignment_companion: alignments/atlas-os.md

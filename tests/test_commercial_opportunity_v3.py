@@ -26,7 +26,7 @@ def _load_engine():
 class CommercialOpportunityV3Tests(unittest.TestCase):
     def test_manifest_declares_v3_government_commercial_opportunity_mission(self) -> None:
         text = (ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8")
-        self.assertIn("version: 3.0.0-rc.1", text)
+        self.assertIn("version: 3.0.0-rc.2", text)
         self.assertIn("government commercial opportunity intelligence", text.lower())
         self.assertIn("demand_intelligence", text)
         self.assertIn("supply_intelligence", text)

@@ -14,11 +14,13 @@ class ArgusActivationContractTests(unittest.TestCase):
     def test_atlas_owns_governance_analysis_and_final_delivery(self) -> None:
         contract = self._contract()
         ownership = contract["ownership"]
-        self.assertEqual("ATLAS_OS", contract["activation_authority"])
+        self.assertEqual("ATLAS", contract["activation_authority"])
+        self.assertEqual("ATLAS", contract["next_step_authority"])
+        self.assertEqual("ATLAS", contract["provider_return_target"])
         for field in (
             "mission_control",
             "control_plane",
-            "collection_need_gate",
+            "routing",
             "planning",
             "permissions",
             "approvals",
@@ -34,18 +36,18 @@ class ArgusActivationContractTests(unittest.TestCase):
             "final_delivery",
         ):
             with self.subTest(field=field):
-                self.assertEqual("ATLAS_OS", ownership[field])
+                self.assertEqual("ATLAS", ownership[field])
 
-    def test_activation_uses_collection_need_gate_and_collection_capability(self) -> None:
+    def test_activation_uses_atlas_route_and_explicit_approval(self) -> None:
         contract = self._contract()
-        self.assertEqual("3.1.0", contract["contract_version"])
-        self.assertEqual("atlas_collection_need_gate", contract["activation_mechanism"])
+        self.assertEqual("4.0.0", contract["contract_version"])
+        self.assertEqual("atlas_route", contract["activation_mechanism"])
         self.assertEqual("intelligence_collection", contract["required_capability"])
-        self.assertEqual(["ARGUS_COLLECTION", "HYBRID"], contract["required_collection_modes"])
-        self.assertTrue(contract["task_route_independent"])
-        self.assertEqual(["READY", "PARTIAL"], contract["accepted_handoff_states"])
-        self.assertEqual("REJECT_DEPENDENT_EXECUTION", contract["blocked_handoff_behavior"])
-        self.assertTrue(contract["requires_atlas_domain_context_handoff"])
+        self.assertEqual("argus", contract["required_provider"])
+        self.assertEqual(["ARGUS", "MULTI_CAPABILITY"], contract["required_route_mechanisms"])
+        self.assertEqual("ARGUS_ACTIVATION", contract["required_approval_key"])
+        self.assertTrue(contract["explicit_user_approval_required"])
+        self.assertTrue(contract["requires_atlas_ready_state"])
 
     def test_contract_declares_collection_types_and_depths(self) -> None:
         contract = self._contract()
@@ -85,7 +87,7 @@ class ArgusActivationContractTests(unittest.TestCase):
 
     def test_contract_governs_one_bounded_autonomous_mission(self) -> None:
         contract = self._contract()
-        self.assertEqual("ONE_HANDOFF_ONE_RETURN", contract["mission_handoff_pattern"])
+        self.assertEqual("ONE_PROVIDER_CALL_ONE_RETURN", contract["mission_handoff_pattern"])
         self.assertEqual("BOUNDED_AUTONOMOUS", contract["autonomy_mode"])
         self.assertEqual(
             [
@@ -102,10 +104,6 @@ class ArgusActivationContractTests(unittest.TestCase):
         self.assertEqual(["EXACT", "HIGH_CONFIDENCE_MATCH"], contract["identity_resolution"]["auto_reuse"])
         self.assertEqual(["DISTINCT"], contract["identity_resolution"]["auto_new_candidate"])
         self.assertEqual(["PROBABLE_MATCH", "UNRESOLVED"], contract["identity_resolution"]["user_confirmation"])
-        self.assertEqual(
-            ["MATERIAL_SCOPE_CHANGE", "AUTHORIZATION_REQUIRED", "POLICY_OR_SECURITY_CONFLICT", "MATERIAL_AMBIGUITY"],
-            contract["escalation_conditions"],
-        )
         self.assertTrue(contract["follow_evidence_leads_without_callback"])
         self.assertTrue(contract["parallel_safe_reads"])
         self.assertEqual("TRANSIENT_ONLY", contract["mission_context"])
@@ -113,19 +111,20 @@ class ArgusActivationContractTests(unittest.TestCase):
 
     def test_required_examples_encode_boundary(self) -> None:
         examples = self._contract()["representative_routing_examples"]
-        self.assertEqual("ATLAS_DIRECT", examples["Bangladesh Bank foreign exchange policy"])
-        self.assertEqual("ARGUS_COLLECTION", examples["ST Engineering"])
-        self.assertEqual("ARGUS_COLLECTION", examples["coastal patrol vessel for Bangladesh Coast Guard"])
-        self.assertEqual("ARGUS_COLLECTION", examples["seed cum cleaner for BADC"])
-        self.assertEqual("ARGUS_COLLECTION", examples["share the annual procurement plan of Bangladesh Navy"])
-        self.assertEqual("HYBRID", examples["compare ST Engineering and L3Harris for Bangladesh opportunities"])
+        self.assertEqual("DIRECT_SEARCH_OR_DEEP_RESEARCH", examples["Bangladesh Bank foreign exchange policy"])
+        self.assertEqual("ARGUS", examples["ST Engineering"])
+        self.assertEqual("ARGUS", examples["build a coastal patrol vessel opportunity footprint for Bangladesh Coast Guard"])
+        self.assertEqual("ARGUS", examples["build a supplier landscape for seed cum cleaner opportunities for BADC"])
+        self.assertEqual("DIRECT_SEARCH", examples["share the annual procurement plan of Bangladesh Navy"])
+        self.assertEqual("MULTI_CAPABILITY", examples["compare ST Engineering and L3Harris for Bangladesh opportunities"])
 
     def test_argus_has_no_keyword_or_background_auto_activation(self) -> None:
         contract = self._contract()
         self.assertFalse(contract["keyword_activation"])
         self.assertFalse(contract["background_activation"])
         self.assertIn("generic factual explanation", contract["non_triggers"])
-        self.assertIn("policy or regulation explanation without a collection mission", contract["non_triggers"])
+        self.assertIn("simple tender or procurement lookup", contract["non_triggers"])
+        self.assertEqual("backward_compatibility_only", contract["legacy_transport"]["status"])
 
 
 if __name__ == "__main__":

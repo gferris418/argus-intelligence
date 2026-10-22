@@ -6,23 +6,23 @@ on:
     branches: [main]
     paths:
       - 'argus-intelligence.yaml'
-      - 'contracts/atlas/**'
-      - 'schemas/atlas-argus-sync-receipt.schema.json'
-      - 'tools/atlas_sync.py'
-      - 'tools/argus_runtime.py'
+      - 'alignments/atlas-os-triage-v2.yaml'
+      - 'contracts/atlas/current-integration.yaml'
+      - 'tools/atlas_v3_provider.py'
       - 'tools/cross_repo_e2e.py'
       - 'tests/cross_repo/**'
+      - 'tests/test_cross_repo_command.py'
       - '.github/workflows/cross-repo-e2e.yml'
   push:
     branches: [main]
     paths:
       - 'argus-intelligence.yaml'
-      - 'contracts/atlas/**'
-      - 'schemas/atlas-argus-sync-receipt.schema.json'
-      - 'tools/atlas_sync.py'
-      - 'tools/argus_runtime.py'
+      - 'alignments/atlas-os-triage-v2.yaml'
+      - 'contracts/atlas/current-integration.yaml'
+      - 'tools/atlas_v3_provider.py'
       - 'tools/cross_repo_e2e.py'
       - 'tests/cross_repo/**'
+      - 'tests/test_cross_repo_command.py'
       - '.github/workflows/cross-repo-e2e.yml'
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: gferris418/atlas-os
-          ref: b8b8559c57eef5fbb97d914d924077ba20b1883d
+          ref: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
           path: atlas-os
           persist-credentials: false
       - name: Set up Python
@@ -61,6 +61,6 @@ jobs:
       - name: Smoke-test cross-repository command
         working-directory: argus-intelligence
         run: python -m tools.cross_repo_e2e --help
-      - name: Run the real producer-consumer-return path
+      - name: Run the current ATLAS provider-return path
         working-directory: argus-intelligence
         run: python -m unittest discover -s tests/cross_repo -v
