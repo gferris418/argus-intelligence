@@ -135,6 +135,30 @@ class CommercialGraphSQLiteMigrationTests(unittest.TestCase):
             )
             conn.close()
 
+    def test_migration_repairs_user_version_drift_from_legacy_initializer(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "registry.sqlite"
+            initialize_database(db)
+            apply_commercial_graph_migration(db)
+            initialize_database(db)
+
+            drifted = sqlite3.connect(db)
+            self.assertEqual(
+                "1.1.0",
+                drifted.execute(
+                    "SELECT value FROM schema_meta WHERE key='schema_version'"
+                ).fetchone()[0],
+            )
+            self.assertEqual(1, drifted.execute("PRAGMA user_version").fetchone()[0])
+            drifted.close()
+
+            apply_commercial_graph_migration(db)
+            repaired = sqlite3.connect(db)
+            self.assertEqual(2, repaired.execute("PRAGMA user_version").fetchone()[0])
+            self.assertEqual("ok", repaired.execute("PRAGMA integrity_check").fetchone()[0])
+            self.assertEqual([], repaired.execute("PRAGMA foreign_key_check").fetchall())
+            repaired.close()
+
     def test_migration_is_idempotent_and_integrity_safe(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             db = Path(tmp) / "registry.sqlite"
