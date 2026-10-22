@@ -13,7 +13,9 @@ authority:
   core: spec/general-intelligence.yaml
   commercial_opportunity_intelligence: spec/commercial-opportunity-intelligence.yaml
   collection_method: spec/collection-method.yaml
+  continuous_learning: spec/continuous-learning.yaml
   collection_plan_schema: schemas/collection-plan.schema.json
+  research_learning_record_schema: schemas/research-learning-record.schema.json
   opportunity_schema: schemas/opportunity.schema.json
   opportunity_event_schema: schemas/opportunity-event.schema.json
   supplier_intelligence_schema: schemas/supplier-intelligence.schema.json
@@ -188,6 +190,20 @@ operating_loop:
   - Package
   - Learn
 
+continuous_search_learning:
+  authority: spec/continuous-learning.yaml
+  record_schema: schemas/research-learning-record.schema.json
+  every_search_produces_learning_record: true
+  no_result_searches_are_learning_events: true
+  memory_types: [EPISODIC_MEMORY, SEMANTIC_MEMORY, STRATEGY_MEMORY, CALIBRATION_MEMORY, SOURCE_MEMORY, VOCABULARY_MEMORY]
+  heuristic_states: [OBSERVED, REPEATED_PATTERN, VALIDATED_HEURISTIC]
+  backtest_required_for_validated_heuristic: true
+  learned_patterns_may_guide_collection: true
+  learned_patterns_may_replace_current_evidence: false
+  outcome_calibration_required: true
+  unknown_means_research_task_not_stop: true
+  atlas_persistence_authority_unchanged: true
+
 360_intelligence_collection:
   doctrine: 360_degree_breadth_decision_driven_depth
   breadth: all_materially_relevant_lenses
@@ -325,5 +341,6 @@ release_gates:
   - claim type and claim condition candidate schema contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - Bangladesh W-question semantic foundation registered: PASS
+  - Continuous per-search learning contract and guarded heuristic promotion registered: PASS
   - GitHub-first canonical storage policy remains defined: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED

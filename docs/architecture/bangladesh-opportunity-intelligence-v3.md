@@ -95,6 +95,33 @@ For material Bangladesh opportunities, ARGUS should attempt to resolve, without 
 
 Each resolved role should preserve the party reference, evidence references, confidence, validity period and scope. Unknowns stay unknown and enter the Research Frontier.
 
+## Continuous search learning
+
+**Every search must leave ARGUS better informed than before, even when the search returns no useful result.**
+
+Each bounded search attempt produces a `research_learning_record` that captures the research question, query and method, source family, results examined, information gain, source assessment, discoveries, unknowns, hypothesis movement, what worked, what failed, terminology learned and the recommended next search.
+
+`UNKNOWN means a research task, not a stop condition.` When a material question is unanswered, ARGUS should place it on the Research Frontier, choose the highest-value lawful source or traversal path, search again, and record what the attempt taught the system.
+
+ARGUS maintains distinct learning views:
+
+- `EPISODIC_MEMORY` — what happened during a particular investigation;
+- `SEMANTIC_MEMORY` — validated entities, relationships, events and domain knowledge;
+- `STRATEGY_MEMORY` — which queries, source sequences and research techniques work for a problem class;
+- `CALIBRATION_MEMORY` — how prior confidence, timing and hypotheses compare with later observed outcomes;
+- `SOURCE_MEMORY` — how source families perform for different questions without confusing popularity with authority;
+- `VOCABULARY_MEMORY` — aliases, abbreviations, translations, project terminology and effective query variants.
+
+Learning is guarded. A single observation is only `OBSERVED`. Repetition may become a `REPEATED_PATTERN`. Only a repeated pattern that has been backtested may become a `VALIDATED_HEURISTIC`. Even then, the heuristic may optimize search strategy but does not prove a current-case fact, authority relationship, procurement route or lifecycle transition.
+
+**Patterns guide investigation; evidence determines conclusions.** Historical performance may change where ARGUS searches first and how it allocates research effort, but current evidence remains required for current claims.
+
+The continuous loop is:
+
+`partial signal → existing memory → research questions → best search strategy → search → learning record → evidence reconciliation → Research Frontier → search again or assess → outcome calibration → improved future strategy`
+
+ATLAS remains the persistence, evidence-acceptance, approval and final decision authority. Continuous learning does not expand mission scope, self-activate ARGUS or create a second canonical business store.
+
 ## Evidence and safety invariants
 
 - ATLAS authority is unchanged.

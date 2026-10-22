@@ -1,12 +1,13 @@
 schema_version: 1
 id: argus.collection-method
-version: 1.0.0
+version: 1.1.0
 status: CANDIDATE
 normative: true
 purpose: >-
   Convert an ATLAS-authorized collection mission into a bounded intelligence
-  collection plan, execute that plan against lawful and authorized sources, and
-  return an evidence package without taking ownership of ATLAS analysis or decisions.
+  collection plan, execute that plan against lawful and authorized sources, learn
+  from every search attempt, and return an evidence package without taking ownership
+  of ATLAS analysis or decisions.
 
 method:
   stages:
@@ -15,6 +16,7 @@ method:
     - COLLECTION_PLAN
     - SOURCE_PLAN
     - COLLECT
+    - SEARCH_LEARNING
     - RESOLVE
     - GRADE
     - COMPETING_HYPOTHESES
@@ -26,11 +28,23 @@ method:
     COLLECTION_PLAN: Map EEIs to bounded collection tasks, target classes, depth and stopping conditions.
     SOURCE_PLAN: Select source classes by authority, relevance, recency, independence and legal accessibility.
     COLLECT: Discover and acquire authorized source material without expanding scope beyond the mission.
+    SEARCH_LEARNING: Record information gain, source performance, terminology, failures, new unknowns, hypothesis movement and the recommended next search for every search attempt.
     RESOLVE: Normalize and resolve entities, events, relationships, aliases, dates and duplicate observations.
     GRADE: Grade source authority, freshness, corroboration and contradictions while preserving provenance.
     COMPETING_HYPOTHESES: Maintain plausible alternatives when material evidence supports more than one explanation.
     GAPS: Expose unanswered EEIs, conflicts, weak hypotheses and the next material collection frontier.
     PACKAGE: Return a collection package to ATLAS Evidence Governance for canonical claim status and further analysis.
+
+search_learning:
+  authority: spec/continuous-learning.yaml
+  schema: schemas/research-learning-record.schema.json
+  per_search_learning_record: required
+  including_zero_result_searches: true
+  unknown_is_research_task_not_failure: true
+  learned_patterns_may_prioritize_future_collection: true
+  learned_patterns_may_replace_current_evidence: false
+  lifecycle_progression_from_learning_alone: prohibited
+  mission_scope_expansion_from_learning_alone: prohibited
 
 target_classes:
   - Country
@@ -93,6 +107,7 @@ outputs:
   - unresolved_hypotheses
   - source_provenance
   - entity_relationship_updates
+  - research_learning_records
 
 handoff_to:
   evidence_governance_owner: ATLAS_OS
