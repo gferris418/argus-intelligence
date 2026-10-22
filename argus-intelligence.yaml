@@ -26,6 +26,7 @@ authority:
   historical_atlas_alignment: alignments/atlas-os.md
   access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
   access_asia_system_registry: profiles/access-asia-system-registry.yaml
+  access_asia_canonical_reconciliation: profiles/access-asia-canonical-reconciliation-v1.0.yaml
   canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
   operational_database_schema: schemas/argus-operational-store-v1.sql
   operational_database_runtime: tools/argus_operational_db.py
