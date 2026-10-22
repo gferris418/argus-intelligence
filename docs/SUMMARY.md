@@ -54,3 +54,4 @@
 * [ARGUS Intelligence v2.0.0 Release Decision](releases/v2.0.0.md)
 * [ARGUS Intelligence v2.0.1 Release Decision](releases/v2.0.1.md)
 * [ARGUS 3.0.0-rc.1](releases/v3.0.0-rc.1.md)
+* [ARGUS 3.0.0-rc.2](releases/v3.0.0-rc.2.md)
