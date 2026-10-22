@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "schemas" / "bangladesh-procurement-v2.1.schema.json"
 PROFILE = ROOT / "profiles" / "bangladesh-canonical-procurement-standard-v2.1.yaml"
 ALIGNMENT = ROOT / "profiles" / "bangladesh-procurement-international-alignment-v1.0.yaml"
+CPV_FIXTURE = ROOT / "tests" / "fixtures" / "bangladesh-v2.1" / "bcg-cpv-bppa-2026.json"
 
 
 class BangladeshProcurementV21InternationalAlignment(unittest.TestCase):
@@ -106,6 +107,16 @@ class BangladeshProcurementV21InternationalAlignment(unittest.TestCase):
         self.assertIn("bangladesh-procurement-v2.1.schema.json", profile_text)
         self.assertIn("bangladesh-procurement-international-alignment-v1.0.yaml", profile_text)
         self.assertIn("v1.3 remains the active production authority", profile_text)
+
+    def test_bangladesh_coast_guard_cpv_fixture_validates(self):
+        self.assertTrue(CPV_FIXTURE.exists())
+        schema = json.loads(SCHEMA.read_text())
+        payload = json.loads(CPV_FIXTURE.read_text())
+        errors = sorted(Draft202012Validator(schema).iter_errors(payload), key=lambda e: list(e.path))
+        self.assertEqual([f"{list(e.path)}: {e.message}" for e in errors], [])
+        self.assertEqual(payload["tender"]["category_source_label"], "Works")
+        self.assertEqual(payload["tender"]["items"][0]["quantity"], 4)
+        self.assertEqual(len(payload["source_releases"]), 4)
 
 
 if __name__ == "__main__":
