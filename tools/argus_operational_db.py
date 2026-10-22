@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-"""ARGUS operational SQLite database utility.
-
-The database is a mutable operational store. GitHub remains authoritative for
-schema and identity governance. SharePoint may store the working SQLite file and
-provide file version history.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -15,224 +7,360 @@ import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SCHEMA = ROOT / "schemas" / "argus-operational-database-v1.sql"
-PREFIX_BY_TYPE = {
-    "POLICY": "POL",
-    "STRATEGY_MASTER_PLAN": "STR",
-    "PROGRAMME": "PRG",
-    "PROJECT": "PRJ",
-    "REQUIREMENT": "REQ",
-    "PROCUREMENT_PLAN": "PLN",
-    "PROCUREMENT_PACKAGE": "PKG",
-    "PROCUREMENT_PROCESS": "PROC",
-    "TENDER_SOLICITATION": "TND",
-    "LOT": "LOT",
-    "PROCUREMENT_ITEM": "ITM",
-    "ENTITY": "ENT",
-    "PERSON": "PER",
-    "AWARD": "AWD",
-    "CONTRACT": "CTR",
-    "EVENT": "EVT",
-    "DOCUMENT": "DOC",
-    "SOURCE_RECORD": "SRC",
-    "OBSERVATION": "OBS",
-    "PRODUCT_SOLUTION": "PRD",
-}
+SCHEMA_PATH = ROOT / "schemas" / "argus-operational-store-v1.sql"
 
 
-def now_iso() -> str:
+def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def connect(path: Path) -> sqlite3.Connection:
-    db = sqlite3.connect(path)
-    db.execute("PRAGMA foreign_keys = ON")
-    return db
+def connect_database(path: str | Path) -> sqlite3.Connection:
+    conn = sqlite3.connect(str(path))
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = DELETE")
+    conn.execute("PRAGMA synchronous = FULL")
+    return conn
 
 
-def create_db(path: Path, schema: Path = DEFAULT_SCHEMA) -> None:
+def initialize_database(path: str | Path, schema_path: str | Path = SCHEMA_PATH) -> Path:
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    db = connect(path)
-    db.executescript(schema.read_text())
-    ts = now_iso()
-    db.execute("INSERT OR REPLACE INTO metadata(key,value) VALUES('schema_version','1.0.0')")
-    db.execute("INSERT OR REPLACE INTO metadata(key,value) VALUES('identity_standard','canonical-identity-standard-v1.0')")
-    db.execute("INSERT OR REPLACE INTO metadata(key,value) VALUES('created_at',COALESCE((SELECT value FROM metadata WHERE key='created_at'),?))", (ts,))
-    db.execute("INSERT OR REPLACE INTO metadata(key,value) VALUES('last_updated_at',?)", (ts,))
-    count = db.execute("SELECT COUNT(*) FROM database_versions").fetchone()[0]
-    if count == 0:
-        db.execute("INSERT INTO database_versions(schema_version,created_at,note) VALUES(?,?,?)", ("1.0.0", ts, "Initial operational database"))
-    db.commit()
-    db.close()
+    schema = Path(schema_path).read_text(encoding="utf-8")
+    conn = connect_database(path)
+    try:
+        conn.executescript(schema)
+        conn.execute("PRAGMA user_version = 1")
+        conn.commit()
+        result = conn.execute("PRAGMA integrity_check").fetchone()[0]
+        if result != "ok":
+            raise RuntimeError(f"SQLite integrity check failed: {result}")
+    finally:
+        conn.close()
+    return path
 
 
-def allocate_canonical_id(db: sqlite3.Connection, object_type: str, jurisdiction: str) -> str:
-    prefix = PREFIX_BY_TYPE[object_type]
+def next_canonical_id(conn: sqlite3.Connection, object_type: str, jurisdiction: str = "BD") -> str:
+    object_type = object_type.upper()
     jurisdiction = jurisdiction.upper()
-    db.execute(
-        "INSERT OR IGNORE INTO id_counters(object_prefix,jurisdiction,next_value) VALUES(?,?,1)",
-        (prefix, jurisdiction),
-    )
-    next_value = db.execute(
-        "SELECT next_value FROM id_counters WHERE object_prefix=? AND jurisdiction=?",
-        (prefix, jurisdiction),
-    ).fetchone()[0]
-    db.execute(
-        "UPDATE id_counters SET next_value=? WHERE object_prefix=? AND jurisdiction=?",
-        (next_value + 1, prefix, jurisdiction),
-    )
-    return f"{prefix}-{jurisdiction}-{next_value:06d}"
-
-
-def record_change(db: sqlite3.Connection, actor: str, operation: str, table: str, target_id: str, summary: str) -> None:
-    db.execute(
-        "INSERT INTO change_log(change_id,changed_at,actor,operation,target_table,target_id,summary) VALUES(?,?,?,?,?,?,?)",
-        (str(uuid.uuid4()), now_iso(), actor, operation, table, target_id, summary),
-    )
-    db.execute("INSERT OR REPLACE INTO metadata(key,value) VALUES('last_updated_at',?)", (now_iso(),))
-
-
-def create_object(path: Path, object_type: str, title: str, jurisdiction: str, description: str | None, state: str, actor: str) -> dict:
-    if object_type not in PREFIX_BY_TYPE:
-        raise SystemExit(f"Unsupported object type: {object_type}")
-    db = connect(path)
-    with db:
-        canonical_id = allocate_canonical_id(db, object_type, jurisdiction)
-        internal_uuid = str(uuid.uuid4())
-        ts = now_iso()
-        db.execute(
-            "INSERT INTO canonical_objects(internal_uuid,canonical_id,object_type,jurisdiction,title,description,record_state,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)",
-            (internal_uuid, canonical_id, object_type, jurisdiction.upper(), title, description, state, ts, ts),
+    prefix_row = conn.execute(
+        "SELECT prefix FROM object_type_registry WHERE object_type = ? AND active = 1",
+        (object_type,),
+    ).fetchone()
+    if prefix_row is None:
+        raise ValueError(f"Unknown or inactive object type: {object_type}")
+    prefix = prefix_row[0]
+    row = conn.execute(
+        "SELECT next_value FROM id_sequence WHERE object_type = ? AND jurisdiction = ?",
+        (object_type, jurisdiction),
+    ).fetchone()
+    if row is None:
+        sequence = 1
+        conn.execute(
+            "INSERT INTO id_sequence(object_type, jurisdiction, next_value) VALUES (?,?,?)",
+            (object_type, jurisdiction, 2),
         )
-        record_change(db, actor, "CREATE", "canonical_objects", canonical_id, f"Created {object_type}: {title}")
-    db.close()
-    return {"internal_uuid": internal_uuid, "canonical_id": canonical_id}
-
-
-def resolve_object_uuid(db: sqlite3.Connection, canonical_id: str) -> str:
-    row = db.execute("SELECT internal_uuid FROM canonical_objects WHERE canonical_id=?", (canonical_id,)).fetchone()
-    if not row:
-        raise SystemExit(f"Unknown canonical_id: {canonical_id}")
-    return row[0]
-
-
-def add_external_id(path: Path, canonical_id: str, source_system: str, scheme: str, value: str, scope: str | None, source_label: str | None, actor: str) -> str:
-    db = connect(path)
-    with db:
-        object_uuid = resolve_object_uuid(db, canonical_id)
-        eid = str(uuid.uuid4())
-        ts = now_iso()
-        db.execute(
-            "INSERT INTO external_identifiers(external_identifier_id,object_uuid,source_system,scheme,value,scope,source_label,first_seen_at,last_seen_at) VALUES(?,?,?,?,?,?,?,?,?)",
-            (eid, object_uuid, source_system, scheme, value, scope, source_label, ts, ts),
+    else:
+        sequence = int(row[0])
+        conn.execute(
+            "UPDATE id_sequence SET next_value = ? WHERE object_type = ? AND jurisdiction = ?",
+            (sequence + 1, object_type, jurisdiction),
         )
-        record_change(db, actor, "CREATE", "external_identifiers", eid, f"Attached {source_system}:{scheme}={value} to {canonical_id}")
-    db.close()
-    return eid
+    return f"{prefix}-{jurisdiction}-{sequence:06d}"
 
 
-def add_relationship(path: Path, subject_id: str, predicate: str, object_id: str, actor: str) -> str:
-    db = connect(path)
-    with db:
-        subject_uuid = resolve_object_uuid(db, subject_id)
-        object_uuid = resolve_object_uuid(db, object_id)
-        rid = str(uuid.uuid4())
-        ts = now_iso()
-        db.execute(
-            "INSERT INTO relationships(relationship_id,subject_uuid,predicate,object_uuid,created_at) VALUES(?,?,?,?,?)",
-            (rid, subject_uuid, predicate, object_uuid, ts),
+def upsert_canonical_object(
+    conn: sqlite3.Connection,
+    *,
+    object_type: str,
+    title: str,
+    jurisdiction: str = "BD",
+    canonical_id: str | None = None,
+    internal_id: str | None = None,
+    description: str | None = None,
+    status: str = "CURRENT",
+    legacy_identity: bool = False,
+) -> dict[str, str]:
+    """Create or explicitly update one canonical object.
+
+    No fuzzy/title-based matching occurs here. Callers must reconcile identity before
+    supplying an existing canonical_id. If canonical_id is omitted a new identity is issued.
+    """
+    now = utc_now()
+    existing = None
+    if canonical_id:
+        existing = conn.execute(
+            "SELECT internal_id, canonical_id FROM canonical_object WHERE canonical_id = ?",
+            (canonical_id,),
+        ).fetchone()
+    if existing:
+        conn.execute(
+            "UPDATE canonical_object SET title=?, description=?, status=?, updated_at=? WHERE internal_id=?",
+            (title, description, status, now, existing["internal_id"]),
         )
-        record_change(db, actor, "CREATE", "relationships", rid, f"{subject_id} {predicate} {object_id}")
-    db.close()
-    return rid
+        return {"internal_id": existing["internal_id"], "canonical_id": existing["canonical_id"]}
+    if canonical_id is None:
+        canonical_id = next_canonical_id(conn, object_type, jurisdiction)
+    if internal_id is None:
+        internal_id = str(uuid.uuid4())
+    conn.execute(
+        """
+        INSERT INTO canonical_object(
+            internal_id, canonical_id, object_type, jurisdiction, title, description,
+            status, legacy_identity, created_at, updated_at
+        ) VALUES (?,?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            internal_id,
+            canonical_id,
+            object_type.upper(),
+            jurisdiction.upper(),
+            title,
+            description,
+            status,
+            1 if legacy_identity else 0,
+            now,
+            now,
+        ),
+    )
+    return {"internal_id": internal_id, "canonical_id": canonical_id}
 
 
-def integrity_check(path: Path) -> dict:
-    db = connect(path)
-    integrity = db.execute("PRAGMA integrity_check").fetchall()
-    fk = db.execute("PRAGMA foreign_key_check").fetchall()
-    duplicate_ids = db.execute(
-        "SELECT canonical_id, COUNT(*) FROM canonical_objects GROUP BY canonical_id HAVING COUNT(*) > 1"
-    ).fetchall()
-    counts = {
-        "canonical_objects": db.execute("SELECT COUNT(*) FROM canonical_objects").fetchone()[0],
-        "source_records": db.execute("SELECT COUNT(*) FROM source_records").fetchone()[0],
-        "events": db.execute("SELECT COUNT(*) FROM events").fetchone()[0],
-        "observations": db.execute("SELECT COUNT(*) FROM observations").fetchone()[0],
-    }
-    db.close()
-    return {
-        "ok": integrity == [("ok",)] and not fk and not duplicate_ids,
-        "integrity_check": integrity,
-        "foreign_key_violations": fk,
-        "duplicate_canonical_ids": duplicate_ids,
-        "counts": counts,
-    }
+def register_source_record(
+    conn: sqlite3.Connection,
+    *,
+    source_system: str,
+    record_type: str,
+    observed_at: str | None = None,
+    native_id: str | None = None,
+    source_authority: str | None = None,
+    source_url: str | None = None,
+    published_at: str | None = None,
+    content_hash: str | None = None,
+    raw_title: str | None = None,
+    access_class: str | None = None,
+    source_record_id: str | None = None,
+    canonical_source_id: str | None = None,
+) -> str:
+    if source_record_id is None:
+        source_record_id = str(uuid.uuid4())
+    conn.execute(
+        """
+        INSERT INTO source_record(
+            source_record_id, canonical_source_id, source_system, source_authority,
+            native_id, record_type, source_url, published_at, observed_at,
+            content_hash, raw_title, access_class
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            source_record_id,
+            canonical_source_id,
+            source_system,
+            source_authority,
+            native_id,
+            record_type,
+            source_url,
+            published_at,
+            observed_at or utc_now(),
+            content_hash,
+            raw_title,
+            access_class,
+        ),
+    )
+    return source_record_id
 
 
-def file_sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
+def add_external_identifier(
+    conn: sqlite3.Connection,
+    *,
+    object_internal_id: str,
+    source_system: str,
+    scheme: str,
+    value: str,
+    scope: str = "OBJECT",
+    source_record_id: str | None = None,
+) -> str:
+    identifier_id = str(uuid.uuid4())
+    conn.execute(
+        """
+        INSERT INTO external_identifier(
+            identifier_id, object_internal_id, source_system, scheme, value,
+            scope, source_record_id, created_at
+        ) VALUES (?,?,?,?,?,?,?,?)
+        """,
+        (identifier_id, object_internal_id, source_system, scheme, value, scope, source_record_id, utc_now()),
+    )
+    return identifier_id
 
 
-def main() -> None:
-    p = argparse.ArgumentParser()
-    sub = p.add_subparsers(dest="command", required=True)
+def add_relationship(
+    conn: sqlite3.Connection,
+    *,
+    from_object_internal_id: str,
+    to_object_internal_id: str,
+    relation_type: str,
+    source_record_id: str | None = None,
+    valid_from: str | None = None,
+    valid_to: str | None = None,
+    status: str = "CURRENT",
+) -> str:
+    relationship_id = str(uuid.uuid4())
+    conn.execute(
+        """
+        INSERT INTO relationship(
+            relationship_id, from_object_internal_id, to_object_internal_id,
+            relation_type, source_record_id, valid_from, valid_to, status, created_at
+        ) VALUES (?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            relationship_id,
+            from_object_internal_id,
+            to_object_internal_id,
+            relation_type,
+            source_record_id,
+            valid_from,
+            valid_to,
+            status,
+            utc_now(),
+        ),
+    )
+    return relationship_id
 
-    c = sub.add_parser("create-db")
-    c.add_argument("database")
 
-    c = sub.add_parser("integrity-check")
-    c.add_argument("database")
+def record_event(
+    conn: sqlite3.Connection,
+    *,
+    subject_object_internal_id: str,
+    event_type: str,
+    occurred_at: str | None = None,
+    published_at: str | None = None,
+    source_record_id: str | None = None,
+    payload: dict[str, Any] | None = None,
+    canonical_event_id: str | None = None,
+) -> str:
+    event_id = str(uuid.uuid4())
+    conn.execute(
+        """
+        INSERT INTO event(
+            event_id, canonical_event_id, subject_object_internal_id, event_type,
+            occurred_at, published_at, source_record_id, payload_json, created_at
+        ) VALUES (?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            event_id,
+            canonical_event_id,
+            subject_object_internal_id,
+            event_type,
+            occurred_at,
+            published_at,
+            source_record_id,
+            json.dumps(payload, sort_keys=True) if payload is not None else None,
+            utc_now(),
+        ),
+    )
+    return event_id
 
-    c = sub.add_parser("create-object")
-    c.add_argument("database")
-    c.add_argument("--type", required=True, choices=sorted(PREFIX_BY_TYPE))
-    c.add_argument("--title", required=True)
-    c.add_argument("--jurisdiction", default="BD")
-    c.add_argument("--description")
-    c.add_argument("--state", default="CURRENT", choices=["CANDIDATE", "CURRENT", "SUPERSEDED", "ARCHIVED"])
-    c.add_argument("--actor", default="ARGUS")
 
-    c = sub.add_parser("add-external-id")
-    c.add_argument("database")
-    c.add_argument("--canonical-id", required=True)
-    c.add_argument("--source-system", required=True)
-    c.add_argument("--scheme", required=True)
-    c.add_argument("--value", required=True)
-    c.add_argument("--scope")
-    c.add_argument("--source-label")
-    c.add_argument("--actor", default="ARGUS")
+def record_observation(
+    conn: sqlite3.Connection,
+    *,
+    subject_object_internal_id: str,
+    field_path: str,
+    source_record_id: str | None = None,
+    value: Any = None,
+    raw_label: str | None = None,
+    raw_value: str | None = None,
+    observed_at: str | None = None,
+    published_at: str | None = None,
+    claim_type: str = "FACT",
+    condition: str = "CURRENT",
+    confidence: float | None = None,
+    canonical_observation_id: str | None = None,
+) -> str:
+    observation_id = str(uuid.uuid4())
+    conn.execute(
+        """
+        INSERT INTO observation(
+            observation_id, canonical_observation_id, subject_object_internal_id,
+            field_path, value_json, raw_label, raw_value, source_record_id,
+            observed_at, published_at, claim_type, condition, confidence, created_at
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            observation_id,
+            canonical_observation_id,
+            subject_object_internal_id,
+            field_path,
+            json.dumps(value, sort_keys=True) if value is not None else None,
+            raw_label,
+            raw_value,
+            source_record_id,
+            observed_at or utc_now(),
+            published_at,
+            claim_type,
+            condition,
+            confidence,
+            utc_now(),
+        ),
+    )
+    return observation_id
 
-    c = sub.add_parser("add-relationship")
-    c.add_argument("database")
-    c.add_argument("--subject", required=True)
-    c.add_argument("--predicate", required=True)
-    c.add_argument("--object", required=True)
-    c.add_argument("--actor", default="ARGUS")
 
-    args = p.parse_args()
-    path = Path(args.database)
-    if args.command == "create-db":
-        create_db(path)
-        print(json.dumps({"database": str(path), "sha256": file_sha256(path), **integrity_check(path)}, indent=2))
-    elif args.command == "integrity-check":
-        result = integrity_check(path)
-        result["sha256"] = file_sha256(path)
-        print(json.dumps(result, indent=2))
-        raise SystemExit(0 if result["ok"] else 1)
-    elif args.command == "create-object":
-        print(json.dumps(create_object(path, args.type, args.title, args.jurisdiction, args.description, args.state, args.actor), indent=2))
-    elif args.command == "add-external-id":
-        print(add_external_id(path, args.canonical_id, args.source_system, args.scheme, args.value, args.scope, args.source_label, args.actor))
-    elif args.command == "add-relationship":
-        print(add_relationship(path, args.subject, args.predicate, args.object, args.actor))
+def record_mutation(
+    conn: sqlite3.Connection,
+    *,
+    actor: str,
+    operation: str,
+    object_internal_id: str | None = None,
+    before_hash: str | None = None,
+    after_hash: str | None = None,
+    note: str | None = None,
+) -> str:
+    mutation_id = str(uuid.uuid4())
+    conn.execute(
+        "INSERT INTO mutation_log(mutation_id, applied_at, actor, operation, object_internal_id, before_hash, after_hash, note) VALUES (?,?,?,?,?,?,?,?)",
+        (mutation_id, utc_now(), actor, operation, object_internal_id, before_hash, after_hash, note),
+    )
+    return mutation_id
+
+
+def sha256_file(path: str | Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def integrity_check(path: str | Path) -> str:
+    conn = connect_database(path)
+    try:
+        return str(conn.execute("PRAGMA integrity_check").fetchone()[0])
+    finally:
+        conn.close()
+
+
+def _cli() -> int:
+    parser = argparse.ArgumentParser(description="ARGUS operational SQLite registry utility")
+    sub = parser.add_subparsers(dest="command", required=True)
+    init_parser = sub.add_parser("init", help="Initialize a database")
+    init_parser.add_argument("database")
+    check_parser = sub.add_parser("integrity", help="Run PRAGMA integrity_check")
+    check_parser.add_argument("database")
+    args = parser.parse_args()
+    if args.command == "init":
+        initialize_database(args.database)
+        print(args.database)
+        return 0
+    if args.command == "integrity":
+        result = integrity_check(args.database)
+        print(result)
+        return 0 if result == "ok" else 1
+    return 2
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(_cli())
