@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/opportunity.schema.json",
+  "title": "ARGUS Government Commercial Opportunity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "argus_opportunity_id",
+    "title",
+    "lifecycle_stage",
+    "opportunity_mode",
+    "demand",
+    "supply",
+    "measures",
+    "evidence_refs",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "argus_opportunity_id": {
+      "type": "string",
+      "pattern": "^ARGUS-OPP-[0-9]{4}-[0-9]{6}$"
+    },
+    "commercial_id": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9]{4}_PX[0-9]{5}_[A-Z0-9][A-Z0-9-]{1,31}$"
+    },
+    "title": {"type": "string", "minLength": 1},
+    "status": {"type": "string"},
+    "lifecycle_stage": {
+      "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9"]
+    },
+    "opportunity_mode": {
+      "enum": ["SHAPE", "POSITION", "REACT", "EXPAND"]
+    },
+    "buyer_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "project_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "procurement_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "supplier_candidate_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "event_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "demand": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "need_gap": {"type": ["string", "null"]},
+        "policy_driver": {"type": ["string", "null"]},
+        "programme": {"type": ["string", "null"]},
+        "project": {"type": ["string", "null"]},
+        "funding_path": {"type": ["string", "null"]},
+        "approval_state": {"type": ["string", "null"]},
+        "procurement_path": {"type": ["string", "null"]},
+        "installed_base": {"type": ["string", "null"]}
+      }
+    },
+    "supply": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "capability_requirement": {"type": ["string", "null"]},
+        "solution_class": {"type": ["string", "null"]},
+        "supplier_universe": {"type": "array", "items": {"type": "string"}},
+        "shortlisted_suppliers": {"type": "array", "items": {"type": "string"}},
+        "preferred_partner_strategy": {"type": ["string", "null"]}
+      }
+    },
+    "qualification": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "score": {"type": "number", "minimum": 0, "maximum": 100},
+        "recommended_priority_band": {"enum": ["PRIORITY", "ACTIVE", "WATCH", "MONITOR"]}
+      }
+    },
+    "measures": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidence_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "procurement_realization_probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "access_asia_success_probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "supplier_match_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "detection_lag_hours": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "research_frontier": {"type": "array", "items": {"type": "string"}},
+    "risks": {"type": "array"},
+    "actions": {"type": "array"},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "outcome": {"type": ["string", "null"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  }
+}
