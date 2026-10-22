@@ -2,8 +2,8 @@ schema_version: 3
 product:
   id: argus-intelligence
   name: ARGUS Government Commercial Opportunity Intelligence
-  version: 3.0.0-rc.1
-  previous_version: 2.2.0-rc.2
+  version: 3.0.0-rc.2
+  previous_version: 3.0.0-rc.1
   release_channel: candidate
   status: CANDIDATE
   classification: internal
@@ -24,6 +24,8 @@ authority:
   public_sector_opportunity_doctrine: spec/core.md
   atlas_alignment: alignments/atlas-os-triage-v2.yaml
   historical_atlas_alignment: alignments/atlas-os.md
+  atlas_current_integration: contracts/atlas/current-integration.yaml
+  atlas_v3_provider: tools/atlas_v3_provider.py
   access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
   access_asia_system_registry: profiles/access-asia-system-registry.yaml
   access_asia_canonical_reconciliation: profiles/access-asia-canonical-reconciliation-v1.0.yaml
@@ -81,49 +83,47 @@ scope:
 production_runtime:
   access_asia:
     governance_backbone: ATLAS OS
-    atlas_change_required: true
+    atlas_change_required: false
     standalone_argus: false
   standalone_mode:
     permitted_for: [portability, testing, recovery, non_access_asia_implementation]
 
 atlas_compatibility:
-  last_validated_base: 2.0.2-rc.6
-  last_validated_base_commit: 701420eb4b40d63c30161f8c13714a06d5ea69a1
-  last_validated_control_revision: atlas-bootstrap-2026-10-22-r10
-  required_next_target: 2.0.2-rc.7
-  relationship: nested_intelligence_collection_and_commercial_opportunity_subsystem
-  rule: >-
-    ATLAS owns Mission Control, Control Plane, collection-need routing, canonical taxonomy,
-    evidence acceptance, authoritative commercial priority, pursuit decisions, approvals,
-    persistence, observability, Dashboard and delivery. ARGUS owns the authorized intelligence
-    mission, early commercial opportunity identity, lifecycle tracking, supplier universe,
-    matching assessments, qualification calculations, early-warning events and returned evidence package.
-  atlas_domain_context_contract_version: 1.2.0
-  atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
-  atlas_execution_lease_contract_version: 1.0.0
-  atlas_execution_lease_contract_path: contracts/atlas/execution-lease-v1.schema.json
-  atlas_signing_key_registry_contract_version: 1.0.0
-  atlas_signing_key_registry_contract_path: contracts/atlas/signing-key-registry-v1.schema.json
-  handoff_required_in_access_asia_production: true
-  execution_lease_required_in_access_asia_production: true
-  accepted_handoff_states: [READY, PARTIAL]
-  partial_handoff_semantics: ARGUS_ENRICHES_COLLECTION_CONTEXT
-  blocked_handoff_execution: prohibited
-  exact_return_correlation_required: true
-  replay_and_stale_result_protection: enforced
-  retry_resume_reconciliation: enforced
-  action_authorization_binding: enforced
-  atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry
-  activation_contract_version: 3.0.0
-  activation_authority: ATLAS_OS
-  activation_collection_modes: [ARGUS_COLLECTION, HYBRID]
+  last_validated_base: 3.0.1
+  last_validated_base_commit: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
+  last_validated_control_revision: chatgpt-plugin-bootstrap-v1
+  required_next_target: null
+  relationship: bounded_intelligence_collection_provider
+  activation_authority: ATLAS
+  next_step_authority: ATLAS
+  provider_return_target: ATLAS
+  explicit_user_approval_required: true
   activation_capability: intelligence_collection
+  provider: argus
+  approval_key: ARGUS_ACTIVATION
+  current_integration_contract: contracts/atlas/current-integration.yaml
+  current_provider_runtime: tools/atlas_v3_provider.py
+  rule: >-
+    ATLAS owns Mission Control, Control Plane, preprocessing, routing, approvals,
+    evidence acceptance, authoritative commercial priority, pursuit decisions,
+    persistence, observability, Dashboard, every next step after provider return,
+    verification and delivery. ARGUS owns only the authorized bounded intelligence
+    mission and returns its collection package to ATLAS.
   keyword_activation: false
   background_activation: false
   creates_execution_spine: false
   owns_planning: false
   owns_approvals: false
   owns_final_business_decision: false
+  legacy_signed_transport:
+    status: backward_compatibility_only
+    descriptor: contracts/atlas/synchronization-compatibility.yaml
+    handoff_contract_version: 1.2.0
+    execution_lease_contract_version: 1.0.0
+    signing_key_registry_contract_version: 1.0.0
+    replay_and_stale_result_protection: enforced
+    action_authorization_binding: enforced
+    control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry
 
 engines:
   demand_intelligence:
@@ -349,7 +349,9 @@ domain_result:
   may_make_final_business_decision: false
 
 release_gates:
-  - ATLAS collection-need and ARGUS collection activation contract remains unchanged: PASS
+  - ATLAS 3.0.1 bounded intelligence-collection provider contract: PASS
+  - explicit ARGUS activation approval and provider return to ATLAS: PASS
+  - legacy signed synchronization transport remains backward-compatible: PASS
   - canonical PIR/EEI collection method and collection-plan schema remain authoritative: PASS
   - Government commercial opportunity intelligence mission is machine-readable: PASS
   - Opportunity exists as first-class commercial object before PX promotion: PASS
