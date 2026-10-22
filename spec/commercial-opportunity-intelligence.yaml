@@ -1,27 +1,68 @@
-schema_version: 1
+schema_version: 2
 id: argus.government-commercial-opportunity-intelligence
-version: 3.0.0-rc.1
+version: 3.1.0-rc.1
 status: CANDIDATE
 normative: true
 mission: >-
-  ARGUS is the ATLAS-governed government commercial opportunity intelligence system
-  for Access Asia. It detects government needs, programmes, projects, funding paths,
-  approvals and procurements as early as legitimately observable; develops credible
-  opportunity hypotheses where no formal project yet exists; tracks those opportunities
-  through the public-sector lifecycle; identifies international OEMs, suppliers,
-  contractors and technologies capable of meeting the need; matches demand and supply;
-  and returns evidence-backed commercial opportunity intelligence to ATLAS before
-  authoritative business decisions or external actions are made.
+  ARGUS is the ATLAS-governed 360-degree government commercial opportunity intelligence
+  system for Access Asia. It resolves government institutions and existing canonical
+  opportunity identity first; detects needs, programmes, projects, funding paths,
+  approvals and procurements as early as legitimately observable; reconciles public
+  evidence with authorized internal customer intelligence; identifies products, OEMs,
+  suppliers, contractors, competitors and technologies capable of meeting the need;
+  matches demand and supply; and returns evidence-backed commercial intelligence to
+  ATLAS before authoritative business decisions or consequential external actions.
+
+startup_flow:
+  handoff_pattern: ONE_HANDOFF_ONE_RETURN
+  sequence:
+    - RESOLVE_INSTITUTIONAL_HIERARCHY
+    - CHECK_INTERNAL_CANONICAL_REGISTRY
+    - RECONCILE_OPPORTUNITY_IDENTITY
+    - CHECK_OFFICIAL_PROCUREMENT_SOURCES
+    - CHECK_INTERNAL_CUSTOMER_INTELLIGENCE
+    - BUILD_RESEARCH_FRONTIER
+    - EXECUTE_ADAPTIVE_360_COLLECTION
+  principles:
+    institution_first: true
+    internal_registry_before_new_opportunity: true
+    official_procurement_before_customer_intelligence: true
+    customer_intelligence_before_broad_market_collection: true
+    adaptive_after_frontier: true
+    routine_atlas_callbacks: false
+  identity_behavior:
+    EXACT: REUSE_EXISTING
+    HIGH_CONFIDENCE_MATCH: REUSE_EXISTING
+    DISTINCT: CREATE_NEW_CANDIDATE
+    PROBABLE_MATCH: ESCALATE_MATERIAL_AMBIGUITY
+    UNRESOLVED: ESCALATE_MATERIAL_AMBIGUITY
+  escalation_conditions:
+    - MATERIAL_SCOPE_CHANGE
+    - AUTHORIZATION_REQUIRED
+    - POLICY_OR_SECURITY_CONFLICT
+    - MATERIAL_AMBIGUITY
 
 engines:
+  institutional_intelligence:
+    purpose: resolve government hierarchy, statutory/organizational relationships, roles and the real end-user/procuring chain before broad opportunity research
+    objects: [country, ministry_division, agency_authority, subordinate_unit, project_office, procuring_entity, end_user, operator, approving_authority]
   demand_intelligence:
     purpose: detect and track government need, policy, programme, project, budget, approval and procurement signals
     objects: [need_gap, policy_driver, programme, project, budget_funding, approval, procurement, installed_base]
+  procurement_intelligence:
+    purpose: resolve applicable procurement route and collect planning, package, pre-procurement, solicitation, amendment, award and implementation signals from competent sources
+    objects: [procurement_plan, package, pre_procurement, tender, amendment, award, contract]
+  customer_intelligence:
+    purpose: reconcile authorized Access Asia history and relationship knowledge with current external evidence without duplicating CRM or document masters
+    sources: [argus_registry, sharepoint, hubspot, correspondence, meeting_records, proposals, quotations, prior_projects]
   supply_intelligence:
     purpose: identify and assess international suppliers, OEMs, contractors, technologies and partnership feasibility
     objects: [supplier, business_unit, capability, product, service, reference_project, export_feasibility, partnerability]
+  competitor_market_intelligence:
+    purpose: map incumbents, prior bidders/awardees, alternative technologies, likely competitors, market structure and ecosystem actors when material
+    objects: [competitor, incumbent, prior_bidder, alternative_solution, consultant, integrator, financier, local_partner]
   opportunity_engine:
-    purpose: reconcile demand and supply around a persistent commercial opportunity object
+    purpose: reconcile government demand, customer intelligence and supply around a persistent commercial opportunity object
   matching_and_qualification:
     purpose: rank supplier fit and calculate opportunity qualification recommendations without making the authoritative pursuit decision
   early_warning:
@@ -33,6 +74,9 @@ opportunity_identity:
   px_identity_authority: ATLAS_OS
   px_pattern: YYYY_PXNNNNN_SHORTNAME
   preserve_argus_identity_after_px: true
+  resolve_before_create: true
+  title_similarity_merge: prohibited
+  tender_implies_new_opportunity: false
 
 lifecycle:
   S0: {name: Need_Gap, objective: Detect the unmet operational, public-service or capability need.}
@@ -52,8 +96,35 @@ opportunity_modes:
   REACT: Respond when formal procurement is discovered before sufficient prior positioning.
   EXPAND: Develop follow-on, upgrade, replacement, maintenance, training, spare or adjacent opportunities from an installed project/base.
 
+adaptive_360_intelligence:
+  rule: 360_degree_breadth_decision_driven_depth
+  capabilities:
+    - government_hierarchy
+    - policy_strategy
+    - need_requirement
+    - programme_project
+    - approval
+    - budget_funding
+    - procurement
+    - technical_installed_base
+    - internal_customer_intelligence
+    - supplier_product
+    - competitor_market
+    - ecosystem
+    - commercial_participation
+    - timing_triggers
+  capability_selection: >-
+    After the deterministic startup, choose only capabilities whose results can
+    materially change the commercial decision or next action. Supplier/product search
+    is neither mandatory nor last: it activates when demand maturity, live tender
+    urgency, shaping opportunity or a material Research Frontier question makes it useful.
+  safe_read_parallelism: allowed_after_dependencies
+  canonical_mutations: serialized_by_atlas
+
 opportunity_development:
   flow:
+    - Resolve_Government_Hierarchy
+    - Reconcile_Existing_Opportunity
     - Detect_Capability_Gap
     - Define_Government_Problem
     - Identify_Solution_Class
@@ -126,6 +197,7 @@ rapid_tender_mode:
   trigger:
     - first_material_discovery_at_S7
     - critically_short_closing_horizon
+  startup_invariant: hierarchy_and_identity_reconciliation_still_required
   first_pass_fields:
     - buyer
     - tender_id
@@ -175,8 +247,8 @@ watchlists:
     - trigger
 
 bidirectional_discovery:
-  demand_first: Government_Need -> Solution_Class -> Supplier_Universe -> Access_Asia_Opportunity
-  supply_first: OEM_Or_Technology -> Capability -> Bangladesh_Applicability -> Government_Users -> Unmet_Need -> Opportunity_Hypothesis
+  demand_first: Government_Need -> Institutional_Path -> Existing_Identity_Check -> Solution_Class -> Supplier_Universe -> Access_Asia_Opportunity
+  supply_first: OEM_Or_Technology -> Capability -> Bangladesh_Applicability -> Government_Users -> Institutional_Path -> Existing_Identity_Check -> Unmet_Need -> Opportunity_Hypothesis
 
 kpis:
   - median_detection_lag
@@ -195,18 +267,24 @@ kpis:
   - shaped_opportunity_value
   - false_positive_rate
   - archived_without_procurement_rate
+  - duplicate_opportunity_avoidance_rate
+  - user_callbacks_per_argus_mission
 
 authority_boundary:
   argus_owns:
+    - institutional_hierarchy_intelligence
     - opportunity_detection
     - opportunity_identity_before_px
     - opportunity_lifecycle_tracking
+    - internal_external_evidence_reconciliation
     - supplier_universe_collection
     - supplier_match_assessment
     - opportunity_qualification_calculation
     - priority_recommendation
     - early_warning_event_tracking
+    - research_frontier_and_internal_branch_ordering
   atlas_owns:
+    - outer_mission_scope
     - canonical_evidence_acceptance
     - authoritative_priority
     - promote_to_px
@@ -220,7 +298,9 @@ authority_boundary:
 invariants:
   - Tender intelligence is one subsystem, not the ARGUS mission definition.
   - One tender does not automatically create one opportunity and one opportunity may link to multiple procurement packages or tenders.
+  - Institutional hierarchy and canonical identity are resolved before a new opportunity is created.
   - Opportunity stage, opportunity mode, evidence confidence, procurement probability, success probability and supplier-match confidence are separate dimensions.
   - ARGUS may develop opportunity hypotheses but may not assert that a government project exists without evidence.
   - External market-development actions require ATLAS governance and authorization.
+  - Routine research decisions inside an accepted mission do not require ATLAS callbacks.
   - By tender publication ARGUS should ideally already know the need, buyer, project, funding/procurement path, competitors, supplier universe, preferred OEM candidates, Access Asia positioning strategy and unresolved intelligence requirements.
