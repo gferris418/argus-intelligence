@@ -1,39 +1,75 @@
 # ARGUS Bangladesh Country Profile
 
-**Version:** 2.0.0-rc.4
+**Version:** 2.1.0-rc.1  
 **Status:** Candidate  
 **Country:** Bangladesh (`BD`)  
 **Production runtime:** ATLAS OS required for Access Asia
 
 ## 1. Purpose
 
-This profile specializes ARGUS for Bangladesh government and public-sector opportunity intelligence.
+This profile specializes ARGUS for Bangladesh government and public-sector commercial opportunity intelligence.
 
-It does not redefine ARGUS Core and does not modify ATLAS OS.
+It does not redefine ARGUS Core. It maps the Core mission model to Bangladesh institutions, procurement routes, source families, terminology and operating patterns.
 
 In Access Asia production use:
 
-`User objective → ATLAS OS → ARGUS Bangladesh method → ARGUS domain result + proposed actions → ATLAS verification/approval → authorized domain action(s) → ATLAS persistence/delivery`
+`User objective → ATLAS OS → one bounded ARGUS mission → ARGUS domain result + proposed batched action → ATLAS verification/approval/persistence → ATLAS delivery`
 
-The objective is to identify credible Bangladesh public-sector demand early enough to understand the institutional owner, project/budget/funding path, procurement route, timing, solution fit, competitive context and next commercially useful action before or during formal procurement.
+The objective is to identify credible Bangladesh public-sector demand early enough to understand the government hierarchy, end user, project/budget/funding path, procurement route, timing, internal customer history, solution fit, supplier/competitor context and next commercially useful action before or during formal procurement.
 
 ## 2. Governing principle
 
 **A Bangladesh opportunity is not synonymous with a tender.**
 
-The same underlying requirement may appear progressively through policy, budget, project, financing, APP/procurement plan, standardization, EOI/PQ, tender, amendment, award, implementation, installed base, upgrade, replacement or recurring-support evidence.
+The same underlying requirement may appear progressively through policy, strategy, institutional need, programme, project, financing, APP/procurement plan, standardization, EOI/PQ, tender, amendment, award, implementation, installed base, upgrade, replacement or recurring-support evidence.
 
 A published tender is one evidence event in a longer chain, not the default beginning of the opportunity.
 
 ## 3. Current-context rule
 
-This profile may cache a dated Bangladesh legal/institutional baseline for operational use, but it is not the runtime authority for current law.
+This profile may cache a dated Bangladesh institutional and source baseline for operational use, but it is not the runtime authority for current law or current procurement status.
 
-When procurement law, rules, financing conditions or other binding requirements can materially change the result, ATLAS must revalidate the current applicable requirement before relying on cached profile text.
+When law, rules, financing conditions, organizational control, publication channels or other current facts materially affect the result, ARGUS/ATLAS must revalidate them from competent current sources.
 
-## 4. First mandatory Bangladesh step: route classification
+## 4. First mandatory Bangladesh step: institutional hierarchy
 
-Before detailed research, classify the likely route. If evidence is insufficient, use `BD-UNKNOWN` and research the route before making downstream assumptions.
+For a named Bangladesh government buyer/end user, resolve the hierarchy before broad procurement or supplier research:
+
+`Bangladesh Government → Ministry/Division → Agency/Authority/SOE → subordinate unit/project office/procuring entity → end user/operator`
+
+Resolve only what evidence supports. Do not infer that the parent ministry is the procuring entity, that the agency is the end user, or that a project director is a permanent institutional entity.
+
+Example pattern for the Bangladesh Coast Guard CPV case:
+
+`Government of Bangladesh → Ministry of Home Affairs → Bangladesh Coast Guard Force → Project Director / applicable project or procuring office → operational end user as evidenced`
+
+The hierarchy is reusable institutional intelligence. Once canonically resolved and still current, future Coast Guard investigations should reuse it rather than reconstruct it from scratch, while time-sensitive roles remain subject to revalidation.
+
+## 5. Second mandatory Bangladesh step: internal canonical identity check
+
+Before creating a new requirement, project, procurement, tender or opportunity, search the current ARGUS canonical registry.
+
+Preferred identity evidence order:
+
+1. exact official identifier;
+2. exact source-system identifier;
+3. project/package/procurement relationships;
+4. buyer/entity + official reference;
+5. buyer + requirement/product/capability + quantity/timing where material;
+6. corroborated requirement semantics;
+7. fuzzy title similarity only as a candidate signal, never as merge authority.
+
+Identity behavior:
+
+- `EXACT` / `HIGH_CONFIDENCE_MATCH` → continue on the existing canonical object without routine user confirmation;
+- `DISTINCT` → continue as a new candidate without routine user confirmation;
+- `PROBABLE_MATCH` / `UNRESOLVED` → ask only when selecting incorrectly could duplicate, merge or mutate the wrong opportunity.
+
+Do not create a new commercial opportunity merely because a new tender, amendment, corrigendum, re-tender, award or portal record appears.
+
+## 6. Third mandatory Bangladesh step: route classification and official procurement check
+
+After institutional and internal identity resolution, classify the likely procurement route and check the competent official/public source families. If evidence is insufficient, use `BD-UNKNOWN` and research the route before making downstream assumptions.
 
 | Code | Route | Typical use |
 |---|---|---|
@@ -47,9 +83,44 @@ Before detailed research, classify the likely route. If evidence is insufficient
 | `BD-LOCAL` | Local-government/public-body | City corporations, municipalities and decentralized public bodies |
 | `BD-UNKNOWN` | Unresolved | Route not yet evidenced |
 
-The route is a research hypothesis until supported by authoritative evidence. One project may contain packages following different routes.
+The route is a research hypothesis until supported by evidence. One project may contain packages following different routes.
 
-## 5. Institutional-role model
+For Bangladesh Coast Guard, do **not** assume `BD-DEF-DGDP` merely because the requirement is maritime/security-related. Determine the competent procurement route from the actual procuring authority, publication source, governing method and project/funding evidence.
+
+## 7. Fourth mandatory Bangladesh step: internal customer intelligence
+
+After checking the applicable official procurement/publication sources, reconcile the external state with authorized Access Asia internal intelligence before broad supplier/market research.
+
+Search where relevant and authorized:
+
+1. ARGUS structured history already linked to the buyer/requirement;
+2. SharePoint Business Intelligence, opportunity and project files;
+3. HubSpot company/contact relationship state, interactions, notes and deals;
+4. prior correspondence and meeting records;
+5. quotations, proposals and concept material;
+6. historical project, tender and award files;
+7. supplier/product/installed-base history and prior research.
+
+Internal evidence can be highly authoritative for Access Asia relationship/history claims but does not by itself establish a Bangladesh government approval, budget or procurement event.
+
+Keep canonical masters in their owning systems. Use pointers/references rather than duplicate CRM or document masters inside ARGUS.
+
+## 8. Bangladesh adaptive startup flow
+
+Normal government-commercial mission flow:
+
+`Institution hierarchy → internal canonical registry → identity reconciliation → official procurement sources → internal customer intelligence → Research Frontier → adaptive 360° collection`
+
+The first five stages establish who the buyer is, whether the opportunity already exists, whether formal procurement has surfaced and what Access Asia already knows. After that, ARGUS chooses only intelligence capabilities that can materially change the commercial decision.
+
+Examples:
+
+- live tender + short deadline → prioritize tender requirements, disqualifiers, technical scope, supplier universe and partnerability;
+- approved/planned project without tender → prioritize project/funding/approvals, stakeholders, shaping window and supplier strategy;
+- early buyer need without project → prioritize policy/mission, installed base, capability gap, project-formation signals and suitable solution/OEM universe;
+- supplier-led lead → identify Bangladesh government use cases, institutional owners, unmet need and existing opportunity identity before creating a new hypothesis.
+
+## 9. Institutional-role model
 
 Do not collapse all actors into `buyer`.
 
@@ -75,7 +146,7 @@ Resolve, where material:
 
 One entity may hold multiple roles, but roles must be evidenced rather than inferred from hierarchy alone.
 
-## 6. Institutional graph
+## 10. Institutional graph
 
 Use relationship concepts without forcing every opportunity to contain every node:
 
@@ -87,10 +158,13 @@ Defence investigative pattern:
 
 The pattern is investigative, not a presumption that every procurement follows an identical visible chain.
 
-## 7. Bangladesh discovery vectors
+## 11. Bangladesh discovery vectors
 
 ### Policy-to-procurement
 `National/sector priority → ministry/division → agency/end user → programme/project → budget/funding → procurement planning → package`
+
+### Institution-downward
+`Ministry/division → agency/authority → subordinate units/projects → end-user mission → current/planned requirements → procurement evidence`
 
 ### Product-to-buyer reverse
 `Product/service → Bangladesh use case → government mission → plausible users → actual institutions → current systems → capability gap → project/budget/procurement evidence`
@@ -119,9 +193,9 @@ The pattern is investigative, not a presumption that every procurement follows a
 ### Trigger event
 Project approval/revision, budget allocation, ADP inclusion, financing agreement, consultant appointment, procurement-strategy activity, evaluation/standardization, installed-base age, capacity expansion, policy change or modernization trigger.
 
-## 8. Source architecture
+## 12. Source architecture
 
-Source authority is claim-specific.
+Source authority is claim-specific. Use `profiles/bangladesh-procurement-source-standard-v1.0.yaml` for detailed source-family capabilities and stage-aware routing rather than recreating portal assumptions here.
 
 ### Tier A — official transaction/legal primary
 
@@ -146,13 +220,12 @@ Source authority is claim-specific.
 
 - authorized communications;
 - SharePoint/project/tender documents;
+- HubSpot relationship/interaction/deal state;
 - prior quotations/proposals;
 - OEM/consultant communications;
 - meeting records;
 - historical tender/award/project files;
-- reconciled DTIF legacy history.
-
-Internal evidence can be highly authoritative for Access Asia relationship/history claims but does not by itself establish a government approval or procurement event.
+- reconciled legacy history.
 
 ### Tier D — corroborating/open-source intelligence
 
@@ -160,77 +233,47 @@ OEM releases, consultant/EPC publications, credible industry sources, reputable 
 
 These may generate hypotheses but must not substitute for official evidence where official confirmation is materially required.
 
-## 9. Bangladesh 360° Collection Map
+## 13. Bangladesh 360° Collection Map
 
 Bangladesh specializes the twelve ARGUS Core collection lenses. The lens names and semantics remain Core-owned.
 
 ### `need_mission`
-
 Determine the Bangladesh public-sector mission, service need, capability gap, statutory duty, modernization requirement, capacity constraint or recurring operational demand that could create procurement.
 
-Typical evidence: official plans/statements, project rationale, recurring procurement, installed-base weakness, service/end-user requirements, capacity-expansion evidence and authorized internal history.
-
 ### `policy_strategy`
-
-Identify the policy, sector strategy, ministry priority, reform, modernization programme, regulatory change or institutional mandate that supports or constrains the requirement.
-
-Do not treat policy aspiration as procurement evidence by itself.
+Identify policy, sector strategy, ministry priority, reform, modernization programme, regulatory change or institutional mandate that supports or constrains the requirement. Policy aspiration alone is not procurement evidence.
 
 ### `institution_stakeholders`
-
-Resolve ministry/division, implementing agency, end user, operator, PE, project office/PIU, approving authority, DGDP wing/section where relevant, development partner, consultant/adviser and other actors capable of shaping the outcome.
+Resolve ministry/division, agency, implementing entity, end user, operator, PE, project office/PIU, approving authority, DGDP wing/section where relevant, development partner, consultant/adviser and other actors capable of shaping the outcome.
 
 ### `programme_project`
-
-Search for the programme, development project, acquisition context, PPP transaction, SOE programme, operational budget initiative or other implementation vehicle capable of delivering the requirement.
-
-Preserve project revisions, official IDs and fiscal-year continuity.
+Search for the programme, development project, acquisition context, PPP transaction, SOE programme, operational budget initiative or other implementation vehicle capable of delivering the requirement. Preserve revisions, official IDs and fiscal-year continuity.
 
 ### `budget_funding`
-
-Assess GoB allocation, ADP/RADP context, project aid, ERD/financing evidence, loan/grant status, bilateral/G2G financing, SOE budget, PPP financing structure or other relevant source.
-
-Budget indication, financing approval and actual procurement allocation remain separate claims.
+Assess GoB allocation, ADP/RADP context, project aid, ERD/financing evidence, loan/grant status, bilateral/G2G financing, SOE budget, PPP financing structure or other relevant source. Budget indication, financing approval and procurement allocation remain separate claims.
 
 ### `procurement_acquisition`
-
-Resolve the actual or likely Bangladesh route: e-GP/APP/package, project procurement plan, donor framework, DGDP/e-DP, PPP, SOE/autonomous channel, G2G/strategic route or local-government route.
-
-Track pre-procurement, tender, amendment, award, cancellation and re-tender as related events rather than automatically separate opportunities.
+Resolve the actual or likely Bangladesh route: e-GP/APP/package, project procurement plan, donor framework, DGDP/e-DP, PPP, SOE/autonomous channel, G2G/strategic route or local-government route. Track pre-procurement, tender, amendment, award, cancellation and re-tender as related events rather than automatically separate opportunities.
 
 ### `technical_installed_base`
-
-Identify current equipment/system/service, OEM/incumbent, age, delivery/installation history, support state, recurring spares/training, obsolescence, capacity shortfall, interoperability constraints and upgrade/replacement window where lawfully available.
-
-For defence, do not infer classified capability, readiness, vulnerability, deployment or operational location.
+Identify current equipment/system/service, OEM/incumbent, age, delivery/installation history, support state, recurring spares/training, obsolescence, capacity shortfall, interoperability constraints and upgrade/replacement window where lawfully available. For defence, do not infer classified capability, readiness, vulnerability, deployment or operational location.
 
 ### `supplier_competitor`
-
-Map incumbents, historical suppliers, relevant OEMs, competing technologies, prior bidders/awardees and commercially plausible competitors.
-
-Separate verified award/incumbent history from market speculation.
+Map incumbents, historical suppliers, relevant OEMs, competing technologies, prior bidders/awardees and commercially plausible competitors. Separate verified award/incumbent history from market speculation.
 
 ### `ecosystem_influence`
-
-Map consultants, EPCs, system integrators, donors/lenders, transaction advisers, local partners/agents, technical advisers and other actors who may shape requirements, specifications, funding or route selection.
+Map consultants, EPCs, system integrators, donors/lenders, transaction advisers, local partners/agents, technical advisers and other actors who may shape requirements, funding or route selection.
 
 ### `commercial_participation`
-
-Assess early participation flags such as national/international method, possible JV/local-partner issue, supplier/DGDP enlistment, foreign OEM eligibility, development-partner rules, export/end-use sensitivity, local installation/training/service obligations, import/LC/payment route and after-sales lifecycle.
-
-These are flags for downstream verification, not legal conclusions.
+Assess national/international method, JV/local-partner issues, supplier/DGDP enlistment, foreign OEM eligibility, development-partner rules, export/end-use sensitivity, local installation/training/service obligations, import/LC/payment route and after-sales lifecycle. These are flags for downstream verification, not legal conclusions.
 
 ### `timing_triggers`
-
 Track events that may accelerate, delay, cancel, revive or expand demand: project approval/revision, ADP/RADP inclusion, allocation change, financing agreement, consultant appointment, evaluation/standardization, APP/package creation, tender calendar, incumbent obsolescence, policy change and capacity expansion.
 
 ### `internal_intelligence`
+Use authorized Access Asia prior correspondence, meetings, proposals, quotations, project history, relationships, customer files, supplier/product history and prior research. Reconcile them with external evidence rather than treating them as independent proof of a government procurement event.
 
-Before duplicating external research, search the ARGUS Registry, existing PX records, authorized communications, SharePoint evidence, prior quotations/proposals, meeting records, supplier/product history, installed-base knowledge and prior research.
-
-Internal evidence supports Access Asia relationship/history claims but does not automatically prove a government procurement event.
-
-## 10. Bangladesh collection coverage
+## 14. Bangladesh collection coverage
 
 Use Core coverage states:
 
@@ -244,19 +287,18 @@ The profile does not require every lens to become `ADEQUATE`.
 
 Examples:
 
-- an I0 signal may justify rapid checks of `need_mission`, `institution_stakeholders`, `procurement_acquisition` and `internal_intelligence` first;
+- an I0 signal may justify rapid checks of hierarchy, `need_mission`, `institution_stakeholders`, `procurement_acquisition` and `internal_intelligence` first;
 - a defence pre-procurement candidate may require stronger `technical_installed_base`, `institution_stakeholders`, `procurement_acquisition`, `supplier_competitor` and `commercial_participation` coverage before promotion;
 - a development project may require stronger `programme_project`, `budget_funding` and `procurement_acquisition` coverage;
-- a live tender may not require reconstruction of every historic policy source when the result would not change the commercial decision.
+- a live tender may not require reconstruction of every historic policy source when that work would not change the commercial decision.
 
 The Research Frontier ranks only material gaps.
 
-## 11. Independent project/funding/procurement states
+## 15. Independent project/funding/procurement states
 
 Track these separately from I0–I9 and from collection coverage.
 
 ### Project state
-
 - `NO_PROJECT_IDENTIFIED`
 - `CONCEPT_OR_PROPOSAL`
 - `PROCESSING_OR_APPRAISAL`
@@ -270,7 +312,6 @@ Track these separately from I0–I9 and from collection coverage.
 Preserve raw terms such as DPP/RDPP/TAPP/RTAPP/PEC when evidenced; do not infer document status from a title alone.
 
 ### Funding state
-
 - `UNIDENTIFIED`
 - `BUDGET_HYPOTHESIS`
 - `GOB_INDICATED`
@@ -282,7 +323,6 @@ Preserve raw terms such as DPP/RDPP/TAPP/RTAPP/PEC when evidenced; do not infer 
 - `UNKNOWN`
 
 ### Procurement-planning state
-
 - `NO_PLAN_FOUND`
 - `NEED_IDENTIFIED`
 - `PROCUREMENT_STRATEGY_SIGNAL`
@@ -296,7 +336,7 @@ Preserve raw terms such as DPP/RDPP/TAPP/RTAPP/PEC when evidenced; do not infer 
 
 These axes feed I0–I9 but do not replace it.
 
-## 12. Bangladesh interpretation of I0–I9
+## 16. Bangladesh interpretation of I0–I9
 
 | Level | Bangladesh interpretation | Typical evidence |
 |---|---|---|
@@ -313,7 +353,7 @@ These axes feed I0–I9 but do not replace it.
 
 Coverage is not maturity. A candidate may have broad 360° coverage and still remain I1; another may be I9 while some non-material lenses remain `UNASSESSED`.
 
-## 13. Route-specific I4–I7 evidence
+## 17. Route-specific I4–I7 evidence
 
 ### `BD-GEN-EGP`
 - I4/I5: budget/purchase need, agency programme, allocation or approved operational requirement;
@@ -354,7 +394,7 @@ Coverage is not maturity. A candidate may have broad 360° coverage and still re
 - I5: approval/financing/implementation vehicle materially established;
 - I6/I7: formal negotiation, arrangement, selection/procurement step or invitation where authoritatively evidenced.
 
-## 14. Procurement reconciliation
+## 18. Procurement reconciliation
 
 For every APP, package, tender, amendment, cancellation, re-tender, award, DGDP item, PPP notice or donor event:
 
@@ -362,7 +402,7 @@ For every APP, package, tender, amendment, cancellation, re-tender, award, DGDP 
 
 Prefer stable identifiers over fuzzy names.
 
-Do not create duplicate opportunities merely because:
+**Do not create duplicate opportunities** merely because:
 
 - the same project appears in successive ADPs/RADPs;
 - a revision changes cost/duration/title;
@@ -373,7 +413,7 @@ Do not create duplicate opportunities merely because:
 
 Revisions update lineage unless evidence supports a genuinely distinct underlying commercial requirement.
 
-## 15. False-positive controls
+## 19. False-positive controls
 
 Explicitly distinguish:
 
@@ -390,7 +430,7 @@ Explicitly distinguish:
 - broad 360° coverage ≠ high procurement probability;
 - high source count ≠ independent evidence convergence.
 
-## 16. Defence mode
+## 20. Defence mode
 
 For Army, Navy, Air Force, defence ministry bodies or DGDP-related acquisition:
 
@@ -403,7 +443,7 @@ For Army, Navy, Air Force, defence ministry bodies or DGDP-related acquisition:
 7. Do not infer classified capability, deployment, readiness, vulnerability or operational location from commercial procurement research.
 8. Apply 360° collection proportionately; do not seek sensitive operational detail merely to fill a lens.
 
-## 17. PPP mode
+## 21. PPP mode
 
 For PPP/concession opportunities:
 
@@ -414,28 +454,18 @@ For PPP/concession opportunities:
 - preserve G2G-PPP and unsolicited-proposal distinctions where evidenced;
 - do not force PPP opportunities into ordinary APP/e-GP assumptions.
 
-## 18. Internal-first rule
-
-Before new external research, search where available:
-
-1. ARGUS Master Registry;
-2. existing PX records;
-3. authorized communications;
-4. SharePoint/project/tender evidence;
-5. `SUPPLIER_PRODUCT` and installed-base intelligence;
-6. `KNOWLEDGE` and prior research;
-7. reconciled DTIF legacy history;
-8. then Bangladesh external sources appropriate to the route and the unresolved 360° lens.
-
-## 19. Research Frontier
+## 22. Research Frontier
 
 Prioritize the unresolved question or collection gap most likely to change the next commercial decision.
 
 Typical questions:
 
 - Is the need real and institutionally owned?
-- Which entity is end user, implementing agency and PE?
-- Which route applies?
+- Which ministry/division controls the agency and which entity is end user, implementing agency and PE?
+- Does an existing ARGUS/PX opportunity already cover the requirement?
+- Which procurement route applies?
+- Has an official procurement source published anything material?
+- What does Access Asia already know from customer intelligence and relationship history?
 - Does a project/budget/financing path exist?
 - Is the project approved, ADP/RADP included or still processing?
 - Is there an APP/package/procurement-plan signal?
@@ -443,14 +473,13 @@ Typical questions:
 - Is DGDP/e-DP the operative defence route?
 - Is a PPP/G2G route more likely than standard procurement?
 - What is the incumbent/installed base and replacement window?
-- Which supplier/competitor or ecosystem actor materially shapes the opportunity?
-- Does an existing PX already cover the requirement?
+- Which supplier/product/competitor or ecosystem actor materially shapes the opportunity?
 - What participation constraint could prevent pursuit?
 - What event would materially increase or decrease procurement probability?
 
-Stop when additional work is unlikely to alter the domain decision or next action.
+Stop when additional work is unlikely to alter the identity outcome, domain decision, supplier strategy or next action.
 
-## 20. Promotion gate
+## 23. Promotion gate
 
 A Bangladesh candidate may be recommended for `PROMOTE_TO_PX` without a live tender when proportionately satisfied that:
 
@@ -467,54 +496,30 @@ A Bangladesh candidate may be recommended for `PROMOTE_TO_PX` without a live ten
 
 Do not impose a fixed number of `ADEQUATE` lenses. Promotion sufficiency is proportional to the opportunity, route, maturity and decision risk.
 
-Promotion basis may include:
-
-- `EARLY_STRATEGIC_REQUIREMENT`
-- `APP_OR_PACKAGE`
-- `FUNDED_PROJECT`
-- `DEFENCE_PREPROCUREMENT`
-- `PPP_TRANSACTION`
-- `LIVE_TENDER`
-- `REPLACEMENT_OR_INSTALLED_BASE`
-
 Permanent PX creation remains a separate governed action under ATLAS.
 
-## 21. Monitoring events
+## 24. Monitoring events
 
 Monitoring is event- and lens-aware rather than generic website watching.
 
-Useful events include:
+Useful events include APP/package creation/change, tender/EOI/PQ/RFP/IFB, amendments/corrigenda/extensions, pre-bid activity, evaluation/re-evaluation/standardization, awards/cancellation/re-tender, project approval/revision/extension, ADP/RADP inclusion/allocation changes, financing milestones, consultant appointments, PPP changes, supplier/incumbent changes, lifecycle/obsolescence triggers and relevant policy changes.
 
-- APP/package creation or change;
-- tender/EOI/PQ/RFP/IFB;
-- amendment/corrigendum/extension;
-- pre-bid activity;
-- evaluation/re-evaluation/standardization;
-- award/cancellation/re-tender;
-- project approval/revision/extension;
-- ADP/RADP inclusion or allocation change;
-- financing agreement/disbursement milestone;
-- consultant/transaction-adviser appointment;
-- PPP status change;
-- supplier/incumbent change;
-- lifecycle/obsolescence trigger;
-- relevant policy/regulatory change.
+Detected events re-enter institutional and canonical-identity reconciliation before changing an opportunity.
 
-Detected events re-enter normal ARGUS reconciliation and do not create PX opportunities directly.
-
-## 22. Domain result for Bangladesh
+## 25. Domain result for Bangladesh
 
 The ARGUS domain result may include:
 
 - objective;
-- candidate/opportunity;
+- resolved institutional hierarchy;
+- candidate/opportunity and identity outcome;
 - Bangladesh route and confidence;
 - decision and rationale;
 - I0–I9 maturity;
-- institutional chain;
 - project/budget/funding state;
-- procurement planning/package state;
-- procurement state/horizon;
+- procurement planning/package/tender state;
+- internal customer-intelligence summary;
+- supplier/product/competitor assessment where material;
 - commercial relevance;
 - evidence and provenance;
 - `collection_coverage` across materially relevant 360° lenses;
@@ -524,41 +529,30 @@ The ARGUS domain result may include:
 - Research Frontier;
 - next material trigger;
 - next recommended action;
-- proposed domain/registry actions.
+- one proposed mutation batch where canonical persistence is useful.
 
 This is an ARGUS domain result returned to ATLAS, not the final user-facing output contract.
 
-## 23. Example: Coastal Surveillance Radar — Bangladesh Navy
+## 26. Example: Bangladesh Coast Guard — Coastal Patrol Vessel
 
-Seed only:
+Seed: `Coastal Patrol Vessel for Bangladesh Coast Guard`.
 
-- likely route hypothesis: `BD-DEF-DGDP`, pending evidence;
-- record: `INTELLIGENCE` candidate;
-- maturity: normally I0;
-- no assumption that a procurement exists;
-- initial 360° checks should include `need_mission`, `institution_stakeholders`, `procurement_acquisition`, `technical_installed_base`, `supplier_competitor`, `commercial_participation`, `timing_triggers` and `internal_intelligence`;
-- `budget_funding`, `programme_project`, `policy_strategy` and `ecosystem_influence` are assessed when material to the decision rather than mechanically filled;
-- search DGDP/e-DP evaluation/standardization/pre-bid/tender signals and authorized Access Asia history;
-- distinguish source count from independent confirmation;
-- promotion only after a credible requirement/path, commercial fit and explicit material collection gaps are understood.
+Required startup behavior:
 
-This demonstrates the profile rule: route, institutional reality and collection sufficiency are researched, not assumed from the product name.
+1. resolve `Bangladesh → Ministry of Home Affairs → Bangladesh Coast Guard Force → applicable project/procuring office/end-user role` from authoritative evidence;
+2. search the current ARGUS registry for existing Coast Guard patrol-vessel requirements, projects, procurements, tenders and opportunities before creating anything new;
+3. reconcile identity using official reference/project/package IDs first and escalate only if an existing CPV opportunity is materially ambiguous;
+4. check BPPA/e-GP, Coast Guard/Ministry sources and relevant project/funding systems according to the evidenced route; do not assume DGDP;
+5. check authorized Access Asia customer intelligence, relationship history, prior files/correspondence/proposals and supplier history;
+6. build the Research Frontier from remaining gaps such as upstream project, budget, technical specification, decision-makers, incumbents or likely competition;
+7. activate supplier/OEM/product/competitor research when it can change participation or commercial strategy.
 
-## 24. Implementation impact
+A live tender can establish I9 while upstream project/package identifiers remain `UNKNOWN`. Blank portal fields must not be fabricated.
 
-No ATLAS OS change is required.
+## 27. Implementation impact
 
-No new ARGUS top-level record type is required.
+This profile uses the shared ATLAS collection-mission execution policy and ARGUS bounded-autonomous runtime. It does not create a new top-level ARGUS record type or a second orchestration spine.
 
-No Registry API rewrite is justified solely by the 360° doctrine.
+The current mutable structured state remains in the governed SharePoint SQLite registry; GitHub remains schema/method/migration/test/release-snapshot authority.
 
-Before canonical promotion of this profile, confirm that the implementation can represent:
-
-- Bangladesh route fields;
-- claim type vs claim condition;
-- collection coverage states;
-- collection gaps;
-- source-lineage/convergence metadata where used;
-- existing record compatibility without forced migration of every historic record.
-
-Coverage fields are optional and should be added proportionately rather than backfilled mechanically across the entire Registry.
+Before production use, verify cross-repository contract compatibility and the current source/persistence adapters. Coverage fields remain proportional and should not be mechanically backfilled across every historic record.
