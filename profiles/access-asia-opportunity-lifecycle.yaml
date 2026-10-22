@@ -1,8 +1,8 @@
 schema_version: 2
 policy_id: access-asia-opportunity-lifecycle
-version: 2.0.0-rc.2
+version: 2.1.0
 effective_date: 2026-10-22
-scope: Access Asia intelligence-to-opportunity-to-project lifecycle
+scope: Access Asia intelligence-to-opportunity-to-bid-to-project lifecycle
 
 argus_opportunity_identity:
   pattern: ARGUS-OPP-YYYY-NNNNNN
@@ -16,8 +16,10 @@ commercial_identity:
   px_identity_requires_atlas_promotion: true
   authority: ATLAS OS
   preserve_across_stage_moves: true
+  preserve_across_bid_award_project: true
   create_new_id_on_submission: false
   create_new_id_on_award: false
+  meaning: permanent Access Asia commercial lineage identifier
 
 signal_stage:
   record_type: INTELLIGENCE
@@ -68,6 +70,7 @@ tracked_opportunity:
 
 submission:
   state: SUBMISSION_ACTIVE
+  canonical_object_type: BID
   definition: formal response-package execution has actually started for a specific solicitation after the bid decision
   source_home: General/Business Intelligence/50_OPPORTUNITIES
   working_home: General/REV/OPP Opportunities
@@ -76,8 +79,16 @@ submission:
   duplicate_folder_allowed: false
   preserve_argus_identity: true
   preserve_commercial_id: true
+  bid_identifier_pattern: BID-PXNNNNN-NN
+  rule: a bid is a child object of the PX opportunity and does not replace the opportunity identity
+
+award:
+  canonical_object_type: AWARD
+  preserve_commercial_id: true
+  rule: an award is a distinct result object linked to the opportunity, bid, procurement and resulting contract/project
 
 project:
+  canonical_object_type: ACCESS_ASIA_PROJECT
   trigger:
     - AWARDED
     - CONTRACT_ACTIVATED
@@ -86,6 +97,8 @@ project:
   move_entire_folder: true
   preserve_argus_identity: true
   preserve_commercial_id: true
+  project_identifier_pattern: AAPJ-PXNNNNN
+  rule: Access Asia execution project is distinct from the external government PROJECT object while sharing the permanent PX lineage
 
 non_submission_outcomes:
   states:
@@ -98,8 +111,8 @@ non_submission_outcomes:
   intelligence_archive_home: General/Business Intelligence/90_ARCHIVE
 
 canonical_ownership:
-  structured_intelligence: ARGUS Master Registry
-  crm_parties_relationships_and_interactions: HubSpot
+  structured_commercial_graph: ARGUS Master Registry
+  crm_relationships_interactions_and_contactability: HubSpot
   commercial_pipeline_authority: ATLAS OS
   working_documents: SharePoint lifecycle folder for the current stage
   atlas_execution_governance: ATLAS OS
@@ -107,7 +120,9 @@ canonical_ownership:
 rules:
   - A credible commercial opportunity may exist in ARGUS before any PX identity exists.
   - A live tender alone does not imply PX promotion or SUBMISSION_ACTIVE.
-  - PROMOTE_TO_PX assigns the commercial identity but keeps the governed working lineage in Business Intelligence.
+  - PROMOTE_TO_PX assigns the permanent commercial lineage identity but keeps the governed working lineage in Business Intelligence.
+  - A formal submission creates a BID child object but does not replace the opportunity or PX identity.
+  - A successful bid may create an AWARD and then an ACCESS_ASIA_PROJECT while preserving the PX lineage.
   - Only SUBMISSION_ACTIVE moves the existing working lineage from Business Intelligence to REV/OPP.
   - One government programme, project or tender may link to multiple opportunities only when the commercial pursuits are materially distinct.
   - One opportunity may link to multiple procurement packages, tenders, amendments, rebids or follow-on procurements without changing its identity.
