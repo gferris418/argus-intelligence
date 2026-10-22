@@ -25,6 +25,10 @@ authority:
   atlas_alignment: alignments/atlas-os-triage-v2.yaml
   historical_atlas_alignment: alignments/atlas-os.md
   access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
+  access_asia_system_registry: profiles/access-asia-system-registry.yaml
+  canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
+  operational_database_schema: schemas/argus-operational-store-v1.sql
+  operational_database_runtime: tools/argus_operational_db.py
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_opportunity_architecture: docs/architecture/bangladesh-opportunity-intelligence-v3.md
@@ -260,16 +264,20 @@ master_registry:
   primary_commercial_record_type: OPPORTUNITY
   opportunity_can_exist_pre_px: true
   logical_canonical_store: ARGUS Master Registry
-  physical_canonical_store: github
+  physical_canonical_store: sharepoint_sqlite
+  sharepoint_operational_store: true
+  operational_database_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
+  operational_database_schema: schemas/argus-operational-store-v1.sql
+  canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
+  operational_database_runtime: active_single_writer
+  github_registry_role: migration_bootstrap_audit_and_release_snapshots
   canonical_structured_path: data/registry
   synthesized_intelligence_path: data/syntheses
   derived_export_path: data/exports
-  database_artifact_path: registry
-  preferred_canonical_format: json_or_jsonl
+  preferred_canonical_format: sqlite_operational_plus_json_release_snapshots
   raw_tender_documents_in_github: prohibited
   raw_source_documents_in_github: prohibited
   original_email_payloads_in_github: prohibited
-  operational_database_runtime: deferred
   new_record_type_for_collection: false
 
 canonical_baseline:
@@ -283,12 +291,17 @@ canonical_baseline:
 
 registry_compatibility:
   evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS
-  operational_database_deployment_required_for_current_phase: false
-  database_materialization_work: deferred_until_runtime_need
+  operational_database_deployment_required_for_current_phase: true
+  database_materialization_work: active
+  legacy_github_registry_remains_migration_and_audit_baseline: true
 
 repository_storage_policy:
-  architecture: docs/architecture/github-first-canonical-store.md
-  primary_structured_format: JSON_JSONL
+  architecture: docs/architecture/canonical-identity-operational-database-v1.md
+  schema_and_governance_source: github
+  current_mutable_structured_store: sharepoint_sqlite
+  operational_database_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
+  operational_database_mutation_model: single_writer_fetch_latest_modify_verify_replace
+  github_snapshot_format: JSON_JSONL
   source_bytes_policy: reference_do_not_duplicate
   secrets_in_repository: prohibited
 
@@ -349,5 +362,6 @@ release_gates:
   - Bangladesh W-question semantic foundation registered: PASS
   - Bangladesh procurement source-role and stage-aware source-selection standard registered: PASS
   - Continuous per-search learning contract and guarded heuristic promotion registered: PASS
-  - GitHub-first canonical storage policy remains defined: PASS
-  - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
+  - Canonical three-layer identity standard registered: PASS
+  - SharePoint SQLite operational master registry activated: PASS
+  - GitHub remains schema/governance and versioned release snapshot authority: PASS
