@@ -1,29 +1,59 @@
-schema_version: 1
+schema_version: 2
 policy_id: access-asia-opportunity-lifecycle
-version: 1.0.0
-effective_date: 2026-10-19
-scope: Access Asia tracked opportunities and working-file lifecycle
+version: 2.0.0-rc.1
+effective_date: 2026-10-22
+scope: Access Asia intelligence-to-opportunity-to-project lifecycle
 
-identity:
+argus_opportunity_identity:
+  pattern: ARGUS-OPP-YYYY-NNNNNN
+  created_before_px: true
+  permanent_from: persistent_opportunity_tracking
+  preserve_argus_identity_after_px: true
+  record_type: OPPORTUNITY
+
+commercial_identity:
   naming: "[Year]_[PXnnnnn]_[ShortName]"
-  permanent_from: tracked_opportunity_activation
+  px_identity_requires_atlas_promotion: true
+  authority: ATLAS OS
   preserve_across_stage_moves: true
   create_new_id_on_submission: false
   create_new_id_on_award: false
 
 signal_stage:
-  argus_record_type: INTELLIGENCE
+  record_type: INTELLIGENCE
+  transition_to_opportunity_when: credible_commercial_possibility_requires_persistent_tracking
   sharepoint_folder_required: false
+
+pre_px_opportunity:
+  argus_record_type: OPPORTUNITY
+  commercial_id: null
+  working_home: General/Business Intelligence/50_OPPORTUNITIES
+  sharepoint_folder_required: false
+  stages: [S0, S1, S2, S3, S4, S5, S6, S7, S8, S9]
+  modes: [SHAPE, POSITION, REACT, EXPAND]
+  retained_work:
+    - discovery
+    - research
+    - qualification
+    - customer_problem_discovery
+    - supplier_oem_research
+    - solution_shaping
+    - procurement_monitoring
+    - rapid_tender_review
+  tender_publication_creates_px: false
 
 tracked_opportunity:
   activation:
     - PROMOTE_TO_PX
-    - explicit_tracked_opportunity_registration
+    - explicit_atlas_pipeline_registration
   argus_record_type: OPPORTUNITY
-  working_home: General/Business Intelligence/50_OPPORTUNITIES
+  require_existing_argus_opportunity_id: true
+  assign_commercial_id: true
+  source_home: General/Business Intelligence/50_OPPORTUNITIES
+  destination_home: General/REV/OPP Opportunities
+  move_entire_folder_if_present: true
+  preserve_argus_identity_after_px: true
   retained_stages:
-    - discovery
-    - research
     - qualification
     - customer_engagement
     - supplier_oem_engagement
@@ -35,17 +65,15 @@ tracked_opportunity:
     - compliance_planning
     - pre_submission
   tender_publication_moves_folder: false
-  promote_to_px_moves_to_submission_workspace: false
 
 submission:
   state: SUBMISSION_ACTIVE
   definition: formal response-package execution has actually started for a specific solicitation after the bid decision
-  source_home: General/Business Intelligence/50_OPPORTUNITIES
-  destination_home: General/REV/OPP Opportunities
-  move_entire_folder: true
+  working_home: General/REV/OPP Opportunities
   separate_bid_folder: false
   duplicate_folder_allowed: false
-  preserve_identifier: true
+  preserve_argus_identity: true
+  preserve_commercial_id: true
 
 project:
   trigger:
@@ -54,7 +82,8 @@ project:
   source_home: General/REV/OPP Opportunities
   destination_home: General/OPS/PRJ Projects
   move_entire_folder: true
-  preserve_identifier: true
+  preserve_argus_identity: true
+  preserve_commercial_id: true
 
 non_submission_outcomes:
   states:
@@ -63,16 +92,21 @@ non_submission_outcomes:
     - REJECT
     - CANCELLED
     - CLOSED_BEFORE_SUBMISSION
-  remain_in_business_intelligence: true
-  archive_home: General/Business Intelligence/90_ARCHIVE
+  pre_px_remains_in_business_intelligence: true
+  promoted_px_archive_home: General/REV/OPP Opportunities
+  intelligence_archive_home: General/Business Intelligence/90_ARCHIVE
 
 canonical_ownership:
   structured_intelligence: ARGUS Master Registry
+  commercial_pipeline_authority: ATLAS OS
   working_documents: SharePoint lifecycle folder for the current stage
   atlas_execution_governance: ATLAS OS
 
 rules:
-  - A live tender alone does not imply SUBMISSION_ACTIVE.
-  - PROMOTE_TO_PX activates the tracked opportunity lineage but does not move working files to REV/OPP.
-  - Only one physical working folder may exist for a tracked opportunity at a time.
+  - A credible commercial opportunity may exist in ARGUS before any PX identity exists.
+  - A live tender alone does not imply PX promotion or SUBMISSION_ACTIVE.
+  - PROMOTE_TO_PX assigns the commercial identity and moves the governed working lineage to REV/OPP when a physical folder exists.
+  - One government programme, project or tender may link to multiple opportunities only when the commercial pursuits are materially distinct.
+  - One opportunity may link to multiple procurement packages, tenders, amendments, rebids or follow-on procurements without changing its identity.
+  - Only one physical working folder may exist for a promoted opportunity at a time.
   - Folder movement is a governed lifecycle mutation and must be verified before completion is claimed.
