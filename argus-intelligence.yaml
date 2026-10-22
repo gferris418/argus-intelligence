@@ -25,6 +25,7 @@ authority:
   access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
   country_profiles:
     bangladesh: profiles/bangladesh.md
+  bangladesh_opportunity_architecture: docs/architecture/bangladesh-opportunity-intelligence-v3.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
   bangladesh_procurement_standard: profiles/bangladesh-canonical-procurement-standard-v1.3.yaml
   bangladesh_source_mappings: profiles/bangladesh-source-mappings.yaml
@@ -136,6 +137,31 @@ opportunity_model:
   modes: [SHAPE, POSITION, REACT, EXPAND]
   tender_does_not_create_new_opportunity_by_default: true
   multiple_procurements_per_opportunity_allowed: true
+
+bangladesh_w_question_contract:
+  purpose: documentation_completeness_lens_not_state_machine
+  missing_semantics: use_NOT_APPLICABLE_only_when_dimension_is_genuinely_irrelevant
+  dimensions:
+    who:
+      meaning: actors_owners_authorities_beneficiaries_influencers_counterparties
+    what:
+      meaning: exact_concept_object_action_state_or_event
+    when:
+      meaning: effective_dates_triggers_lifecycle_position_entry_exit_conditions
+    where:
+      meaning: jurisdiction_institution_administrative_level_source_system_project_package_scope
+    why:
+      meaning: purpose_and_government_or_commercial_significance
+    which:
+      meaning: applicable_route_alternative_method_subtype_authority_or_option
+    how:
+      meaning: process_transitions_dependencies_reconciliation_or_calculation
+    how_much_or_many:
+      meaning: amount_quantity_threshold_duration_count_or_scale_when_material
+    evidence:
+      meaning: provenance_observation_date_confidence_and_contradictions
+    decision_impact:
+      meaning: decision_effect_and_next_commercially_useful_action
 
 operating_loop:
   - Contextualize
@@ -298,5 +324,6 @@ release_gates:
   - Qualification is advisory and ATLAS retains authoritative pursuit decisions: PASS
   - claim type and claim condition candidate schema contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
+  - Bangladesh W-question semantic foundation registered: PASS
   - GitHub-first canonical storage policy remains defined: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
