@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.0.0",
+  "contract_version": "3.1.0",
   "method_id": "domain-method.argus-intelligence",
   "consumer_id": "ARGUS",
   "activation_authority": "ATLAS_OS",
@@ -13,6 +13,27 @@
   "accepted_handoff_states": ["READY", "PARTIAL"],
   "partial_handoff_semantics": "ARGUS_ENRICHES_COLLECTION_CONTEXT",
   "blocked_handoff_behavior": "REJECT_DEPENDENT_EXECUTION",
+  "mission_handoff_pattern": "ONE_HANDOFF_ONE_RETURN",
+  "autonomy_mode": "BOUNDED_AUTONOMOUS",
+  "startup_sequence": [
+    "RESOLVE_INSTITUTIONAL_HIERARCHY",
+    "CHECK_INTERNAL_CANONICAL_REGISTRY",
+    "RECONCILE_OPPORTUNITY_IDENTITY",
+    "CHECK_OFFICIAL_PROCUREMENT_SOURCES",
+    "CHECK_INTERNAL_CUSTOMER_INTELLIGENCE",
+    "BUILD_RESEARCH_FRONTIER",
+    "EXECUTE_ADAPTIVE_360_COLLECTION"
+  ],
+  "identity_resolution": {
+    "auto_reuse": ["EXACT", "HIGH_CONFIDENCE_MATCH"],
+    "auto_new_candidate": ["DISTINCT"],
+    "user_confirmation": ["PROBABLE_MATCH", "UNRESOLVED"]
+  },
+  "escalation_conditions": ["MATERIAL_SCOPE_CHANGE", "AUTHORIZATION_REQUIRED", "POLICY_OR_SECURITY_CONFLICT", "MATERIAL_AMBIGUITY"],
+  "follow_evidence_leads_without_callback": true,
+  "parallel_safe_reads": true,
+  "mission_context": "TRANSIENT_ONLY",
+  "persistence_mode": "PROPOSE_BATCH_THEN_ATLAS_COMMIT",
   "keyword_activation": false,
   "background_activation": false,
   "non_triggers": ["generic factual explanation", "policy or regulation explanation without a collection mission", "ordinary current-information research", "general writing translation calculation coding or document work", "named public body mentioned only as the subject of policy or regulatory analysis"],
@@ -33,6 +54,13 @@
     "permissions": "ATLAS_OS",
     "approvals": "ATLAS_OS",
     "canonical_taxonomy_authority": "ATLAS_OS",
+    "institutional_hierarchy_resolution": "ARGUS",
+    "internal_registry_reconciliation": "ARGUS",
+    "opportunity_identity_resolution": "ARGUS",
+    "official_procurement_collection": "ARGUS",
+    "authorized_internal_customer_intelligence_collection": "ARGUS",
+    "research_frontier_ordering": "ARGUS",
+    "adaptive_360_collection": "ARGUS",
     "source_discovery": "ARGUS",
     "acquisition": "ARGUS",
     "extraction": "ARGUS",
@@ -54,10 +82,12 @@
     "final_delivery": "ATLAS_OS"
   },
   "artifact_roles": {
-    "collection_mission": "ATLAS-issued structured statement of targets, questions, scope, depth and stopping conditions",
+    "collection_mission": "ATLAS-issued structured bounded-autonomy statement of targets, questions, scope, startup policy, escalation conditions, depth and stopping conditions",
+    "mission_context": "ARGUS transient execution-local research state; never a new canonical business record merely for coordination",
     "collection_package": "ARGUS-returned evidence package; not the final user answer or business decision",
+    "proposed_mutation_batch": "ARGUS proposed coherent structured-state changes; ATLAS remains mutation authorization and verification authority",
     "public_sector_opportunity_specialization": "ARGUS collection profile preserving Bangladesh/public-sector evidence semantics",
     "workflow": "ATLAS-owned live task state",
-    "protocol": "ATLAS-ARGUS handoff, collection mission, package, receipt and failure contract"
+    "protocol": "ATLAS-ARGUS handoff, collection mission, bounded autonomy, package, receipt and failure/escalation contract"
   }
 }
