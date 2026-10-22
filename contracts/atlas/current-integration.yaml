@@ -20,6 +20,7 @@ contract:
   direct_search_remains_atlas_owned: true
   argus_creates_execution_spine: false
   argus_owns_final_business_decision: false
+  plugin_release_impact: contracts/atlas/plugin-release-impact.yaml
 legacy_transport:
   descriptor: contracts/atlas/synchronization-compatibility.yaml
   status: backward_compatibility_only
