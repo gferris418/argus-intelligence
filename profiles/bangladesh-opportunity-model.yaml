@@ -1,0 +1,114 @@
+document_id: ARGUS-BD-OPP-MODEL-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+
+lifecycle_authority:
+  primary_lifecycle: S0_S9
+  stages: [S0, S1, S2, S3, S4, S5, S6, S7, S8, S9]
+  opportunity_modes: [SHAPE, POSITION, REACT, EXPAND]
+  legacy_maturity: I0_I9_COMPATIBILITY_ONLY
+  compatibility_maturity_must_not_drive_lifecycle: true
+  event_detection_forces_state_progression: false
+  evidence_required_for_progression: true
+
+parallel_state_axes:
+  need_state:
+    values: [UNKNOWN, HYPOTHESIZED, EVIDENCED, VALIDATED]
+  institution_state:
+    values: [UNKNOWN, PARTIAL, MATERIAL, RESOLVED]
+  project_state:
+    values:
+      - NO_PROJECT_IDENTIFIED
+      - CONCEPT_OR_PROPOSAL
+      - PROCESSING_OR_APPRAISAL
+      - APPROVED
+      - ADP_RADP_INCLUDED
+      - IMPLEMENTING
+      - REVISED_OR_EXTENDED
+      - COMPLETED
+      - UNKNOWN
+  funding_state:
+    values:
+      - UNIDENTIFIED
+      - BUDGET_HYPOTHESIS
+      - GOB_INDICATED
+      - PROJECT_AID_INDICATED
+      - LOAN_GRANT_NEGOTIATION
+      - FINANCING_APPROVED_OR_SIGNED
+      - ALLOCATION_CONFIRMED
+      - DISBURSEMENT_OR_IMPLEMENTATION_EVIDENCE
+      - UNKNOWN
+  procurement_state:
+    values:
+      - NO_PLAN_FOUND
+      - NEED_IDENTIFIED
+      - PROCUREMENT_STRATEGY_SIGNAL
+      - APP_OR_PLAN_SIGNAL
+      - PACKAGE_IDENTIFIED
+      - PRE_PROCUREMENT
+      - TENDER_READY_OR_IMMINENT
+      - LIVE
+      - AWARDED
+      - CANCELLED_OR_RETENDER
+  commercial_state:
+    values: [WATCH, ASSESS, QUALIFY, POSITION, PURSUE, BID, NEGOTIATE, WIN, LOSE, HOLD, NO_BID]
+    rule: commercial_state_is_independent_from_lifecycle_and_legacy_maturity
+
+requirement_lineage:
+  stable_key: requirement_ref
+  purpose: >-
+    Preserve the underlying government need across project, package, tender, amendment,
+    cancellation, re-tender, award, implementation, replacement and expansion evidence.
+  tender_amendment_creates_new_opportunity: false
+  retender_creates_new_requirement_automatically: false
+  project_revision_creates_new_requirement_automatically: false
+  same_equipment_family_proves_same_requirement: false
+  successor_requires_distinct_lifecycle_evidence: true
+  structure:
+    - requirement
+    - project
+    - package
+    - procurement_event
+    - contract_or_award
+    - implementation_or_installed_base
+    - successor_or_expansion_hypothesis
+
+hypothesis_contract:
+  preferred_hypothesis_required_when_multiple_material_hypotheses_exist: true
+  fields:
+    - hypothesis_id
+    - statement
+    - status
+    - supporting_evidence
+    - contradicting_evidence
+    - discriminating_evidence
+    - assumptions
+    - indicators_to_watch
+  decision_fields:
+    - preferred_hypothesis
+    - material_alternatives
+    - disconfirming_evidence
+    - key_assumptions
+
+research_frontier:
+  fields:
+    - question
+    - who_or_what_is_unresolved
+    - why_it_matters
+    - decision_affected
+    - current_uncertainty
+    - information_value
+    - urgency
+    - preferred_source_family
+    - likely_cost_or_effort
+    - stopping_condition
+    - priority
+  purpose: rank unresolved questions by decision value rather than pursue endless generic research
+
+quality_rules:
+  - S0-S9 stage, opportunity mode and each parallel state axis remain independently stored.
+  - I0-I9 may be derived or displayed only for compatibility and historical interpretation.
+  - State movement requires evidence appropriate to that state; an observed event is not itself an automatic transition.
+  - Contradicting evidence remains attached to the same opportunity unless requirement identity is disproved.
+  - Procurement artifacts are reconciled to requirement_ref before a new opportunity is created.
