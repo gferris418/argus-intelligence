@@ -13,11 +13,25 @@ INSERT OR IGNORE INTO object_type_registry(
 
 INSERT INTO schema_meta(key, value) VALUES
     ('schema_version', '1.1.0'),
-    ('identity_standard', 'canonical-object-identity-standard-v1.1'),
+    ('identity_standard', 'canonical-object-identity-standard-v1.0.yaml@1.1.0'),
     ('commercial_data_standard', 'access-asia-commercial-data-standard-v1.0'),
     ('commercial_lineage_model', 'PX_OPPORTUNITY_TO_BID_TO_AWARD_TO_ACCESS_ASIA_PROJECT'),
     ('financial_fact_model', 'provenance_backed_observation_and_attribute_v1')
 ON CONFLICT(key) DO UPDATE SET value = excluded.value;
+
+INSERT OR IGNORE INTO mutation_log(
+    mutation_id, applied_at, actor, operation, object_internal_id,
+    before_hash, after_hash, note
+) VALUES (
+    'MIGRATION-ARGUS-STORE-1.1.0',
+    strftime('%Y-%m-%dT%H:%M:%SZ', 'now'),
+    'ATLAS',
+    'SCHEMA_MIGRATION',
+    NULL,
+    NULL,
+    NULL,
+    'ARGUS operational store 1.0.0 -> 1.1.0; additive commercial graph activation'
+);
 
 PRAGMA user_version = 2;
 
