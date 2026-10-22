@@ -24,6 +24,7 @@ routing:
     ARGUS: ARGUS performs one bounded intelligence-collection mission and returns the package to ATLAS.
     MULTI_CAPABILITY: ARGUS collects while ATLAS retains analysis, comparison, forecast, scenario or decision work.
   government_mention_alone_activates_argus: false
+  policy_analysis_alone_activates_argus: false
   tender_lookup_alone_activates_argus: false
   structured_collection_requires_argus: true
 
