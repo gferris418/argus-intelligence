@@ -1,0 +1,89 @@
+document_id: ARGUS-BD-LEGAL-BASELINE-001
+version: 1.0.0
+status: CANDIDATE
+jurisdiction: Bangladesh
+effective_as_of: 2026-10-22
+
+runtime_policy:
+  revalidate_if_material: true
+  never_treat_cached_text_as_current_law: true
+  current_legal_authority_must_be_checked_against_official_source: true
+  unresolved_recent_change_blocks_legal_conclusion: true
+
+legal_instruments:
+  - instrument: Public Procurement Act 2006
+    status: CURRENT_BASELINE
+    effective_from: 2006
+    source: BPPA official procurement policy and procedure portal
+    scope: general public procurement subject to applicable exclusions and special regimes
+  - instrument: Public Procurement (Amendment) Act 2026
+    status: CURRENT_BASELINE
+    effective_from: 2026-04-10
+    source: BPPA gazette notice published 2026-04-30
+    scope: amendments to the Public Procurement Act 2006
+  - instrument: Public Procurement Rules 2025
+    status: CURRENT_BASELINE
+    effective_from: 2025-09-28
+    source: BPPA official PPR 2025 publication
+    scope: public procurement rules aligned with the amended PPA framework
+
+recent_change_watch:
+  - observed_at: 2026-09-22
+    title: Cabinet approves amendments to Public Procurement Ordinance
+    source: BPPA official news and clarification index
+    status: REVALIDATE_BEFORE_RELIANCE
+    reason: >-
+      The official BPPA site records a September 2026 amendment initiative after the April 2026
+      Amendment Act. ARGUS must determine the final enacted or effective legal text before using
+      this item as binding law or deriving a procurement conclusion from it.
+
+material_rule_examples:
+  - rule_id: ELECTRONIC_PROCUREMENT_BASELINE
+    status: CURRENT_BASELINE
+    who: {governs: procuring_entities_and_tenderers_subject_to_the_general_framework}
+    what: {requirement: e_GP_is_mandatory_for_public_procurement_under_the_current_general_framework_subject_to_applicable_authorized_exceptions}
+    when: {baseline_effective_from: 2025-09-28, revalidate_on_material_use: true}
+    where: {jurisdiction: Bangladesh, system: e_GP_and_authorized_offline_processing_where_officially_permitted}
+    why: {commercial_significance: determines_channel_timing_registration_and_submission_process}
+    which: {affected_routes: [BD-GEN-EGP, BD-DEV-GOB, BD-DEV-DP, BD-SOE-AUT, BD-LOCAL], special_route_review_required: true}
+    how: {compliance_determined_by: current_official_law_rules_guidelines_and_circulars}
+    how_much_or_many: {threshold_or_value: REVALIDATE_IF_MATERIAL}
+    source: BPPA PPR 2025 and current BPPA circulars
+  - rule_id: INTERNATIONAL_JV_LOCAL_PARTNER_FLAG
+    status: CURRENT_BASELINE
+    who: {governs: international_competitive_tender_participants_where_applicable}
+    what: {requirement: local_partner_requirement_is_a_material_participation_flag_under_the_2026_amendment_framework}
+    when: {baseline_effective_from: 2026-04-10, revalidate_on_material_use: true}
+    where: {jurisdiction: Bangladesh, procurement_scope: international_competitive_tendering_where_applicable}
+    why: {commercial_significance: may_directly_affect_OEM_partnering_and_bid_structure}
+    which: {affected_routes: [BD-GEN-EGP, BD-DEV-GOB, BD-DEV-DP, BD-SOE-AUT], route_specific_exceptions_must_be_checked: true}
+    how: {compliance_determined_by: exact_current_act_rules_standard_documents_financier_rules_and_tender_document}
+    how_much_or_many: {threshold_or_value: REVALIDATE_IF_MATERIAL}
+    source: BPPA notice on Public Procurement Amendment Act 2026
+  - rule_id: PROCUREMENT_STRATEGY_REQUIREMENT_FLAG
+    status: CURRENT_BASELINE
+    who: {governs: procuring_entities_where_required_by_current_framework}
+    what: {requirement: procurement_strategy_is_formally_recognized_in_the_PPR_2025_framework}
+    when: {baseline_effective_from: 2025-09-28, revalidate_on_material_use: true}
+    where: {jurisdiction: Bangladesh, procurement_scope: as_applicable_under_current_rules}
+    why: {commercial_significance: creates_an_upstream_signal_before_tender_publication}
+    which: {affected_routes: [BD-GEN-EGP, BD-DEV-GOB, BD-DEV-DP, BD-SOE-AUT, BD-LOCAL]}
+    how: {compliance_determined_by: current_rule_standard_document_and_official_procurement_record}
+    how_much_or_many: {threshold_or_value: REVALIDATE_IF_MATERIAL}
+    source: BPPA PPR 2025 official materials
+
+procurement_framework:
+  electronic_procurement: REVALIDATE_CURRENT_RULE_AND_CIRCULAR_WHEN_MATERIAL
+  method_rules: REVALIDATE_CURRENT_PPR_AND_STANDARD_DOCUMENT
+  competition_scope: REVALIDATE_CURRENT_ACT_RULES_FINANCIER_AND_TENDER_DOCUMENT
+  local_participation: REVALIDATE_CURRENT_ACT_RULES_AND_TENDER_DOCUMENT
+  approval_framework: REVALIDATE_CURRENT_DELEGATION_OF_FINANCIAL_POWER_AND_SPECIAL_AUTHORITY
+  complaints_review: REVALIDATE_CURRENT_PPR_REVIEW_PANEL_AND_CIRCULARS
+  framework_agreements: REVALIDATE_CURRENT_PPR_AND_STANDARD_DOCUMENT
+  sustainable_procurement: REVALIDATE_CURRENT_POLICY_RULES_AND_TENDER_REQUIREMENTS
+
+quality_rules:
+  - This file is a dated operating baseline, never permanent legal truth.
+  - Cached summaries never substitute for the current official Act, Rules, Gazette, circular, standard document, financier rule or tender-specific condition.
+  - A news item or cabinet approval is not treated as enacted law unless official legal effect is established.
+  - Special regimes, defence, G2G, donor-financed and other route-specific rules must be independently checked before reliance.
