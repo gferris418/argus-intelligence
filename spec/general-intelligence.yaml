@@ -1,16 +1,18 @@
-schema_version: 2
+schema_version: 3
 id: argus.intelligence-collection.core
-version: 2.2.0-rc.2
+version: 3.0.0-rc.1
 status: CANDIDATE
 normative: true
 purpose: >-
-  Operate as the ATLAS-governed intelligence collection subsystem. ARGUS resolves
-  targets, derives bounded priority intelligence requirements and essential elements
-  of information, plans collection and sources, discovers and acquires evidence,
-  resolves entities/events/relationships, grades and corroborates evidence, maintains
-  competing hypotheses where material, exposes gaps and conflicts, and returns a
-  collection package. ATLAS retains analysis, decision, assurance, persistence
-  authorization and delivery.
+  Operate as the ATLAS-governed government commercial opportunity intelligence
+  subsystem. ARGUS resolves targets; derives bounded PIR/EEI; collects and reconciles
+  evidence; maintains persistent early commercial opportunity identity; tracks the
+  government need-to-delivery lifecycle; builds international supplier universes;
+  assesses supplier partnerability; matches demand and supply; computes advisory
+  opportunity qualification; monitors material events; and returns an evidence-backed
+  collection package to ATLAS. ATLAS retains the operating architecture, canonical
+  evidence acceptance, authoritative commercial priority, pursuit decisions, approvals,
+  persistence authorization, observability and final delivery.
 
 activation:
   authority: ATLAS_OS
@@ -25,6 +27,7 @@ activation:
 collection_method:
   contract: spec/collection-method.yaml
   plan_schema: schemas/collection-plan.schema.json
+  commercial_opportunity_doctrine: spec/commercial-opportunity-intelligence.yaml
   derives_from_atlas_mission: true
   atlas_mission_remains_authoritative_scope: true
 
@@ -44,13 +47,39 @@ collection_types:
   - MARKET_LANDSCAPE
   - OPPORTUNITY_DISCOVERY
   - MONITORING
+  - NEED_GAP
+  - POLICY_DRIVER
+  - PROGRAMME_PROJECT
+  - APPROVAL_STATUS
+  - SUPPLIER_PROFILE
+  - REFERENCE_PROJECT
+  - EXPORT_FEASIBILITY
+  - PARTNERABILITY
+  - OPPORTUNITY_DEVELOPMENT
+  - OPPORTUNITY_MATCHING
+  - EXPANSION_DISCOVERY
+  - RAPID_TENDER
 
 collection_depths:
   C0_IDENTITY: Resolve what the target is and its canonical aliases.
   C1_PROFILE: Establish an authoritative basic profile.
   C2_DOSSIER: Build a structured multi-source target dossier.
-  C3_OPPORTUNITY: Resolve buyer-product-project-procurement-funding ecosystem evidence.
-  C4_MONITOR: Maintain collection against defined material triggers.
+  C3_OPPORTUNITY: Resolve demand, supply, project, procurement, funding, supplier and partnership evidence around a commercial opportunity.
+  C4_MONITOR: Maintain collection against defined material triggers and opportunity events.
+
+commercial_opportunity:
+  schema: schemas/opportunity.schema.json
+  event_schema: schemas/opportunity-event.schema.json
+  supplier_schema: schemas/supplier-intelligence.schema.json
+  supplier_match_schema: schemas/opportunity-supplier-match.schema.json
+  lifecycle: [S0, S1, S2, S3, S4, S5, S6, S7, S8, S9]
+  modes: [SHAPE, POSITION, REACT, EXPAND]
+  pre_px_identity: true
+  px_identity_requires_atlas_authorization: true
+  event_driven_early_warning: true
+  demand_first_discovery: true
+  supply_first_discovery: true
+  rapid_tender_recovery: true
 
 operating_loop:
   - Contextualize
@@ -71,6 +100,11 @@ operating_loop:
   - Competing_Hypotheses
   - Detect_Conflicts
   - Assess_Coverage_And_Gaps
+  - Develop_Opportunity_Context
+  - Build_Supplier_Universe
+  - Assess_Partnerability
+  - Match_Demand_And_Supply
+  - Calculate_Opportunity_Qualification
   - Package
   - Learn
 
@@ -84,11 +118,14 @@ ownership:
     - permissions
     - approvals
     - canonical_taxonomy_authority
-    - evidence_governance
+    - canonical_evidence_acceptance
     - strategic_analysis
     - forecasting_and_scenarios
-    - opportunity_qualification
+    - authoritative_opportunity_priority
+    - promote_to_px
     - pursuit_decisions
+    - bid_no_bid
+    - external_outreach_authorization
     - independent_assurance_and_verification
     - persistence_authorization
     - observability_and_dashboard
@@ -111,6 +148,16 @@ ownership:
     - competing_hypothesis_tracking
     - gap_and_conflict_detection
     - collection_coverage
+    - early_opportunity_identity
+    - opportunity_lifecycle_tracking
+    - demand_intelligence
+    - supply_intelligence
+    - supplier_universe_construction
+    - supplier_partnerability_assessment
+    - supplier_match_assessment
+    - opportunity_qualification_calculation
+    - priority_recommendation
+    - early_warning_event_tracking
     - collection_packaging
     - collection_learning
 
@@ -125,27 +172,34 @@ handoff:
   collection_mission_contract: schemas/collection-mission.schema.json
   collection_plan_contract: schemas/collection-plan.schema.json
   collection_package_contract: schemas/intelligence-collection-package.schema.json
+  opportunity_contract: schemas/opportunity.schema.json
+  opportunity_event_contract: schemas/opportunity-event.schema.json
+  supplier_intelligence_contract: schemas/supplier-intelligence.schema.json
+  supplier_match_contract: schemas/opportunity-supplier-match.schema.json
 
 performance:
   ordinary_policy_analysis_executes_in_atlas: true
   ordinary_search_executes_in_atlas: true
   ordinary_task_executes_in_atlas: true
   deep_collection_before_activation: false
+  detection_lag_kpi: true
   stopping_rule: >-
-    Stop expanding collection when critical PIRs are materially satisfied or
-    additional evidence is unlikely to change collection sufficiency, material
-    uncertainty, identified gaps, or the next ATLAS action.
+    Stop expanding collection when critical PIRs are materially satisfied or additional
+    evidence is unlikely to change collection sufficiency, material uncertainty,
+    opportunity identity/stage, supplier match, qualification recommendation or the next
+    ATLAS action.
 
 specializations:
-  public_sector_opportunity_intelligence:
+  access_asia_government_commercial_opportunity_intelligence:
     status: active
-    role: collection_profile
-    doctrine: spec/core.md
+    role: primary_commercial_specialization
+    doctrine: spec/commercial-opportunity-intelligence.yaml
+    supporting_doctrine: spec/core.md
     country_profiles:
       bangladesh: profiles/bangladesh.md
     access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
     legacy_maturity_scale: I0-I9
-    legacy_decisions_are_specialization_only: true
+    legacy_maturity_status: compatibility_only
 
 invariants:
   - ATLAS is the only operating architecture and execution spine.
@@ -153,8 +207,11 @@ invariants:
   - A policy or regulatory analysis does not activate ARGUS unless a structured collection mission is required.
   - PIR and EEI may refine the mission into answerable collection questions but may not expand ATLAS-authorized scope.
   - Persons are collected only when materially and legitimately relevant to an authorized business or intelligence question.
-  - ARGUS collection output is evidence for ATLAS, not the final business decision.
-  - ARGUS may propose evidence grades and taxonomy mappings but ATLAS owns canonical evidence and classification acceptance.
-  - Public-sector PX promotion semantics are a specialization and are not universal ARGUS output fields.
+  - ARGUS output is evidence and advisory commercial intelligence for ATLAS, not the final business decision.
+  - ARGUS may calculate opportunity qualification and supplier-match scores but ATLAS owns authoritative priority and pursuit decisions.
+  - Evidence confidence, procurement realization probability, Access Asia success probability and supplier-match confidence are distinct measures.
+  - A tender does not automatically create an opportunity; one opportunity may link to multiple procurement packages, tenders, rebids or follow-ons.
+  - ARGUS may develop legitimate opportunity hypotheses but may not assert a government project exists without evidence.
+  - Opportunity development may support legitimate market education and pre-procurement engagement but never bribery, collusion, improper influence, unlawful specification manipulation or confidential bid-information acquisition.
   - A PARTIAL handoff preserves unresolved material rather than guessing it away.
   - A BLOCKED handoff cannot authorize dependent ARGUS execution.
