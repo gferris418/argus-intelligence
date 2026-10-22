@@ -249,15 +249,22 @@ def add_external_identifier(
     scheme: str,
     value: str,
     scope: str = "OBJECT",
+    namespace: str = "",
     source_record_id: str | None = None,
 ) -> str:
+    """Attach a typed source identifier.
+
+    ``namespace`` is the source-local parent/issuer namespace when the identifier value is
+    only unique inside a parent object, for example LOT_NO=1 within one procurement.
+    Global identifiers may leave namespace empty.
+    """
     identifier_id = str(uuid.uuid4())
     conn.execute(
         """
         INSERT INTO external_identifier(
             identifier_id, object_internal_id, source_system, scheme, value,
-            scope, source_record_id, created_at
-        ) VALUES (?,?,?,?,?,?,?,?)
+            scope, namespace, source_record_id, created_at
+        ) VALUES (?,?,?,?,?,?,?,?,?)
         """,
         (
             identifier_id,
@@ -266,6 +273,7 @@ def add_external_identifier(
             scheme,
             value,
             scope,
+            namespace,
             source_record_id,
             utc_now(),
         ),
