@@ -20,6 +20,10 @@ class BangladeshOpportunityModelTests(unittest.TestCase):
             "procurement_state", "commercial_state",
         ):
             self.assertIn(f"  {axis}:", text)
+        self.assertIn(
+            "S0-S9 stage, opportunity mode and each parallel state axis remain independently stored.",
+            text,
+        )
 
     def test_requirement_lineage_preserves_identity_across_procurement_events(self):
         text = MODEL.read_text(encoding="utf-8")
