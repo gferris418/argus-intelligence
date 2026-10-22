@@ -35,12 +35,14 @@ class AccessAsiaDataOwnershipTests(unittest.TestCase):
         self.assertNotIn("contactability", partnerability)
 
     def test_storage_policy_names_hubspot_sharepoint_and_pointer_only_cross_system_links(self) -> None:
-        text = (ROOT / "docs" / "architecture" / "github-first-canonical-store.md").read_text(encoding="utf-8")
+        text = (ROOT / "docs" / "architecture" / "canonical-identity-operational-database-v1.md").read_text(encoding="utf-8")
+        registry = (ROOT / "profiles" / "access-asia-system-registry.yaml").read_text(encoding="utf-8")
         self.assertIn("HubSpot", text)
-        self.assertIn("SharePoint", text)
-        self.assertIn("pointers, not copies", text.lower())
+        self.assertIn("SharePoint SQLite", text)
+        self.assertIn("stable_integration_key_plus_runtime_resolution", registry)
+        self.assertIn("reference", text.lower())
         self.assertIn("public", text.lower())
-        self.assertIn("must not be committed", text.lower())
+        self.assertIn("must never be committed", text.lower())
 
 
 if __name__ == "__main__":
