@@ -1,0 +1,92 @@
+document_id: ARGUS-CANONICAL-IDENTITY-001
+version: 1.0.0
+status: ACTIVE
+owner: ARGUS
+purpose: >-
+  Give every distinct ARGUS object, source record, event and observation a stable identity while
+  preventing portal IDs, titles, amendments and repeated publications from creating duplicate
+  real-world objects.
+
+identity_layers:
+  CANONICAL_OBJECT:
+    meaning: unique_real_world_or_business_object
+    identity:
+      immutable_internal_id: UUID stored as the database primary key
+      human_readable_canonical_id: stable ARGUS identifier used in reports, relationships and integration keys
+  SOURCE_RECORD:
+    meaning: one source-system publication or source record describing one or more canonical objects
+    rule: source records never replace canonical object identity
+  EVENT_OBSERVATION:
+    meaning: immutable changes and evidence about canonical objects
+    rule: events and observations have unique IDs but do not become new canonical business objects
+
+core_rules:
+  - One unique real-world object has one canonical object identity.
+  - Every canonical object has an immutable_internal_id and a human_readable_canonical_id.
+  - Existing ARGUS canonical IDs are grandfathered and must never be renumbered merely to match a newer format.
+  - New canonical IDs use a short type prefix, jurisdiction code where applicable and a zero-padded sequence.
+  - Portal IDs, tender numbers, package numbers, project codes and source references are external identifiers, not canonical IDs.
+  - The same object found in multiple systems is reconciled to one canonical object and receives additional external identifiers/source links.
+  - Titles alone are never sufficient for deduplication.
+  - A corrigendum/addendum creates an EVENT, not a new solicitation.
+  - An official re-tender/reissue creates a new procurement/solicitation cycle when evidenced, while the underlying REQUIREMENT lineage normally survives.
+  - Buyer, procuring entity, implementing agency, end user, funder, supplier and OEM are roles of ORGANIZATION objects, not separate identity classes.
+  - A supplier or OEM therefore receives an ORGANIZATION identity; role is relationship/context data.
+  - Every relationship row, source record, event, observation, external identifier and attribute also receives its own immutable database ID.
+
+canonical_object_types:
+  POLICY: {prefix: POL, description: Government policy or authoritative policy instrument}
+  STRATEGY: {prefix: STR, description: Strategy, master plan or sector plan}
+  PROGRAMME: {prefix: PRG, description: Programme grouping projects or initiatives}
+  PROJECT: {prefix: PRJ, description: Project or implementation initiative}
+  REQUIREMENT: {prefix: REQ, description: Underlying government or commercial need that may survive multiple procurements}
+  PROCUREMENT_PLAN: {prefix: PLN, description: APP/procurement plan or equivalent planning object}
+  PROCUREMENT_PACKAGE: {prefix: PKG, description: Procurement package beneath a plan or project}
+  PROCUREMENT_PROCESS: {prefix: PROC, description: One procurement process or cycle}
+  SOLICITATION: {prefix: TND, description: Tender/RFP/RFQ/EOI or other solicitation}
+  LOT: {prefix: LOT, description: Separately identifiable lot}
+  ITEM: {prefix: ITM, description: Separately identifiable procured item/service line}
+  AWARD: {prefix: AWD, description: Award decision}
+  CONTRACT: {prefix: CTR, description: Contract resulting from an award}
+  ORGANIZATION: {prefix: ENT, description: Ministry, agency, authority, PE, funder, OEM, supplier, contractor or other organization}
+  PERSON: {prefix: PER, description: Person when material and lawfully retained}
+  PRODUCT: {prefix: PRD, description: Product, platform, solution or service offering}
+  FINANCING: {prefix: FND, description: Financing instrument or facility}
+  DOCUMENT: {prefix: DOC, description: Material document requiring first-class identity}
+  OPPORTUNITY: {prefix: OPP, description: Commercial opportunity; existing ARGUS-OPP-YYYY-NNNNNN IDs remain valid}
+
+policy_to_tender_lineage:
+  - POLICY
+  - STRATEGY
+  - PROGRAMME
+  - PROJECT
+  - REQUIREMENT
+  - PROCUREMENT_PLAN
+  - PROCUREMENT_PACKAGE
+  - PROCUREMENT_PROCESS
+  - SOLICITATION
+  - LOT
+  - ITEM
+  - AWARD
+  - CONTRACT
+
+identity_resolution_order:
+  - exact_authoritative_identifier
+  - exact_source_system_identifier
+  - reconciled_project_package_relationship
+  - entity_plus_reference_number
+  - requirement_semantics_and_lineage
+  - dates_amounts_items_and_other_material_characteristics
+  - fuzzy_title_similarity_as_support_only
+
+operational_store:
+  schema: schemas/argus-operational-store-v1.sql
+  runtime_tool: tools/argus_operational_db.py
+  format: SQLite
+  sharepoint_operational_store: true
+  mutation_model: single_writer_fetch_latest_modify_transactionally_verify_replace
+  github_role: schema_governance_contracts_and_versioned_release_snapshots
+  sharepoint_role: current_mutable_operational_structured_state
+  versioning: rely_on_sharepoint_file_versions_plus_internal_mutation_log
+  concurrency_rule: never_mutate_two_copies_in_parallel
+  integrity_check_required_before_and_after_replace: true
