@@ -11,7 +11,7 @@ from tools.cross_repo_e2e import _prepare_atlas_import
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc"
+ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
 
 
 class CrossRepositoryCommandTests(unittest.TestCase):
@@ -65,7 +65,7 @@ class CrossRepositoryCommandTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (atlas / "integrations" / "chatgpt-bootstrap.yaml").write_text(
-                "version: 1.0.0\n", encoding="utf-8"
+                "version: 1.0.1\n", encoding="utf-8"
             )
             for command in (
                 ["git", "init", "-q"],
