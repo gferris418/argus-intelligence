@@ -1,0 +1,133 @@
+schema_version: 1
+registry_id: access-asia-system-of-record
+version: 1.0.0
+effective_date: 2026-10-22
+scope: Access Asia ATLAS/ARGUS/CRM/document persistence routing
+
+principle: pointers_not_copies
+
+security:
+  github_visibility_verified: public
+  verified_date: 2026-10-22
+  never_commit:
+    - credentials_or_secrets
+    - authentication_tokens
+    - sharepoint_sharing_tokens
+    - sharepoint_drive_ids
+    - sharepoint_item_ids
+    - hubspot_native_record_ids
+    - contact_personal_data
+    - confidential_crm_exports
+    - restricted_source_payloads
+  native_external_ids: resolve_at_runtime
+
+systems:
+  atlas_github:
+    repository: gferris418/atlas-os
+    role: execution_and_persistence_governance
+    owns:
+      - mission_control
+      - control_plane
+      - routing
+      - approvals
+      - action_authorization
+      - persistence_routing
+      - verification
+      - atlas_policy_runtime_and_registry
+
+  argus_github:
+    repository: gferris418/argus-intelligence
+    role: canonical_structured_intelligence
+    owns:
+      - government_commercial_intelligence
+      - opportunity_intelligence
+      - supplier_capability_intelligence
+      - supplier_partnerability_assessment
+      - opportunity_supplier_matches
+      - intelligence_events
+      - evidence_metadata_and_provenance
+      - public_sector_institutional_intelligence
+    excludes:
+      - crm_master_identity
+      - crm_relationship_history
+      - raw_source_documents
+      - working_business_documents
+
+  hubspot:
+    role: canonical_crm
+    owns:
+      - company_identity_and_profile
+      - contact_identity_and_contact_details
+      - access_asia_relationship_state
+      - commercial_interactions
+      - crm_deals_and_pipeline
+      - crm_tasks_notes_calls_and_emails
+    cross_system_key:
+      preferred_property: argus_party_id
+      value_source: stable_argus_supplier_or_party_id
+      native_record_id_storage_in_public_git: prohibited
+
+  sharepoint:
+    role: canonical_document_and_working_file_store
+    hostname: accessasiaccl.sharepoint.com
+    site_path: /sites/accessasia
+    site_display_name: Access Asia Limited
+    document_library: Documents
+    business_intelligence_root: General/Business Intelligence
+    business_intelligence_structure:
+      - 10_SOURCE_MAP
+      - 20_ARCHITECTURE
+      - 30_OPERATIONS
+      - 40_VALIDATION
+      - 50_OPPORTUNITIES
+      - 90_ARCHIVE
+      - 99_INBOX
+    lifecycle_locations:
+      tracked_pre_submission: General/Business Intelligence/50_OPPORTUNITIES
+      submission_active: General/REV/OPP Opportunities
+      awarded_project: General/OPS/PRJ Projects
+    native_item_id_storage_in_public_git: prohibited
+    sharing_query_parameter_storage_in_public_git: prohibited
+
+persistence_routing:
+  CRM_COMPANY: HUBSPOT
+  CRM_CONTACT: HUBSPOT
+  CRM_RELATIONSHIP: HUBSPOT
+  CRM_DEAL: HUBSPOT
+  CRM_INTERACTION: HUBSPOT
+  SOURCE_DOCUMENT: SHAREPOINT
+  WORKING_DOCUMENT: SHAREPOINT
+  OPPORTUNITY_FOLDER: SHAREPOINT
+  PROJECT_DOCUMENT: SHAREPOINT
+  ARGUS_INTELLIGENCE: ARGUS_GITHUB
+  ARGUS_OPPORTUNITY: ARGUS_GITHUB
+  ARGUS_EVENT: ARGUS_GITHUB
+  ARGUS_MATCH: ARGUS_GITHUB
+  ARGUS_EVIDENCE_REFERENCE: ARGUS_GITHUB
+  ATLAS_POLICY: ATLAS_GITHUB
+  ATLAS_RUNTIME: ATLAS_GITHUB
+  ATLAS_REGISTRY: ATLAS_GITHUB
+
+cross_system_linking:
+  preferred_pattern: stable_integration_key_plus_runtime_resolution
+  hubspot_key: argus_party_id
+  opportunity_keys:
+    - argus_opportunity_id
+    - commercial_px_id
+  sharepoint_reference: logical_site_and_folder_path
+  copies_of_canonical_master_records: prohibited
+
+lifecycle:
+  promote_to_px:
+    sharepoint_home: General/Business Intelligence/50_OPPORTUNITIES
+    move_to_submission: false
+  tender_published:
+    move_to_submission: false
+  submission_active:
+    source: General/Business Intelligence/50_OPPORTUNITIES
+    destination: General/REV/OPP Opportunities
+    move_existing_lineage: true
+  awarded_or_contract_activated:
+    source: General/REV/OPP Opportunities
+    destination: General/OPS/PRJ Projects
+    move_existing_lineage: true
