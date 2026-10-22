@@ -15,11 +15,12 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         product = manifest["product"]
         scope = manifest["scope"]
         compatibility = manifest["atlas_compatibility"]
-        self.assertEqual("2.2.0-rc.2", product["version"])
+        self.assertEqual("3.0.0-rc.1", product["version"])
         self.assertEqual("candidate", product["release_channel"])
         self.assertEqual("CANDIDATE", product["status"])
-        self.assertEqual("ATLAS-governed structured intelligence collection", scope["primary"])
+        self.assertEqual("ATLAS-governed government commercial opportunity intelligence", scope["primary"])
         self.assertIn("government_public_sector_opportunity_intelligence", scope["specializations"])
+        self.assertIn("opportunity_engine", scope)
         self.assertEqual(["ARGUS_COLLECTION", "HYBRID"], compatibility["activation_collection_modes"])
         self.assertEqual("intelligence_collection", compatibility["activation_capability"])
         self.assertEqual("3.0.0", compatibility["activation_contract_version"])
@@ -29,11 +30,13 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         authority = manifest["authority"]
         core = yaml.safe_load((ROOT / authority["core"]).read_text(encoding="utf-8"))
         method = yaml.safe_load((ROOT / authority["collection_method"]).read_text(encoding="utf-8"))
+        opportunity = yaml.safe_load((ROOT / authority["commercial_opportunity_intelligence"]).read_text(encoding="utf-8"))
         plan_schema = json.loads((ROOT / authority["collection_plan_schema"]).read_text(encoding="utf-8"))
         alignment = yaml.safe_load((ROOT / authority["atlas_alignment"]).read_text(encoding="utf-8"))
         activation = json.loads((ROOT / authority["atlas_activation_contract"]).read_text(encoding="utf-8"))
         self.assertTrue(core["normative"])
         self.assertTrue(method["normative"])
+        self.assertTrue(opportunity["normative"])
         self.assertEqual(["PIR", "EEI", "COLLECTION_PLAN", "SOURCE_PLAN", "COLLECT", "RESOLVE", "GRADE", "COMPETING_HYPOTHESES", "GAPS", "PACKAGE"], method["method"]["stages"])
         self.assertIn("Country", method["target_classes"])
         self.assertIn("Tender", method["target_classes"])
@@ -47,7 +50,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertEqual("intelligence_collection", activation["required_capability"])
         self.assertFalse(alignment["routing"]["policy_analysis_alone_activates_argus"])
 
-    def test_collection_method_stops_before_atlas_analysis_and_decision(self) -> None:
+    def test_collection_method_stops_before_atlas_final_business_decision(self) -> None:
         manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
         method = yaml.safe_load((ROOT / manifest["authority"]["collection_method"]).read_text(encoding="utf-8"))
         self.assertIn("collection_package", method["outputs"])
@@ -63,7 +66,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertFalse(compatibility["creates_execution_spine"])
         self.assertFalse(compatibility["owns_planning"])
         self.assertFalse(compatibility["owns_approvals"])
-        self.assertFalse(compatibility["owns_analysis_and_decision"])
+        self.assertFalse(compatibility["owns_final_business_decision"])
         self.assertTrue(compatibility["handoff_required_in_access_asia_production"])
 
 

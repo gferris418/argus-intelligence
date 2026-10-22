@@ -1,0 +1,226 @@
+schema_version: 1
+id: argus.government-commercial-opportunity-intelligence
+version: 3.0.0-rc.1
+status: CANDIDATE
+normative: true
+mission: >-
+  ARGUS is the ATLAS-governed government commercial opportunity intelligence system
+  for Access Asia. It detects government needs, programmes, projects, funding paths,
+  approvals and procurements as early as legitimately observable; develops credible
+  opportunity hypotheses where no formal project yet exists; tracks those opportunities
+  through the public-sector lifecycle; identifies international OEMs, suppliers,
+  contractors and technologies capable of meeting the need; matches demand and supply;
+  and returns evidence-backed commercial opportunity intelligence to ATLAS before
+  authoritative business decisions or external actions are made.
+
+engines:
+  demand_intelligence:
+    purpose: detect and track government need, policy, programme, project, budget, approval and procurement signals
+    objects: [need_gap, policy_driver, programme, project, budget_funding, approval, procurement, installed_base]
+  supply_intelligence:
+    purpose: identify and assess international suppliers, OEMs, contractors, technologies and partnership feasibility
+    objects: [supplier, business_unit, capability, product, service, reference_project, export_feasibility, partnerability]
+  opportunity_engine:
+    purpose: reconcile demand and supply around a persistent commercial opportunity object
+  matching_and_qualification:
+    purpose: rank supplier fit and calculate opportunity qualification recommendations without making the authoritative pursuit decision
+  early_warning:
+    purpose: monitor material events, lifecycle changes and triggers that may accelerate, delay, create, revive, expand or terminate an opportunity
+
+opportunity_identity:
+  pre_px_pattern: ARGUS-OPP-YYYY-NNNNNN
+  created_before_px: true
+  px_identity_authority: ATLAS_OS
+  px_pattern: YYYY_PXNNNNN_SHORTNAME
+  preserve_argus_identity_after_px: true
+
+lifecycle:
+  S0: {name: Need_Gap, objective: Detect the unmet operational, public-service or capability need.}
+  S1: {name: Concept, objective: Identify emerging solution or project concepts.}
+  S2: {name: Planning, objective: Determine probable project shape and implementation path.}
+  S3: {name: Budget_Formation, objective: Establish seriousness, budget request and financing route.}
+  S4: {name: Approval, objective: Detect competent-authority approval or administrative endorsement.}
+  S5: {name: Procurement_Planning, objective: Resolve procurement strategy, APP/package/specification planning.}
+  S6: {name: Pre_Tender, objective: Position suitable OEMs and Access Asia before formal solicitation.}
+  S7: {name: Tender_Published, objective: Rapidly qualify participation and mobilize suitable suppliers.}
+  S8: {name: Evaluation_Award, objective: Track evaluation, award and competitive outcomes.}
+  S9: {name: Delivery_Expansion, objective: Detect variations, follow-on phases, maintenance, upgrades, spares, training and adjacent needs.}
+
+opportunity_modes:
+  SHAPE: Develop a legitimate opportunity from an observable need before a defined procurement exists.
+  POSITION: Secure and prepare the right supplier strategy for a planned or approved requirement before tender.
+  REACT: Respond when formal procurement is discovered before sufficient prior positioning.
+  EXPAND: Develop follow-on, upgrade, replacement, maintenance, training, spare or adjacent opportunities from an installed project/base.
+
+opportunity_development:
+  flow:
+    - Detect_Capability_Gap
+    - Define_Government_Problem
+    - Identify_Solution_Class
+    - Discover_Technology_Landscape
+    - Identify_OEMs_And_Integrators
+    - Assess_Bangladesh_Applicability
+    - Establish_Operational_Or_Economic_Value
+    - Map_Stakeholders
+    - Form_Delivery_And_Funding_Hypothesis
+    - Develop_Legitimate_Market_Development_Strategy
+    - Prepare_Concept_Material
+    - Observe_Agency_Interest
+    - Track_Project_Formation
+  compliance_boundary:
+    permitted:
+      - technical_education
+      - product_demonstration
+      - legitimate_market_engagement
+      - concept_notes
+      - feasibility_ideas
+      - transparent_pre_procurement_discussion
+      - industry_consultation
+      - solution_discovery
+    prohibited:
+      - bribery_or_inducements
+      - improper_procurement_influence
+      - unlawful_specification_manipulation
+      - confidential_bid_information_acquisition
+      - collusion_or_bid_coordination
+      - procurement_evaluation_interference
+      - misrepresentation_of_government_support
+
+supplier_matching:
+  default_weights:
+    technical_fit: 0.25
+    relevant_references: 0.15
+    tender_eligibility: 0.10
+    export_feasibility: 0.10
+    price_competitiveness: 0.10
+    bangladesh_fit: 0.10
+    local_support_capability: 0.05
+    willingness_to_partner: 0.10
+    relationship_access: 0.05
+  override_order: [default_profile, sector_profile, opportunity_override]
+  invariant: technically_qualified_supplier_is_not_equivalent_to_commercially_available_partner
+
+qualification:
+  default_weights:
+    strategic_fit: 0.20
+    commercial_attractiveness: 0.20
+    procurement_probability: 0.20
+    supplier_availability: 0.15
+    access_advantage: 0.15
+    competitive_difficulty: 0.10
+  recommended_bands:
+    PRIORITY: {minimum: 80, maximum: 100}
+    ACTIVE: {minimum: 65, maximum: 79.99}
+    WATCH: {minimum: 50, maximum: 64.99}
+    MONITOR: {minimum: 0, maximum: 49.99}
+  authority: ARGUS computes and recommends; ATLAS accepts, challenges, overrides or authorizes pipeline state.
+
+measures:
+  evidence_confidence: support for a specific claim from evidence and source lineage
+  procurement_realization_probability: estimated probability procurement occurs within the stated horizon
+  access_asia_success_probability: conditional commercial success estimate, distinct from procurement probability
+  supplier_match_confidence: confidence in a supplier-opportunity match based on evidence and assessed dimensions
+  detection_lag: ARGUS first_detected_at minus earliest_known_publicly_observable_at
+
+rapid_tender_mode:
+  trigger:
+    - first_material_discovery_at_S7
+    - critically_short_closing_horizon
+  first_pass_fields:
+    - buyer
+    - tender_id
+    - closing_date
+    - procurement_method
+    - international_or_national
+    - eligibility
+    - experience_requirements
+    - financial_requirements
+    - technical_requirements
+    - oem_restrictions
+    - country_restrictions
+    - jv_requirements
+    - local_agent_requirements
+    - bid_security
+    - performance_guarantee
+    - delivery
+    - incoterms
+    - evaluation_methodology
+    - critical_disqualifiers
+  supplier_recovery_flow:
+    - Resolve_Solution_Taxonomy
+    - Build_Supplier_Universe
+    - Eligibility_Filter
+    - Technical_Filter
+    - Export_Filter
+    - Partner_Conflict_Filter
+    - Rank_Top_Candidates
+    - Return_Top_3_To_5_Actionable_Candidates
+
+watchlists:
+  dimensions:
+    - buyer
+    - institution
+    - domain
+    - sector
+    - capability
+    - technology
+    - product_class
+    - programme
+    - project
+    - policy_driver
+    - funding_source
+    - supplier_oem
+    - competitor
+    - installed_base
+    - trigger
+
+bidirectional_discovery:
+  demand_first: Government_Need -> Solution_Class -> Supplier_Universe -> Access_Asia_Opportunity
+  supply_first: OEM_Or_Technology -> Capability -> Bangladesh_Applicability -> Government_Users -> Unmet_Need -> Opportunity_Hypothesis
+
+kpis:
+  - median_detection_lag
+  - p90_detection_lag
+  - percent_detected_S0_to_S2
+  - percent_detected_before_S4
+  - percent_detected_before_S6
+  - percent_detected_before_S7
+  - percent_live_tenders_detected_within_sla
+  - median_supplier_universe_time
+  - median_supplier_shortlist_time
+  - shape_to_position_conversion
+  - position_to_tender_conversion
+  - opportunity_to_bid_rate
+  - bid_to_win_rate
+  - shaped_opportunity_value
+  - false_positive_rate
+  - archived_without_procurement_rate
+
+authority_boundary:
+  argus_owns:
+    - opportunity_detection
+    - opportunity_identity_before_px
+    - opportunity_lifecycle_tracking
+    - supplier_universe_collection
+    - supplier_match_assessment
+    - opportunity_qualification_calculation
+    - priority_recommendation
+    - early_warning_event_tracking
+  atlas_owns:
+    - canonical_evidence_acceptance
+    - authoritative_priority
+    - promote_to_px
+    - pursuit_decision
+    - bid_no_bid
+    - external_outreach_authorization
+    - persistence_authorization
+    - final_business_forecast
+    - final_delivery
+
+invariants:
+  - Tender intelligence is one subsystem, not the ARGUS mission definition.
+  - One tender does not automatically create one opportunity and one opportunity may link to multiple procurement packages or tenders.
+  - Opportunity stage, opportunity mode, evidence confidence, procurement probability, success probability and supplier-match confidence are separate dimensions.
+  - ARGUS may develop opportunity hypotheses but may not assert that a government project exists without evidence.
+  - External market-development actions require ATLAS governance and authorization.
+  - By tender publication ARGUS should ideally already know the need, buyer, project, funding/procurement path, competitors, supplier universe, preferred OEM candidates, Access Asia positioning strategy and unresolved intelligence requirements.

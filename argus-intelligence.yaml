@@ -1,9 +1,9 @@
-schema_version: 2
+schema_version: 3
 product:
   id: argus-intelligence
-  name: ARGUS Intelligence Collection
-  version: 2.2.0-rc.2
-  previous_version: 2.2.0-rc.1
+  name: ARGUS Government Commercial Opportunity Intelligence
+  version: 3.0.0-rc.1
+  previous_version: 2.2.0-rc.2
   release_channel: candidate
   status: CANDIDATE
   classification: internal
@@ -11,11 +11,18 @@ product:
 authority:
   manifest: argus-intelligence.yaml
   core: spec/general-intelligence.yaml
+  commercial_opportunity_intelligence: spec/commercial-opportunity-intelligence.yaml
   collection_method: spec/collection-method.yaml
   collection_plan_schema: schemas/collection-plan.schema.json
+  opportunity_schema: schemas/opportunity.schema.json
+  opportunity_event_schema: schemas/opportunity-event.schema.json
+  supplier_intelligence_schema: schemas/supplier-intelligence.schema.json
+  opportunity_supplier_match_schema: schemas/opportunity-supplier-match.schema.json
+  opportunity_engine: tools/opportunity_engine.py
   public_sector_opportunity_doctrine: spec/core.md
   atlas_alignment: alignments/atlas-os-triage-v2.yaml
   historical_atlas_alignment: alignments/atlas-os.md
+  access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_data_standard: profiles/bangladesh-data-standard.yaml
@@ -39,8 +46,17 @@ authority:
   analysis_runtime: tools/argus_runtime.py
 
 scope:
-  primary: ATLAS-governed structured intelligence collection
-  principle: Collection depth follows evidence need; analysis and decision remain in ATLAS.
+  primary: ATLAS-governed government commercial opportunity intelligence
+  mission: >-
+    Identify, develop, qualify and track legitimate government-linked commercial
+    opportunities as early as observable, while simultaneously identifying and
+    assessing international OEMs, suppliers, solution providers and contractors
+    capable of meeting the need with Access Asia positioned as a legitimate local
+    commercial partner where appropriate.
+  principle: Tender intelligence is one subsystem; ARGUS should preferably know the opportunity before tender publication.
+  demand_intelligence: policy, need, programme, project, budget, approval, procurement and installed-base intelligence
+  supply_intelligence: OEM, supplier, contractor, technology, product, capability, reference and partnerability intelligence
+  opportunity_engine: demand-supply reconciliation around a persistent commercial opportunity object
   specializations:
     - government_public_sector_opportunity_intelligence
     - target_intelligence
@@ -61,11 +77,17 @@ production_runtime:
     permitted_for: [portability, testing, recovery, non_access_asia_implementation]
 
 atlas_compatibility:
-  validated_against: 2.0.2-rc.5
-  validated_against_commit: 401a4ef030be77a2a5a635fa0ff50f538101b4e3
-  control_revision: atlas-bootstrap-2026-10-22-r9
-  relationship: nested_intelligence_collection_subsystem
-  rule: ATLAS owns Mission Control, Control Plane, collection-need routing, canonical taxonomy, planning, analysis, decisions, assurance, persistence, observability, Dashboard and delivery. ARGUS owns only the authorized intelligence collection mission and returned collection package.
+  last_validated_base: 2.0.2-rc.6
+  last_validated_base_commit: 701420eb4b40d63c30161f8c13714a06d5ea69a1
+  last_validated_control_revision: atlas-bootstrap-2026-10-22-r10
+  required_next_target: 2.0.2-rc.7
+  relationship: nested_intelligence_collection_and_commercial_opportunity_subsystem
+  rule: >-
+    ATLAS owns Mission Control, Control Plane, collection-need routing, canonical taxonomy,
+    evidence acceptance, authoritative commercial priority, pursuit decisions, approvals,
+    persistence, observability, Dashboard and delivery. ARGUS owns the authorized intelligence
+    mission, early commercial opportunity identity, lifecycle tracking, supplier universe,
+    matching assessments, qualification calculations, early-warning events and returned evidence package.
   atlas_domain_context_contract_version: 1.2.0
   atlas_domain_context_contract_path: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_execution_lease_contract_version: 1.0.0
@@ -91,7 +113,29 @@ atlas_compatibility:
   creates_execution_spine: false
   owns_planning: false
   owns_approvals: false
-  owns_analysis_and_decision: false
+  owns_final_business_decision: false
+
+engines:
+  demand_intelligence:
+    status: active
+  supply_intelligence:
+    status: active
+  opportunity_engine:
+    status: active
+  matching_and_qualification:
+    status: active
+  early_warning:
+    status: active
+
+opportunity_model:
+  primary_commercial_object: OPPORTUNITY
+  early_identity_pattern: ARGUS-OPP-YYYY-NNNNNN
+  early_identity_before_px: true
+  commercial_identity_requires_atlas_promotion: true
+  lifecycle_stages: [S0, S1, S2, S3, S4, S5, S6, S7, S8, S9]
+  modes: [SHAPE, POSITION, REACT, EXPAND]
+  tender_does_not_create_new_opportunity_by_default: true
+  multiple_procurements_per_opportunity_allowed: true
 
 operating_loop:
   - Contextualize
@@ -112,6 +156,9 @@ operating_loop:
   - Competing_Hypotheses
   - Detect_Conflicts
   - Assess_Coverage_And_Gaps
+  - Develop_Opportunity_Context
+  - Build_Supplier_Universe
+  - Match_And_Qualify
   - Package
   - Learn
 
@@ -123,7 +170,18 @@ operating_loop:
   single_source_dependence_prohibited_when_material: true
   lenses: [need_mission, policy_strategy, institution_stakeholders, programme_project, budget_funding, procurement_acquisition, technical_installed_base, supplier_competitor, ecosystem_influence, commercial_participation, timing_triggers, internal_intelligence]
   coverage_states: [NOT_APPLICABLE, UNASSESSED, INSUFFICIENT, PARTIAL, ADEQUATE]
-  stopping_rule: stop when additional collection is unlikely to change collection sufficiency, material uncertainty or the next ATLAS action
+  stopping_rule: stop when additional collection is unlikely to change collection sufficiency, material uncertainty, supplier matching, opportunity qualification or the next ATLAS action
+
+commercial_opportunity_intelligence:
+  doctrine: spec/commercial-opportunity-intelligence.yaml
+  demand_first_discovery: true
+  supply_first_discovery: true
+  opportunity_creation_path: legitimate_market_development_only
+  rapid_tender_mode: true
+  event_driven_early_warning: true
+  supplier_partnerability_required: true
+  separate_evidence_and_probability_measures: true
+  detection_lag_kpi: true
 
 bangladesh_standardization:
   canonical_data_standard: profiles/bangladesh-data-standard.yaml
@@ -143,13 +201,16 @@ bangladesh_standardization:
   rule: Source-specific Bangladesh and development-partner labels normalize into one composed canonical field vocabulary before reconciliation and collection packaging.
 
 pursuit_activation:
-  modes: [EARLY_REQUIREMENT_DEVELOPMENT, PLANNED_PROCUREMENT_CAPTURE, LIVE_TENDER_RESPONSE]
+  legacy_modes: [EARLY_REQUIREMENT_DEVELOPMENT, PLANNED_PROCUREMENT_CAPTURE, LIVE_TENDER_RESPONSE]
+  canonical_modes: [SHAPE, POSITION, REACT, EXPAND]
   identity_rule: stage changes commercial action, not underlying opportunity identity
   supplier_engagement_can_begin_before_tender: true
   current_bangladesh_framework: PPR 2025
 
 master_registry:
   record_types: [ENTITY, PROJECT, PROCUREMENT, INTELLIGENCE, OPPORTUNITY, SUPPLIER_PRODUCT, KNOWLEDGE]
+  primary_commercial_record_type: OPPORTUNITY
+  opportunity_can_exist_pre_px: true
   logical_canonical_store: ARGUS Master Registry
   physical_canonical_store: github
   canonical_structured_path: data/registry
@@ -183,8 +244,10 @@ repository_storage_policy:
   source_bytes_policy: reference_do_not_duplicate
   secrets_in_repository: prohibited
 
-maturity_scope: ACCESS_ASIA_PUBLIC_SECTOR_SPECIALIZATION_ONLY
-maturity:
+legacy_maturity:
+  status: compatibility_only
+  scope: ACCESS_ASIA_PUBLIC_SECTOR_SPECIALIZATION
+  replaced_primary_model_by: S0_S9_lifecycle_plus_opportunity_mode
   scale:
     I0: Signal
     I1: Hypothesis
@@ -201,28 +264,39 @@ evidence:
   claim_types: [FACT, DERIVED, INFERENCE, ASSUMPTION, UNKNOWN]
   claim_conditions: [CURRENT, STALE, CONFLICT]
   atlas_assurance_is_independent: true
+  evidence_confidence_is_not_procurement_probability: true
+  procurement_probability_is_not_success_probability: true
+  supplier_match_confidence_is_separate: true
 
-decision_scope: ACCESS_ASIA_PUBLIC_SECTOR_SPECIALIZATION_ONLY
-decisions: [MONITOR, INVESTIGATE, PROMOTE_TO_PX, MERGE_EXISTING, HOLD, REJECT]
+decision_boundary:
+  argus_may_compute: [opportunity_qualification, supplier_match, procurement_probability, priority_recommendation]
+  atlas_owns: [authoritative_priority, PROMOTE_TO_PX, pursuit_decision, bid_no_bid, external_outreach, persistence_authorization, final_business_forecast]
 
 domain_result:
   generic_contract: schemas/intelligence-collection-package.schema.json
   specialization_compatibility_contract: schemas/domain-result.schema.json
+  opportunity_contract: schemas/opportunity.schema.json
+  supplier_contract: schemas/supplier-intelligence.schema.json
+  supplier_match_contract: schemas/opportunity-supplier-match.schema.json
+  event_contract: schemas/opportunity-event.schema.json
   final_user_output_owner: ATLAS OS
   may_report_collection_coverage: true
   may_report_collection_gaps: true
+  may_report_opportunity_qualification: true
+  may_report_supplier_matches: true
   may_make_final_business_decision: false
 
 release_gates:
-  - ATLAS collection-need and ARGUS collection activation contract: PASS
-  - canonical PIR/EEI collection method and collection-plan schema: PASS
-  - ARGUS does not own Mission Control, Control Plane, analysis, decisions, assurance, Dashboard or delivery: PASS
-  - generic collection mission and package schemas: PASS
-  - public-sector opportunity semantics remain specialization-only: PASS
-  - collection coverage remains representable without a new canonical record type: PASS
+  - ATLAS collection-need and ARGUS collection activation contract remains unchanged: PASS
+  - canonical PIR/EEI collection method and collection-plan schema remain authoritative: PASS
+  - Government commercial opportunity intelligence mission is machine-readable: PASS
+  - Opportunity exists as first-class commercial object before PX promotion: PASS
+  - S0-S9 lifecycle and SHAPE/POSITION/REACT/EXPAND modes are separate: PASS
+  - Demand and supply intelligence run as parallel engines: PASS
+  - Supplier partnerability and opportunity-supplier matching are machine-readable: PASS
+  - Rapid Tender Mode and event-driven early warning are machine-readable: PASS
+  - Qualification is advisory and ATLAS retains authoritative pursuit decisions: PASS
   - claim type and claim condition candidate schema contract: PASS
+  - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - GitHub-first canonical storage policy remains defined: PASS
   - operational database deployment for current phase: DEFERRED_NOT_REQUIRED
-  - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
-  - Bangladesh tender extension and re-tender lifecycle events: PASS
-  - e-GP Tender/Proposal ID and procuring-entity reference-number separation: PASS

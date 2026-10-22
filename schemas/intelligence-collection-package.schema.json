@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/gferris418/argus-intelligence/schemas/intelligence-collection-package.schema.json",
   "title": "ARGUS Intelligence Collection Package",
-  "description": "Evidence package returned to ATLAS. It is not the final user-facing answer or business decision.",
+  "description": "Evidence-backed intelligence package returned to ATLAS. It may include advisory commercial opportunity and supplier-match assessments but never the final user-facing business decision.",
   "type": "object",
   "additionalProperties": false,
   "required": ["governance_mode", "objective", "collection_status", "resolved_targets", "findings", "evidence", "unknowns_conflicts", "collection_gaps", "next_collection_questions"],
@@ -22,6 +22,42 @@
     "organizations": {"type": "array"},
     "stakeholders": {"type": "array"},
     "timeline": {"type": "array"},
+    "opportunities": {
+      "type": "array",
+      "description": "Persistent pre-PX or promoted commercial opportunity projections conforming to schemas/opportunity.schema.json."
+    },
+    "supplier_intelligence": {
+      "type": "array",
+      "description": "Supplier/OEM intelligence projections including partnerability assessments."
+    },
+    "supplier_matches": {
+      "type": "array",
+      "description": "Advisory opportunity-supplier match assessments; ATLAS retains business-decision authority."
+    },
+    "qualification_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["opportunity_id", "score", "recommended_priority_band"],
+        "properties": {
+          "opportunity_id": {"type": "string"},
+          "score": {"type": "number", "minimum": 0, "maximum": 100},
+          "recommended_priority_band": {"enum": ["PRIORITY", "ACTIVE", "WATCH", "MONITOR"]},
+          "evidence_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "procurement_realization_probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "access_asia_success_probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "detection_metrics": {
+      "type": ["object", "null"],
+      "properties": {
+        "earliest_known_publicly_observable_at": {"type": ["string", "null"], "format": "date-time"},
+        "first_detected_at": {"type": ["string", "null"], "format": "date-time"},
+        "detection_lag_hours": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
     "collection_coverage": {"type": "object"},
     "collection_gaps": {"type": "array", "items": {"type": "object", "required": ["gap", "decision_impact"], "properties": {"lens": {"type": ["string", "null"]}, "gap": {"type": "string"}, "decision_impact": {"type": "string"}, "next_collection_question": {"type": ["string", "null"]}}}},
     "unknowns_conflicts": {"type": "array", "items": {"type": "string"}},
@@ -29,7 +65,7 @@
     "next_collection_questions": {"type": "array", "items": {"type": "string"}},
     "next_material_triggers": {"type": "array", "items": {"type": "string"}},
     "monitor_candidates": {"type": "array"},
-    "specialization": {"type": ["object", "null"], "description": "Optional specialization payload such as public-sector opportunity maturity. Not universal ARGUS semantics."},
+    "specialization": {"type": ["object", "null"], "description": "Optional specialization payload. Legacy I0-I9 public-sector maturity may appear here for compatibility but is not the v3 primary lifecycle model."},
     "sync_execution_id": {"type": ["string", "null"]},
     "sync_attempt": {"type": ["integer", "null"], "minimum": 1},
     "result_sha256": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},

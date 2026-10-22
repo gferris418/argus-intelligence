@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/opportunity-event.schema.json",
+  "title": "ARGUS Opportunity Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "opportunity_id", "event_type", "observed_date", "description", "evidence_refs"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "opportunity_id": {"type": "string", "pattern": "^ARGUS-OPP-[0-9]{4}-[0-9]{6}$"},
+    "project_id": {"type": ["string", "null"]},
+    "procurement_id": {"type": ["string", "null"]},
+    "event_type": {
+      "enum": [
+        "POLICY_SIGNAL", "CAPABILITY_GAP", "CONCEPT_FORMATION", "FEASIBILITY_STUDY",
+        "CONSULTANT_APPOINTED", "PROJECT_PROPOSAL", "DPP_TAPP_PREPARATION", "PROGRAMME_INCLUSION",
+        "BUDGET_REQUEST", "BUDGET_ALLOCATION", "FINANCING_DISCUSSION", "FINANCING_AGREEMENT",
+        "ADMINISTRATIVE_APPROVAL", "PROJECT_APPROVAL", "PROCUREMENT_STRATEGY", "APP_INCLUSION",
+        "SPECIFICATION_ACTIVITY", "MARKET_CONSULTATION", "RFI", "EOI", "PREQUALIFICATION",
+        "TENDER_PUBLICATION", "AMENDMENT", "DEADLINE_EXTENSION", "CANCELLATION", "REBID",
+        "EVALUATION", "AWARD", "CONTRACT", "DELIVERY", "VARIATION", "FOLLOW_ON", "UPGRADE", "REPLACEMENT"
+      ]
+    },
+    "event_date": {"type": ["string", "null"], "format": "date-time"},
+    "observed_date": {"type": "string", "format": "date-time"},
+    "source_date": {"type": ["string", "null"], "format": "date-time"},
+    "effective_date": {"type": ["string", "null"], "format": "date-time"},
+    "actor": {"type": ["string", "null"]},
+    "jurisdiction": {"type": ["string", "null"]},
+    "description": {"type": "string", "minLength": 1},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "materiality": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "stage_before": {"type": ["string", "null"], "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", null]},
+    "stage_after": {"type": ["string", "null"], "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", null]},
+    "funding_effect": {"type": ["string", "null"]},
+    "procurement_effect": {"type": ["string", "null"]},
+    "timing_effect": {"type": ["string", "null"]},
+    "supplier_effect": {"type": ["string", "null"]},
+    "next_collection_requirement": {"type": ["string", "null"]}
+  }
+}

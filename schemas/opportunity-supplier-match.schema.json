@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/opportunity-supplier-match.schema.json",
+  "title": "ARGUS Opportunity Supplier Match",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["opportunity_id", "supplier_id", "weights", "scores", "weighted_score", "confidence"],
+  "properties": {
+    "opportunity_id": {"type": "string", "pattern": "^ARGUS-OPP-[0-9]{4}-[0-9]{6}$"},
+    "supplier_id": {"type": "string", "minLength": 1},
+    "weight_profile": {"type": ["string", "null"]},
+    "weights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "technical_fit", "relevant_references", "tender_eligibility", "export_feasibility",
+        "price_competitiveness", "bangladesh_fit", "local_support_capability",
+        "willingness_to_partner", "relationship_access"
+      ],
+      "properties": {
+        "technical_fit": {"type": "number", "minimum": 0, "maximum": 1},
+        "relevant_references": {"type": "number", "minimum": 0, "maximum": 1},
+        "tender_eligibility": {"type": "number", "minimum": 0, "maximum": 1},
+        "export_feasibility": {"type": "number", "minimum": 0, "maximum": 1},
+        "price_competitiveness": {"type": "number", "minimum": 0, "maximum": 1},
+        "bangladesh_fit": {"type": "number", "minimum": 0, "maximum": 1},
+        "local_support_capability": {"type": "number", "minimum": 0, "maximum": 1},
+        "willingness_to_partner": {"type": "number", "minimum": 0, "maximum": 1},
+        "relationship_access": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "technical_fit": {"type": "number", "minimum": 0, "maximum": 100},
+        "relevant_references": {"type": "number", "minimum": 0, "maximum": 100},
+        "tender_eligibility": {"type": "number", "minimum": 0, "maximum": 100},
+        "export_feasibility": {"type": "number", "minimum": 0, "maximum": 100},
+        "price_competitiveness": {"type": "number", "minimum": 0, "maximum": 100},
+        "bangladesh_fit": {"type": "number", "minimum": 0, "maximum": 100},
+        "local_support_capability": {"type": "number", "minimum": 0, "maximum": 100},
+        "willingness_to_partner": {"type": "number", "minimum": 0, "maximum": 100},
+        "relationship_access": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    },
+    "weighted_score": {"type": "number", "minimum": 0, "maximum": 100},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "eligibility_blockers": {"type": "array", "items": {"type": "string"}},
+    "partner_conflicts": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  }
+}

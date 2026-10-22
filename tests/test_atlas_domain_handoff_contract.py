@@ -26,7 +26,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
     def test_argus_pins_the_atlas_handoff_and_lease_contracts(self):
         handoff_schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         lease_schema = json.loads(LEASE_SCHEMA_PATH.read_text())
-        self.assertIn("version: 2.2.0-rc.2", MANIFEST)
+        self.assertIn("version: 3.0.0-rc.1", MANIFEST)
         self.assertIn("release_channel: candidate", MANIFEST)
         self.assertIn("atlas_domain_context_contract_version: 1.2.0", MANIFEST)
         self.assertIn("atlas_execution_lease_contract_version: 1.0.0", MANIFEST)
@@ -116,6 +116,8 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("standalone_argus: false", MANIFEST)
         self.assertIn("atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry", MANIFEST)
         self.assertEqual(7, len(manifest["master_registry"]["record_types"]))
+        self.assertEqual("OPPORTUNITY", manifest["master_registry"]["primary_commercial_record_type"])
+        self.assertTrue(manifest["master_registry"]["opportunity_can_exist_pre_px"])
         self.assertTrue(SYNC_RECEIPT_SCHEMA_PATH.is_file())
 
     def test_cross_repo_gate_preserves_historical_stable_compatibility_proof(self):

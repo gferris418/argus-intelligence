@@ -1,39 +1,62 @@
 # Access Asia Operating Overlay
 
-This repository defines ARGUS Intelligence. Access Asia's physical working-document lifecycle is governed by the machine-readable profile [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml).
+This repository defines ARGUS Government Commercial Opportunity Intelligence. Access Asia's commercial identity and working-document lifecycle are governed by the machine-readable profile [`profiles/access-asia-opportunity-lifecycle.yaml`](profiles/access-asia-opportunity-lifecycle.yaml), while ATLAS OS remains the execution and promotion authority.
 
-## Mandatory lifecycle rule
+## Two-stage identity
 
-A raw intelligence signal may exist only in the ARGUS Master Registry. When it becomes a tracked Access Asia opportunity (`PROMOTE_TO_PX` or explicit registration), assign the permanent identifier:
+A raw signal may remain an `INTELLIGENCE` record without becoming a persistent commercial opportunity.
+
+When a credible commercial possibility requires persistent tracking, ARGUS may create a first-class `OPPORTUNITY` before any Access Asia PX exists. Its permanent intelligence identity is:
+
+`ARGUS-OPP-YYYY-NNNNNN`
+
+This identity persists through all later lifecycle changes.
+
+When ATLAS authorizes `PROMOTE_TO_PX` or explicit commercial-pipeline registration, assign the Access Asia commercial identity:
 
 `[Year]_[PXnnnnn]_[ShortName]`
 
-Create the working folder at:
+The PX identifier does not replace the ARGUS opportunity identifier; both remain linked to the same underlying opportunity.
 
-`General/Business Intelligence/50_OPPORTUNITIES/[ID]`
+## Pre-PX working state
 
-Keep all discovery, research, qualification, customer/OEM engagement, capture, procurement monitoring, live-tender review, bid/no-bid analysis and pre-submission working material there.
+Pre-PX opportunity intelligence may be tracked structurally in the ARGUS Master Registry without requiring a SharePoint folder. When working documents are needed before promotion, the governed pre-PX home is:
 
-**Tender publication alone does not move the folder.** `PROMOTE_TO_PX` also does not move it to the submission workspace.
+`General/Business Intelligence/50_OPPORTUNITIES`
 
-The folder moves only when `SUBMISSION_ACTIVE` is true: formal response-package execution has actually started for a specific solicitation after the bid decision.
+Typical work includes discovery, research, problem/need definition, government-project tracking, qualification, OEM/supplier research, solution shaping, partnerability analysis, procurement monitoring and Rapid Tender review.
 
-At that point move the entire existing folder, with the same identifier, to:
+Tender publication alone does not create a PX identity and does not imply `SUBMISSION_ACTIVE`.
 
-`General/REV/OPP Opportunities/[same ID]`
+## PX promotion
+
+When ATLAS authorizes commercial pipeline promotion, the opportunity receives its `[Year]_[PXnnnnn]_[ShortName]` identity. If a physical pre-PX working folder exists, move the entire lineage to:
+
+`General/REV/OPP Opportunities/[PX ID]`
 
 Do not create a separate BID folder and do not duplicate the opportunity folder.
 
-On award or contract activation, move the same folder/lineage to:
+All promoted pre-award commercial pursuit work remains within that same REV/OPP lineage, including supplier/OEM engagement, customer engagement, capture, tender analysis, bid/no-bid, compliance planning and submission execution.
 
-`General/OPS/PRJ Projects/[same ID]`
+## Project transition
 
-Opportunities that never enter formal submission execution remain in Business Intelligence and may be archived there when inactive.
+On award or contract activation, move the same commercial lineage to:
+
+`General/OPS/PRJ Projects/[same PX ID]`
+
+Preserve both:
+
+- the ARGUS opportunity ID for intelligence lineage; and
+- the PX ID for Access Asia commercial/project lineage.
+
+## Non-submission outcomes
+
+Pre-PX opportunities that remain `MONITOR`, `HOLD`, `REJECT`, `CANCELLED` or `CLOSED_BEFORE_SUBMISSION` stay in Business Intelligence and may be archived there. An ARGUS opportunity does not require procurement to occur in order to remain historically useful intelligence.
 
 ## Canonical ownership
 
-- ARGUS GitHub: structured opportunity intelligence and domain semantics.
-- SharePoint: working business documents for the current lifecycle stage.
-- ATLAS OS: execution governance, approvals, verification and mutation control.
+- **ARGUS Master Registry:** structured government-commercial opportunity, supplier, event and evidence intelligence.
+- **SharePoint:** working business documents for the current governed lifecycle stage.
+- **ATLAS OS:** Mission Control, permissions, authoritative priority, `PROMOTE_TO_PX`, pursuit/bid decisions, external-action authorization, persistence governance and verification.
 
-The SharePoint AI bootstrap and lifecycle SOP are maintained in `General/Business Intelligence`.
+The rule is: ARGUS identifies, develops, matches and recommends; ATLAS authorizes commercial state changes and actions.
