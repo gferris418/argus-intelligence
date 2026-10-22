@@ -2,26 +2,45 @@
 
 ## Decision
 
-ARGUS uses a two-layer identity model and one mutable operational structured store.
+ARGUS uses a **three-layer identity model** and one mutable operational structured store.
 
 - **GitHub** is authoritative for schemas, identity rules, migration logic, tests, release contracts and code.
-- **SharePoint SQLite** is authoritative for mutable operational ARGUS structured data used by ATLAS/ARGUS in Access Asia production.
-- Existing GitHub JSON/JSONL registry content is retained as migration/audit/bootstrap material and must not remain a competing live write authority after database activation.
-- SharePoint documents remain evidence/working files and are referenced from the database rather than copied into it.
+- **SharePoint SQLite** is authoritative for the current mutable operational ARGUS structured state used by ATLAS/ARGUS in Access Asia production.
+- Existing GitHub JSON/JSONL registry records remain migration/audit/bootstrap material and versioned release evidence; they are not a parallel routine write store after database activation.
+- SharePoint source and working documents remain files and are referenced by source records rather than copied into public Git.
 
-## Identity model
+## Three identity layers
 
-Every distinct canonical object has:
+### 1. Canonical objects
 
-1. `internal_uuid` — opaque immutable database primary key.
-2. `canonical_id` — immutable unique human-readable business key.
-3. zero or more source-native external identifiers.
+A unique real-world or business object gets one permanent canonical identity:
 
-Canonical IDs use `<TYPE>-<JURISDICTION>-<SEQUENCE>` such as `PROC-BD-000001`.
+- `internal_id` — opaque immutable UUID database primary key;
+- `canonical_id` — immutable unique human-readable ARGUS identifier;
+- zero or more source-native external identifiers.
 
-Supported object families include policy, strategy, programme, project, requirement, procurement plan, package, procurement process, tender, lot, item, entity, person, award, contract, event, document, source record, observation and product/solution.
+New canonical IDs use `<TYPE>-<JURISDICTION>-<SEQUENCE>`, for example `REQ-BD-000001` or `PROC-BD-000001`.
 
-Suppliers and OEMs are ENTITY roles, not separate identity universes.
+Existing ARGUS IDs are grandfathered and remain immutable. They are not renumbered just to conform to the new display format.
+
+Canonical object types cover policy, strategy, programme, project, requirement, procurement plan, package, procurement process, solicitation, lot, item, award, contract, organization, person, product, financing, document and opportunity.
+
+A supplier, OEM, buyer, procuring entity, implementing agency, end user or funder is an **ORGANIZATION role**, not a separate identity universe.
+
+### 2. Source records
+
+A BPPA/e-GP/DGDP/e-DP/World Bank/ADB/agency record is evidence about canonical objects. It receives its own `source_record_id`, preserves native IDs and source labels, and links to the relevant canonical object(s).
+
+A portal ID never replaces the ARGUS canonical ID.
+
+### 3. Events and observations
+
+Changes and evidence are separately identified:
+
+- events: publication, corrigendum, deadline extension, cancellation, re-tender, award, signing, etc.;
+- observations: field-level evidence with raw value, normalized value, source and claim state.
+
+A corrigendum is an event, not a new tender. An official re-tender/reissue can create a new procurement/solicitation cycle while preserving the same underlying requirement lineage when evidence supports that relationship.
 
 ## Policy-to-tender lineage
 
@@ -32,7 +51,7 @@ POLICY
   -> PROJECT
   -> REQUIREMENT
   -> PROCUREMENT PLAN
-  -> PACKAGE
+  -> PROCUREMENT PACKAGE
   -> PROCUREMENT PROCESS
   -> TENDER / SOLICITATION
   -> LOT / ITEM
@@ -40,50 +59,57 @@ POLICY
   -> CONTRACT
 ```
 
-Missing upstream links remain unknown until evidence is found. A tender must never cause ARGUS to fabricate a parent project, programme or policy.
+Missing upstream links remain `UNKNOWN` until evidence is found. A tender must never cause ARGUS to fabricate a parent project, programme or policy.
 
-## Source and evidence model
+## Identity resolution
 
-A canonical object is not a portal record. BPPA, e-GP, DGDP/e-DP, World Bank, ADB and agency-native records are stored as source records with their native identifiers and linked to the appropriate canonical object.
+Resolve a discovered record in this order:
 
-Material facts are stored as observations with source provenance. Changes are append-only events. Corrigenda do not create new tenders; genuine re-tenders create new procurement/tender identities but may retain the same requirement lineage.
+1. exact authoritative identifier;
+2. exact source-system identifier;
+3. reconciled project/package relationship;
+4. entity plus reference number;
+5. requirement semantics and lineage;
+6. dates, amounts, items and other material characteristics;
+7. fuzzy title similarity as supporting evidence only.
+
+Title similarity alone never authorizes a merge.
 
 ## Operational SQLite location
 
 Access Asia production path:
 
-`General/Business Intelligence/30_OPERATIONS/ARGUS_OPERATIONAL.sqlite`
+`General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite`
 
-The path is an operational configuration and is not embedded with SharePoint drive/item secrets in public Git.
+The public repository records only the logical SharePoint path. SharePoint drive IDs, item IDs and sharing tokens must never be committed to public Git.
 
-## Update protocol
+## Single-writer update protocol
 
-For a governed data change:
+For every operational data mutation:
 
-1. Fetch the current SharePoint SQLite file.
-2. Run `integrity-check` before mutation.
-3. Resolve identity before creating anything new.
-4. Apply one transaction using canonical IDs and source provenance.
-5. Run `PRAGMA integrity_check` and foreign-key validation.
-6. Record the mutation in `change_log`.
-7. Replace the same SharePoint file; do not create parallel database copies for routine updates.
-8. Rely on SharePoint file version history for recoverability.
-9. Update GitHub only when the schema, rules, migrations or code change.
+1. Fetch the latest SharePoint SQLite file.
+2. Verify SharePoint target/version metadata and run `PRAGMA integrity_check` before mutation.
+3. Resolve identity before creating a new canonical object.
+4. Apply one local SQLite transaction.
+5. Preserve source provenance, external identifiers, events and observations.
+6. Record the mutation in `mutation_log`.
+7. Run SQLite integrity and foreign-key checks after mutation.
+8. Replace the same SharePoint file; do not create parallel routine database copies.
+9. Verify the uploaded target/version.
+10. Use SharePoint version history for rollback and audit.
 
-## Identity resolution
+Never open/mutate the database in place over a SharePoint-synced filesystem and never perform concurrent writers against separate copies.
 
-Match in this order:
+## Source of truth split
 
-1. exact official identifier;
-2. exact source-system identifier;
-3. project/package relationship;
-4. entity plus reference number;
-5. requirement semantics;
-6. dates, amounts and item characteristics;
-7. fuzzy title similarity.
-
-Title similarity alone never authorizes a merge.
+| Information class | Authority |
+|---|---|
+| Identity rules / schema / code / migrations | GitHub |
+| Current mutable ARGUS structured operational state | SharePoint SQLite |
+| Raw/working business documents | SharePoint |
+| Historical GitHub registry baseline | Migration/bootstrap/audit evidence |
+| CRM company/contact/relationship state | HubSpot, according to Access Asia system routing |
 
 ## Failure rule
 
-If identity is unresolved, create a `CANDIDATE` object or leave the relationship unresolved. Never silently merge two records and never fabricate missing lineage.
+If identity is unresolved, create a candidate object only when a distinct object is genuinely warranted, or leave the relationship unresolved. Never silently merge two records and never fabricate missing lineage.
