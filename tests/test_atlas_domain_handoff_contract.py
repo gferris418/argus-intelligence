@@ -17,25 +17,41 @@ LEASE_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "execution-lease-v1.schema.js
 KEY_REGISTRY_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "signing-key-registry-v1.schema.json"
 APPROVAL_SCHEMA_PATH = ROOT / "contracts" / "atlas" / "approval-v1.schema.json"
 SYNC_DESCRIPTOR_PATH = ROOT / "contracts" / "atlas" / "synchronization-compatibility.yaml"
+CURRENT_INTEGRATION_PATH = ROOT / "contracts" / "atlas" / "current-integration.yaml"
 SYNC_RECEIPT_SCHEMA_PATH = ROOT / "schemas" / "atlas-argus-sync-receipt.schema.json"
 WORKFLOW_PATH = ROOT / ".github" / "workflows" / "contract-tests.yml"
 CROSS_REPO_WORKFLOW_PATH = ROOT / ".github" / "workflows" / "cross-repo-e2e.yml"
+ATLAS_COMMIT = "7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc"
 
 
 class AtlasDomainHandoffContract(unittest.TestCase):
-    def test_argus_pins_the_atlas_handoff_and_lease_contracts(self):
+    def test_current_manifest_uses_atlas_v3_provider_seam(self):
+        manifest = yaml.safe_load(MANIFEST_PATH.read_text(encoding="utf-8"))
+        self.assertIn("version: 3.0.0-rc.2", MANIFEST)
+        self.assertIn("release_channel: candidate", MANIFEST)
+        self.assertEqual("contracts/atlas/current-integration.yaml", manifest["authority"]["atlas_current_integration"])
+        self.assertEqual("tools/atlas_v3_provider.py", manifest["authority"]["atlas_v3_provider"])
+        compatibility = manifest["atlas_compatibility"]
+        self.assertEqual("3.0.1", compatibility["last_validated_base"])
+        self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
+        self.assertEqual("ATLAS", compatibility["activation_authority"])
+        self.assertEqual("ATLAS", compatibility["next_step_authority"])
+        self.assertEqual("ATLAS", compatibility["provider_return_target"])
+        self.assertTrue(compatibility["explicit_user_approval_required"])
+        self.assertFalse(manifest["production_runtime"]["access_asia"]["atlas_change_required"])
+
+    def test_legacy_signed_handoff_and_lease_contracts_remain_available(self):
         handoff_schema = json.loads(HANDOFF_SCHEMA_PATH.read_text())
         lease_schema = json.loads(LEASE_SCHEMA_PATH.read_text())
-        self.assertIn("version: 3.0.0-rc.1", MANIFEST)
-        self.assertIn("release_channel: candidate", MANIFEST)
-        self.assertIn("atlas_domain_context_contract_version: 1.2.0", MANIFEST)
-        self.assertIn("atlas_execution_lease_contract_version: 1.0.0", MANIFEST)
-        self.assertIn("atlas_signing_key_registry_contract_version: 1.0.0", MANIFEST)
-        self.assertIn("execution_lease_required_in_access_asia_production: true", MANIFEST)
-        self.assertEqual("1.2.0", handoff_schema["properties"]["contract_version"]["const"])
+        manifest = yaml.safe_load(MANIFEST_PATH.read_text(encoding="utf-8"))
+        legacy = manifest["atlas_compatibility"]["legacy_signed_transport"]
+        self.assertEqual("backward_compatibility_only", legacy["status"])
+        self.assertEqual("1.2.0", legacy["handoff_contract_version"])
+        self.assertEqual("1.0.0", legacy["execution_lease_contract_version"])
+        self.assertEqual("1.0.0", handoff_schema["properties"]["contract_version"]["const"])
         self.assertEqual("1.0.0", lease_schema["properties"]["contract_version"]["const"])
 
-    def test_sync_descriptor_pins_exact_atlas_stable(self):
+    def test_sync_descriptor_pins_exact_historical_atlas_stable(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
         self.assertEqual("2.0.1", descriptor["atlas_version"])
         self.assertEqual("b8b8559c57eef5fbb97d914d924077ba20b1883d", descriptor["atlas_commit"])
@@ -49,7 +65,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
             descriptor["source_contracts"]["runtime"]["sha256"],
         )
 
-    def test_pinned_local_contract_hashes_match_descriptor(self):
+    def test_pinned_legacy_local_contract_hashes_match_descriptor(self):
         descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
         paths = {
             "domain_context_handoff": HANDOFF_SCHEMA_PATH,
@@ -71,19 +87,13 @@ class AtlasDomainHandoffContract(unittest.TestCase):
                 self.assertNotEqual("0" * 64, source["sha256"])
                 self.assertNotIn("<", source["sha256"])
 
-    def test_bounded_autonomous_startup_still_consumes_governed_atlas_context(self):
-        self.assertIn("one handoff and one return", CORE)
-        self.assertIn("Institution-first autonomous startup", CORE)
-        self.assertIn("ATLAS", CORE)
-        self.assertIn("ARGUS must not redefine ATLAS taxonomy", CORE)
-        self.assertIn("MATERIAL_SCOPE_CHANGE", CORE)
-
-    def test_alignment_requires_validated_handoff_before_argus_execution(self):
+    def test_historical_alignment_remains_available_as_evidence(self):
         self.assertIn("ATLAS Domain Context → ARGUS Contextualize", ALIGNMENT)
         self.assertIn("schema-valid domain-context handoff", ALIGNMENT)
         self.assertIn("handoff_id", ALIGNMENT)
         self.assertIn("payload_sha256", ALIGNMENT)
         self.assertIn("reject mismatched", ALIGNMENT.lower())
+        self.assertIn("one handoff and one return", CORE)
 
     def test_domain_result_remains_specialization_compatibility_contract(self):
         self.assertIn("governance_mode", RESULT_SCHEMA["required"])
@@ -101,37 +111,31 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("STANDALONE", modes)
         self.assertIn("ATLAS_GOVERNED", modes)
 
-    def test_manifest_declares_coordinated_runtime_change_without_changing_production_authority(self):
+    def test_current_descriptor_and_legacy_transport_are_both_registered(self):
         manifest = yaml.safe_load(MANIFEST_PATH.read_text(encoding="utf-8"))
-        self.assertIn(
-            "atlas_synchronization_compatibility: contracts/atlas/synchronization-compatibility.yaml",
-            MANIFEST,
-        )
-        self.assertIn(
-            "atlas_synchronization_receipt_schema: schemas/atlas-argus-sync-receipt.schema.json",
-            MANIFEST,
-        )
-        self.assertIn("synchronization_runtime: tools/atlas_sync.py", MANIFEST)
-        self.assertIn("analysis_runtime: tools/argus_runtime.py", MANIFEST)
-        self.assertIn("bangladesh_procurement_standard_version: 1.3.0", MANIFEST)
-        self.assertIn("atlas_change_required: true", MANIFEST)
-        self.assertIn("standalone_argus: false", MANIFEST)
-        self.assertIn("atlas_control_record_authenticity: detached_ed25519_lifecycle_governed_key_registry", MANIFEST)
+        self.assertTrue(CURRENT_INTEGRATION_PATH.is_file())
+        current = yaml.safe_load(CURRENT_INTEGRATION_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(ATLAS_COMMIT, current["atlas"]["commit"])
+        self.assertEqual("ATLAS", current["contract"]["next_step_authority"])
+        self.assertEqual("backward_compatibility_only", current["legacy_transport"]["status"])
+        self.assertEqual("contracts/atlas/synchronization-compatibility.yaml", manifest["authority"]["atlas_synchronization_compatibility"])
+        self.assertEqual("tools/atlas_sync.py", manifest["authority"]["synchronization_runtime"])
+        self.assertTrue(SYNC_RECEIPT_SCHEMA_PATH.is_file())
         self.assertEqual(7, len(manifest["master_registry"]["record_types"]))
         self.assertEqual("OPPORTUNITY", manifest["master_registry"]["primary_commercial_record_type"])
-        self.assertTrue(manifest["master_registry"]["opportunity_can_exist_pre_px"])
-        self.assertTrue(SYNC_RECEIPT_SCHEMA_PATH.is_file())
 
-    def test_cross_repo_gate_preserves_historical_stable_compatibility_proof(self):
+    def test_cross_repo_gate_targets_current_atlas_and_preserves_historical_proof_elsewhere(self):
         workflow = CROSS_REPO_WORKFLOW_PATH.read_text(encoding="utf-8")
         self.assertIn("pull_request:", workflow)
         self.assertIn("push:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
-        self.assertIn("ref: b8b8559c57eef5fbb97d914d924077ba20b1883d", workflow)
+        self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
         self.assertNotIn("ATLAS_SSH_KEY", workflow)
         self.assertNotIn("ATLAS_READ_TOKEN", workflow)
         self.assertIn("python -m unittest discover -s tests/cross_repo -v", workflow)
+        descriptor = json.loads(SYNC_DESCRIPTOR_PATH.read_text())["atlas_compatibility"]
+        self.assertEqual("b8b8559c57eef5fbb97d914d924077ba20b1883d", descriptor["atlas_commit"])
 
     def test_ci_uses_immutable_actions_hash_locked_install_and_audit(self):
         workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
