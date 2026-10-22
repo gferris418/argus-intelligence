@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from tools.argus_operational_db import (
+    add_external_identifier,
     initialize_database,
     integrity_check,
     next_canonical_id,
@@ -105,6 +106,52 @@ class CanonicalIdentityOperationalStore(unittest.TestCase):
             )
             generated = next_canonical_id(conn, "REQUIREMENT", "BD")
             self.assertEqual("REQ-BD-000002", generated)
+            conn.close()
+
+    def test_local_external_identifiers_can_repeat_in_distinct_parent_namespaces(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "registry.sqlite"
+            initialize_database(db_path)
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA foreign_keys = ON")
+
+            lot_a = upsert_canonical_object(
+                conn,
+                object_type="LOT",
+                title="Lot 1 under procurement A",
+                jurisdiction="BD",
+            )
+            lot_b = upsert_canonical_object(
+                conn,
+                object_type="LOT",
+                title="Lot 1 under procurement B",
+                jurisdiction="BD",
+            )
+
+            add_external_identifier(
+                conn,
+                object_internal_id=lot_a["internal_id"],
+                source_system="e-GP",
+                scheme="LOT_NO",
+                value="1",
+                scope="LOT",
+                namespace="PROC-BD-A",
+            )
+            add_external_identifier(
+                conn,
+                object_internal_id=lot_b["internal_id"],
+                source_system="e-GP",
+                scheme="LOT_NO",
+                value="1",
+                scope="LOT",
+                namespace="PROC-BD-B",
+            )
+
+            rows = conn.execute(
+                "SELECT namespace, value FROM external_identifier WHERE scheme='LOT_NO' ORDER BY namespace"
+            ).fetchall()
+            self.assertEqual([("PROC-BD-A", "1"), ("PROC-BD-B", "1")], [(r[0], r[1]) for r in rows])
             conn.close()
 
     def test_integrity_check_rejects_missing_database_instead_of_creating_it(self):
