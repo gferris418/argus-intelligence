@@ -4,7 +4,8 @@ status: CANDIDATE
 owner: ARGUS
 purpose: >-
   Define stable identity semantics for all unique ARGUS objects from policy and strategy
-  through procurement, tender, award, contract, implementation evidence and supplier/product data.
+  through opportunity, intelligence, procurement, tender, award, contract, implementation
+  evidence, knowledge and supplier/product data.
 
 identity_model:
   database_primary_key: internal_uuid
@@ -38,6 +39,9 @@ object_types:
   ITM: PROCUREMENT_ITEM
   ENT: ENTITY
   PER: PERSON
+  OPP: OPPORTUNITY
+  INT: INTELLIGENCE
+  KNO: KNOWLEDGE
   AWD: AWARD
   CTR: CONTRACT
   EVT: EVENT
@@ -88,6 +92,20 @@ resolution_rules:
   same_object_multiple_sources_attach_to_existing_object: true
   unresolved_match_creates_candidate_not_silent_merge: true
 
+operational_storage:
+  runtime_store: SHAREPOINT_SQLITE
+  single_writer: ATLAS_AUTHORIZED_SERIAL_MUTATION
+  sqlite_open_in_place_on_sharepoint: prohibited
+  update_pattern:
+    - download_current_file
+    - verify_latest_version_and_integrity
+    - mutate_locally_in_one_transaction
+    - run_integrity_and_foreign_key_checks
+    - replace_same_sharepoint_file
+    - retain_sharepoint_version_history
+  git_role: schema_governance_code_tests_migrations
+  sharepoint_role: canonical_mutable_operational_data
+
 integrity_rules:
   - canonical_id never changes after creation.
   - internal_uuid never changes after creation.
@@ -96,3 +114,4 @@ integrity_rules:
   - every material source record, event and observation has its own unique identity.
   - deletion is logical unless governance explicitly authorizes physical deletion.
   - missing upstream policy, programme or project links remain UNKNOWN rather than fabricated.
+  - routine operational updates replace one SharePoint database file rather than creating parallel copies.
