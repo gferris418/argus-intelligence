@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://accessasia.example/schemas/research-learning-record.schema.json",
+  "title": "ARGUS Research Learning Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "search_id",
+    "timestamp",
+    "research_question",
+    "query",
+    "search_method",
+    "source_family",
+    "results_examined",
+    "useful_result_count",
+    "information_gain",
+    "source_assessment",
+    "discoveries",
+    "unknowns",
+    "hypothesis_change",
+    "learning",
+    "recommended_next_search"
+  ],
+  "properties": {
+    "search_id": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "opportunity_ref": {"type": ["string", "null"]},
+    "requirement_ref": {"type": ["string", "null"]},
+    "research_question": {"type": "string", "minLength": 1},
+    "query": {"type": "string"},
+    "query_language": {"type": ["string", "null"]},
+    "query_variants": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "search_method": {"type": "string", "minLength": 1},
+    "source_family": {"type": "string", "minLength": 1},
+    "domain": {"type": ["string", "null"]},
+    "results_examined": {"type": "integer", "minimum": 0},
+    "documents_examined": {"type": "integer", "minimum": 0, "default": 0},
+    "useful_result_count": {"type": "integer", "minimum": 0},
+    "information_gain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "factual_gain", "strategic_gain"],
+      "properties": {
+        "level": {"enum": ["NONE", "LOW", "MEDIUM", "HIGH"]},
+        "factual_gain": {"type": "string"},
+        "strategic_gain": {"type": "string"},
+        "negative_result_learning": {"type": "string"}
+      }
+    },
+    "source_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority", "freshness", "relevance"],
+      "properties": {
+        "authority": {"enum": ["UNKNOWN", "LOW", "MEDIUM", "HIGH", "AUTHORITATIVE"]},
+        "freshness": {"enum": ["UNKNOWN", "STALE", "CURRENT"]},
+        "relevance": {"enum": ["LOW", "MEDIUM", "HIGH"]},
+        "access_status": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    },
+    "discoveries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["new_entities", "new_relationships", "new_events", "new_facts", "new_claims", "contradictions"],
+      "properties": {
+        "new_entities": {"type": "array", "items": {"type": "string"}},
+        "new_relationships": {"type": "array", "items": {"type": "string"}},
+        "new_events": {"type": "array", "items": {"type": "string"}},
+        "new_facts": {"type": "array", "items": {"type": "string"}},
+        "new_claims": {"type": "array", "items": {"type": "string"}},
+        "contradictions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "unknowns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolved", "created", "remaining"],
+      "properties": {
+        "resolved": {"type": "array", "items": {"type": "string"}},
+        "created": {"type": "array", "items": {"type": "string"}},
+        "remaining": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "hypothesis_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["before", "after", "confidence_before", "confidence_after"],
+      "properties": {
+        "before": {"type": ["string", "null"]},
+        "after": {"type": ["string", "null"]},
+        "confidence_before": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "confidence_after": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "decision_impact": {"type": "string"}
+      }
+    },
+    "learning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["what_worked", "what_failed", "lesson_learned", "successful_terms", "unsuccessful_terms"],
+      "properties": {
+        "what_worked": {"type": "array", "items": {"type": "string"}},
+        "what_failed": {"type": "array", "items": {"type": "string"}},
+        "lesson_learned": {"type": "array", "items": {"type": "string"}},
+        "successful_terms": {"type": "array", "items": {"type": "string"}},
+        "unsuccessful_terms": {"type": "array", "items": {"type": "string"}},
+        "synonyms_discovered": {"type": "array", "items": {"type": "string"}},
+        "acronyms_discovered": {"type": "array", "items": {"type": "string"}},
+        "source_lessons": {"type": "array", "items": {"type": "string"}},
+        "strategy_lessons": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "recommended_next_search": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "strategy", "priority"],
+      "properties": {
+        "question": {"type": ["string", "null"]},
+        "strategy": {"type": ["string", "null"]},
+        "source_family": {"type": ["string", "null"]},
+        "priority": {"enum": ["NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+        "stopping_condition": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
