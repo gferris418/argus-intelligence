@@ -1,0 +1,98 @@
+document_id: ARGUS-CANONICAL-IDENTITY-STD-001
+version: 1.0.0
+status: CANDIDATE
+owner: ARGUS
+purpose: >-
+  Define stable identity semantics for all unique ARGUS objects from policy and strategy
+  through procurement, tender, award, contract, implementation evidence and supplier/product data.
+
+identity_model:
+  database_primary_key: internal_uuid
+  internal_uuid:
+    type: uuid4
+    immutable: true
+    opaque: true
+  human_business_key: canonical_id
+  canonical_id:
+    immutable: true
+    unique: true
+    format: "<TYPE>-<JURISDICTION>-<SEQUENCE>"
+    default_jurisdiction: BD
+    global_jurisdiction_token: GLB
+    sequence_width: 6
+  source_native_identifiers:
+    role: aliases_and_external_identifiers
+    canonical_primary_key: false
+
+object_types:
+  POL: POLICY
+  STR: STRATEGY_MASTER_PLAN
+  PRG: PROGRAMME
+  PRJ: PROJECT
+  REQ: REQUIREMENT
+  PLN: PROCUREMENT_PLAN
+  PKG: PROCUREMENT_PACKAGE
+  PROC: PROCUREMENT_PROCESS
+  TND: TENDER_SOLICITATION
+  LOT: LOT
+  ITM: PROCUREMENT_ITEM
+  ENT: ENTITY
+  PER: PERSON
+  AWD: AWARD
+  CTR: CONTRACT
+  EVT: EVENT
+  DOC: DOCUMENT
+  SRC: SOURCE_RECORD
+  OBS: OBSERVATION
+  PRD: PRODUCT_SOLUTION
+
+role_model:
+  supplier_is_entity_role: true
+  oem_is_entity_role: true
+  buyer_is_entity_role: true
+  procuring_entity_is_entity_role: true
+  end_user_is_entity_role: true
+  funder_is_entity_role: true
+  no_separate_supplier_master_identity_family: true
+
+lineage_model:
+  policy_to_tender:
+    - POL
+    - STR
+    - PRG
+    - PRJ
+    - REQ
+    - PLN
+    - PKG
+    - PROC
+    - TND
+    - LOT
+    - ITM
+    - AWD
+    - CTR
+  requirement_survives_retender_when_same_need: true
+  retender_gets_new_procurement_or_tender_identity: true
+  corrigendum_is_event_not_new_tender: true
+
+resolution_rules:
+  matching_priority:
+    - exact_official_identifier
+    - exact_source_system_identifier
+    - project_package_relationship
+    - entity_plus_reference_number
+    - requirement_semantics
+    - dates_amounts_item_characteristics
+    - fuzzy_title_similarity
+  title_alone_never_deduplicates: true
+  one_object_one_canonical_id: true
+  same_object_multiple_sources_attach_to_existing_object: true
+  unresolved_match_creates_candidate_not_silent_merge: true
+
+integrity_rules:
+  - canonical_id never changes after creation.
+  - internal_uuid never changes after creation.
+  - source identifiers do not replace canonical identity.
+  - every canonical relationship references canonical object identities.
+  - every material source record, event and observation has its own unique identity.
+  - deletion is logical unless governance explicitly authorizes physical deletion.
+  - missing upstream policy, programme or project links remain UNKNOWN rather than fabricated.
