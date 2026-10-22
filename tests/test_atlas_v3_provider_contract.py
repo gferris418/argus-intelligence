@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc"
+ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
 
 
 class AtlasV3ProviderContractTests(unittest.TestCase):
@@ -17,23 +17,27 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("3.0.0-rc.1", manifest["product"]["previous_version"])
         self.assertFalse(manifest["production_runtime"]["access_asia"]["atlas_change_required"])
         compatibility = manifest["atlas_compatibility"]
-        self.assertEqual("3.0.1", compatibility["last_validated_base"])
+        self.assertEqual("3.0.2", compatibility["last_validated_base"])
         self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
+        self.assertEqual("chatgpt-plugin-bootstrap-v1.0.1", compatibility["last_validated_control_revision"])
         self.assertEqual("bounded_intelligence_collection_provider", compatibility["relationship"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
         self.assertEqual("ATLAS", compatibility["next_step_authority"])
         self.assertTrue(compatibility["explicit_user_approval_required"])
+        self.assertTrue(compatibility["mission_control_first_required"])
         self.assertEqual("contracts/atlas/current-integration.yaml", manifest["authority"]["atlas_current_integration"])
 
     def test_current_integration_descriptor_pins_immutable_atlas_release(self) -> None:
         descriptor = yaml.safe_load(
             (ROOT / "contracts" / "atlas" / "current-integration.yaml").read_text(encoding="utf-8")
         )
-        self.assertEqual("1.0.0", descriptor["version"])
+        self.assertEqual("1.0.1", descriptor["version"])
         self.assertEqual("gferris418/atlas-os", descriptor["atlas"]["repository"])
-        self.assertEqual("3.0.1", descriptor["atlas"]["version"])
+        self.assertEqual("3.0.2", descriptor["atlas"]["version"])
         self.assertEqual(ATLAS_COMMIT, descriptor["atlas"]["commit"])
         contract = descriptor["contract"]
+        self.assertEqual("MISSION_CONTROL_FIRST", contract["prompt_entry"])
+        self.assertEqual("every_user_prompt_while_atlas_active", contract["prompt_entry_scope"])
         self.assertEqual("intelligence_collection", contract["capability"])
         self.assertEqual("argus", contract["provider"])
         self.assertEqual("ARGUS_ACTIVATION", contract["approval_key"])
@@ -49,8 +53,8 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         atlas_result = {
             "task_id": "ATLAS-TEST-001",
             "state": "READY",
-            "normalized_objective": "Build a supplier landscape for coastal surveillance radar",
-            "domain_framing": {"jurisdiction": None, "risk_flags": ["defense_or_dual_use"]},
+            "normalized_objective": "Build a supplier landscape for public infrastructure equipment",
+            "domain_framing": {"jurisdiction": None, "risk_flags": []},
             "pre_execution_flow": ["UNDERSTAND_AND_NORMALIZE", "MINIMAL_DOMAIN_FRAMING", "ROUTE"],
             "route": {
                 "mechanism": "ARGUS",
@@ -75,11 +79,13 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             provider.execute(module.ProviderEnvelope(atlas_result=pending))
 
-    def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_1(self) -> None:
+    def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_2(self) -> None:
         alignment = yaml.safe_load((ROOT / "alignments" / "atlas-os-triage-v2.yaml").read_text(encoding="utf-8"))
         current = alignment["compatibility"]["current_validated_atlas"]
-        self.assertEqual("3.0.1", current["version"])
+        self.assertEqual("3.0.2", current["version"])
         self.assertEqual(ATLAS_COMMIT, current["commit"])
+        self.assertEqual("MISSION_CONTROL_FIRST", alignment["routing"]["prompt_entry"])
+        self.assertEqual("every_user_prompt_while_atlas_active", alignment["routing"]["prompt_entry_scope"])
         self.assertFalse(alignment["compatibility"]["current_change_requires_coordinated_atlas_candidate"])
         workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(encoding="utf-8")
         self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
