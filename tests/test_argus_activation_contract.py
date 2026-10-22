@@ -38,6 +38,7 @@ class ArgusActivationContractTests(unittest.TestCase):
 
     def test_activation_uses_collection_need_gate_and_collection_capability(self) -> None:
         contract = self._contract()
+        self.assertEqual("3.1.0", contract["contract_version"])
         self.assertEqual("atlas_collection_need_gate", contract["activation_mechanism"])
         self.assertEqual("intelligence_collection", contract["required_capability"])
         self.assertEqual(["ARGUS_COLLECTION", "HYBRID"], contract["required_collection_modes"])
@@ -61,6 +62,13 @@ class ArgusActivationContractTests(unittest.TestCase):
         contract = self._contract()
         ownership = contract["ownership"]
         for field in (
+            "institutional_hierarchy_resolution",
+            "internal_registry_reconciliation",
+            "opportunity_identity_resolution",
+            "official_procurement_collection",
+            "authorized_internal_customer_intelligence_collection",
+            "research_frontier_ordering",
+            "adaptive_360_collection",
             "source_discovery",
             "acquisition",
             "extraction",
@@ -74,6 +82,34 @@ class ArgusActivationContractTests(unittest.TestCase):
         ):
             with self.subTest(field=field):
                 self.assertEqual("ARGUS", ownership[field])
+
+    def test_contract_governs_one_bounded_autonomous_mission(self) -> None:
+        contract = self._contract()
+        self.assertEqual("ONE_HANDOFF_ONE_RETURN", contract["mission_handoff_pattern"])
+        self.assertEqual("BOUNDED_AUTONOMOUS", contract["autonomy_mode"])
+        self.assertEqual(
+            [
+                "RESOLVE_INSTITUTIONAL_HIERARCHY",
+                "CHECK_INTERNAL_CANONICAL_REGISTRY",
+                "RECONCILE_OPPORTUNITY_IDENTITY",
+                "CHECK_OFFICIAL_PROCUREMENT_SOURCES",
+                "CHECK_INTERNAL_CUSTOMER_INTELLIGENCE",
+                "BUILD_RESEARCH_FRONTIER",
+                "EXECUTE_ADAPTIVE_360_COLLECTION",
+            ],
+            contract["startup_sequence"],
+        )
+        self.assertEqual(["EXACT", "HIGH_CONFIDENCE_MATCH"], contract["identity_resolution"]["auto_reuse"])
+        self.assertEqual(["DISTINCT"], contract["identity_resolution"]["auto_new_candidate"])
+        self.assertEqual(["PROBABLE_MATCH", "UNRESOLVED"], contract["identity_resolution"]["user_confirmation"])
+        self.assertEqual(
+            ["MATERIAL_SCOPE_CHANGE", "AUTHORIZATION_REQUIRED", "POLICY_OR_SECURITY_CONFLICT", "MATERIAL_AMBIGUITY"],
+            contract["escalation_conditions"],
+        )
+        self.assertTrue(contract["follow_evidence_leads_without_callback"])
+        self.assertTrue(contract["parallel_safe_reads"])
+        self.assertEqual("TRANSIENT_ONLY", contract["mission_context"])
+        self.assertEqual("PROPOSE_BATCH_THEN_ATLAS_COMMIT", contract["persistence_mode"])
 
     def test_required_examples_encode_boundary(self) -> None:
         examples = self._contract()["representative_routing_examples"]
