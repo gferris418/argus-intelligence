@@ -8,6 +8,7 @@
 * [ATLAS–ARGUS collection boundary](architecture/atlas-argus-collection-boundary.md)
 * [Bangladesh Canonical Procurement Standard v2.0 — Semantic Design](architecture/bangladesh-canonical-procurement-v2.md)
 * [Bangladesh Cross-Source Procurement Normalization v1.1](architecture/bangladesh-cross-source-procurement-normalization-v1.1.md)
+* [Bangladesh Procurement Source Standard v1.0](architecture/bangladesh-procurement-source-standard-v1.md)
 * [Bangladesh Opportunity Intelligence v3](architecture/bangladesh-opportunity-intelligence-v3.md)
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture v1.1](architecture/bangladesh-procurement-v2-registry-envelope-materialization-v1.1.md)
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture](architecture/bangladesh-procurement-v2-registry-envelope-materialization.md)
