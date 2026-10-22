@@ -1,0 +1,143 @@
+schema_version: 1
+id: argus.continuous-learning
+version: 1.0.0
+status: CANDIDATE
+normative: true
+purpose: >-
+  Make every bounded ARGUS research action produce durable meta-intelligence about
+  what was learned, how the search performed, what remains unresolved, and how
+  future collection should improve, while preserving ATLAS authority over accepted
+  evidence, persistence and final decisions.
+
+principles:
+  every_search_produces_learning_record: true
+  no_result_searches_are_learning_events: true
+  learned_patterns_are_not_current_facts: true
+  learned_heuristics_may_guide_search_but_never_replace_current_evidence: true
+  contradictions_are_preserved: true
+  unknowns_create_research_tasks: true
+  atlas_persistence_authority_is_unchanged: true
+  outcome_calibration_required: true
+
+memory_types:
+  EPISODIC_MEMORY:
+    purpose: Preserve what happened in a specific search or research episode.
+  SEMANTIC_MEMORY:
+    purpose: Preserve validated entities, relationships, events, terminology and domain knowledge.
+  STRATEGY_MEMORY:
+    purpose: Preserve which search sequences, source families and research techniques performed well for a problem class.
+  CALIBRATION_MEMORY:
+    purpose: Compare prior assessments and predictions with later observed outcomes to improve confidence calibration.
+  SOURCE_MEMORY:
+    purpose: Track source-family usefulness, authority, freshness, accessibility and failure patterns by question type.
+  VOCABULARY_MEMORY:
+    purpose: Preserve aliases, translations, abbreviations, project terminology, procurement language and effective query variants.
+
+search_learning_record:
+  schema: schemas/research-learning-record.schema.json
+  required_for_every_search_attempt: true
+  including_zero_result_searches: true
+  minimum_capture:
+    - research_question
+    - query
+    - search_method
+    - source_family
+    - results_examined
+    - useful_result_count
+    - information_gain
+    - source_assessment
+    - discoveries
+    - unknowns
+    - hypothesis_change
+    - learning
+    - recommended_next_search
+
+information_gain:
+  purpose: Distinguish factual gain from strategic or negative-result learning.
+  allowed_levels: [NONE, LOW, MEDIUM, HIGH]
+  zero_result_rule: >-
+    A zero-result search may still have non-zero information gain when it disproves
+    a query path, reveals terminology mismatch, identifies a source-access problem,
+    narrows a hypothesis, or improves the next search strategy.
+
+heuristic_lifecycle:
+  states: [OBSERVED, REPEATED_PATTERN, VALIDATED_HEURISTIC]
+  single_observation_cannot_become_validated_heuristic: true
+  backtest_required_for_validated_heuristic: true
+  current_evidence_required_for_case_conclusions: true
+  promotion_rules:
+    OBSERVED:
+      may_guide_next_search: true
+      may_support_current_fact_claim: false
+    REPEATED_PATTERN:
+      may_prioritize_sources_or_queries: true
+      may_support_current_fact_claim: false
+    VALIDATED_HEURISTIC:
+      may_optimize_collection_strategy: true
+      may_support_current_fact_claim: false
+
+calibration:
+  outcome_calibration_required: true
+  compare:
+    - prior_hypothesis
+    - prior_confidence
+    - prior_timing_assessment
+    - actual_outcome
+    - timing_error
+    - signals_that_helped
+    - signals_that_misled
+    - missing_signals
+  update_targets:
+    - source_selection
+    - query_generation
+    - research_sequence
+    - hypothesis_weighting
+    - confidence_calibration
+  rule: Historical performance may improve future prioritization but cannot silently rewrite historical evidence.
+
+source_learning:
+  learn_by:
+    - question_type
+    - sector
+    - country
+    - institution
+    - procurement_route
+    - lifecycle_stage
+  metrics:
+    - useful_result_rate
+    - authoritative_result_rate
+    - freshness_rate
+    - contradiction_rate
+    - access_failure_rate
+    - average_information_gain
+  source_authority_is_not_learned_from_popularity: true
+  official_or_legal_authority_requires_current_authoritative_validation: true
+
+strategy_learning:
+  inputs:
+    - successful_queries
+    - unsuccessful_queries
+    - successful_source_families
+    - failed_source_paths
+    - terminology_variants
+    - cross_language_terms
+    - useful_traversal_paths
+    - stopping_conditions
+  outputs:
+    - recommended_query_variants
+    - recommended_source_order
+    - recommended_traversal
+    - recommended_next_search
+  scope_rule: Strategy learning optimizes investigation; it does not expand an ATLAS-authorized mission scope.
+
+safety_and_governance:
+  learned_patterns_are_not_current_facts: true
+  learned_heuristics_may_guide_search_but_never_replace_current_evidence: true
+  contradictions_are_preserved: true
+  no_hidden_fact_promotion: true
+  no_automatic_lifecycle_progression_from_learning: true
+  no_automatic_authority_inference_from_prior_cases: true
+  no_automatic_procurement_route_confirmation_from_prior_cases: true
+  no_unbounded_personal_profiling: true
+  atlas_persistence_authority_is_unchanged: true
+  final_business_decision_owner: ATLAS_OS
