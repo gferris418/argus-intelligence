@@ -1,0 +1,16 @@
+document_id: ARGUS-OPERATIONAL-STORAGE-ACTIVATION-001
+version: 1.0.0
+status: CANDIDATE
+canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
+operational_database_schema: schemas/argus-operational-store-v1.sql
+runtime_tool: tools/argus_operational_db.py
+production_store:
+  type: sharepoint_operational_store
+  relative_path: General/Business Intelligence/30_OPERATIONS/ARGUS_OPERATIONAL.sqlite
+  mutation_model: single_writer_fetch_latest_modify_transactionally_verify_replace
+  writer_authority: ATLAS
+  git_live_data_writes_after_activation: prohibited
+  sharepoint_version_history: required
+legacy_git_registry:
+  role_after_activation: migration_audit_bootstrap_snapshot
+  live_write_authority: false
