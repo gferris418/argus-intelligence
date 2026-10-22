@@ -1,0 +1,165 @@
+document_id: ARGUS-BD-PROC-INTL-ALIGN-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+country_code: BD
+purpose: >-
+  Define the international standards and multilateral-development-bank practices used to shape
+  Bangladesh Canonical Procurement v2.1 without forcing Bangladesh source systems into foreign
+  terminology or losing source-native identifiers, labels, procedures or legal meaning.
+
+international_baseline:
+  OCDS_1_1_5:
+    role: lifecycle_and_interchange_backbone
+    principles:
+      - one contracting process has a stable process identity
+      - lifecycle sections map to parties, planning, tender, awards, contracts and implementation
+      - changes are represented as immutable releases
+      - a compiled record represents the latest effective state
+      - related processes preserve parent, successor, framework and reissue relationships
+      - missing fields are omitted or left unresolved rather than fabricated
+    canonical_mapping:
+      parties: parties
+      planning: planning
+      tender: tender
+      awards: awards
+      contracts: contracts
+      implementation: contracts[].implementation
+      relatedProcesses: related_processes
+      releases: source_releases
+
+  WORLD_BANK_IPF_PROCUREMENT_REGULATIONS_7TH_EDITION_2025:
+    role: award_transparency_and_process_reference
+    adopted_concepts:
+      - project_implementing_unit_and_contracting_agency_roles
+      - contract_reference_and_selection_method
+      - bidder_or_proposer_identity
+      - opening_price
+      - evaluated_price
+      - responsive_nonresponsive_rejected_or_not_evaluated_status
+      - rejection_reason
+      - successful_supplier
+      - final_contract_price
+      - contract_duration
+      - scope_summary
+      - notification_of_intention_to_award
+      - standstill_period
+      - contract_award_notice
+      - beneficial_ownership_disclosure_reference_when_applicable
+      - procurement_related_complaint_tracking_when_publicly_evidenced
+
+  WORLD_BANK_STEP:
+    role: procurement_planning_and_transaction_reference
+    adopted_concepts:
+      - procurement_plan_identity
+      - procurement_plan_version
+      - package_description
+      - planned_method
+      - expected_advertisement_date
+      - project_and_financing_linkage
+      - update_history
+
+  ADB_PROCUREMENT_REGULATIONS:
+    role: procurement_planning_and_review_reference
+    adopted_concepts:
+      - contract_package
+      - procurement_method
+      - bidding_document_type
+      - ADB_review_procedure
+      - contract_supervision_arrangement
+      - proportional_planning_by_market_scale_risk_value_and_country_context
+
+  ADB_PROCUREMENT_PLAN:
+    role: pre_tender_opportunity_reference
+    adopted_concepts:
+      - goods_works_and_services_package_description
+      - procurement_method
+      - contract_cost_estimate
+      - review_procedure
+      - expected_advertisement_date
+      - periodic_plan_updates
+
+bangladesh_extensions:
+  BPPA:
+    preserve:
+      - ministry_division
+      - agency
+      - procuring_entity
+      - procuring_entity_code
+      - district
+      - invitation_reference
+      - invitation_category_source_label
+      - procurement_method_source_label
+      - development_budget_or_revenue_budget_label
+      - project_programme_code
+      - project_programme_name
+      - package_number
+      - package_name
+      - selling_closing_opening_dates
+      - tender_document_price
+      - tender_security
+      - eligibility_text
+      - corrigendum_history
+  e-GP:
+    preserve:
+      - APP_ID
+      - EGP_TENDER_ID
+      - package_and_lot_identifiers
+      - estimated_cost
+      - procurement_plan_and_tender_dates
+      - award_and_contract_management_data
+      - e_CMS_implementation_signals
+  DGDP:
+    preserve:
+      - DGDP_TENDER_NO
+      - wing
+      - section_unit
+      - tender_name
+      - tender_type_source_label
+      - selling_period
+      - opening_date
+      - specification_notice_and_amendment_links
+      - enlistment_requirements
+      - evaluation_re_evaluation_standardization_pre_procurement_signals
+  e-DP:
+    preserve:
+      - specialist_defence_procurement_identifiers
+      - supplier_enlistment_context
+      - defence_procurement_notice_and_document_types
+  PPP:
+    preserve:
+      - project_pipeline_status
+      - contracting_authority
+      - transaction_adviser
+      - EOI_IFB_and_prequalification_events
+  development_partners:
+    preserve:
+      - financier_project_id
+      - financing_reference
+      - lender_review_type
+      - procurement_plan_package
+      - eligible_country_or_financing_conditions
+      - financier_specific_notice_and_award_identifiers
+
+normalization_rules:
+  - Never use a portal-native ID as the canonical procurement_id.
+  - Never collapse buyer, procuring entity, implementing agency, end user, approving authority and funder into one generic buyer field.
+  - Never overwrite source category or method terminology; store normalized interpretation separately.
+  - Never equate DGDP Tender No with e-GP Tender ID.
+  - Never equate a corrigendum, addendum or deadline extension with a new procurement cycle.
+  - An official re-tender or reissue creates a successor procurement cycle but normally remains linked to the same underlying requirement/opportunity.
+  - Preserve original and current deadline values through immutable source releases and append-only events.
+  - Awards and signed contracts are different lifecycle objects.
+  - Bid/proposal opening values and evaluated values are different fields.
+  - Project total cost, procurement estimate, award value and contract value are different monetary concepts.
+  - Beneficial-ownership personal details are not duplicated into the procurement record; store disclosure state and source reference and resolve governed entity data separately.
+  - Missing source fields remain absent or UNKNOWN; never manufacture completeness.
+
+output_profile:
+  canonical_schema: schemas/bangladesh-procurement-v2.1.schema.json
+  lifecycle: planning_to_tender_to_award_to_contract_to_implementation
+  database_identity: procurement_id
+  change_history: immutable_source_releases_plus_append_only_events
+  current_state: compiled_canonical_record
+  source_provenance: field_level_observations
+  export_compatibility: OCDS_1_1_5
