@@ -1,0 +1,135 @@
+document_id: ACCESS-ASIA-CANONICAL-RECONCILIATION-001
+version: 1.0.0
+status: ACTIVE
+owner: ARGUS
+scope: controlled historical reconciliation, canonical population and derived reporting for Access Asia
+
+production_baseline:
+  sqlite_schema_version: 1.1.0
+  sqlite_user_version: 2
+  migration_pr: 66
+  migration_commit: 2a3e2a7f76339d39e50961977c18c63018599e3a
+  production_sharepoint_version: "2.0"
+  production_sha256: 2c0ca14069bc2e38888bcd7a2dad88abf69af26b0c265988c7d0c08ba0880ed1
+  migration_validation_document: ARGUS_COMMERCIAL_GRAPH_MIGRATION_VALIDATION.md
+  schema_frozen: true
+  schema_change_gate: genuine_structural_defect_or_missing_real_world_concept
+  production_store: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
+  rollback_sharepoint_version: "1.0"
+
+reconciliation:
+  principle: evidence_establishes_facts_rules_derive_classifications_humans_resolve_material_ambiguity
+  statuses:
+    - MATCHED
+    - PROVISIONAL
+    - NEEDS_REVIEW
+    - CONFLICT
+    - UNRESOLVED
+  rules:
+    material_facts_require_evidence: true
+    lineage_links_require_evidence: true
+    ambiguous_records_are_quarantined: true
+    automatic_historical_reclassification_prohibited: true
+    fabricated_px_bid_award_project_links_prohibited: true
+    government_project_and_access_asia_project_are_distinct: true
+    px_is_permanent_after_assignment: true
+    unsupported_completion_for_reporting_prohibited: true
+
+population:
+  dependency_order:
+    - ORGANIZATION
+    - PRODUCT_AND_PRODUCT_CATEGORY
+    - SECTOR
+    - GEOGRAPHY
+    - PROGRAMME_AND_GOVERNMENT_PROJECT
+    - REQUIREMENT
+    - FINANCING
+    - PROCUREMENT_AND_TENDER
+    - OPPORTUNITY_AND_PX
+    - ORGANIZATION_ROLES
+    - BID
+    - AWARD
+    - ACCESS_ASIA_PROJECT
+    - FINANCIAL_FACT
+  initial_reconciliation_focus:
+    - ORGANIZATION
+    - PRODUCT_AND_PRODUCT_CATEGORY
+    - OPPORTUNITY_AND_PX
+  downstream_creation_rule: downstream_objects_must_not_be_created_before_required_upstream_identity_and_evidence_exist
+
+batch_control:
+  required_record:
+    - batch_id
+    - input_sources
+    - records_examined
+    - canonical_objects_created
+    - canonical_objects_updated
+    - relationships_created
+    - unresolved_records
+    - conflicts
+    - mutation_log_entries
+    - foreign_key_validation
+    - integrity_check
+    - before_sha256
+    - after_sha256
+    - rollback_reference
+  promotion_gate:
+    integrity_check: PASS
+    foreign_key_violations: 0
+    rollback_required: true
+    unresolved_records_may_be_quarantined: true
+    conflicts_must_not_be_silently_resolved: true
+    mutation_trace_required: true
+
+reporting:
+  canonical_views_only: true
+  department_specific_master_data_allowed: false
+  department_surfaces:
+    - MARKETING
+    - SALES
+    - BUSINESS_DEVELOPMENT
+    - OPERATIONS
+    - FINANCE
+    - MANAGEMENT
+  rule: derived_reporting_never_mutates_or_duplicates_canonical_master_data
+
+analytical_assertions:
+  kept_separate_from_canonical_facts: true
+  provenance_required: true
+  model_or_rule_version_required: true
+  confidence_required: true
+  timestamp_required: true
+  examples:
+    - project_likelihood
+    - tender_timing_forecast
+    - supplier_suitability
+    - bid_probability
+    - competitor_assessment
+    - funding_likelihood
+    - expected_contract_value
+    - opportunity_priority_score
+
+milestone:
+  name: ARGUS Canonical Reconciliation & Reporting Foundation v1
+  exit_criteria:
+    - existing_organizations_deduplicated_and_role_mapped
+    - existing_products_and_categories_reconciled
+    - every_existing_px_reviewed
+    - known_tender_px_relationships_reconciled
+    - bid_award_aapj_created_only_with_evidence
+    - financial_facts_populated_for_reconciled_commercial_records
+    - zero_foreign_key_violations
+    - every_production_mutation_traceable
+    - uncertain_records_quarantined
+    - initial_department_and_management_views_validated
+
+operating_cycle:
+  - discover
+  - verify
+  - canonicalize
+  - relate
+  - analyze
+  - prioritize
+  - monitor
+  - report
+  - learn
