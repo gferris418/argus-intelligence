@@ -18,7 +18,7 @@ class BangladeshLifecycleScenarios(unittest.TestCase):
         self.assertFalse(s["expected"]["new_opportunity_per_event"])
         self.assertEqual([e["type"] for e in s["events"]], ["APP_PACKAGE", "TENDER", "AMENDMENT", "AWARD"])
         self.assertIn("Do not create duplicate opportunities", PROFILE)
-        self.assertIn("A new document, tender, amendment or award does not automatically create a new commercial opportunity", CORE)
+        self.assertIn("A new document, tender, amendment, re-tender or award does not automatically create a new commercial opportunity", CORE)
 
     def test_defence_evaluation_is_preproc_not_live_tender(self):
         s = SCENARIOS["BD-DEFENCE-PREPROC-EVALUATION"]
