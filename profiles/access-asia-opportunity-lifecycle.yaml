@@ -1,6 +1,6 @@
 schema_version: 2
 policy_id: access-asia-opportunity-lifecycle
-version: 2.0.0-rc.1
+version: 2.0.0-rc.2
 effective_date: 2026-10-22
 scope: Access Asia intelligence-to-opportunity-to-project lifecycle
 
@@ -50,8 +50,8 @@ tracked_opportunity:
   require_existing_argus_opportunity_id: true
   assign_commercial_id: true
   source_home: General/Business Intelligence/50_OPPORTUNITIES
-  destination_home: General/REV/OPP Opportunities
-  move_entire_folder_if_present: true
+  destination_home: General/Business Intelligence/50_OPPORTUNITIES
+  move_entire_folder_if_present: false
   preserve_argus_identity_after_px: true
   retained_stages:
     - qualification
@@ -69,7 +69,9 @@ tracked_opportunity:
 submission:
   state: SUBMISSION_ACTIVE
   definition: formal response-package execution has actually started for a specific solicitation after the bid decision
+  source_home: General/Business Intelligence/50_OPPORTUNITIES
   working_home: General/REV/OPP Opportunities
+  move_entire_folder_if_present: true
   separate_bid_folder: false
   duplicate_folder_allowed: false
   preserve_argus_identity: true
@@ -92,12 +94,12 @@ non_submission_outcomes:
     - REJECT
     - CANCELLED
     - CLOSED_BEFORE_SUBMISSION
-  pre_px_remains_in_business_intelligence: true
-  promoted_px_archive_home: General/REV/OPP Opportunities
+  remains_in_business_intelligence: true
   intelligence_archive_home: General/Business Intelligence/90_ARCHIVE
 
 canonical_ownership:
   structured_intelligence: ARGUS Master Registry
+  crm_parties_relationships_and_interactions: HubSpot
   commercial_pipeline_authority: ATLAS OS
   working_documents: SharePoint lifecycle folder for the current stage
   atlas_execution_governance: ATLAS OS
@@ -105,7 +107,8 @@ canonical_ownership:
 rules:
   - A credible commercial opportunity may exist in ARGUS before any PX identity exists.
   - A live tender alone does not imply PX promotion or SUBMISSION_ACTIVE.
-  - PROMOTE_TO_PX assigns the commercial identity and moves the governed working lineage to REV/OPP when a physical folder exists.
+  - PROMOTE_TO_PX assigns the commercial identity but keeps the governed working lineage in Business Intelligence.
+  - Only SUBMISSION_ACTIVE moves the existing working lineage from Business Intelligence to REV/OPP.
   - One government programme, project or tender may link to multiple opportunities only when the commercial pursuits are materially distinct.
   - One opportunity may link to multiple procurement packages, tenders, amendments, rebids or follow-on procurements without changing its identity.
   - Only one physical working folder may exist for a promoted opportunity at a time.

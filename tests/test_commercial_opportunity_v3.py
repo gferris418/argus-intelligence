@@ -57,19 +57,22 @@ class CommercialOpportunityV3Tests(unittest.TestCase):
         ):
             self.assertIn(name, measures)
 
-    def test_supplier_intelligence_exposes_partnerability(self) -> None:
+    def test_supplier_intelligence_exposes_partnerability_without_crm_relationship_duplication(self) -> None:
         schema = _load_json("schemas/supplier-intelligence.schema.json")
+        self.assertIn("crm_ref", schema["properties"])
         partnerability = schema["properties"]["partnerability"]["properties"]
         for field in (
             "existing_bangladesh_partner",
             "exclusivity_status",
             "channel_model",
             "willingness_to_partner",
-            "access_asia_relationship",
+            "local_support_requirement",
             "conflict_status",
             "commercial_fit",
         ):
             self.assertIn(field, partnerability)
+        self.assertNotIn("access_asia_relationship", partnerability)
+        self.assertNotIn("contactability", partnerability)
 
     def test_opportunity_events_cover_early_warning_and_follow_on(self) -> None:
         schema = _load_json("schemas/opportunity-event.schema.json")

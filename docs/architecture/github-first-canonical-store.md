@@ -2,51 +2,79 @@
 
 **Status:** ACTIVE INTERIM ARCHITECTURE  
 **Effective date:** 2026-10-18  
-**Applies to:** ARGUS Intelligence `2.0.0-rc.2` and subsequent candidate work until superseded
+**Reviewed:** 2026-10-22  
+**Applies to:** ARGUS Intelligence candidate work until superseded
 
 ## Decision
 
-For the current ARGUS phase, the private `argus-intelligence` GitHub repository is the **interim physical canonical store** for ARGUS structured intelligence, synthesized intelligence, schemas, database designs, migrations, and controlled exports.
+For the current ARGUS phase, the `argus-intelligence` GitHub repository is the **interim physical canonical store** for ARGUS structured intelligence, synthesized intelligence, schemas, database designs, migrations, and controlled exports.
 
 The logical ARGUS Master Registry contract remains platform-neutral. GitHub is the current physical implementation, not a permanent semantic dependency.
 
-This allows ARGUS to defer commitment to PostgreSQL, Supabase, Airtable, or another operational database until usage patterns, workflow requirements, scale, permissions, and integration needs justify that move.
+**Repository visibility verified on 2026-10-22: public.** Therefore repository content must be treated as public even when the underlying business systems are private. Credentials, sharing tokens, personal data, confidential CRM details, SharePoint/HubSpot native identifiers that could expose private records, and restricted source payloads **must not be committed**.
 
-## Canonical ownership
+## Access Asia system-of-record rule
 
-| Information class | Interim canonical home |
-|---|---|
-| ARGUS structured records | `data/registry/` in GitHub |
-| Synthesized opportunity/project/procurement intelligence | `data/syntheses/` in GitHub |
-| Schemas/contracts/database mappings/migrations | `registry/` in GitHub |
-| Human-readable framework/governance/validation | repository Markdown/YAML/JSON |
-| Derived tabular exports | `data/exports/` in GitHub |
-| Raw tender/source documents | **Not GitHub** |
-| Original emails/correspondence | source communication system; GitHub stores references/synthesis only |
-| Original source documents | external document repository/source system; GitHub stores references/synthesis only |
+The integration rule is **pointers, not copies**. Each information class has one canonical owner; other systems store only the minimum reference or derived intelligence necessary for their own function.
+
+| Information class | Canonical owner | ARGUS/GitHub treatment |
+|---|---|---|
+| ATLAS execution policy, routing, approvals, persistence governance | ATLAS GitHub | Reference the ATLAS contract/revision; do not duplicate ATLAS authority |
+| Supplier/customer/OEM/company CRM identity | HubSpot COMPANY | Store a stable non-sensitive integration key and intelligence overlay; resolve current CRM master data at runtime |
+| Individual contacts | HubSpot CONTACT | Do not replicate contact details into ARGUS |
+| Access Asia relationship state, communication history, tasks and commercial interactions | HubSpot | Store derived intelligence only when required, with provenance; do not copy CRM history |
+| CRM deal/pipeline records | HubSpot DEAL | Link by governed integration key when required; do not treat ARGUS as the deal pipeline |
+| Original and working business documents | SharePoint | Store evidence metadata and logical locator only; do not copy source bytes into GitHub |
+| Tracked opportunity working folders through pre-submission | SharePoint `General/Business Intelligence/50_OPPORTUNITIES` | Store lifecycle state and logical folder pointer only |
+| Formal submission working folders | SharePoint `General/REV/OPP Opportunities` | Store lifecycle state and logical folder pointer only |
+| Awarded project working folders | SharePoint `General/OPS/PRJ Projects` | Store lifecycle state and logical folder pointer only |
+| ARGUS structured government-commercial intelligence | ARGUS GitHub `data/registry/` | Canonical here |
+| ARGUS synthesized intelligence | ARGUS GitHub `data/syntheses/` | Canonical synthesis here |
+| ARGUS schemas/contracts/database mappings/migrations | ARGUS GitHub | Canonical here |
+| Derived tabular exports | ARGUS GitHub `data/exports/` | Controlled derived view only |
+
+Machine-readable Access Asia system pointers are maintained in `profiles/access-asia-system-registry.yaml`.
+
+## SharePoint logical locator
+
+GitHub may retain the following non-secret logical navigation information so future agents can locate the governed document workspace without relying on chat memory:
+
+```yaml
+sharepoint:
+  hostname: accessasiaccl.sharepoint.com
+  site_path: /sites/accessasia
+  site_display_name: Access Asia Limited
+  document_library: Documents
+  business_intelligence_root: General/Business Intelligence
+```
+
+Allowed folder-name metadata includes the governed Business Intelligence structure (`10_SOURCE_MAP`, `20_ARCHITECTURE`, `30_OPERATIONS`, `40_VALIDATION`, `50_OPPORTUNITIES`, `90_ARCHIVE`, `99_INBOX`).
+
+Do **not** commit SharePoint sharing URLs containing access/query tokens, Graph drive IDs, item IDs, permission IDs, authentication artifacts, or private recipient information. Resolve native identifiers at runtime through the authorized SharePoint integration.
+
+## HubSpot linking rule
+
+HubSpot is the canonical CRM for suppliers, OEMs, customers, partners, contacts and Access Asia commercial relationships.
+
+ARGUS supplier/company records use a stable `integration_key`, normally the ARGUS supplier/party identifier. The preferred integration is to mirror that stable key into a HubSpot custom property so either system can resolve the other without committing HubSpot-native IDs to this public repository.
+
+A HubSpot-native company/contact/deal ID may be used transiently by an authorized connector at runtime, but committed ARGUS records must leave such fields null while the repository is public.
 
 ## Format policy
 
 ### Primary canonical structured format
 
-Use **JSON or JSONL** for canonical ARGUS records.
-
-Reasons:
-- deterministic and machine-readable;
-- diffable in Git;
-- directly maps to the ARGUS JSON Schema;
-- portable into PostgreSQL, document databases, analytics systems, Python, JavaScript, and API payloads;
-- preserves nested evidence, relationships, classifications, coverage, and unknowns better than flat spreadsheets.
+Use **JSON or JSONL** for canonical ARGUS records because it is deterministic, machine-readable, diffable, schema-validatable and portable.
 
 ### Supporting formats
 
 - **Markdown** — synthesized briefs, decision records, research notes, validation reports, ADRs.
 - **CSV** — flat interchange, review tables, analysis extracts, import/export.
-- **XLSX** — permitted for human review or operational interchange when spreadsheet structure materially helps; it is not the preferred source of truth because Git cannot meaningfully diff binary workbooks.
+- **XLSX** — human review or operational interchange only; not preferred canonical state.
 - **YAML** — manifests/configuration.
 - **SQL** — database schemas/migrations/materialization scripts only.
 
-## Tender/source-document rule
+## Raw tender/source documents
 
 GitHub MUST NOT contain raw tender documents or other original source-document payloads.
 
@@ -56,47 +84,34 @@ Examples that must remain outside GitHub:
 - original bid documents;
 - original technical specifications received from buyers;
 - original email `.msg`/`.eml` payloads;
-- raw archive bundles.
+- raw archive bundles;
+- CRM exports containing contacts or private relationship history;
+- SharePoint source files copied solely for AI convenience.
 
-GitHub may contain only synthesized or structured derivatives such as:
-- official reference number;
-- title/package name;
-- buyer/procuring entity/end user;
-- publication/closing dates;
-- procurement method/status;
-- project/funding relationship;
-- extracted requirements/facts;
-- analytical assessment;
-- evidence/source metadata;
-- source URL or external repository locator;
-- source hash where available;
-- provenance and `as_of` date;
-- conflicts, unknowns, stale-state indicators;
-- reconciliation/identity decision;
-- commercial decision/next action.
+GitHub may contain synthesized or structured derivatives such as official reference number, title/package name, public buyer/procuring entity/end user, publication/closing dates, procurement method/status, project/funding relationship, extracted facts, analytical assessment, evidence metadata, source-system label, safe logical locator, source hash where available, provenance, `as_of` date, conflicts/unknowns/staleness, reconciliation decision and next action.
 
-The repository must never become a duplicate document-management system.
+The repository must never become a duplicate CRM or document-management system.
 
 ## Evidence references
 
-A canonical record may reference a source without storing the source bytes. Evidence references should capture enough metadata to retrieve or verify the source later.
+A canonical record may reference a source without storing source bytes. Evidence references should capture enough non-sensitive metadata to retrieve or verify the source later.
 
-Recommended fields:
+Recommended public-safe shape:
 
 ```json
 {
-  "source_system": "BPPA",
-  "source_id": "external-reference",
-  "source_locator": "https://... or external repository path",
-  "title": "Official tender/package title",
-  "as_of": "2026-10-18",
+  "source_system": "SHAREPOINT",
+  "source_id": "logical-business-reference",
+  "source_locator": "General/Business Intelligence/50_OPPORTUNITIES/2026_PX00012_CPV",
+  "title": "Working opportunity folder",
+  "as_of": "2026-10-22",
   "claim_type": "FACT",
   "claim_condition": "CURRENT",
-  "source_sha256": "optional when the source can be hashed externally"
+  "source_sha256": null
 }
 ```
 
-`source_sha256` is provenance metadata only. It does not imply that the source file is stored in GitHub.
+`source_sha256` is provenance metadata only. It does not imply source bytes are stored in GitHub.
 
 ## Repository layout
 
@@ -104,15 +119,16 @@ Recommended fields:
 argus-intelligence/
 ├── argus-intelligence.yaml
 ├── data/
-│   ├── registry/       # canonical structured records
+│   ├── registry/       # canonical structured intelligence records
 │   ├── syntheses/      # synthesized intelligence only
-│   └── exports/        # derived CSV/XLSX views
+│   └── exports/        # controlled derived views
 ├── registry/
 │   ├── contract/
 │   ├── schema/
 │   ├── migrations/
-│   └── ...             # physical DB mappings/materialization artifacts
+│   └── ...
 ├── profiles/
+│   └── access-asia-system-registry.yaml
 ├── schemas/
 ├── spec/
 ├── docs/
@@ -121,56 +137,23 @@ argus-intelligence/
 
 ## Canonical write discipline
 
-1. Resolve/reconcile identity before creating a new canonical record.
-2. Preserve stable `argus_id` values.
-3. Prefer one record per line in JSONL when maintaining a growing registry; use deterministic ordering where practical.
-4. Every canonical mutation occurs through a reviewed Git commit/PR or an equivalently controlled repository write.
-5. Material changes must preserve provenance and revision/history through Git plus record-level revision metadata.
-6. Do not silently overwrite conflicts; preserve the current state plus evidence/conflict metadata.
-7. A synthesized Markdown brief may summarize records but does not supersede structured Registry state unless explicitly designated as the canonical record representation.
+1. Resolve/reconcile identity before creating a new canonical ARGUS record.
+2. Preserve stable `argus_id` values and cross-system integration keys.
+3. Prefer one record per line in JSONL for growing registries; use deterministic ordering where practical.
+4. Every canonical ARGUS mutation occurs through a reviewed Git commit/PR or equivalently controlled repository write.
+5. Preserve provenance and revision/history.
+6. Do not silently overwrite conflicts.
+7. Do not promote a derivative or snapshot into the canonical owner for another system.
+8. Resolve HubSpot and SharePoint native IDs at runtime rather than persisting them in public Git.
 
 ## Database deferral
 
-Operational PostgreSQL/Supabase/Neon deployment is **deferred**, not abandoned.
+Operational PostgreSQL/Supabase/Neon deployment is **deferred**, not abandoned. Move to an operational database when concurrent multi-user writes, high-frequency automated ingestion, transactional workflows, large record volumes, fine-grained permissions, event workloads or low-latency API/UI needs make GitHub unsuitable.
 
-All database-related information remains versioned in GitHub:
-- logical contracts;
-- JSON Schema;
-- physical schema designs;
-- SQL migrations;
-- mapper/API contracts;
-- indexes/constraints;
-- seed/synthetic fixtures;
-- validation reports;
-- deployment runbooks;
-- portability mappings.
-
-When an operational database is later selected, it should be treated as a materialized runtime of the GitHub-governed logical Registry. Migration must preserve ARGUS IDs, evidence, relationships, history, and provenance.
+A future database should materialize the GitHub-governed logical Registry and preserve ARGUS IDs, evidence, relationships, history and provenance. It must not replace HubSpot as CRM or SharePoint as document/work-file authority.
 
 ## Security and sensitivity
 
-This repository is private, but private GitHub storage does not remove information-classification obligations.
+Regardless of repository visibility, do not commit credentials, API keys, passwords, connection strings, sharing tokens, restricted/classified tender payloads, personal data unless explicitly authorized and materially necessary, operational-security-sensitive material, confidential CRM exports, or source documents whose handling rules prohibit repository storage.
 
-Do not commit:
-- credentials, API keys, passwords, connection strings, or secrets;
-- restricted/classified tender payloads;
-- personal data unless materially necessary and authorized;
-- operational-security-sensitive source files;
-- source documents whose license, confidentiality, or handling rules prohibit repository storage.
-
-Where sensitivity is material, store only the minimum synthesized information necessary for the commercial intelligence decision and retain the original in the authorized source system.
-
-## Exit criteria for moving to a database
-
-Move from GitHub-first storage to an operational database when one or more become material:
-- concurrent multi-user writes;
-- high-frequency automated ingestion;
-- row-level permissions beyond repository controls;
-- transactional workflows;
-- large record volumes or search latency;
-- API-driven CRM/Outlook/SharePoint synchronization;
-- event/monitoring workloads;
-- analytics requiring frequent structured queries;
-- UI workflows needing low-latency CRUD.
-
-The shift must be a storage/runtime migration, not a redesign of ARGUS semantics.
+Where sensitivity is material, store only the minimum synthesized intelligence necessary for the decision and retain the original in the authorized source system.
