@@ -22,6 +22,7 @@ EXPECTED_NEW_TYPES = {
     "BID": "BID",
     "ACCESS_ASIA_PROJECT": "AAPJ",
 }
+MIGRATION_RECEIPT_ID = "MIGRATION-ARGUS-STORE-1.1.0"
 
 
 class CommercialGraphStoreMigrationTests(unittest.TestCase):
@@ -59,6 +60,10 @@ class CommercialGraphStoreMigrationTests(unittest.TestCase):
                 meta = dict(conn.execute("SELECT key, value FROM schema_meta"))
                 self.assertEqual("1.1.0", meta["schema_version"])
                 self.assertEqual(
+                    "canonical-object-identity-standard-v1.0.yaml@1.1.0",
+                    meta["identity_standard"],
+                )
+                self.assertEqual(
                     "access-asia-commercial-data-standard-v1.0",
                     meta["commercial_data_standard"],
                 )
@@ -71,6 +76,18 @@ class CommercialGraphStoreMigrationTests(unittest.TestCase):
                     tuple(EXPECTED_NEW_TYPES),
                 ))
                 self.assertEqual(EXPECTED_NEW_TYPES, types)
+                receipt = conn.execute(
+                    "SELECT actor, operation, note FROM mutation_log WHERE mutation_id = ?",
+                    (MIGRATION_RECEIPT_ID,),
+                ).fetchone()
+                self.assertEqual(
+                    (
+                        "ATLAS",
+                        "SCHEMA_MIGRATION",
+                        "ARGUS operational store 1.0.0 -> 1.1.0; additive commercial graph activation",
+                    ),
+                    receipt,
+                )
             finally:
                 conn.close()
 
@@ -95,6 +112,13 @@ class CommercialGraphStoreMigrationTests(unittest.TestCase):
                     ).fetchone()[0],
                 )
                 self.assertEqual("1.1.0", dict(conn.execute("SELECT key,value FROM schema_meta"))["schema_version"])
+                self.assertEqual(
+                    1,
+                    conn.execute(
+                        "SELECT COUNT(*) FROM mutation_log WHERE mutation_id = ?",
+                        (MIGRATION_RECEIPT_ID,),
+                    ).fetchone()[0],
+                )
                 self.assertEqual("ok", conn.execute("PRAGMA integrity_check").fetchone()[0])
                 self.assertEqual([], conn.execute("PRAGMA foreign_key_check").fetchall())
             finally:
