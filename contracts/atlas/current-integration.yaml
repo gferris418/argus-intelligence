@@ -1,13 +1,15 @@
-version: 1.0.0
+version: 1.0.1
 status: CURRENT
 atlas:
   repository: gferris418/atlas-os
-  version: 3.0.1
-  commit: 7ff95f5c96685ec4e7ed7b1eb6fea0821e7e2abc
+  version: 3.0.2
+  commit: 95e78eb4f386c7434193014811ef8d2ce5254c30
   integration_path: integrations/argus.yaml
   chatgpt_bootstrap_path: integrations/chatgpt-bootstrap.yaml
   runtime_entrypoint: atlas_runtime
 contract:
+  prompt_entry: MISSION_CONTROL_FIRST
+  prompt_entry_scope: every_user_prompt_while_atlas_active
   capability: intelligence_collection
   provider: argus
   approval_key: ARGUS_ACTIVATION
