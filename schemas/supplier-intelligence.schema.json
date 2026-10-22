@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/supplier-intelligence.schema.json",
+  "title": "ARGUS Supplier Intelligence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["supplier_id", "legal_name", "country", "capabilities", "partnerability", "evidence_refs"],
+  "properties": {
+    "supplier_id": {"type": "string", "minLength": 1},
+    "legal_name": {"type": "string", "minLength": 1},
+    "country": {"type": "string", "minLength": 1},
+    "parent_company": {"type": ["string", "null"]},
+    "business_units": {"type": "array", "items": {"type": "string"}},
+    "capabilities": {"type": "array", "items": {"type": "string"}},
+    "products_services": {"type": "array", "items": {"type": "string"}},
+    "reference_projects": {"type": "array"},
+    "certifications": {"type": "array", "items": {"type": "string"}},
+    "manufacturing_locations": {"type": "array", "items": {"type": "string"}},
+    "export_capability": {"type": ["string", "null"]},
+    "export_control_considerations": {"type": "array", "items": {"type": "string"}},
+    "bangladesh_presence": {"type": ["string", "null"]},
+    "regional_representative": {"type": ["string", "null"]},
+    "financial_capability": {"type": ["string", "null"]},
+    "technical_capability": {"type": ["string", "null"]},
+    "after_sales_capability": {"type": ["string", "null"]},
+    "training_capability": {"type": ["string", "null"]},
+    "local_content_willingness": {"type": ["string", "null"]},
+    "competitive_position": {"type": ["string", "null"]},
+    "known_competitors": {"type": "array", "items": {"type": "string"}},
+    "contact_pathways": {"type": "array"},
+    "partnerability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["willingness_to_partner", "conflict_status", "commercial_fit"],
+      "properties": {
+        "existing_bangladesh_partner": {"type": ["string", "null"]},
+        "exclusivity_status": {"type": ["string", "null"]},
+        "channel_model": {"type": ["string", "null"]},
+        "agent_model": {"type": ["string", "null"]},
+        "distributor_model": {"type": ["string", "null"]},
+        "direct_sales_preference": {"type": ["string", "null"]},
+        "local_support_requirement": {"type": ["string", "null"]},
+        "willingness_to_partner": {"enum": ["UNKNOWN", "LOW", "MEDIUM", "HIGH", "CONFIRMED"]},
+        "access_asia_relationship": {"type": ["string", "null"]},
+        "conflict_status": {"enum": ["UNKNOWN", "NONE", "POTENTIAL", "CONFIRMED"]},
+        "contactability": {"type": ["string", "null"]},
+        "commercial_fit": {"enum": ["UNKNOWN", "LOW", "MEDIUM", "HIGH"]}
+      }
+    },
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  }
+}
