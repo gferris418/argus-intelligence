@@ -66,7 +66,6 @@ startup_semantics:
 
 method:
   stages:
-    - STARTUP
     - PIR
     - EEI
     - COLLECTION_PLAN
@@ -78,9 +77,9 @@ method:
     - COMPETING_HYPOTHESES
     - GAPS
     - PACKAGE
+  pre_stage_policy: execution.startup_sequence
   semantics:
-    STARTUP: Execute the governed institution-first startup sequence before broad collection.
-    PIR: Derive only the priority intelligence requirements that can change the commercial decision.
+    PIR: Derive only the priority intelligence requirements that can change the commercial decision after the governed startup sequence has established hierarchy, identity and initial source state.
     EEI: Decompose each PIR into answerable essential elements of information.
     COLLECTION_PLAN: Map EEIs to bounded collection tasks, target classes, safe-read dependencies and stopping conditions.
     SOURCE_PLAN: Select the narrowest competent source set by authority, relevance, recency, independence, legal accessibility and expected information gain.
