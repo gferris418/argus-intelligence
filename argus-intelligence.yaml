@@ -55,7 +55,7 @@ scope:
     commercial partner where appropriate.
   principle: Tender intelligence is one subsystem; ARGUS should preferably know the opportunity before tender publication.
   demand_intelligence: policy, need, programme, project, budget, approval, procurement and installed-base intelligence
-  supply_intelligence: OEM, supplier, contractor, technology, product, capability, reference, export and partnerability intelligence
+  supply_intelligence: OEM, supplier, contractor, technology, product, capability, reference and partnerability intelligence
   opportunity_engine: demand-supply reconciliation around a persistent commercial opportunity object
   specializations:
     - government_public_sector_opportunity_intelligence
@@ -289,13 +289,13 @@ domain_result:
 release_gates:
   - ATLAS collection-need and ARGUS collection activation contract remains unchanged: PASS
   - canonical PIR/EEI collection method and collection-plan schema remain authoritative: PASS
-  - Government commercial opportunity intelligence mission is machine-readable: CANDIDATE
-  - Opportunity exists as first-class commercial object before PX promotion: CANDIDATE
-  - S0-S9 lifecycle and SHAPE/POSITION/REACT/EXPAND modes are separate: CANDIDATE
-  - Demand and supply intelligence run as parallel engines: CANDIDATE
-  - Supplier partnerability and opportunity-supplier matching are machine-readable: CANDIDATE
-  - Rapid Tender Mode and event-driven early warning are machine-readable: CANDIDATE
-  - Qualification is advisory and ATLAS retains authoritative pursuit decisions: CANDIDATE
+  - Government commercial opportunity intelligence mission is machine-readable: PASS
+  - Opportunity exists as first-class commercial object before PX promotion: PASS
+  - S0-S9 lifecycle and SHAPE/POSITION/REACT/EXPAND modes are separate: PASS
+  - Demand and supply intelligence run as parallel engines: PASS
+  - Supplier partnerability and opportunity-supplier matching are machine-readable: PASS
+  - Rapid Tender Mode and event-driven early warning are machine-readable: PASS
+  - Qualification is advisory and ATLAS retains authoritative pursuit decisions: PASS
   - claim type and claim condition candidate schema contract: PASS
   - Bangladesh development-partner and cross-portal procurement normalization v1.1: PASS
   - GitHub-first canonical storage policy remains defined: PASS
