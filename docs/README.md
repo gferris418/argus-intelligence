@@ -39,6 +39,7 @@ USER / EVENT
 
 - [ATLAS–ARGUS collection boundary](architecture/atlas-argus-collection-boundary.md)
 - [ARGUS v3 government commercial opportunity intelligence](architecture/government-commercial-opportunity-v3.md)
+- [Bangladesh Procurement Source Standard v1.0](architecture/bangladesh-procurement-source-standard-v1.md)
 - [ARGUS Capability Integration Model](architecture/capability-integration.md)
 - [GitHub-First Canonical Storage Architecture](architecture/github-first-canonical-store.md)
 - [Live runtime testing](live-testing.md)
