@@ -27,7 +27,8 @@ class AccessAsiaDataOwnershipTests(unittest.TestCase):
         crm_ref = schema["properties"]["crm_ref"]
         self.assertEqual("HUBSPOT", crm_ref["properties"]["system"]["const"])
         self.assertEqual("COMPANY", crm_ref["properties"]["object_type"]["const"])
-        self.assertIn("company_id", crm_ref["required"])
+        self.assertIn("integration_key", crm_ref["required"])
+        self.assertIn("company_id", crm_ref["properties"])
 
         partnerability = schema["properties"]["partnerability"]["properties"]
         self.assertNotIn("access_asia_relationship", partnerability)
@@ -38,6 +39,8 @@ class AccessAsiaDataOwnershipTests(unittest.TestCase):
         self.assertIn("HubSpot", text)
         self.assertIn("SharePoint", text)
         self.assertIn("pointers, not copies", text.lower())
+        self.assertIn("public", text.lower())
+        self.assertIn("must not be committed", text.lower())
 
 
 if __name__ == "__main__":
