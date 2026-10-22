@@ -2,13 +2,42 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/gferris418/argus-intelligence/schemas/supplier-intelligence.schema.json",
   "title": "ARGUS Supplier Intelligence",
+  "description": "ARGUS intelligence overlay for a supplier/OEM/company whose CRM master identity and Access Asia relationship are canonical in HubSpot.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["supplier_id", "legal_name", "country", "capabilities", "partnerability", "evidence_refs"],
+  "required": ["supplier_id", "crm_ref", "capabilities", "partnerability", "evidence_refs"],
   "properties": {
-    "supplier_id": {"type": "string", "minLength": 1},
-    "legal_name": {"type": "string", "minLength": 1},
-    "country": {"type": "string", "minLength": 1},
+    "supplier_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable ARGUS supplier/party identity used as the cross-system integration key."
+    },
+    "crm_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "object_type", "integration_key"],
+      "properties": {
+        "system": {"const": "HUBSPOT"},
+        "object_type": {"const": "COMPANY"},
+        "integration_key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable cross-system key. Prefer the ARGUS supplier/party identity mirrored into a HubSpot custom property rather than committing HubSpot-native IDs."
+        },
+        "company_id": {
+          "type": ["string", "null"],
+          "description": "Runtime-resolved HubSpot native company ID. While this repository is public it MUST remain null in committed records; resolve it through the authorized CRM integration at runtime."
+        }
+      }
+    },
+    "legal_name": {
+      "type": ["string", "null"],
+      "description": "Optional non-canonical display snapshot only. HubSpot owns the current CRM company identity."
+    },
+    "country": {
+      "type": ["string", "null"],
+      "description": "Optional non-canonical intelligence/display snapshot only. Current CRM company profile data is resolved from HubSpot when required."
+    },
     "parent_company": {"type": ["string", "null"]},
     "business_units": {"type": "array", "items": {"type": "string"}},
     "capabilities": {"type": "array", "items": {"type": "string"}},
@@ -27,7 +56,6 @@
     "local_content_willingness": {"type": ["string", "null"]},
     "competitive_position": {"type": ["string", "null"]},
     "known_competitors": {"type": "array", "items": {"type": "string"}},
-    "contact_pathways": {"type": "array"},
     "partnerability": {
       "type": "object",
       "additionalProperties": false,
@@ -41,9 +69,7 @@
         "direct_sales_preference": {"type": ["string", "null"]},
         "local_support_requirement": {"type": ["string", "null"]},
         "willingness_to_partner": {"enum": ["UNKNOWN", "LOW", "MEDIUM", "HIGH", "CONFIRMED"]},
-        "access_asia_relationship": {"type": ["string", "null"]},
         "conflict_status": {"enum": ["UNKNOWN", "NONE", "POTENTIAL", "CONFIRMED"]},
-        "contactability": {"type": ["string", "null"]},
         "commercial_fit": {"enum": ["UNKNOWN", "LOW", "MEDIUM", "HIGH"]}
       }
     },
