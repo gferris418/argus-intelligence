@@ -6,6 +6,7 @@
 ## Architecture
 
 * [ATLAS–ARGUS collection boundary](architecture/atlas-argus-collection-boundary.md)
+* [Canonical Identity and Operational Database v1](architecture/canonical-identity-operational-database-v1.md)
 * [Bangladesh Canonical Procurement Schema v2.1](architecture/bangladesh-canonical-procurement-schema-v2.1.md)
 * [Bangladesh Canonical Procurement Standard v2.0 — Semantic Design](architecture/bangladesh-canonical-procurement-v2.md)
 * [Bangladesh Cross-Source Procurement Normalization v1.1](architecture/bangladesh-cross-source-procurement-normalization-v1.1.md)
@@ -14,11 +15,12 @@
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture v1.1](architecture/bangladesh-procurement-v2-registry-envelope-materialization-v1.1.md)
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture](architecture/bangladesh-procurement-v2-registry-envelope-materialization.md)
 * [ARGUS Capability Integration Model](architecture/capability-integration.md)
-* [GitHub-First Canonical Storage Architecture](architecture/github-first-canonical-store.md)
+* [GitHub-First Canonical Storage Architecture — legacy baseline](architecture/github-first-canonical-store.md)
 * [ARGUS v3 — Government Commercial Opportunity Intelligence](architecture/government-commercial-opportunity-v3.md)
 
 ## Validation
 
+* [Canonical Identity / Operational Store v1](validation/canonical-identity-operational-store-v1.md)
 * [ARGUS 360° Intelligence Collection — Architecture Validation](validation/360-intelligence-collection.md)
 * [ARGUS v2 Drift Repair Validation](validation/argus-v2-drift-repair.md)
 * [ATLAS OS → ARGUS Bangladesh → Results](validation/atlas-argus-bd-e2e.md)

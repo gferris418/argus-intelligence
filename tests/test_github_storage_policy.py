@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 MANIFEST = (ROOT / "argus-intelligence.yaml").read_text()
-ARCH = (ROOT / "docs" / "architecture" / "github-first-canonical-store.md").read_text()
+ARCH = (ROOT / "docs" / "architecture" / "canonical-identity-operational-database-v1.md").read_text()
 
 PROHIBITED_DATA_SUFFIXES = {
     ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".msg", ".eml",
@@ -14,11 +14,12 @@ PROHIBITED_DIR_NAMES = {"raw", "tenders", "tender-documents", "source-documents"
 
 
 class GitHubStoragePolicy(unittest.TestCase):
-    def test_manifest_declares_github_interim_canonical_store(self):
-        self.assertIn("physical_canonical_store: github", MANIFEST)
-        self.assertIn("canonical_structured_path: data/registry", MANIFEST)
+    def test_manifest_declares_sharepoint_operational_store_and_github_governance_role(self):
+        self.assertIn("physical_canonical_store: sharepoint_sqlite", MANIFEST)
+        self.assertIn("sharepoint_operational_store: true", MANIFEST)
+        self.assertIn("operational_database_runtime: active_single_writer", MANIFEST)
+        self.assertIn("github_registry_role: migration_bootstrap_audit_and_release_snapshots", MANIFEST)
         self.assertIn("raw_tender_documents_in_github: prohibited", MANIFEST)
-        self.assertIn("operational_database_runtime: deferred", MANIFEST)
 
     def test_data_tree_contains_no_prohibited_raw_document_formats(self):
         offenders = []
@@ -34,10 +35,12 @@ class GitHubStoragePolicy(unittest.TestCase):
                 offenders.append(str(path.relative_to(ROOT)))
         self.assertEqual(offenders, [], f"raw/source directories are prohibited under data/: {offenders}")
 
-    def test_architecture_keeps_logical_registry_platform_neutral(self):
-        self.assertIn("logical ARGUS Master Registry contract remains platform-neutral", ARCH)
-        self.assertIn("JSON or JSONL", ARCH)
-        self.assertIn("Raw tender/source documents", ARCH)
+    def test_architecture_preserves_logical_registry_and_explicit_store_boundary(self):
+        self.assertIn("GitHub", ARCH)
+        self.assertIn("SharePoint SQLite", ARCH)
+        self.assertIn("current mutable operational ARGUS structured state", ARCH)
+        self.assertIn("Existing GitHub JSON/JSONL registry records remain migration/audit/bootstrap material", ARCH)
+        self.assertIn("SharePoint source and working documents remain files", ARCH)
 
 
 if __name__ == "__main__":

@@ -50,11 +50,13 @@ class RegistryCompatibilityContract(unittest.TestCase):
         self.assertIn("CONFLICT", evidence["analytical_label_enum"])
         self.assertIn("STALE", evidence["analytical_label_enum"])
 
-    def test_manifest_tracks_candidate_fix_and_database_deferral_separately(self):
+    def test_manifest_tracks_candidate_fix_and_operational_database_activation_separately(self):
         self.assertIn("claim type and claim condition candidate schema contract: PASS", MANIFEST)
-        self.assertIn("operational database deployment for current phase: DEFERRED_NOT_REQUIRED", MANIFEST)
         self.assertIn("evidence_claim_type_condition_split: CANDIDATE_CONTRACT_PASS", MANIFEST)
-        self.assertIn("database_materialization_work: deferred_until_runtime_need", MANIFEST)
+        self.assertIn("operational_database_deployment_required_for_current_phase: true", MANIFEST)
+        self.assertIn("database_materialization_work: active", MANIFEST)
+        self.assertIn("physical_canonical_store: sharepoint_sqlite", MANIFEST)
+        self.assertIn("legacy_github_registry_remains_migration_and_audit_baseline: true", MANIFEST)
 
 
 if __name__ == "__main__":

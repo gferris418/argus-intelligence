@@ -1,10 +1,10 @@
-schema_version: 1
+schema_version: 2
 registry_id: access-asia-system-of-record
-version: 1.0.0
+version: 1.1.0
 effective_date: 2026-10-22
 scope: Access Asia ATLAS/ARGUS/CRM/document persistence routing
 
-principle: pointers_not_copies
+principle: governed_authority_by_information_class
 
 security:
   github_visibility_verified: public
@@ -37,21 +37,45 @@ systems:
 
   argus_github:
     repository: gferris418/argus-intelligence
-    role: canonical_structured_intelligence
+    role: argus_schema_governance_code_migrations_and_versioned_release_snapshots
     owns:
-      - government_commercial_intelligence
-      - opportunity_intelligence
-      - supplier_capability_intelligence
-      - supplier_partnerability_assessment
-      - opportunity_supplier_matches
-      - intelligence_events
-      - evidence_metadata_and_provenance
-      - public_sector_institutional_intelligence
+      - canonical_identity_standard
+      - database_schema
+      - migration_logic
+      - government_commercial_intelligence_method
+      - opportunity_intelligence_method
+      - supplier_capability_intelligence_method
+      - opportunity_supplier_matching_contracts
+      - evidence_and_provenance_contracts
+      - public_sector_institutional_intelligence_contracts
+      - versioned_registry_baselines_and_release_snapshots
     excludes:
+      - current_mutable_operational_argus_state
       - crm_master_identity
       - crm_relationship_history
       - raw_source_documents
       - working_business_documents
+
+  argus_sharepoint_sqlite:
+    role: canonical_current_mutable_argus_operational_structured_state
+    format: SQLite
+    logical_name: ARGUS Master Registry
+    logical_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
+    schema_authority: schemas/argus-operational-store-v1.sql
+    identity_authority: profiles/canonical-object-identity-standard-v1.0.yaml
+    mutation_model: single_writer_fetch_latest_modify_transactionally_verify_replace
+    version_history: SHAREPOINT_FILE_VERSIONS
+    public_git_item_ids: prohibited
+    owns:
+      - canonical_objects_current_state
+      - external_identifiers
+      - canonical_relationships
+      - source_record_index
+      - source_releases
+      - events
+      - observations
+      - current_object_payloads
+      - operational_mutation_log
 
   hubspot:
     role: canonical_crm
@@ -64,11 +88,11 @@ systems:
       - crm_tasks_notes_calls_and_emails
     cross_system_key:
       preferred_property: argus_party_id
-      value_source: stable_argus_supplier_or_party_id
+      value_source: stable_argus_organization_id
       native_record_id_storage_in_public_git: prohibited
 
   sharepoint:
-    role: canonical_document_and_working_file_store
+    role: canonical_document_working_file_and_argus_operational_database_store
     hostname: accessasiaccl.sharepoint.com
     site_path: /sites/accessasia
     site_display_name: Access Asia Limited
@@ -82,6 +106,7 @@ systems:
       - 50_OPPORTUNITIES
       - 90_ARCHIVE
       - 99_INBOX
+    operational_database: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
     lifecycle_locations:
       tracked_pre_submission: General/Business Intelligence/50_OPPORTUNITIES
       submission_active: General/REV/OPP Opportunities
@@ -99,11 +124,17 @@ persistence_routing:
   WORKING_DOCUMENT: SHAREPOINT
   OPPORTUNITY_FOLDER: SHAREPOINT
   PROJECT_DOCUMENT: SHAREPOINT
-  ARGUS_INTELLIGENCE: ARGUS_GITHUB
-  ARGUS_OPPORTUNITY: ARGUS_GITHUB
-  ARGUS_EVENT: ARGUS_GITHUB
-  ARGUS_MATCH: ARGUS_GITHUB
-  ARGUS_EVIDENCE_REFERENCE: ARGUS_GITHUB
+  ARGUS_CURRENT_STRUCTURED_STATE: ARGUS_SHAREPOINT_SQLITE
+  ARGUS_CANONICAL_OBJECT: ARGUS_SHAREPOINT_SQLITE
+  ARGUS_OPPORTUNITY: ARGUS_SHAREPOINT_SQLITE
+  ARGUS_EVENT: ARGUS_SHAREPOINT_SQLITE
+  ARGUS_OBSERVATION: ARGUS_SHAREPOINT_SQLITE
+  ARGUS_MATCH_CURRENT_STATE: ARGUS_SHAREPOINT_SQLITE
+  ARGUS_SCHEMA: ARGUS_GITHUB
+  ARGUS_IDENTITY_RULES: ARGUS_GITHUB
+  ARGUS_MIGRATION: ARGUS_GITHUB
+  ARGUS_RELEASE_SNAPSHOT: ARGUS_GITHUB
+  ARGUS_EVIDENCE_REFERENCE: ARGUS_SHAREPOINT_SQLITE
   ATLAS_POLICY: ATLAS_GITHUB
   ATLAS_RUNTIME: ATLAS_GITHUB
   ATLAS_REGISTRY: ATLAS_GITHUB
@@ -115,7 +146,25 @@ cross_system_linking:
     - argus_opportunity_id
     - commercial_px_id
   sharepoint_reference: logical_site_and_folder_path
-  copies_of_canonical_master_records: prohibited
+  database_object_key: canonical_id
+  database_primary_key: internal_uuid
+  parallel_live_argus_databases: prohibited
+  public_git_copy_of_current_mutable_database: prohibited
+
+operational_database_protocol:
+  open_sqlite_in_place_over_sharepoint_sync: prohibited
+  concurrent_writers: prohibited
+  steps:
+    - fetch_latest_sharepoint_file
+    - verify_target_and_integrity
+    - resolve_identity_before_creation
+    - mutate_locally_in_single_transaction
+    - preserve_source_provenance
+    - record_mutation_log
+    - run_integrity_and_foreign_key_checks
+    - replace_same_sharepoint_file
+    - verify_uploaded_target_and_version
+  rollback: sharepoint_file_version_history
 
 lifecycle:
   promote_to_px:
