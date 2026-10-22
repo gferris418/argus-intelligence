@@ -1,0 +1,55 @@
+document_id: ARGUS-BD-DRYRUN-001
+version: 1.0.0
+status: CANDIDATE
+country: Bangladesh
+lifecycle_authority:
+  primary_lifecycle: S0_S9
+  legacy_maturity: I0_I9_COMPATIBILITY_ONLY
+
+scenarios:
+  POLICY_SIGNAL_ONLY:
+    expected: {traversal: TOP_DOWN, maturity_effect: none_automatic, lifecycle_effect: reassess_only, research_frontier_required: true}
+  PROJECT_UNDER_APPRAISAL:
+    expected: {resolve: [approval_path, funding_path], tender_assumption: prohibited}
+  APPROVED_ADP_PROJECT:
+    expected: {project_state: ADP_RADP_INCLUDED, action: monitor_procurement_planning}
+  APP_PACKAGE_APPEARS:
+    expected: {procurement_state: PACKAGE_IDENTIFIED, reconcile_to_requirement_ref: true}
+  DGDP_STANDARDIZATION:
+    expected: {procurement_state: PRE_PROCUREMENT, live_tender: false, route: BD-DEF-DGDP}
+  LIVE_EGP_TENDER:
+    expected: {traversal: BOTTOM_UP, procurement_state: LIVE, reconcile_to_requirement_ref: true}
+  DEVELOPMENT_PARTNER_PLAN:
+    expected: {route: BD-DEV-DP, separate_financier_and_implementing_agency: true}
+  AWARD_FOUND_FIRST:
+    expected: {traversal: BOTTOM_UP, reconstruct: [package, project, requirement]}
+  ALLOCATION_REDUCED:
+    expected: {signpost: NEGATIVE, weaken_timing_hypothesis: true, automatic_lifecycle_regression: false}
+  TENDER_CANCELLED_REISSUED:
+    expected: {preserve_requirement_lineage: true, new_opportunity: false}
+  SIMILAR_ITEM_SAME_END_USER:
+    expected: {traversal: ADJACENT, lineage_inference: prohibited}
+  OLD_INSTALLED_BASE:
+    expected: {traversal: SUCCESSOR, successor_hypothesis_only: true, procurement_fact: false}
+  CONFLICTING_SOURCES:
+    expected: {preserve_contradiction: true, research_frontier_required: true}
+  MULTIPLE_POSSIBLE_ROUTES:
+    expected: {competing_hypotheses_required: true, route: BD-UNKNOWN_until_discriminated}
+  OEM_DISCOVERED_FIRST:
+    expected: {traversal: LATERAL_MARKET, reverse_to_government_requirement: true}
+
+non_negotiable_checks:
+  - ATLAS authority unchanged
+  - S0-S9 remains primary
+  - I0-I9 remains compatibility-only
+  - Procurement v2 preserved
+  - Access Asia lifecycle preserved
+  - PROMOTE_TO_PX semantics preserved
+  - SUBMISSION_ACTIVE semantics preserved
+  - HubSpot ownership preserved
+  - SharePoint ownership preserved
+  - public-Git security preserved
+  - no duplicate canonical business store
+  - no bulk legacy promotion
+  - no legal-rule overclaim
+  - no inferred institution hierarchy without evidence
