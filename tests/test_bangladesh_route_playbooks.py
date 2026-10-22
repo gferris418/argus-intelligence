@@ -26,6 +26,7 @@ class BangladeshRoutePlaybookTests(unittest.TestCase):
         text = PLAYBOOKS.read_text(encoding="utf-8")
         self.assertIn("route_is_hypothesis_until_evidenced: true", text)
         self.assertIn("different_packages_may_use_different_routes: true", text)
+        self.assertIn("better_evidence_may_supersede_route: true", text)
 
 
 if __name__ == "__main__":
