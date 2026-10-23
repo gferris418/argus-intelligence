@@ -65,6 +65,8 @@ The authorized production run must stop and restore if any mandatory smoke check
 
 - `argus.schema_migration` contains exactly one row for migration `0001_argus_operational_projection`.
 - `argus.canonical_object`, `argus.source_record` and `argus.tender` exist.
+- all active canonical object types from `profiles/canonical-object-identity-standard-v1.0.yaml` are admitted, including `PROCUREMENT_PACKAGE`.
+- canonical-object status and tender lifecycle status remain separate vocabularies.
 - canonical IDs and source-native identities satisfy uniqueness constraints.
 - all tender buyer/ministry/source references resolve.
 - project codes are permitted to repeat.
@@ -91,12 +93,24 @@ If DDL application or mandatory smoke checks fail:
 
 1. stop application traffic to the new PostgreSQL projection;
 2. preserve migration logs and the failed branch/database state for diagnosis;
-3. restore the named pre-migration snapshot / restore point to a replacement production branch;
+3. restore the named pre-migration snapshot / restore point to an isolated replacement branch;
 4. verify schema and data fingerprints against the pre-migration receipt;
-5. rebind application credentials only after verification;
-6. record the failed migration attempt and remediation in GitHub/operational audit records.
+5. if direct finalized restore is supported, use the platform-supported cutover path; otherwise perform an explicitly rehearsed application/endpoint rebind to the verified restored branch;
+6. rebind application credentials only after verification;
+7. record the failed migration attempt and remediation in GitHub/operational audit records.
 
 Do not attempt ad-hoc `DROP TABLE`, `TRUNCATE` or manual row deletion as rollback.
+
+### Neon Realtime restore boundary
+
+As of the 2026-10-23 rehearsal, Neon rejected `finalize_restore=true` for the production snapshot because the source branch has Neon Realtime enabled. A non-finalized isolated snapshot restore succeeded and produced an empty schema diff against production.
+
+Therefore, while Realtime remains enabled, production recovery must not assume that snapshot restore can atomically finalize onto the existing production routing. Before cutover approval, the team must rehearse and document one supported recovery path end-to-end:
+
+- isolated restore branch -> integrity verification -> application/endpoint rebind; or
+- another Neon-supported Realtime recovery mechanism that provides equivalent verified rollback semantics.
+
+The recovery path must include the exact endpoint/credential rebind sequence and a reverse/fallback step. A successful isolated restore is necessary evidence but is not, by itself, equivalent to a rehearsed production traffic cutover.
 
 ### Forward recovery
 
@@ -119,5 +133,5 @@ Record at minimum:
 - row counts and integrity results;
 - smoke-check result;
 - benchmark report pointer;
-- restore rehearsal result;
+- restore rehearsal result and, where Realtime prevents finalized restore, the verified rebind procedure;
 - ATLAS approval reference for production cutover.
