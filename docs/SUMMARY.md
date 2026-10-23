@@ -15,6 +15,7 @@
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture v1.1](architecture/bangladesh-procurement-v2-registry-envelope-materialization-v1.1.md)
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture](architecture/bangladesh-procurement-v2-registry-envelope-materialization.md)
 * [ARGUS Capability Integration Model](architecture/capability-integration.md)
+* [ARGUS Issue #76 — Native Intelligence Capability Design](architecture/issue-76-native-intelligence-capability-design.md)
 * [GitHub-First Canonical Storage Architecture — legacy baseline](architecture/github-first-canonical-store.md)
 * [ARGUS v3 — Government Commercial Opportunity Intelligence](architecture/government-commercial-opportunity-v3.md)
 
