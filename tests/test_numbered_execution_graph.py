@@ -67,6 +67,52 @@ class NumberedExecutionGraphTests(unittest.TestCase):
         for positions in groups.values():
             self.assertEqual(list(range(1, len(positions) + 1)), sorted(positions))
 
+    def test_every_node_declares_governance_metadata(self) -> None:
+        graph = yaml.safe_load(GRAPH_PATH.read_text(encoding="utf-8"))
+        allowed_criticality = {"CRITICAL", "MAJOR", "MINOR", "INFORMATIONAL"}
+        allowed_statuses = {
+            "PENDING",
+            "ACTIVE",
+            "COMPLETE",
+            "BLOCKED",
+            "FAILED",
+            "NOT_APPLICABLE",
+            "SKIPPED_WITH_AUTHORITY",
+            "SUPERSEDED",
+        }
+
+        for node in graph["nodes"]:
+            self.assertTrue(node.get("owner"), node["stable_id"])
+            self.assertIn(node.get("criticality"), allowed_criticality, node["stable_id"])
+            statuses = node.get("allowed_statuses")
+            self.assertIsInstance(statuses, list, node["stable_id"])
+            self.assertIn("PENDING", statuses, node["stable_id"])
+            self.assertTrue(set(statuses).issubset(allowed_statuses), node["stable_id"])
+            if node["kind"] == "REQUIRED":
+                self.assertNotIn("NOT_APPLICABLE", statuses, node["stable_id"])
+
+    def test_research_nodes_declare_evidence_or_output_contracts(self) -> None:
+        graph = yaml.safe_load(GRAPH_PATH.read_text(encoding="utf-8"))
+        by_id = {node["stable_id"]: node for node in graph["nodes"]}
+
+        for stable_id in (
+            "ARGUS-COLLECTION-COLLECT",
+            "ARGUS-COLLECTION-RESOLVE",
+            "ARGUS-COLLECTION-GRADE",
+            "ARGUS-COLLECTION-COMPETING-HYPOTHESES",
+            "ARGUS-COLLECTION-GAPS",
+            "ARGUS-COLLECTION-PACKAGE",
+        ):
+            node = by_id[stable_id]
+            self.assertTrue(
+                node.get("evidence_requirement") or node.get("output_schema_ref"),
+                stable_id,
+            )
+
+    def test_graph_targets_current_atlas_aceg_contract(self) -> None:
+        graph = yaml.safe_load(GRAPH_PATH.read_text(encoding="utf-8"))
+        self.assertEqual("atlas.canonical-execution-graph/1.1.0", graph["atlas_contract"])
+
     def test_runtime_cannot_invent_canonical_nodes(self) -> None:
         graph = yaml.safe_load(GRAPH_PATH.read_text(encoding="utf-8"))
         self.assertEqual("PROHIBITED", graph["runtime_policy"]["invent_canonical_nodes"])
