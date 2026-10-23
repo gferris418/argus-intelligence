@@ -1,0 +1,97 @@
+version: 1.0.0
+status: REQUIRED_BEFORE_PRODUCTION_CUTOVER
+purpose: >-
+  Define reproducible acceptance criteria for the ARGUS PostgreSQL tender-search
+  projection. Benchmark results are evidence, not substitutes for correctness or
+  quality gates.
+
+dataset_scales:
+  - 10000
+  - 100000
+  - 1000000
+
+latency_percentiles:
+  - p50
+  - p95
+  - p99
+
+workloads:
+  - warm_cache
+  - cold_cache
+  - concurrent_readers
+  - concurrent_ingestion
+
+concurrency:
+  reader_levels: [1, 8, 32]
+  writer_levels: [0, 1, 4]
+  duration_seconds: 60
+
+queries:
+  exact_reference:
+    mode: exact_reference
+    expected_plan:
+      required_index_family: idx_tender_reference_lower
+      disallow_full_table_scan_at_scale: 100000
+    acceptance:
+      p95_ms_at_1000000: 250
+  exact_project_code:
+    mode: exact_project_code
+    expected_plan:
+      required_index_family: idx_tender_project_code_lower
+      disallow_full_table_scan_at_scale: 100000
+    acceptance:
+      p95_ms_at_1000000: 250
+  fts:
+    mode: fts
+    expected_plan:
+      required_index_family: idx_tender_search_vector
+      index_type: GIN
+    acceptance:
+      p95_ms_at_1000000: 500
+  fuzzy:
+    mode: fuzzy
+    expected_plan:
+      required_index_family: idx_tender_title_trgm
+      index_type: GIN_TRGM
+      record_candidate_count: true
+    acceptance:
+      p95_ms_at_1000000: 1500
+      maximum_candidate_fraction: 0.20
+  active_closing_date:
+    function: argus.list_tenders
+    expected_plan:
+      required_index_family: idx_tender_status_closing
+    acceptance:
+      p95_ms_at_1000000: 250
+
+required_measurements:
+  - row_count
+  - dataset_bytes
+  - query_mode
+  - cache_state
+  - reader_concurrency
+  - writer_concurrency
+  - latency_ms
+  - latency_percentile
+  - returned_rows
+  - candidate_rows
+  - planning_time_ms
+  - execution_time_ms
+  - plan_node_types
+  - indexes_used
+  - errors
+
+production_gate:
+  all_scales_completed: true
+  all_workloads_completed: true
+  zero_query_errors: true
+  expected_plans_verified: true
+  thresholds_passed: true
+  rollback_smoke_passed: true
+  report_must_include_environment:
+    - postgres_version
+    - compute_size
+    - region
+    - connection_pooling_mode
+    - dataset_seed
+    - git_commit
