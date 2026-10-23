@@ -1,12 +1,12 @@
-version: 1.0.0
+version: 1.1.0
 status: PARTIAL_PASS_100K_FINAL_SCHEMA
-recorded_at_utc: 2026-10-23T03:22:00Z
+recorded_at_utc: 2026-10-23T03:25:00Z
 production_cutover_approved: false
 
 source_control:
   repository: gferris418/argus-intelligence
   pr: 78
-  tested_sql_commit: a32dd2595dc00edd7edbb7fc1a4dacd2b7ff6b71
+  tested_sql_commit: 05a6f878c503342c0a04ccf9c43b408c080e18fc
   migration_chain:
     - migrations/postgres/0001_argus_operational_projection.sql
     - migrations/postgres/0002_argus_fuzzy_knn.sql
@@ -61,12 +61,13 @@ warm_latency_100_samples_ms:
     p99: 206.056
     returned_rows_min: 20
     returned_rows_max: 20
-  fuzzy:
-    p50: 6.999
-    p95: 7.308
-    p99: 10.957
+  fuzzy_thresholded_knn:
+    p50: 10.476
+    p95: 11.327
+    p99: 13.942
     returned_rows_min: 20
     returned_rows_max: 20
+    relevance_filter: pg_trgm_similarity_threshold
   active_closing_date:
     p50: 0.321
     p95: 0.523
@@ -97,29 +98,34 @@ query_plan_evidence:
     execution_time_ms: 290.290
     file_cache_misses: 7722
     result: PASS_INDEXED_COLDISH_PROBE
-  fuzzy:
+  fuzzy_thresholded_knn:
     index: idx_tender_title_trgm_gist
     node: Index Scan -> Incremental Sort
-    strategy: trigram_nearest_neighbor
+    strategy: trigram_similarity_filter_plus_nearest_neighbor
+    index_condition: title % query
+    order_by: title <-> query
     index_rows_seen: 61
     returned_rows: 20
-    execution_time_ms: 16.070
-    planning_time_ms: 24.183
-    file_cache_misses: 49
-    result: PASS_NO_SEQUENTIAL_SCAN
+    execution_time_ms: 1139.541
+    planning_time_ms: 3.681
+    file_cache_misses: 696
+    result: PASS_NO_SEQUENTIAL_SCAN_PRESERVES_RELEVANCE_THRESHOLD
 
 regression:
   before_0002:
     fuzzy_plan: Sequential Scan
     fuzzy_warm_p95_ms: 391.099
+    relevance_filter: pg_trgm_similarity_threshold
   after_0002:
     fuzzy_plan: GiST KNN Index Scan
-    fuzzy_warm_p95_ms: 7.308
-  p95_improvement_factor: 53.52
+    fuzzy_warm_p95_ms: 11.327
+    relevance_filter: pg_trgm_similarity_threshold
+  p95_improvement_factor: 34.53
 
 contract_status:
   scale_100k_final_schema: PASS_FOR_SINGLE_READER_WARM_AND_PLAN_CHECKS
   expected_indexes: PASS
+  fuzzy_relevance_semantics_preserved: PASS
   zero_query_errors_in_100_sample_warm_run: PASS
   cold_cache_full_matrix: NOT_COMPLETE
   concurrent_readers_1_8_32: NOT_COMPLETE
