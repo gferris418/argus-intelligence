@@ -60,7 +60,7 @@ jobs:
             tools/cross_repo_e2e.py
       - name: Mypy critical execution paths
         run: |
-          python -m mypy --ignore-missing-imports \
+          python -m mypy --explicit-package-bases --ignore-missing-imports \
             tools/atlas_contract.py \
             tools/atlas_v3_provider.py \
             tools/postgres_search.py \
