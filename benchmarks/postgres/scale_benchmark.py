@@ -141,7 +141,7 @@ def seed_range(admin_dsn: str, start: int, end: int, chunk_size: int = 50_000) -
                   'Benchmark Buyer '||(g%%100), 'Benchmark Ministry '||(g%%20),
                   'BD', 'benchmark', 'BENCH-SRC-'||lpad(g::text,7,'0'),
                   'Dhaka', 'OPEN_TENDER', 'GOODS', 'published',
-                  current_date - (g%%365),
+                  current_date - ((g%%365)::int),
                   now() + ((g%%180)||' days')::interval,
                   now() + ((g%%180)||' days')::interval + interval '1 hour',
                   'GOB', 'USD', 100000 + g, 1000 + (g%%5000),
