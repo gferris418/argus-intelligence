@@ -1,6 +1,6 @@
-version: 1.1.0
+version: 1.2.0
 status: PARTIAL_PASS_100K_FINAL_SCHEMA
-recorded_at_utc: 2026-10-23T03:25:00Z
+recorded_at_utc: 2026-10-23T03:28:00Z
 production_cutover_approved: false
 
 source_control:
@@ -40,6 +40,9 @@ migration_rehearsal:
   migration_0002_apply: PASS
   migration_0002_reapply_idempotency: PASS
   schema_migration_rows_for_0002: 1
+  final_search_function_applied_to_rehearsal: PASS
+  relevant_fuzzy_fixture_results: 20
+  unrelated_fuzzy_fixture_results: 0
   production_schema_mutated: false
 
 warm_latency_100_samples_ms:
@@ -61,10 +64,10 @@ warm_latency_100_samples_ms:
     p99: 206.056
     returned_rows_min: 20
     returned_rows_max: 20
-  fuzzy_thresholded_knn:
-    p50: 10.476
-    p95: 11.327
-    p99: 13.942
+  fuzzy_thresholded_knn_final_function:
+    p50: 11.069
+    p95: 12.410
+    p99: 15.350
     returned_rows_min: 20
     returned_rows_max: 20
     relevance_filter: pg_trgm_similarity_threshold
@@ -116,11 +119,12 @@ regression:
     fuzzy_plan: Sequential Scan
     fuzzy_warm_p95_ms: 391.099
     relevance_filter: pg_trgm_similarity_threshold
-  after_0002:
+  after_0002_final_function:
     fuzzy_plan: GiST KNN Index Scan
-    fuzzy_warm_p95_ms: 11.327
+    fuzzy_warm_p95_ms: 12.410
     relevance_filter: pg_trgm_similarity_threshold
-  p95_improvement_factor: 34.53
+    unrelated_query_returns_zero: true
+  p95_improvement_factor: 31.51
 
 contract_status:
   scale_100k_final_schema: PASS_FOR_SINGLE_READER_WARM_AND_PLAN_CHECKS
