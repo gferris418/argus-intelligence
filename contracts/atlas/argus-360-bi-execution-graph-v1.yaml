@@ -1,218 +1,246 @@
 schema_version: 1
 workflow_id: ARGUS-360-BI
-version: 1.0.0
+version: 1.1.0
 status: CANDIDATE
-atlas_contract: atlas.canonical-execution-graph/1.0.0
+atlas_contract: atlas.canonical-execution-graph/1.1.0
 purpose: >-
-  Project the existing normative ARGUS startup sequence and collection method onto a
-  versioned, hierarchically numbered execution graph without changing ARGUS doctrine.
-  ATLAS governs structural integrity and activation; ARGUS owns the declared BI stages.
+  Project the normative ARGUS startup sequence and collection method onto a versioned,
+  hierarchically numbered execution graph without changing ARGUS doctrine. ATLAS governs
+  structural integrity and activation; ARGUS owns the declared BI stages.
 
 runtime_policy:
   invent_canonical_nodes: PROHIBITED
   extension_route: ATLAS_GOVERNED_VERSION_CHANGE
   silent_omission: PROHIBITED
   unknown_result_is_valid_when_evidence_insufficient: true
+  governance_metadata_required: true
 
-nodes:
-  - stable_id: ARGUS-STARTUP
-    serial: "01"
-    title: Governed startup sequence
+node_defaults:
+  required: &required
     kind: REQUIRED
     owner: ARGUS
+    criticality: MAJOR
+    allowed_statuses:
+      - PENDING
+      - ACTIVE
+      - COMPLETE
+      - BLOCKED
+      - FAILED
+      - SKIPPED_WITH_AUTHORITY
+      - SUPERSEDED
+  conditional: &conditional
+    kind: CONDITIONAL
+    owner: ARGUS
+    criticality: MAJOR
+    allowed_statuses:
+      - PENDING
+      - ACTIVE
+      - COMPLETE
+      - BLOCKED
+      - FAILED
+      - NOT_APPLICABLE
+      - SKIPPED_WITH_AUTHORITY
+      - SUPERSEDED
+
+nodes:
+  - <<: *required
+    stable_id: ARGUS-STARTUP
+    serial: "01"
+    title: Governed startup sequence
+    criticality: CRITICAL
     dependencies: []
 
-  - stable_id: ARGUS-STARTUP-RESOLVE-INSTITUTIONAL-HIERARCHY
+  - <<: *required
+    stable_id: ARGUS-STARTUP-RESOLVE-INSTITUTIONAL-HIERARCHY
     serial: "01.01"
     title: Resolve institutional hierarchy
     stage: RESOLVE_INSTITUTIONAL_HIERARCHY
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
     dependencies: []
 
-  - stable_id: ARGUS-STARTUP-CHECK-INTERNAL-CANONICAL-REGISTRY
+  - <<: *required
+    stable_id: ARGUS-STARTUP-CHECK-INTERNAL-CANONICAL-REGISTRY
     serial: "01.02"
     title: Check internal canonical registry
     stage: CHECK_INTERNAL_CANONICAL_REGISTRY
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
     dependencies:
       - ARGUS-STARTUP-RESOLVE-INSTITUTIONAL-HIERARCHY
 
-  - stable_id: ARGUS-STARTUP-RECONCILE-OPPORTUNITY-IDENTITY
+  - <<: *required
+    stable_id: ARGUS-STARTUP-RECONCILE-OPPORTUNITY-IDENTITY
     serial: "01.03"
     title: Reconcile opportunity identity
     stage: RECONCILE_OPPORTUNITY_IDENTITY
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
     dependencies:
       - ARGUS-STARTUP-CHECK-INTERNAL-CANONICAL-REGISTRY
 
-  - stable_id: ARGUS-STARTUP-CHECK-OFFICIAL-PROCUREMENT-SOURCES
+  - <<: *required
+    stable_id: ARGUS-STARTUP-CHECK-OFFICIAL-PROCUREMENT-SOURCES
     serial: "01.04"
     title: Check official procurement sources
     stage: CHECK_OFFICIAL_PROCUREMENT_SOURCES
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
+    evidence_requirement: Prefer authoritative procurement sources; preserve UNKNOWN when unavailable.
     dependencies:
       - ARGUS-STARTUP-RECONCILE-OPPORTUNITY-IDENTITY
 
-  - stable_id: ARGUS-STARTUP-CHECK-INTERNAL-CUSTOMER-INTELLIGENCE
+  - <<: *required
+    stable_id: ARGUS-STARTUP-CHECK-INTERNAL-CUSTOMER-INTELLIGENCE
     serial: "01.05"
     title: Check internal customer intelligence
     stage: CHECK_INTERNAL_CUSTOMER_INTELLIGENCE
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
     dependencies:
       - ARGUS-STARTUP-CHECK-OFFICIAL-PROCUREMENT-SOURCES
 
-  - stable_id: ARGUS-STARTUP-BUILD-RESEARCH-FRONTIER
+  - <<: *required
+    stable_id: ARGUS-STARTUP-BUILD-RESEARCH-FRONTIER
     serial: "01.06"
     title: Build research frontier
     stage: BUILD_RESEARCH_FRONTIER
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
     dependencies:
       - ARGUS-STARTUP-CHECK-INTERNAL-CUSTOMER-INTELLIGENCE
 
-  - stable_id: ARGUS-STARTUP-EXECUTE-ADAPTIVE-360-COLLECTION
+  - <<: *required
+    stable_id: ARGUS-STARTUP-EXECUTE-ADAPTIVE-360-COLLECTION
     serial: "01.07"
     title: Execute adaptive 360 collection
     stage: EXECUTE_ADAPTIVE_360_COLLECTION
     parent_id: ARGUS-STARTUP
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
     dependencies:
       - ARGUS-STARTUP-BUILD-RESEARCH-FRONTIER
 
-  - stable_id: ARGUS-COLLECTION-METHOD
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-METHOD
     serial: "02"
     title: Normative collection method
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
     dependencies:
       - ARGUS-STARTUP-EXECUTE-ADAPTIVE-360-COLLECTION
 
-  - stable_id: ARGUS-COLLECTION-PIR
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-PIR
     serial: "02.01"
     title: Priority intelligence requirements
     stage: PIR
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
     dependencies:
       - ARGUS-STARTUP-EXECUTE-ADAPTIVE-360-COLLECTION
 
-  - stable_id: ARGUS-COLLECTION-EEI
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-EEI
     serial: "02.02"
     title: Essential elements of information
     stage: EEI
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
     dependencies:
       - ARGUS-COLLECTION-PIR
 
-  - stable_id: ARGUS-COLLECTION-PLAN
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-PLAN
     serial: "02.03"
     title: Collection plan
     stage: COLLECTION_PLAN
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
     dependencies:
       - ARGUS-COLLECTION-EEI
 
-  - stable_id: ARGUS-COLLECTION-SOURCE-PLAN
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-SOURCE-PLAN
     serial: "02.04"
     title: Source plan
     stage: SOURCE_PLAN
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
     dependencies:
       - ARGUS-COLLECTION-PLAN
 
-  - stable_id: ARGUS-COLLECTION-COLLECT
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-COLLECT
     serial: "02.05"
     title: Collect
     stage: COLLECT
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
+    evidence_requirement: Record provenance for every material collected item and preserve source authority.
     dependencies:
       - ARGUS-COLLECTION-SOURCE-PLAN
 
-  - stable_id: ARGUS-COLLECTION-SEARCH-LEARNING
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-SEARCH-LEARNING
     serial: "02.06"
     title: Search learning
     stage: SEARCH_LEARNING
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: MINOR
     dependencies:
       - ARGUS-COLLECTION-COLLECT
 
-  - stable_id: ARGUS-COLLECTION-RESOLVE
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-RESOLVE
     serial: "02.07"
     title: Resolve
     stage: RESOLVE
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
+    evidence_requirement: Resolve identities and classifications without collapsing unresolved contradictions.
     dependencies:
       - ARGUS-COLLECTION-SEARCH-LEARNING
 
-  - stable_id: ARGUS-COLLECTION-GRADE
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-GRADE
     serial: "02.08"
     title: Grade evidence
     stage: GRADE
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
+    evidence_requirement: Grade authority, corroboration, freshness and contradiction state for material claims.
     dependencies:
       - ARGUS-COLLECTION-RESOLVE
 
-  - stable_id: ARGUS-COLLECTION-COMPETING-HYPOTHESES
+  - <<: *conditional
+    stable_id: ARGUS-COLLECTION-COMPETING-HYPOTHESES
     serial: "02.09"
     title: Competing hypotheses
     stage: COMPETING_HYPOTHESES
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: CONDITIONAL
-    owner: ARGUS
+    condition: Material ambiguity or competing explanations exist.
+    evidence_requirement: Preserve competing hypotheses until evidence discriminates between them.
     dependencies:
       - ARGUS-COLLECTION-GRADE
 
-  - stable_id: ARGUS-COLLECTION-GAPS
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-GAPS
     serial: "02.10"
     title: Expose gaps and unknowns
     stage: GAPS
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    evidence_requirement: Record UNKNOWN, NOT_OBSERVED, INSUFFICIENT_EVIDENCE and CONFLICTING_EVIDENCE explicitly.
     dependencies:
       - ARGUS-COLLECTION-COMPETING-HYPOTHESES
 
-  - stable_id: ARGUS-COLLECTION-PACKAGE
+  - <<: *required
+    stable_id: ARGUS-COLLECTION-PACKAGE
     serial: "02.11"
     title: Package intelligence result
     stage: PACKAGE
     parent_id: ARGUS-COLLECTION-METHOD
-    kind: REQUIRED
-    owner: ARGUS
+    criticality: CRITICAL
+    evidence_requirement: Package findings with provenance, confidence, contradictions, unknowns and research gaps.
     dependencies:
       - ARGUS-COLLECTION-GAPS
 
-  - stable_id: ARGUS-RETURN-TO-ATLAS
+  - <<: *required
+    stable_id: ARGUS-RETURN-TO-ATLAS
     serial: "03"
     title: Return governed intelligence package to ATLAS
-    kind: REQUIRED
     owner: ATLAS_OS
+    criticality: CRITICAL
     dependencies:
       - ARGUS-COLLECTION-PACKAGE
