@@ -90,10 +90,14 @@ class PostgresProjectionContractTests(unittest.TestCase):
             "CREATE EXTENSION IF NOT EXISTS pg_trgm",
             "CREATE TABLE IF NOT EXISTS argus.schema_migration",
             "CREATE TABLE IF NOT EXISTS argus.object_type_registry",
-            "CREATE TABLE IF NOT EXISTS argus.status_registry",
+            "CREATE TABLE IF NOT EXISTS argus.object_status_registry",
+            "CREATE TABLE IF NOT EXISTS argus.tender_status_registry",
             "CREATE TABLE IF NOT EXISTS argus.source_record",
             "CREATE TABLE IF NOT EXISTS argus.canonical_object",
             "CREATE TABLE IF NOT EXISTS argus.tender",
+            "('PROCUREMENT_PACKAGE'",
+            "status text NOT NULL DEFAULT 'CURRENT' REFERENCES argus.object_status_registry(status)",
+            "status text NOT NULL DEFAULT 'published' REFERENCES argus.tender_status_registry(status)",
             "REFERENCES argus.canonical_object",
             "REFERENCES argus.source_record",
             "CREATE UNIQUE INDEX IF NOT EXISTS uq_tender_reference_scope",
@@ -105,8 +109,17 @@ class PostgresProjectionContractTests(unittest.TestCase):
         )
         for token in required:
             self.assertIn(token, sql)
+        self.assertNotIn("('PACKAGE'", sql)
         self.assertNotIn("DROP TABLE", sql.upper())
         self.assertNotIn("TRUNCATE", sql.upper())
+
+    def test_postgres_object_types_cover_the_active_canonical_identity_standard(self) -> None:
+        identity = yaml.safe_load(
+            (ROOT / "profiles" / "canonical-object-identity-standard-v1.0.yaml").read_text(encoding="utf-8")
+        )
+        sql = MIGRATION.read_text(encoding="utf-8")
+        for object_type in identity["canonical_object_types"]:
+            self.assertIn(f"('{object_type}'", sql)
 
     def test_recovery_and_benchmark_contracts_are_versioned(self) -> None:
         recovery = RECOVERY.read_text(encoding="utf-8")
@@ -154,7 +167,7 @@ class PostgresSearchAdapterTests(unittest.TestCase):
             "PRJ-1",
             "Coastal Patrol Vessel",
             "Buyer",
-            "active",
+            "published",
             None,
             "https://example.test/tender/1",
             0.87,
