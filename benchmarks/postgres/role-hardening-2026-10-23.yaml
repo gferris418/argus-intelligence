@@ -1,0 +1,95 @@
+version: 1.0.0
+status: VERIFIED_ROLE_RETIREMENT
+recorded_at_utc: 2026-10-23T04:19:07Z
+purpose: >-
+  Record the explicitly approved retirement of two unused production login roles
+  that inherited Neon administrative authority. This receipt closes only the
+  least-privilege orphan-role blocker and does not authorize PostgreSQL cutover.
+
+source_control:
+  repository: gferris418/argus-intelligence
+  verified_main_before_receipt: 092cc313ac5b1d85eaffd23c669060551fd7256b
+
+environment:
+  provider: Neon
+  project_id: rapid-field-91311881
+  production_branch_id: br-spring-feather-a1cjndbm
+  production_branch_name: production
+  database_name: argus
+
+authorization:
+  explicit_user_approval_received: true
+  approved_action: delete_argus_search_and_argus_ingest
+
+pre_delete_verification:
+  argus_ingest:
+    can_login: true
+    create_role: true
+    create_database: true
+    member_of: [neon_superuser]
+    active_sessions: 0
+    owned_objects: 0
+    repository_runtime_references: 0
+  argus_search:
+    can_login: true
+    create_role: true
+    create_database: true
+    member_of: [neon_superuser]
+    active_sessions: 0
+    owned_objects: 0
+    repository_runtime_references: 0
+
+least_privilege_role_gate:
+  status: PASS
+  deletion_mechanism: neon_control_plane
+  deleted_roles:
+    - argus_ingest
+    - argus_search
+  post_delete_sql_presence: []
+  post_delete_control_plane_presence: []
+  verified_bounded_roles:
+    argus_reader:
+      can_login: false
+      superuser: false
+      create_role: false
+      create_database: false
+      member_of: []
+    argus_runtime:
+      can_login: true
+      superuser: false
+      create_role: false
+      create_database: false
+      member_of: [argus_writer]
+    argus_writer:
+      can_login: false
+      superuser: false
+      create_role: false
+      create_database: false
+      member_of: []
+
+impact:
+  production_role_state_mutated: true
+  production_schema_mutated: false
+  production_data_mutated: false
+  production_cutover_performed: false
+  credential_effect: credentials_for_deleted_roles_no_longer_work
+  recovery: >-
+    The deleted names can be recreated if a future approved design requires them,
+    but they must receive only bounded ARGUS grant roles. Do not restore the former
+    neon_superuser membership, CREATEROLE, CREATEDB or retired credentials.
+
+production_gate:
+  overall: BLOCKED
+  production_cutover_approved: false
+  closed_blocker: overprivileged_orphan_role_retirement
+  open_blockers:
+    - production_branch_protection
+    - independent_client_concurrency
+    - concurrent_ingestion
+    - cold_cache_full_matrix
+    - one_million_rows
+    - realtime_recovery_application_rebind
+
+conclusion: >-
+  The production role boundary is now least-privilege for the admitted ARGUS
+  roles. All unrelated production-cutover gates remain closed.
