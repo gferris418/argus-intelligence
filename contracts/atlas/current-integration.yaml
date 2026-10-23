@@ -23,6 +23,13 @@ contract:
   provider_return_target: ATLAS
   explicit_user_approval_required: true
   accepted_route_mechanisms: [ARGUS, MULTI_CAPABILITY]
+  route_contracts:
+    ARGUS:
+      capability: intelligence_collection
+      provider: argus
+    MULTI_CAPABILITY:
+      capability: intelligence_collection+analysis
+      provider: argus+atlas
   pre_execution_flow: [UNDERSTAND_AND_NORMALIZE, MINIMAL_DOMAIN_FRAMING, ROUTE]
   direct_search_remains_atlas_owned: true
   argus_creates_execution_spine: false
