@@ -43,6 +43,13 @@ class BusinessIntelligenceBoundaryTests(unittest.TestCase):
         self.assertTrue(lifecycle["awarded_or_contract_activated"]["preserve_source_workspace"])
         self.assertTrue(lifecycle["awarded_or_contract_activated"]["create_linked_project_workspace"])
 
+        opportunity_lifecycle = self._load("profiles/access-asia-opportunity-lifecycle.yaml")
+        self.assertEqual("General/REV/OPP Opportunities", opportunity_lifecycle["tracked_opportunity"]["destination_home"])
+        self.assertFalse(opportunity_lifecycle["submission"]["move_entire_folder_if_present"])
+        self.assertFalse(opportunity_lifecycle["project"]["move_entire_folder"])
+        self.assertTrue(opportunity_lifecycle["project"]["preserve_source_workspace"])
+        self.assertTrue(opportunity_lifecycle["project"]["create_linked_project_workspace"])
+
     def test_financial_records_are_bi_facts_not_an_accounting_ledger(self) -> None:
         standard = self._load("profiles/access-asia-commercial-data-standard-v1.0.yaml")
         rules = standard["financial_fact_rules"]
