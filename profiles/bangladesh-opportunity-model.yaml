@@ -106,9 +106,25 @@ research_frontier:
     - priority
   purpose: rank unresolved questions by decision value rather than pursue endless generic research
 
+procurement_package_forecasting:
+  status: CANDIDATE
+  method: profiles/procurement-package-forecasting-v1.0.yaml
+  schema: schemas/procurement-package-forecast.schema.json
+  package_hypothesis_authority: ARGUS
+  final_forecast_authority: ATLAS
+  approved_project_proves_package_exists: false
+  forecast_changes_procurement_state_automatically: false
+  observed_package_requires_authoritative_evidence: true
+  canonical_observed_object_type: PROCUREMENT_PACKAGE
+  relationship_to_procurement_state: >-
+    Package forecasts explain what may appear next but do not move procurement_state to
+    PACKAGE_IDENTIFIED. That state requires authoritative or otherwise sufficiently
+    competent evidence that the package exists.
+
 quality_rules:
   - S0-S9 stage, opportunity mode and each parallel state axis remain independently stored.
   - I0-I9 may be derived or displayed only for compatibility and historical interpretation.
   - State movement requires evidence appropriate to that state; an observed event is not itself an automatic transition.
   - Contradicting evidence remains attached to the same opportunity unless requirement identity is disproved.
   - Procurement artifacts are reconciled to requirement_ref before a new opportunity is created.
+  - Procurement-package forecasts remain hypotheses until authoritative package evidence is reconciled.
