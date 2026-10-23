@@ -17,9 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_PATH = ROOT / "benchmarks" / "postgres" / "tender-search-contract.yaml"
 
 QUERY_MODES = ("exact_reference", "exact_project_code", "fts", "fuzzy", "active_closing_date")
-SEARCH_SQL = (
-    "SELECT canonical_tender_id FROM argus.search_tenders(%s, %s, %s)"
-)
+SEARCH_SQL = "SELECT canonical_tender_id FROM argus.search_tenders(%s, %s, %s)"
 LIST_SQL = "SELECT canonical_tender_id FROM argus.list_tenders('published', NULL, %s)"
 
 
@@ -100,7 +98,7 @@ def seed_range(admin_dsn: str, start: int, end: int, chunk_size: int = 50_000) -
                   'TENDER_NOTICE', 'https://benchmark.invalid/t/'||g, now(), md5(g::text),
                   'Synthetic tender '||g, 'BENCHMARK', true,
                   jsonb_build_object('seed','argus-scale-v1','n',g)
-                FROM generate_series(%s,%s) AS g
+                FROM generate_series(%s::bigint,%s::bigint) AS g
                 ON CONFLICT DO NOTHING
                 """,
                 (lower, upper),
@@ -116,7 +114,7 @@ def seed_range(admin_dsn: str, start: int, end: int, chunk_size: int = 50_000) -
                   'BENCH-TND-'||lpad(g::text,7,'0'), 'SOLICITATION', 'BD',
                   'Synthetic government tender '||g, 'Portable scale benchmark fixture',
                   'CURRENT', false, jsonb_build_object('seed','argus-scale-v1','n',g)
-                FROM generate_series(%s,%s) AS g
+                FROM generate_series(%s::bigint,%s::bigint) AS g
                 ON CONFLICT DO NOTHING
                 """,
                 (lower, upper),
@@ -149,7 +147,7 @@ def seed_range(admin_dsn: str, start: int, end: int, chunk_size: int = 50_000) -
                   'GOB', 'USD', 100000 + g, 1000 + (g%5000),
                   'https://benchmark.invalid/t/'||g,
                   jsonb_build_object('seed','argus-scale-v1','n',g)
-                FROM generate_series(%s,%s) AS g
+                FROM generate_series(%s::bigint,%s::bigint) AS g
                 ON CONFLICT DO NOTHING
                 """,
                 (lower, upper),
@@ -308,7 +306,7 @@ def concurrency_stage(
                         elapsed = one_query(conn, mode, scale, rng)
                         with lock:
                             read_values[mode].append(elapsed)
-                    except Exception as exc:  # noqa: BLE001 - benchmark records all DB errors
+                    except Exception as exc:  # noqa: BLE001
                         with lock:
                             errors.append(f"reader:{type(exc).__name__}:{exc}")
         except Exception as exc:  # noqa: BLE001
@@ -363,13 +361,7 @@ def run_seed_warm(args: argparse.Namespace) -> None:
         if scale > completed:
             seed_range(admin_dsn, completed + 1, scale)
             completed = scale
-        results.append(
-            {
-                "scale": scale,
-                "warm": warm_benchmark(reader_dsn, scale),
-                "indexes": plan_indexes(admin_dsn, scale),
-            }
-        )
+        results.append({"scale": scale, "warm": warm_benchmark(reader_dsn, scale), "indexes": plan_indexes(admin_dsn, scale)})
     write_json(args.output, {"dataset_scales": scales, "results": results, "overall_pass": True})
 
 
