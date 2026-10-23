@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from time import perf_counter_ns
-from collections.abc import Callable
+from time import perf_counter_ns, time
 from typing import Any, Sequence, TextIO
 
 import yaml
@@ -21,6 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CURRENT_INTEGRATION_PATH = ROOT / "contracts" / "atlas" / "current-integration.yaml"
 ARGUS_MANIFEST_PATH = ROOT / "argus-intelligence.yaml"
 _OBJECTIVE = "Build a supplier landscape for coastal surveillance radar for Bangladesh Navy"
+_E2E_SECRET = b"atlas-argus-e2e-secret-32-bytes!!"
+_E2E_KEY_ID = "atlas-argus-e2e-key"
 
 
 @dataclass(frozen=True)
@@ -43,7 +46,7 @@ class CrossRepositoryOutcome:
             f"Return {self.provider.return_target}",
             f"Collection {self.provider.result['collection_status']} | "
             f"Evidence {len(self.provider.result['evidence'])}",
-            f"Mode TEST_ONLY | ATLAS {self.atlas_version}@{self.atlas_commit[:12]} | "
+            f"Mode TEST_ONLY_REMOTE_CAPABILITY_V2 | ATLAS {self.atlas_version}@{self.atlas_commit[:12]} | "
             f"ARGUS {self.argus_version} | External collection none | Registry writes none",
         ))
 
@@ -67,6 +70,7 @@ def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
         "atlas_runtime",
         "integrations/argus.yaml",
         "integrations/chatgpt-bootstrap.yaml",
+        "contracts/atlas-argus-execution-v2.json",
     ):
         if not (atlas_repo / required).exists():
             raise ValueError(f"invalid ATLAS checkout; missing {required}")
@@ -85,9 +89,7 @@ def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
     actual_commit = completed.stdout.strip()
     expected_commit = atlas_contract["commit"]
     if actual_commit != expected_commit:
-        raise ValueError(
-            f"ATLAS checkout commit mismatch: expected {expected_commit}, got {actual_commit}"
-        )
+        raise ValueError(f"ATLAS checkout commit mismatch: expected {expected_commit}, got {actual_commit}")
     worktree = subprocess.run(
         ["git", "status", "--porcelain", "--untracked-files=no"],
         cwd=atlas_repo,
@@ -104,9 +106,17 @@ def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
     actual_version = manifest.get("product", {}).get("version")
     expected_version = atlas_contract["version"]
     if actual_version != expected_version:
-        raise ValueError(
-            f"ATLAS checkout version mismatch: expected {expected_version}, got {actual_version}"
-        )
+        raise ValueError(f"ATLAS checkout version mismatch: expected {expected_version}, got {actual_version}")
+
+    canonical = atlas_contract["canonical_execution_contract"]
+    canonical_path = atlas_repo / canonical["path"]
+    canonical_bytes = canonical_path.read_bytes()
+    actual_digest = hashlib.sha256(canonical_bytes).hexdigest()
+    if actual_digest != canonical["sha256"]:
+        raise ValueError("ATLAS canonical execution contract digest mismatch")
+    canonical_payload = json.loads(canonical_bytes.decode("utf-8"))
+    if canonical_payload.get("version") != canonical["version"]:
+        raise ValueError("ATLAS canonical execution contract version mismatch")
 
     integration = _load_yaml(atlas_repo / atlas_contract["integration_path"])
     current = compatibility["contract"]
@@ -178,7 +188,28 @@ def run(
             }
         )
 
-    provider = ArgusProvider(_collection_method).execute(ProviderEnvelope(atlas_result=approved_dict))
+    remote_now = int(time())
+    token = atlas.issue_remote_capability(
+        _E2E_SECRET,
+        task_id=approved.task_id,
+        intent=approved.normalized_objective,
+        key_id=_E2E_KEY_ID,
+        now=remote_now,
+        ttl_seconds=120,
+        nonce="ATLAS-ARGUS-E2E-CAPABILITY-001",
+    )
+    provider_runtime = ArgusProvider(
+        _collection_method,
+        remote_secret_resolver=lambda key_id: _E2E_SECRET if key_id == _E2E_KEY_ID else None,
+    )
+    provider = provider_runtime.execute(
+        ProviderEnvelope(
+            atlas_result=approved_dict,
+            transport="remote",
+            remote_capability=token,
+            remote_now=remote_now,
+        )
+    )
     if event_writer is not None:
         event_writer(
             {
@@ -186,6 +217,7 @@ def run(
                 "source_task_id": provider.result["source_task_id"],
                 "status": provider.result["status"],
                 "return_target": provider.return_target,
+                "transport": "remote_capability_v2",
             }
         )
 
@@ -244,11 +276,7 @@ def main(
     parser.add_argument("--format", choices=("text", "ndjson"), default="text")
     arguments = parser.parse_args(argv)
     try:
-        writer = (
-            (lambda event: _write_event(stdout, event))
-            if arguments.format == "ndjson"
-            else None
-        )
+        writer = (lambda event: _write_event(stdout, event)) if arguments.format == "ndjson" else None
         outcome = run(arguments.atlas_repo, event_writer=writer)
         if arguments.format == "text":
             print(outcome.compact_status, file=stdout)
