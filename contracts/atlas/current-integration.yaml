@@ -1,9 +1,14 @@
-version: 1.0.1
+version: 2.0.0
 status: CURRENT
+projection_of: ATLAS_ARGUS_EXECUTION
 atlas:
   repository: gferris418/atlas-os
   version: 3.0.2
-  commit: 95e78eb4f386c7434193014811ef8d2ce5254c30
+  commit: 27e57c3a80c0910e7fb2fca320d8fad22f4031af
+  canonical_execution_contract:
+    path: contracts/atlas-argus-execution-v2.json
+    version: 2.0.0
+    sha256: f90fb8cc9a5456ccf700c9af237c5bb02fe25e4960fb675fb1566bbdce9efdf6
   integration_path: integrations/argus.yaml
   chatgpt_bootstrap_path: integrations/chatgpt-bootstrap.yaml
   runtime_entrypoint: atlas_runtime
@@ -22,6 +27,18 @@ contract:
   direct_search_remains_atlas_owned: true
   argus_creates_execution_spine: false
   argus_owns_final_business_decision: false
+  local_approval_transport: local_in_process_only
+  remote_capability:
+    version: 2
+    algorithm: HMAC-SHA256
+    issuer: ATLAS
+    subject: argus
+    audience: ARGUS
+    capability: intelligence_collection
+    scope: intelligence_collection:execute
+    one_time: true
+    max_ttl_seconds: 300
+    max_clock_skew_seconds: 30
   plugin_release_impact: contracts/atlas/plugin-release-impact.yaml
 legacy_transport:
   descriptor: contracts/atlas/synchronization-compatibility.yaml
