@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from math import isfinite
 from typing import Mapping
 
 
@@ -31,12 +32,19 @@ def _validate_scores(scores: Mapping[str, float], allowed: set[str]) -> None:
     if unknown:
         raise ValueError(f"unknown score dimensions: {sorted(unknown)}")
     for name, value in scores.items():
-        if not 0 <= float(value) <= 100:
+        if isinstance(value, bool):
+            raise ValueError(f"{name} must be a finite number between 0 and 100")
+        numeric = float(value)
+        if not isfinite(numeric) or not 0 <= numeric <= 100:
             raise ValueError(f"{name} must be between 0 and 100")
 
 
 def _validated_weights(weights: Mapping[str, float]) -> dict[str, float]:
+    if any(isinstance(value, bool) for value in weights.values()):
+        raise ValueError("weights must be finite numbers")
     normalized = {name: float(value) for name, value in weights.items()}
+    if any(not isfinite(value) for value in normalized.values()):
+        raise ValueError("weights must be finite numbers")
     if any(value < 0 for value in normalized.values()):
         raise ValueError("weights cannot be negative")
     total = sum(normalized.values())

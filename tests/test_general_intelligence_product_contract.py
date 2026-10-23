@@ -16,6 +16,8 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         scope = manifest["scope"]
         compatibility = manifest["atlas_compatibility"]
         self.assertEqual("3.0.0-rc.2", product["version"])
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn(f"**Current candidate:** `{product['version']}`", readme)
         self.assertEqual("candidate", product["release_channel"])
         self.assertEqual("CANDIDATE", product["status"])
         self.assertEqual("ATLAS-governed government commercial opportunity intelligence", scope["primary"])

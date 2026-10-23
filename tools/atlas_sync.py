@@ -170,6 +170,7 @@ def _verify_atlas_attestation(
             "ATLAS_ATTESTATION_INVALID", "VALIDATION_FAILED", "unsupported ATLAS attestation"
         )
     key_id = str(attestation.get("key_id", ""))
+    public_key_bytes: bytes
     if trusted_key_registry is not None:
         public_key_bytes = _resolve_registry_public_key(
             trusted_key_registry,
@@ -178,11 +179,12 @@ def _verify_atlas_attestation(
             verified_at=verified_at,
         )
     elif trusted_public_keys is not None:
-        public_key_bytes = trusted_public_keys.get(key_id)
-        if public_key_bytes is None:
+        candidate_public_key = trusted_public_keys.get(key_id)
+        if candidate_public_key is None:
             raise SyncValidationError(
                 "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS signing key is not trusted"
             )
+        public_key_bytes = candidate_public_key
     else:
         raise SyncValidationError(
             "ATLAS_ATTESTATION_UNTRUSTED", "VALIDATION_FAILED", "ATLAS trust material is required"

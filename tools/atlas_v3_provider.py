@@ -13,6 +13,10 @@ PRE_EXECUTION_FLOW = (
     "ROUTE",
 )
 _ALLOWED_MECHANISMS = frozenset({"ARGUS", "MULTI_CAPABILITY"})
+_ROUTE_CONTRACTS = {
+    "ARGUS": ("intelligence_collection", "argus"),
+    "MULTI_CAPABILITY": ("intelligence_collection+analysis", "argus+atlas"),
+}
 _RESERVED_RESULT_FIELDS = frozenset(
     {"source_task_id", "provider", "capability", "status", "return_target", "next_step_authority"}
 )
@@ -61,11 +65,14 @@ class ArgusProvider:
             raise ValueError("ARGUS requires an ATLAS route in READY state")
         if tuple(atlas_result.get("pre_execution_flow", ())) != PRE_EXECUTION_FLOW:
             raise ValueError("ATLAS pre-execution flow does not match the current contract")
-        if route.get("mechanism") not in _ALLOWED_MECHANISMS:
+        mechanism = route.get("mechanism")
+        if mechanism not in _ALLOWED_MECHANISMS:
             raise ValueError("ATLAS did not route this mission to ARGUS")
-        capability = str(route.get("capability", ""))
-        provider = str(route.get("provider", ""))
-        if "intelligence_collection" not in capability or "argus" not in provider:
+        expected_capability, expected_provider = _ROUTE_CONTRACTS[mechanism]
+        if (
+            route.get("capability") != expected_capability
+            or route.get("provider") != expected_provider
+        ):
             raise ValueError("ATLAS route does not grant ARGUS intelligence collection")
         if route.get("approval_required") is not True or route.get("approval_status") != "APPROVED":
             raise ValueError("explicit ATLAS ARGUS activation approval is required")
