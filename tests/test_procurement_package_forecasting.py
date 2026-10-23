@@ -11,23 +11,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ProcurementPackageForecastingTests(unittest.TestCase):
-    def test_forecasting_contract_is_wired_into_argus(self) -> None:
-        manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
-        core = yaml.safe_load((ROOT / "spec" / "general-intelligence.yaml").read_text(encoding="utf-8"))
+    def test_forecasting_contract_is_wired_into_existing_argus_domain_model(self) -> None:
+        opportunity_model = yaml.safe_load(
+            (ROOT / "profiles" / "bangladesh-opportunity-model.yaml").read_text(encoding="utf-8")
+        )
+        collection_package = json.loads(
+            (ROOT / "schemas" / "intelligence-collection-package.schema.json").read_text(encoding="utf-8")
+        )
 
+        forecasting = opportunity_model["procurement_package_forecasting"]
         self.assertEqual(
             "profiles/procurement-package-forecasting-v1.0.yaml",
-            manifest["authority"]["procurement_package_forecasting"],
+            forecasting["method"],
         )
         self.assertEqual(
             "schemas/procurement-package-forecast.schema.json",
-            manifest["authority"]["procurement_package_forecast_schema"],
+            forecasting["schema"],
         )
-        self.assertIn("procurement_package_forecasting", manifest["scope"]["specializations"])
-        self.assertEqual("active", manifest["engines"]["procurement_package_forecasting"]["status"])
-        self.assertIn("PROCUREMENT_PACKAGE_FORECAST", core["collection_types"])
-        self.assertIn("procurement_package_hypothesis_generation", core["ownership"]["argus"])
-        self.assertIn("forecasting_and_scenarios", core["ownership"]["atlas"])
+        self.assertEqual("ARGUS", forecasting["package_hypothesis_authority"])
+        self.assertEqual("ATLAS", forecasting["final_forecast_authority"])
+        self.assertFalse(forecasting["approved_project_proves_package_exists"])
+        self.assertIn("procurement_package_forecasts", collection_package["properties"])
 
     def test_method_decomposes_project_without_fabricating_procurement(self) -> None:
         method = yaml.safe_load(
