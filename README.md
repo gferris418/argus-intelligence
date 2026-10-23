@@ -1,6 +1,6 @@
 # ARGUS Intelligence
 
-ARGUS is the **ATLAS-governed government commercial opportunity intelligence system** for Access Asia. It is designed to identify government needs, programmes, projects, budgets, approvals and procurements as early as legitimately observable; develop credible commercial opportunity hypotheses before a formal project or tender exists; track them through the full public-sector lifecycle; and simultaneously identify international OEMs, suppliers, solution providers and contractors capable of meeting the requirement.
+ARGUS is the **ATLAS-governed 360° Business Intelligence playbook for Access Asia**. Its primary specialization is government commercial opportunity intelligence: identifying needs, programmes, projects, budgets, approvals and procurements as early as legitimately observable; developing credible opportunity hypotheses before formal procurement; tracking the full public-sector lifecycle; and identifying international OEMs, suppliers, solution providers and contractors capable of meeting the requirement. Its 360° remit also covers materially relevant stakeholder, competitor, market, partnerability, post-award, commercial-performance and learning/calibration intelligence.
 
 **Current candidate:** `3.0.0-rc.2`
 
@@ -8,9 +8,9 @@ Tender intelligence is one subsystem. The target condition is that by tender pub
 
 ## ATLAS governance boundary
 
-ATLAS OS remains the fixed operating architecture. It owns Mission Control, the Control Plane, task interpretation, collection-need routing, permissions, approvals, canonical taxonomy, canonical evidence acceptance, authoritative commercial priority, pursuit decisions, bid/no-bid, persistence authorization, observability, the Dashboard and final delivery.
+ATLAS OS remains the fixed operating framework. It owns Mission Control, the Control Plane, task interpretation, collection-need routing, permissions, approvals, capability/provider selection and authorization, canonical taxonomy, canonical evidence acceptance, authoritative commercial priority, pursuit decisions, bid/no-bid, persistence authorization, observability, the Dashboard and final delivery.
 
-ARGUS activates only for collection modes `ARGUS_COLLECTION` or `HYBRID` and semantic capability `intelligence_collection`.
+ARGUS is a **playbook/composite intelligence system**, not the underlying search/MCP/plugin/database provider. ARGUS declares what intelligence capabilities it needs; ATLAS selects and authorizes the actual providers/tools. ARGUS activates only for collection modes `ARGUS_COLLECTION` or `HYBRID` and semantic capability `intelligence_collection`.
 
 ```text
 USER / EVENT
@@ -19,12 +19,12 @@ USER / EVENT
   -> Collection-Need Gate
        -> NONE             -> ATLAS
        -> ATLAS_DIRECT     -> ATLAS direct retrieval/research
-       -> ARGUS_COLLECTION -> ARGUS bounded intelligence mission
+       -> ARGUS_COLLECTION -> ARGUS bounded 360° BI mission
        -> HYBRID           -> ARGUS intelligence + ATLAS analysis/decision
   -> ATLAS Evidence Governance / assurance / authorized action / delivery
 ```
 
-ARGUS may compute supplier matches, opportunity qualification and priority recommendations. Those outputs are advisory domain intelligence; ATLAS owns authoritative pipeline state and commercial decisions.
+ARGUS may compute supplier matches, opportunity qualification, priority recommendations, project/commercial intelligence and evidence-backed analytical facts. Those outputs remain advisory intelligence. ARGUS does **not** gain authority to submit bids, accept project milestones, issue invoices, execute payments, maintain the accounting ledger or make final commercial decisions.
 
 ## Five persistent ARGUS engines
 
@@ -33,6 +33,8 @@ ARGUS may compute supplier matches, opportunity qualification and priority recom
 3. **Opportunity Engine** — persistent commercial opportunity identity and S0–S9 lifecycle reconciliation.
 4. **Matching & Qualification** — demand-to-supplier matching, configurable scoring and recommended priority.
 5. **Early Warning** — event-driven monitoring, watchlists, trigger detection and Rapid Tender Mode.
+
+These engines operate across 360° intelligence lenses rather than creating separate transaction systems for sales, operations or finance.
 
 ## Opportunity lifecycle
 
@@ -59,7 +61,7 @@ When ATLAS authorizes commercial pipeline promotion, the same opportunity receiv
 
 `YYYY_PXNNNNN_SHORTNAME`
 
-The ARGUS identity remains permanent and the PX identity follows the governed Access Asia lineage into `REV/OPP` and, after award/contract activation, `OPS/PRJ`.
+The ARGUS identity remains permanent. The PX identity is preserved across opportunity, bid, award and project lineage. The pre-award record remains under `REV/OPP`; after award or contract activation, a linked `OPS/PRJ` project workspace is created with the same PX lineage rather than deleting or moving away the pre-award evidence.
 
 A tender does not automatically create a new opportunity. One opportunity may legitimately link to multiple procurement packages, tenders, amendments, rebids or follow-on procurements.
 
@@ -100,16 +102,17 @@ When ARGUS first materially discovers an opportunity at S7 or with a critically 
 
 ## Collection method
 
-ARGUS still uses professional collection tradecraft inside the ATLAS-authorized mission:
+ARGUS uses professional collection tradecraft inside the ATLAS-authorized mission:
 
-`PIR -> EEI -> Collection Plan -> Source Plan -> Collect -> Resolve -> Grade -> Competing Hypotheses -> Gaps -> Package`
+`PIR -> EEI -> Collection Plan -> Source Plan -> Collect -> Resolve -> Grade -> Competing Hypotheses -> Gaps -> Package -> Learn`
 
-The expanded runtime additionally develops opportunity context, builds supplier universes, assesses partnerability, matches demand and supply and calculates advisory qualification before packaging evidence for ATLAS.
+The expanded runtime additionally develops opportunity context, builds supplier universes, assesses partnerability, matches demand and supply, calculates advisory qualification, monitors materially relevant post-award/commercial signals and calibrates prior intelligence against actual outcomes before packaging evidence for ATLAS.
 
 ## Machine-readable authority
 
 - Manifest: `argus-intelligence.yaml`
 - Core: `spec/general-intelligence.yaml`
+- 360° BI authority boundary: `spec/business-intelligence-boundary.yaml`
 - Commercial opportunity doctrine: `spec/commercial-opportunity-intelligence.yaml`
 - Collection method: `spec/collection-method.yaml`
 - Collection mission: `schemas/collection-mission.schema.json`
@@ -121,4 +124,4 @@ The expanded runtime additionally develops opportunity context, builds supplier 
 - Access Asia lifecycle: `profiles/access-asia-opportunity-lifecycle.yaml`
 - ATLAS activation contract: `contracts/atlas/argus-activation-v1.json`
 
-The activation contract remains unchanged: ARGUS is still subordinate to the ATLAS Collection-Need Gate and does not create a second operating architecture.
+The activation contract remains unchanged: ARGUS is subordinate to the ATLAS Collection-Need Gate and does not create a second operating architecture.
