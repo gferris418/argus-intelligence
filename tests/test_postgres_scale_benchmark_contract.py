@@ -66,6 +66,10 @@ class PostgresScaleBenchmarkContractTests(unittest.TestCase):
         for token in ("g %% 5", "g%%100", "g%%20", "g%%365", "g%%180", "g%%5000"):
             self.assertIn(token, harness)
 
+    def test_bigint_seed_casts_date_day_offset_to_integer(self) -> None:
+        harness = HARNESS.read_text(encoding="utf-8")
+        self.assertIn("current_date - ((g%%365)::int)", harness)
+
     def test_harness_is_disposable_and_never_targets_neon_production(self) -> None:
         harness = HARNESS.read_text(encoding="utf-8")
         self.assertNotIn("rapid-field-91311881", harness)
