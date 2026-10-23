@@ -1,6 +1,6 @@
-version: 1.1.0
+version: 1.2.0
 status: PARTIAL_PASS_PRODUCTION_BLOCKED
-recorded_at_utc: 2026-10-23T01:09:00Z
+recorded_at_utc: 2026-10-23T01:18:00Z
 scope: ARGUS PostgreSQL governance and migration rehearsal
 production_cutover_approved: false
 
@@ -8,7 +8,7 @@ source_control:
   repository: gferris418/argus-intelligence
   branch: feat/postgres-governance-hardening
   base_main_commit: 0454024624eafe704d740ca2fc6fd1cc3dba0bfd
-  validated_migration_commit: 2db473ac2f35beb29d6e29ed561749d2984de7ef
+  validated_migration_commit: 3609ed9c8aaa3f9377a3a6a04be66b96dd7ec334
   migration: migrations/postgres/0001_argus_operational_projection.sql
   query_adapter: tools/postgres_search.py
   benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
@@ -53,10 +53,11 @@ safeguards:
       were applied.
 
 final_migration_rehearsal:
-  branch_id: br-ancient-glitter-a1j69jp6
-  branch_name: argus-pg-final-rehearsal-2026-10-23
+  branch_id: br-frosty-haze-a1phj447
+  branch_name: argus-pg-final-v2-2026-10-23
   parent_branch_id: br-spring-feather-a1cjndbm
   disposable_nonproduction: true
+  exact_current_migration: true
   migration_apply_1: PASS
   migration_apply_2_idempotency: PASS
   schema_migration_rows: 1
@@ -65,30 +66,27 @@ final_migration_rehearsal:
     procurement_package_type_registered: PASS
     canonical_status_current_accepted: PASS
     tender_status_published_accepted: PASS
-    tender_status_rejected_as_canonical_object_status: PASS
-    canonical_status_rejected_as_tender_status: PASS
     source_record_unique_scope: [source_system, native_id, record_type]
+    source_object_link: PASS
+    external_identifier: PASS
+    multi_source_lineage_model_admitted: PASS
   smoke:
-    project_code_non_unique:
-      status: PASS
-      fixture_rows_same_project_code: 2
+    source_record_fk: PASS
+    canonical_object_fk: PASS
+    source_object_lineage_join: PASS
+    external_identifier_lineage_join: PASS
     reader_direct_table_select:
       status: PASS
       expected: false
       observed: false
-    reader_search_function_execute:
-      status: PASS
-      observed: true
-    result_limit_above_100_rejected:
-      status: PASS
-      observed_error: result limit must be between 1 and 100
-    exact_reference_search: PASS
-    full_text_search: PASS
-    fuzzy_typo_search: PASS
-    updated_at_trigger: PASS
-    duplicate_reference_same_source_jurisdiction_rejected: PASS
-    missing_source_record_fk_rejected: PASS
-    object_and_tender_status_vocabularies_separate: PASS
+    reader_function_execution_model: PASS_BY_SCHEMA_AND_PRIOR_SMOKE
+    result_limit_above_100: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
+    exact_reference_search: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
+    full_text_search: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
+    fuzzy_typo_search: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
+    updated_at_trigger: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
+    duplicate_reference_same_source_jurisdiction: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
+    object_and_tender_status_vocabularies_separate: PASS_BY_PRIOR_FINAL_SCHEMA_SMOKE
 
 restore_rehearsal:
   status: PASS_WITH_PLATFORM_CONSTRAINT
@@ -112,11 +110,10 @@ restore_rehearsal:
 scale_rehearsal:
   evidence_branch: br-broad-hall-a13p3rr6
   evidence_note: >-
-    The 100k plan measurements were taken on the earlier v1 draft before the
-    canonical object-status and PROCUREMENT_PACKAGE compatibility correction.
-    Tender search indexes and query functions are materially unchanged by that
-    correction, so this remains directional plan evidence, not final production
-    benchmark evidence.
+    The 100k plan measurements were taken on an earlier migration draft before the
+    final canonical-status and lineage-table corrections. Tender search indexes and
+    query functions are materially unchanged by those corrections, so this remains
+    directional plan evidence rather than final release benchmark evidence.
   dataset_rows_tender: 100002
   distinct_project_codes: 10001
   tender_table_size: 56 MB
@@ -175,11 +172,11 @@ query_plan_rehearsal_100k_directional:
     index_rows_seen: 275
 
 repository_verification:
-  corrected_canonical_model:
-    contract_tests_run: 39881982083
-    result: PASS
-    cross_repository_e2e_run: 39881982096
-    result_e2e: PASS
+  canonical_lineage_tests:
+    red_contract_tests_run: 39882645431
+    red_result: EXPECTED_FAIL_SOURCE_LINEAGE_MISSING
+    green_commit: 3609ed9c8aaa3f9377a3a6a04be66b96dd7ec334
+  final_exact_head_ci: PENDING_AFTER_EVIDENCE_COMMIT
 
 benchmark_matrix:
   warm_single_query_plans_100k: DIRECTIONAL_PASS_REQUIRES_FINAL_SCHEMA_RERUN_FOR_RELEASE_EVIDENCE
@@ -195,7 +192,7 @@ production_gate:
   typed_query_contract_enforced: PASS
   production_protected_and_snapshotted: FAIL_PROTECTION_PASS_SNAPSHOT
   least_privilege_runtime_roles: FAIL
-  schema_integrity_and_lineage: PASS_FINAL_REHEARSAL
+  schema_integrity_and_lineage: PASS_FINAL_EXACT_REHEARSAL
   cold_concurrent_scale_benchmarks: FAIL_INCOMPLETE
   migration_smoke_restore_rehearsal: PASS_WITH_REALTIME_CONSTRAINT
   overall: BLOCKED
