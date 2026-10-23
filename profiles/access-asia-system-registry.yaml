@@ -1,14 +1,14 @@
 schema_version: 2
 registry_id: access-asia-system-of-record
-version: 1.2.0
-effective_date: 2026-10-22
-scope: Access Asia ATLAS/ARGUS/CRM/document persistence routing
+version: 1.3.0
+effective_date: 2026-10-23
+scope: Access Asia ATLAS/ARGUS/CRM/document persistence and 360-business-intelligence routing
 
 principle: governed_authority_by_information_class
 
 security:
   github_visibility_verified: public
-  verified_date: 2026-10-22
+  verified_date: 2026-10-23
   never_commit:
     - credentials_or_secrets
     - authentication_tokens
@@ -24,12 +24,13 @@ security:
 systems:
   atlas_github:
     repository: gferris418/atlas-os
-    role: execution_and_persistence_governance
+    role: framework_governance_orchestration_approval_and_persistence_authorization
     owns:
       - mission_control
       - control_plane
       - routing
       - approvals
+      - provider_selection_and_authorization
       - action_authorization
       - persistence_routing
       - verification
@@ -37,8 +38,9 @@ systems:
 
   argus_github:
     repository: gferris418/argus-intelligence
-    role: argus_schema_governance_code_migrations_and_versioned_release_snapshots
+    role: argus_360_business_intelligence_playbook_schema_governance_code_migrations_and_versioned_release_snapshots
     owns:
+      - business_intelligence_boundary
       - canonical_identity_standard
       - commercial_data_standard
       - database_schema
@@ -47,25 +49,38 @@ systems:
       - opportunity_intelligence_method
       - supplier_capability_intelligence_method
       - opportunity_supplier_matching_contracts
+      - stakeholder_competitor_and_market_intelligence_methods
+      - post_award_commercial_intelligence_method
+      - financial_intelligence_method
       - evidence_and_provenance_contracts
       - public_sector_institutional_intelligence_contracts
       - versioned_registry_baselines_and_release_snapshots
     excludes:
-      - current_mutable_operational_argus_state
+      - current_mutable_argus_state
       - crm_relationship_history
       - personal_contactability_data
       - raw_source_documents
       - working_business_documents
+      - bid_submission_execution
+      - project_management_execution
+      - project_milestone_acceptance_authority
+      - invoice_issuance_authority
+      - payment_execution_authority
+      - accounting_ledger_authority
 
   argus_sharepoint_sqlite:
-    role: canonical_current_mutable_commercial_and_argus_operational_structured_state
+    role: canonical_current_mutable_business_intelligence_and_commercial_fact_state
     format: SQLite
     logical_name: ARGUS Master Registry
     logical_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
     schema_authority: schemas/argus-operational-store-v1.sql
     identity_authority: profiles/canonical-object-identity-standard-v1.0.yaml
     commercial_data_authority: profiles/access-asia-commercial-data-standard-v1.0.yaml
+    business_intelligence_boundary: spec/business-intelligence-boundary.yaml
     mutation_model: single_writer_fetch_latest_modify_transactionally_verify_replace
+    transactional_execution_authority: false
+    accounting_ledger: false
+    project_management_system: false
     version_history: SHAREPOINT_FILE_VERSIONS
     public_git_item_ids: prohibited
     owns:
@@ -76,9 +91,9 @@ systems:
       - canonical_product_and_solution_identity
       - government_project_requirement_and_procurement_lineage
       - px_opportunities
-      - bids
-      - awards
-      - access_asia_projects
+      - bids_as_business_intelligence_facts
+      - awards_as_business_intelligence_facts
+      - access_asia_projects_as_business_intelligence_facts
       - structured_contract_facts
       - structured_financial_facts
       - external_identifiers
@@ -107,7 +122,7 @@ systems:
       native_record_id_storage_in_public_git: prohibited
 
   sharepoint:
-    role: canonical_document_working_file_and_argus_operational_database_store
+    role: canonical_document_working_file_and_argus_business_intelligence_database_store
     hostname: accessasiaccl.sharepoint.com
     site_path: /sites/accessasia
     site_display_name: Access Asia Limited
@@ -123,7 +138,7 @@ systems:
       - 99_INBOX
     operational_database: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
     lifecycle_locations:
-      tracked_pre_submission: General/Business Intelligence/50_OPPORTUNITIES
+      tracked_pre_submission: General/REV/OPP Opportunities
       submission_active: General/REV/OPP Opportunities
       awarded_project: General/OPS/PRJ Projects
     native_item_id_storage_in_public_git: prohibited
@@ -217,15 +232,18 @@ operational_database_protocol:
 
 lifecycle:
   promote_to_px:
-    sharepoint_home: General/Business Intelligence/50_OPPORTUNITIES
+    sharepoint_home: General/REV/OPP Opportunities
     move_to_submission: false
   tender_published:
     move_to_submission: false
   submission_active:
-    source: General/Business Intelligence/50_OPPORTUNITIES
+    source: General/REV/OPP Opportunities
     destination: General/REV/OPP Opportunities
-    move_existing_lineage: true
+    move_existing_lineage: false
   awarded_or_contract_activated:
     source: General/REV/OPP Opportunities
     destination: General/OPS/PRJ Projects
-    move_existing_lineage: true
+    move_existing_lineage: false
+    preserve_source_workspace: true
+    create_linked_project_workspace: true
+    preserve_same_px_identity: true

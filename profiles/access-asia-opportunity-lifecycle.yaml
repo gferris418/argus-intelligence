@@ -1,7 +1,7 @@
 schema_version: 2
 policy_id: access-asia-opportunity-lifecycle
-version: 2.1.0
-effective_date: 2026-10-22
+version: 2.2.0
+effective_date: 2026-10-23
 scope: Access Asia intelligence-to-opportunity-to-bid-to-project lifecycle
 
 argus_opportunity_identity:
@@ -17,6 +17,7 @@ commercial_identity:
   authority: ATLAS OS
   preserve_across_stage_moves: true
   preserve_across_bid_award_project: true
+  preserve_pre_award_workspace_after_award: true
   create_new_id_on_submission: false
   create_new_id_on_award: false
   meaning: permanent Access Asia commercial lineage identifier
@@ -52,8 +53,8 @@ tracked_opportunity:
   require_existing_argus_opportunity_id: true
   assign_commercial_id: true
   source_home: General/Business Intelligence/50_OPPORTUNITIES
-  destination_home: General/Business Intelligence/50_OPPORTUNITIES
-  move_entire_folder_if_present: false
+  destination_home: General/REV/OPP Opportunities
+  move_entire_folder_if_present: true
   preserve_argus_identity_after_px: true
   retained_stages:
     - qualification
@@ -67,20 +68,21 @@ tracked_opportunity:
     - compliance_planning
     - pre_submission
   tender_publication_moves_folder: false
+  rule: once a PX exists the single pre-award working folder lives directly under REV/OPP and remains there through all pre-award activity
 
 submission:
   state: SUBMISSION_ACTIVE
   canonical_object_type: BID
   definition: formal response-package execution has actually started for a specific solicitation after the bid decision
-  source_home: General/Business Intelligence/50_OPPORTUNITIES
+  source_home: General/REV/OPP Opportunities
   working_home: General/REV/OPP Opportunities
-  move_entire_folder_if_present: true
+  move_entire_folder_if_present: false
   separate_bid_folder: false
   duplicate_folder_allowed: false
   preserve_argus_identity: true
   preserve_commercial_id: true
   bid_identifier_pattern: BID-PXNNNNN-NN
-  rule: a bid is a child object of the PX opportunity and does not replace the opportunity identity
+  rule: a bid is a child object of the PX opportunity and does not replace the opportunity identity or create a second working folder
 
 award:
   canonical_object_type: AWARD
@@ -94,11 +96,13 @@ project:
     - CONTRACT_ACTIVATED
   source_home: General/REV/OPP Opportunities
   destination_home: General/OPS/PRJ Projects
-  move_entire_folder: true
+  move_entire_folder: false
+  preserve_source_workspace: true
+  create_linked_project_workspace: true
   preserve_argus_identity: true
   preserve_commercial_id: true
   project_identifier_pattern: AAPJ-PXNNNNN
-  rule: Access Asia execution project is distinct from the external government PROJECT object while sharing the permanent PX lineage
+  rule: Access Asia execution project is distinct from the external government PROJECT object; create a linked OPS/PRJ workspace using the same PX lineage while retaining the REV/OPP pre-award evidence
 
 non_submission_outcomes:
   states:
@@ -114,17 +118,16 @@ canonical_ownership:
   structured_commercial_graph: ARGUS Master Registry
   crm_relationships_interactions_and_contactability: HubSpot
   commercial_pipeline_authority: ATLAS OS
-  working_documents: SharePoint lifecycle folder for the current stage
+  working_documents: SharePoint lifecycle folder for the applicable lineage stage
   atlas_execution_governance: ATLAS OS
 
 rules:
   - A credible commercial opportunity may exist in ARGUS before any PX identity exists.
   - A live tender alone does not imply PX promotion or SUBMISSION_ACTIVE.
-  - PROMOTE_TO_PX assigns the permanent commercial lineage identity but keeps the governed working lineage in Business Intelligence.
-  - A formal submission creates a BID child object but does not replace the opportunity or PX identity.
-  - A successful bid may create an AWARD and then an ACCESS_ASIA_PROJECT while preserving the PX lineage.
-  - Only SUBMISSION_ACTIVE moves the existing working lineage from Business Intelligence to REV/OPP.
+  - PROMOTE_TO_PX assigns the permanent commercial lineage identity and establishes the single pre-award working folder in REV/OPP.
+  - A formal submission creates a BID child object but does not replace the opportunity or PX identity and does not move the REV/OPP folder.
+  - A successful bid may create an AWARD and then a linked ACCESS_ASIA_PROJECT while preserving both PX lineage and pre-award evidence.
+  - Award or contract activation creates the linked OPS/PRJ project workspace and does not delete or move the REV/OPP opportunity workspace.
   - One government programme, project or tender may link to multiple opportunities only when the commercial pursuits are materially distinct.
   - One opportunity may link to multiple procurement packages, tenders, amendments, rebids or follow-on procurements without changing its identity.
-  - Only one physical working folder may exist for a promoted opportunity at a time.
-  - Folder movement is a governed lifecycle mutation and must be verified before completion is claimed.
+  - Folder creation or movement is a governed lifecycle mutation and must be verified before completion is claimed.

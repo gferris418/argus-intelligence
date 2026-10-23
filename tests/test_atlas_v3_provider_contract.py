@@ -21,7 +21,8 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("3.0.2", compatibility["last_validated_base"])
         self.assertEqual(ATLAS_LAST_VALIDATED_BASE_COMMIT, compatibility["last_validated_base_commit"])
         self.assertEqual("chatgpt-plugin-bootstrap-v1.0.1", compatibility["last_validated_control_revision"])
-        self.assertEqual("bounded_intelligence_collection_provider", compatibility["relationship"])
+        self.assertEqual("atlas_governed_360_business_intelligence_playbook", compatibility["relationship"])
+        self.assertEqual("compatibility_execution_handle_not_underlying_tool_provider", compatibility["provider_field_semantics"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
         self.assertEqual("ATLAS", compatibility["next_step_authority"])
         self.assertTrue(compatibility["explicit_user_approval_required"])
@@ -114,6 +115,11 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("2.0.0", current["execution_contract_version"])
         self.assertEqual("MISSION_CONTROL_FIRST", alignment["routing"]["prompt_entry"])
         self.assertEqual("every_user_prompt_while_atlas_active", alignment["routing"]["prompt_entry_scope"])
+        self.assertEqual("atlas_governed_360_business_intelligence_playbook", alignment["relationship"])
+        self.assertEqual(
+            "compatibility_execution_handle_not_underlying_tool_provider",
+            alignment["atlas_contract"]["provider_field_semantics"],
+        )
         self.assertFalse(alignment["compatibility"]["current_change_requires_coordinated_atlas_candidate"])
         workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(encoding="utf-8")
         self.assertIn(f"ref: {ATLAS_CANONICAL_COMMIT}", workflow)

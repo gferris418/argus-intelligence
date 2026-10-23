@@ -2,7 +2,7 @@ schema_version: 3
 id: argus.atlas-alignment.bounded-provider-v3
 status: CANDIDATE
 argus_version: 3.0.0-rc.2
-relationship: bounded_intelligence_collection_provider
+relationship: atlas_governed_360_business_intelligence_playbook
 
 atlas_contract:
   activation_authority: ATLAS
@@ -12,6 +12,7 @@ atlas_contract:
   approval_key: ARGUS_ACTIVATION
   capability: intelligence_collection
   provider: argus
+  provider_field_semantics: compatibility_execution_handle_not_underlying_tool_provider
   current_integration: contracts/atlas/current-integration.yaml
   canonical_contract_repository: gferris418/atlas-os
   canonical_contract_path: contracts/atlas-argus-execution-v2.json
@@ -26,8 +27,8 @@ routing:
   modes:
     NONE: No external collection is required.
     DIRECT_SEARCH: Ordinary current factual retrieval remains in ATLAS.
-    ARGUS: ARGUS performs one bounded intelligence-collection mission and returns the package to ATLAS.
-    MULTI_CAPABILITY: ARGUS collects while ATLAS retains analysis, comparison, forecast, scenario or decision work.
+    ARGUS: ARGUS applies one bounded 360-degree business-intelligence mission and returns the package to ATLAS.
+    MULTI_CAPABILITY: ARGUS applies intelligence doctrine while ATLAS retains analysis, comparison, forecast, scenario or decision work.
   government_mention_alone_activates_argus: false
   policy_analysis_alone_activates_argus: false
   tender_lookup_alone_activates_argus: false
@@ -41,6 +42,7 @@ handoff:
   result_return_target: ATLAS
   argus_internal_collection_method: spec/collection-method.yaml
   argus_internal_collection_plan: schemas/collection-plan.schema.json
+  argus_business_intelligence_boundary: spec/business-intelligence-boundary.yaml
   legacy_signed_transport_status: backward_compatibility_only
 
 ownership:
@@ -51,6 +53,7 @@ ownership:
     - minimal_domain_framing
     - routing
     - permissions_and_approvals
+    - capability_provider_selection_and_authorization
     - evidence_governance
     - analysis_and_decision
     - assurance_and_verification
@@ -60,6 +63,7 @@ ownership:
     - final_delivery
     - every_next_step_after_provider_return
   argus:
+    - business_intelligence_doctrine
     - target_resolution
     - pir_and_eei_derivation_within_mission
     - collection_and_source_planning
@@ -71,6 +75,10 @@ ownership:
     - corroboration_and_source_reconciliation
     - competing_hypothesis_tracking
     - gap_conflict_and_coverage_assessment
+    - demand_supply_opportunity_and_stakeholder_intelligence
+    - competitor_market_partnerability_and_procurement_intelligence
+    - post_award_and_commercial_performance_intelligence
+    - intelligence_learning_and_calibration
     - collection_package
 
 compatibility:

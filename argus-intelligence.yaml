@@ -1,7 +1,7 @@
 schema_version: 3
 product:
   id: argus-intelligence
-  name: ARGUS Government Commercial Opportunity Intelligence
+  name: ARGUS 360° Business Intelligence
   version: 3.0.0-rc.2
   previous_version: 3.0.0-rc.1
   release_channel: candidate
@@ -11,6 +11,7 @@ product:
 authority:
   manifest: argus-intelligence.yaml
   core: spec/general-intelligence.yaml
+  business_intelligence_boundary: spec/business-intelligence-boundary.yaml
   commercial_opportunity_intelligence: spec/commercial-opportunity-intelligence.yaml
   collection_method: spec/collection-method.yaml
   continuous_learning: spec/continuous-learning.yaml
@@ -28,6 +29,7 @@ authority:
   atlas_v3_provider: tools/atlas_v3_provider.py
   access_asia_lifecycle: profiles/access-asia-opportunity-lifecycle.yaml
   access_asia_system_registry: profiles/access-asia-system-registry.yaml
+  access_asia_commercial_data_standard: profiles/access-asia-commercial-data-standard-v1.0.yaml
   access_asia_canonical_reconciliation: profiles/access-asia-canonical-reconciliation-v1.0.yaml
   canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
   operational_database_schema: schemas/argus-operational-store-v1.sql
@@ -67,13 +69,17 @@ authority:
   analysis_runtime: tools/argus_runtime.py
 
 scope:
-  primary: ATLAS-governed government commercial opportunity intelligence
+  primary: ATLAS-governed 360-degree business intelligence for Access Asia
+  primary_specialization: government commercial opportunity intelligence
   mission: >-
-    Identify, develop, qualify and track legitimate government-linked commercial
-    opportunities as early as observable, while simultaneously identifying and
-    assessing international OEMs, suppliers, solution providers and contractors
-    capable of meeting the need with Access Asia positioned as a legitimate local
-    commercial partner where appropriate.
+    Apply 360-degree business-intelligence doctrine to identify, develop, qualify,
+    monitor and explain legitimate commercial opportunities and business conditions
+    relevant to Access Asia. The primary specialization is government-linked demand:
+    needs, programmes, projects, budgets, approvals and procurements identified as early
+    as legitimately observable, with simultaneous assessment of international OEMs,
+    suppliers, solution providers and contractors. When material to the business
+    decision, ARGUS also covers stakeholders, competitors, markets, partnerability,
+    post-award context, commercial performance and intelligence learning/calibration.
   principle: Tender intelligence is one subsystem; ARGUS should preferably know the opportunity before tender publication.
   demand_intelligence: policy, need, programme, project, budget, approval, procurement and installed-base intelligence
   supply_intelligence: OEM, supplier, contractor, technology, product, capability, reference and partnerability intelligence
@@ -87,6 +93,9 @@ scope:
     - installed_base_collection
     - market_landscape_collection
     - monitoring_collection
+    - post_award_commercial_intelligence
+    - business_performance_intelligence
+    - intelligence_learning_and_calibration
   access_asia_principle: Access Asia shall not wait for a tender to define an opportunity.
 
 production_runtime:
@@ -125,7 +134,7 @@ atlas_compatibility:
   last_validated_base_commit: 95e78eb4f386c7434193014811ef8d2ce5254c30
   last_validated_control_revision: chatgpt-plugin-bootstrap-v1.0.1
   required_next_target: null
-  relationship: bounded_intelligence_collection_provider
+  relationship: atlas_governed_360_business_intelligence_playbook
   activation_authority: ATLAS
   next_step_authority: ATLAS
   provider_return_target: ATLAS
@@ -133,16 +142,19 @@ atlas_compatibility:
   mission_control_first_required: true
   activation_capability: intelligence_collection
   provider: argus
+  provider_field_semantics: compatibility_execution_handle_not_underlying_tool_provider
   approval_key: ARGUS_ACTIVATION
   current_integration_contract: contracts/atlas/current-integration.yaml
   current_provider_runtime: tools/atlas_v3_provider.py
   rule: >-
     ATLAS owns Mission Control, Control Plane, preprocessing, routing, approvals,
-    evidence acceptance, authoritative commercial priority, pursuit decisions,
-    persistence, observability, Dashboard, every next step after provider return,
-    verification and delivery. Mission Control precedes preprocessing whenever ATLAS
-    is active. ARGUS owns only the authorized bounded intelligence mission and returns
-    its collection package to ATLAS.
+    capability/provider selection and authorization, evidence acceptance, authoritative
+    commercial priority, pursuit decisions, persistence authorization, observability,
+    Dashboard, every next step after ARGUS return, verification and delivery. Mission
+    Control precedes preprocessing whenever ATLAS is active. ARGUS owns the authorized
+    bounded 360-degree business-intelligence playbook mission and returns its collection
+    package to ATLAS. The technical `provider: argus` field is a compatibility execution
+    handle and does not mean ARGUS is the underlying search/MCP/plugin/database provider.
   keyword_activation: false
   background_activation: false
   creates_execution_spine: false
@@ -251,7 +263,7 @@ continuous_search_learning:
   depth: decision_driven_by_research_frontier
   exhaustive_collection_required: false
   single_source_dependence_prohibited_when_material: true
-  lenses: [need_mission, policy_strategy, institution_stakeholders, programme_project, budget_funding, procurement_acquisition, technical_installed_base, supplier_competitor, ecosystem_influence, commercial_participation, timing_triggers, internal_intelligence]
+  lenses: [need_mission, policy_strategy, institution_stakeholders, programme_project, budget_funding, procurement_acquisition, technical_installed_base, supplier_competitor, ecosystem_influence, commercial_participation, timing_triggers, internal_intelligence, post_award_performance, commercial_financial_performance]
   coverage_states: [NOT_APPLICABLE, UNASSESSED, INSUFFICIENT, PARTIAL, ADEQUATE]
   stopping_rule: stop when additional collection is unlikely to change collection sufficiency, material uncertainty, supplier matching, opportunity qualification or the next ATLAS action
 
@@ -371,8 +383,9 @@ evidence:
   supplier_match_confidence_is_separate: true
 
 decision_boundary:
-  argus_may_compute: [opportunity_qualification, supplier_match, procurement_probability, priority_recommendation]
+  argus_may_compute: [opportunity_qualification, supplier_match, procurement_probability, priority_recommendation, post_award_performance_assessment, commercial_performance_assessment]
   atlas_owns: [authoritative_priority, PROMOTE_TO_PX, pursuit_decision, bid_no_bid, external_outreach, persistence_authorization, final_business_forecast]
+  operational_execution_remains_external: [bid_submission, project_milestone_acceptance, invoice_issuance, payment_execution, accounting_ledger]
 
 domain_result:
   generic_contract: schemas/intelligence-collection-package.schema.json
@@ -389,11 +402,13 @@ domain_result:
   may_make_final_business_decision: false
 
 release_gates:
-  - ATLAS 3.0.2 Mission Control-first bounded intelligence-collection provider contract: PASS
+  - ATLAS 3.0.2 Mission Control-first governed 360-business-intelligence playbook contract: PASS
   - explicit ARGUS activation approval and provider return to ATLAS: PASS
+  - technical provider field is a compatibility execution handle, not underlying tool authority: PASS
   - legacy signed synchronization transport remains backward-compatible: PASS
   - canonical PIR/EEI collection method and collection-plan schema remain authoritative: PASS
-  - Government commercial opportunity intelligence mission is machine-readable: PASS
+  - Government commercial opportunity intelligence mission is machine-readable as the primary specialization: PASS
+  - 360-degree business-intelligence authority boundary is machine-readable: PASS
   - Opportunity exists as first-class commercial object before PX promotion: PASS
   - S0-S9 lifecycle and SHAPE/POSITION/REACT/EXPAND modes are separate: PASS
   - Demand and supply intelligence run as parallel engines: PASS

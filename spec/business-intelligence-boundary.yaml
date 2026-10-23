@@ -1,0 +1,117 @@
+version: 1.0.0
+identity: ARGUS_360_BUSINESS_INTELLIGENCE_PLAYBOOK
+status: ACTIVE
+
+purpose: >-
+  Define the authority boundary between ATLAS-OS, ARGUS, underlying capability
+  providers/tools, and Access Asia operational business systems. ARGUS provides
+  360-degree business-intelligence doctrine and evidence-backed commercial facts;
+  it does not become the transactional execution engine for business operations.
+
+roles:
+  ATLAS_OS: FRAMEWORK
+  ARGUS: BUSINESS_INTELLIGENCE_PLAYBOOK
+  CAPABILITY_PROVIDERS: TOOLS_AND_EXECUTION_SURFACES
+  ACCESS_ASIA_OPERATIONAL_SYSTEMS: TRANSACTIONAL_BUSINESS_EXECUTION
+
+atlas_authority:
+  - mission_control
+  - task_interpretation
+  - routing
+  - permissions
+  - approvals
+  - provider_selection_and_authorization
+  - evidence_acceptance
+  - action_authorization
+  - persistence_authorization
+  - verification
+  - final_delivery
+
+argus_authority:
+  - intelligence_method
+  - collection_tradecraft
+  - demand_intelligence
+  - supply_intelligence
+  - opportunity_intelligence
+  - stakeholder_and_institutional_intelligence
+  - competitor_intelligence
+  - procurement_and_tender_intelligence
+  - market_and_ecosystem_intelligence
+  - supplier_and_partnerability_intelligence
+  - matching_and_qualification_intelligence
+  - early_warning_and_monitoring
+  - post_award_context_intelligence
+  - commercial_performance_intelligence
+  - intelligence_learning_and_calibration
+  - provenance_backed_canonical_business_intelligence_facts
+
+provider_model:
+  provider_selection: ATLAS_ONLY
+  provider_brand_hardcoding_by_argus: forbidden
+  examples:
+    - web_search
+    - mcp_server
+    - plugin
+    - connected_app
+    - database
+    - document_store
+    - specialist_service
+    - code_execution_surface
+  rule: ARGUS declares intelligence capability needs; ATLAS selects and authorizes the actual providers/tools.
+
+operational_exclusions:
+  - BID_SUBMISSION_EXECUTION
+  - PROJECT_MANAGEMENT_SYSTEM_OF_RECORD
+  - PROJECT_MILESTONE_ACCEPTANCE_AUTHORITY
+  - CUSTOMER_ACCEPTANCE_AUTHORITY
+  - INVOICE_ISSUANCE_AUTHORITY
+  - PAYMENT_EXECUTION_AUTHORITY
+  - ACCOUNTING_LEDGER_AUTHORITY
+  - BANK_RECONCILIATION_AUTHORITY
+  - CONTRACT_SIGNING_AUTHORITY
+  - FINAL_COMMERCIAL_DECISION_AUTHORITY
+
+fact_store_semantics:
+  canonical_business_intelligence_fact_store: true
+  provenance_required_for_material_facts: true
+  transactional_execution_authority: false
+  accounting_ledger: false
+  project_management_system: false
+  crm_system: false
+  rule: >-
+    Bid, award, project, contract, invoice, payment, cost and related records in
+    the ARGUS canonical graph are evidence-backed business-intelligence/commercial
+    facts and lineage records. Their presence does not transfer operational
+    transaction authority from the actual business system, authorized human, or
+    external counterparty process to ARGUS.
+
+lifecycle_intelligence:
+  pre_award:
+    argus_role: discover_assess_monitor_reconcile_and_package_intelligence
+    atlas_role: govern_priority_pursuit_bid_no_bid_approvals_and_authorized_actions
+  bid:
+    argus_role: tender_requirement_competitor_supplier_and_risk_intelligence
+    operational_execution: external_business_process
+  post_award:
+    argus_role: contract_project_stakeholder_risk_follow_on_and_performance_intelligence
+    operational_execution: external_business_process
+  finance:
+    argus_role: revenue_commission_receivable_cost_margin_and_cash_exposure_intelligence
+    operational_execution: external_finance_process
+
+commercial_lineage:
+  permanent_key: PX_ID
+  preserve_pre_award_workspace_after_award: true
+  create_linked_project_workspace_after_award: true
+  same_px_identity_across_opportunity_bid_award_project: true
+  rule: Pre-award evidence remains authoritative historical lineage and is not deleted or moved away when the linked project workspace is created.
+
+invariants:
+  - ATLAS_GOVERNS_ARGUS
+  - ARGUS_IS_NOT_A_PEER_OS
+  - ARGUS_IS_NOT_AN_UNDERLYING_TOOL_PROVIDER
+  - PROVIDERS_EXECUTE_BOUNDED_CAPABILITIES
+  - ARGUS_INTELLIGENCE_DOES_NOT_EQUAL_TRANSACTION_AUTHORITY
+  - CURRENT_EVIDENCE_OVERRIDES_LEARNED_HEURISTICS
+  - FACTS_REQUIRE_PROVENANCE
+  - PX_LINEAGE_IS_PRESERVED

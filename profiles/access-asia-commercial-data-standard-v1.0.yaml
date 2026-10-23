@@ -1,11 +1,12 @@
 document_id: ACCESS-ASIA-COMMERCIAL-DATA-001
-version: 1.0.0
+version: 1.1.0
 status: ACTIVE
 owner: Access Asia Limited
 canonical_graph_owner: ARGUS
-scope: company-wide commercial intelligence, pursuit, bid, project, finance and reporting data
+scope: company-wide commercial and 360-business-intelligence facts across pursuit, bid, project, finance analytics and reporting
 
 core_principle: enter_once_identify_once_relate_once_derive_views
+business_intelligence_boundary: spec/business-intelligence-boundary.yaml
 
 rules:
   one_real_world_object_one_canonical_identity: true
@@ -19,6 +20,7 @@ rules:
   duplicate_master_records_by_department: prohibited
   source_documents_embedded_in_database: false
   reports_are_sources_of_truth: false
+  business_intelligence_fact_does_not_transfer_transaction_authority: true
 
 canonical_layers:
   MASTER_DATA:
@@ -91,7 +93,7 @@ commercial_lineage:
     assigned_when: PROMOTE_TO_PX
     immutable_after_assignment: true
     preserve_through_bid_award_project: true
-    preserve_through_sharepoint_stage_moves: true
+    preserve_pre_award_workspace_after_award: true
   objects:
     - OPPORTUNITY
     - BID
@@ -108,6 +110,7 @@ commercial_lineage:
     - access_asia_project_is_not_government_project
     - retender_does_not_automatically_create_new_px
     - one_px_may_link_to_multiple_procurement_cycles_or_tenders
+    - award_creates_linked_project_workspace_without_deleting_pre_award_evidence
 
 fact_model:
   current_state_is_derived_from_observations_and_events: true
@@ -136,6 +139,10 @@ value_semantics:
   - cash_exposure
 
 financial_fact_rules:
+  business_intelligence_fact_only: true
+  transactional_ledger_authority: false
+  invoice_issuance_authority: false
+  payment_execution_authority: false
   currency_required: true
   value_type_required: true
   px_id_when_commercially_attributable: required
@@ -143,6 +150,7 @@ financial_fact_rules:
   contract_id_when_contract_attributable: required_when_known
   supporting_document_reference: preferred
   binary_financial_documents_live_in: SHAREPOINT
+  rule: financial facts may mirror or reconcile authorized source evidence for intelligence and analytics but do not constitute the accounting ledger or authorize a transaction
 
 system_ownership:
   ARGUS_SHAREPOINT_SQLITE:
@@ -154,13 +162,20 @@ system_ownership:
       - requirements_and_procurement_lineage
       - canonical_tenders
       - px_opportunities
-      - bids
-      - awards
-      - access_asia_projects
+      - bid_facts
+      - award_facts
+      - access_asia_project_facts
       - structured_contract_facts
       - structured_financial_facts
       - canonical_relationships
       - evidence_provenance_and_history
+    excludes:
+      - bid_submission_execution
+      - project_management_execution
+      - project_milestone_acceptance_authority
+      - invoice_issuance_authority
+      - payment_execution_authority
+      - accounting_ledger_authority
   HUBSPOT:
     owns:
       - access_asia_relationship_state
@@ -180,6 +195,7 @@ system_ownership:
       - opportunity_and_project_working_folders
   ARGUS_GITHUB:
     owns:
+      - business_intelligence_playbook
       - schemas
       - identity_rules
       - migration_logic
@@ -191,8 +207,9 @@ system_ownership:
       - routing
       - governance
       - approvals
+      - provider_selection_and_authorization
       - persistence_policy
-      - execution_control
+      - action_authorization
 
 cross_system_linking:
   principle: pointers_not_copies
