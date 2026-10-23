@@ -1,0 +1,21 @@
+version: 1.0.0
+authority: ATLAS
+rule: ARGUS declares capability requirements; ATLAS selects and authorizes providers.
+workflows:
+  early_demand_detection:
+    required: [web.search, government_project.search, policy.search, budget.search, document.extract, evidence.verify]
+  tender_intelligence:
+    required: [tender.search, tender.retrieve, document.extract, evidence.verify]
+  supply_intelligence:
+    required: [company.resolve, supplier.search, oem.search, entity.enrich, evidence.verify]
+  stakeholder_intelligence:
+    required: [stakeholder.resolve, entity.enrich, evidence.verify]
+  monitoring:
+    required: [monitoring.watch, evidence.verify]
+  persistence:
+    required: [database.query, database.write, document.write, artifact.persist]
+constraints:
+  provider_selection: ATLAS_ONLY
+  provider_brand_hardcoding: forbidden
+  approval_boundary: ATLAS
+  return_to: ATLAS
