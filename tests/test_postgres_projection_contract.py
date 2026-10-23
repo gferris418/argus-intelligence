@@ -5,7 +5,12 @@ from pathlib import Path
 
 import yaml
 
-from tools.postgres_search import TenderSearchAdapter, TenderSearchConfig, build_tender_search_steps
+from tools.postgres_search import (
+    TenderSearchAdapter,
+    TenderSearchConfig,
+    build_tender_plan_probe,
+    build_tender_search_steps,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATION = ROOT / "migrations" / "postgres" / "0001_argus_operational_projection.sql"
@@ -171,6 +176,35 @@ class PostgresSearchAdapterTests(unittest.TestCase):
         self.assertTrue(all(params is not None for _, params in search_calls))
         self.assertEqual(0, conn.commits)
         self.assertEqual(1, conn.rollbacks)
+
+    def test_plan_probe_is_parameterized_projected_and_read_only(self) -> None:
+        probe = build_tender_plan_probe("fuzzy", "Costal Patrol Vesel", 20)
+        self.assertTrue(probe.sql.startswith("EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)"))
+        self.assertNotIn("SELECT *", probe.sql.upper())
+        self.assertEqual(("fuzzy", "Costal Patrol Vesel", 20), probe.params)
+
+        plan_payload = [{"Plan": {"Node Type": "Bitmap Heap Scan", "Index Name": "idx_tender_title_trgm"}}]
+        conn = _FakeConnection([[(plan_payload,)]])
+        telemetry = TenderSearchAdapter(TenderSearchConfig(statement_timeout_ms=1500)).explain_plan(
+            conn,
+            mode="fuzzy",
+            query="Costal Patrol Vesel",
+            limit=20,
+        )
+        self.assertEqual("fuzzy", telemetry.mode)
+        self.assertEqual(plan_payload, telemetry.plan)
+        self.assertGreaterEqual(telemetry.latency_ms, 0)
+        executed = conn.cursor_instance.executed
+        self.assertTrue(any("SET TRANSACTION READ ONLY" in sql for sql, _ in executed))
+        explain_calls = [(sql, params) for sql, params in executed if sql.startswith("EXPLAIN")]
+        self.assertEqual(1, len(explain_calls))
+        self.assertEqual(("fuzzy", "Costal Patrol Vesel", 20), explain_calls[0][1])
+        self.assertEqual(0, conn.commits)
+        self.assertEqual(1, conn.rollbacks)
+
+    def test_plan_probe_rejects_unknown_mode(self) -> None:
+        with self.assertRaises(ValueError):
+            build_tender_plan_probe("unsupported", "query", 20)
 
     def test_empty_query_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
