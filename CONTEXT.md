@@ -66,6 +66,9 @@ A stable child object representing a normalized obligation, eligibility conditio
 ### Requirement Lineage
 The evidence-backed chain connecting upstream need or requirement context to programme/project, probable or observed procurement package, procurement process, Requirement Items, award/contract, installed base and successor or expansion signals. Not every node must exist, but later evidence should link backward where evidence supports the relationship.
 
+### Forecast Basis Anchor
+The canonical PROGRAMME, PROJECT, or REQUIREMENT object that establishes the evidence-bounded subject from which a procurement-package forecast is derived. A Forecast Basis Anchor does not prove that any future PROCUREMENT_PACKAGE exists.
+
 ## Supplier, market and network language
 
 ### Supplier Intelligence
@@ -100,3 +103,14 @@ Legitimate organizational access or engagement readiness, such as an existing bu
 
 ### Negative Evidence
 Evidence that materially supports the conclusion that a claimed capability, qualification, relationship or condition does not exist or is unsuitable. Negative Evidence is distinct from NOT_FOUND, UNKNOWN and CONTRADICTED states; failure to locate evidence does not itself prove a negative fact.
+
+## Capability and output language
+
+### Native Capability
+A versioned ARGUS analytical or collection capability with explicit ownership, method, input/output contract, verification requirement and ATLAS authority boundary. A Native Capability may be cross-cutting or may support one or more collection mission types; it does not create a new execution spine.
+
+### Executable Capability
+A Native Capability that can be invoked through the existing governed ARGUS runtime seam with machine-readable input/output validation and deterministic reconciliation. Analytical generation may use bounded reasoning or providers, but all results return through ARGUS validation and the ATLAS governance boundary.
+
+### Intelligence Brief
+A derived, evidence-backed ARGUS projection that organizes observations, inferences, assessments, confidence, contradictions/unknowns, commercial relevance, evidence gaps, next triggers and next collection questions. An Intelligence Brief is not a canonical business object and is not the final ATLAS user-facing decision or delivery.
