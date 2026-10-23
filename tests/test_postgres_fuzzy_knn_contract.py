@@ -8,6 +8,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATION = ROOT / "migrations" / "postgres" / "0002_argus_fuzzy_knn.sql"
 BENCHMARK = ROOT / "benchmarks" / "postgres" / "tender-search-contract.yaml"
+MANIFEST = ROOT / "argus-intelligence.yaml"
 
 
 class PostgresFuzzyKnnContractTests(unittest.TestCase):
@@ -40,6 +41,21 @@ class PostgresFuzzyKnnContractTests(unittest.TestCase):
         self.assertEqual("GIST_TRGM_KNN", fuzzy["expected_plan"]["index_type"])
         self.assertEqual("nearest_neighbor", fuzzy["expected_plan"]["strategy"])
         self.assertTrue(fuzzy["expected_plan"]["disallow_sequential_scan_at_scale"] <= 100000)
+
+    def test_manifest_declares_complete_ordered_postgres_migration_chain(self) -> None:
+        manifest = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+        authority = manifest["authority"]
+        self.assertEqual(
+            "migrations/postgres/0001_argus_operational_projection.sql",
+            authority["postgres_operational_projection_migration"],
+        )
+        self.assertEqual(
+            [
+                "migrations/postgres/0001_argus_operational_projection.sql",
+                "migrations/postgres/0002_argus_fuzzy_knn.sql",
+            ],
+            authority["postgres_operational_projection_migrations"],
+        )
 
 
 if __name__ == "__main__":
