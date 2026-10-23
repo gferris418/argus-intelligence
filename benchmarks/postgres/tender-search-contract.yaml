@@ -1,4 +1,4 @@
-version: 1.1.0
+version: 1.2.0
 status: REQUIRED_BEFORE_PRODUCTION_CUTOVER
 purpose: >-
   Define reproducible acceptance criteria for the ARGUS PostgreSQL tender-search
@@ -54,6 +54,7 @@ queries:
       required_index_family: idx_tender_title_trgm_gist
       index_type: GIST_TRGM_KNN
       strategy: nearest_neighbor
+      relevance_filter: trigram_similarity_threshold
       disallow_sequential_scan_at_scale: 100000
       record_candidate_count: true
     acceptance:
