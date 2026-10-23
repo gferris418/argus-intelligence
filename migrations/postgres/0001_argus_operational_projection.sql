@@ -147,6 +147,34 @@ CREATE TABLE IF NOT EXISTS argus.canonical_object (
     CONSTRAINT canonical_object_jurisdiction_format CHECK (jurisdiction IS NULL OR jurisdiction ~ '^[A-Z]{2}(-[A-Z0-9]{1,8})?$')
 );
 
+CREATE TABLE IF NOT EXISTS argus.source_object_link (
+    source_record_id text NOT NULL REFERENCES argus.source_record(source_record_id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    object_internal_id uuid NOT NULL REFERENCES argus.canonical_object(internal_id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    relation_type text NOT NULL DEFAULT 'SUPPORTS',
+    created_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (source_record_id, object_internal_id, relation_type),
+    CONSTRAINT source_object_link_relation_nonempty CHECK (length(btrim(relation_type)) > 0)
+);
+
+CREATE TABLE IF NOT EXISTS argus.external_identifier (
+    identifier_id uuid PRIMARY KEY,
+    object_internal_id uuid NOT NULL REFERENCES argus.canonical_object(internal_id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    source_system text NOT NULL,
+    scheme text NOT NULL,
+    value text NOT NULL,
+    scope text NOT NULL DEFAULT 'OBJECT',
+    namespace text NOT NULL DEFAULT '',
+    source_record_id text REFERENCES argus.source_record(source_record_id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    valid_from timestamptz,
+    valid_to timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT external_identifier_source_system_nonempty CHECK (length(btrim(source_system)) > 0),
+    CONSTRAINT external_identifier_scheme_nonempty CHECK (length(btrim(scheme)) > 0),
+    CONSTRAINT external_identifier_value_nonempty CHECK (length(btrim(value)) > 0),
+    CONSTRAINT external_identifier_valid_window CHECK (valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from),
+    CONSTRAINT external_identifier_unique_value UNIQUE (source_system, scheme, value, scope, namespace)
+);
+
 CREATE OR REPLACE FUNCTION argus.touch_updated_at()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -229,6 +257,12 @@ CREATE INDEX IF NOT EXISTS idx_canonical_object_type_status
     ON argus.canonical_object (object_type, status);
 CREATE INDEX IF NOT EXISTS idx_canonical_object_title_trgm
     ON argus.canonical_object USING gin (title public.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_source_object_link_object
+    ON argus.source_object_link (object_internal_id, relation_type);
+CREATE INDEX IF NOT EXISTS idx_external_identifier_object
+    ON argus.external_identifier (object_internal_id);
+CREATE INDEX IF NOT EXISTS idx_external_identifier_lookup
+    ON argus.external_identifier (source_system, scheme, value);
 CREATE INDEX IF NOT EXISTS idx_tender_reference_lower
     ON argus.tender (lower(tender_reference));
 CREATE INDEX IF NOT EXISTS idx_tender_project_code_lower
@@ -355,6 +389,8 @@ GRANT EXECUTE ON FUNCTION argus.list_tenders(text, text, integer) TO argus_reade
 -- Runtime readers get function execution only; direct table access is intentionally absent.
 GRANT SELECT, INSERT, UPDATE ON argus.source_record TO argus_writer;
 GRANT SELECT, INSERT, UPDATE ON argus.canonical_object TO argus_writer;
+GRANT SELECT, INSERT, UPDATE ON argus.source_object_link TO argus_writer;
+GRANT SELECT, INSERT, UPDATE ON argus.external_identifier TO argus_writer;
 GRANT SELECT, INSERT, UPDATE ON argus.tender TO argus_writer;
 GRANT SELECT ON argus.object_type_registry, argus.object_status_registry, argus.tender_status_registry, argus.currency_registry TO argus_writer;
 GRANT SELECT, INSERT ON argus.schema_migration TO argus_writer;
