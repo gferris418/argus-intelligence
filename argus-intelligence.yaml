@@ -37,6 +37,7 @@ authority:
     - migrations/postgres/0001_argus_operational_projection.sql
     - migrations/postgres/0002_argus_fuzzy_knn.sql
   postgres_query_adapter: tools/postgres_search.py
+  postgres_benchmark_runner: tools/postgres_benchmark.py
   postgres_production_hardening: docs/architecture/postgresql-production-hardening.md
   postgres_benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
   country_profiles:

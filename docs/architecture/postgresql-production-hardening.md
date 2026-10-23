@@ -69,6 +69,33 @@ Rehearse on a branch created from the current production head.
 
 Do not promote a rehearsal branch to production.
 
+Run each concurrency cell from an independent network client with
+`tools/postgres_benchmark.py`. Install the hash-locked dependencies from
+`requirements-postgres-benchmark.lock`, inject the connection string through the
+`ARGUS_BENCHMARK_DSN` environment variable, and pass the exact expected Neon
+branch ID. The runner rejects a branch mismatch, accepts only the governed
+1/8/32-reader and 0/1/4-writer levels, executes fixed projected SQL, and rolls
+back every synthetic writer update. A writer scenario also requires the explicit
+`--enable-rollback-writes` acknowledgement. Example:
+
+```bash
+python -m pip install --require-hashes --requirement requirements-postgres-benchmark.lock
+ARGUS_BENCHMARK_DSN="$INJECTED_NONPRODUCTION_SECRET" python -m tools.postgres_benchmark \
+  --expected-branch-id br-example \
+  --dataset-scale 100000 \
+  --cache-state warm \
+  --readers 8 \
+  --writers 1 \
+  --duration 60 \
+  --git-commit "$VALIDATED_ARGUS_COMMIT" \
+  --enable-rollback-writes \
+  --output benchmark-100k-r8-w1.json
+```
+
+Never run benchmark load against the production branch. Store credentials only
+in the external secret injector; do not pass a DSN as a command-line argument or
+commit it in a report.
+
 ## Post-migration smoke checks
 
 The authorized production run must stop and restore if any mandatory smoke check fails.
