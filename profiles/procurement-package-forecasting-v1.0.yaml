@@ -1,0 +1,209 @@
+document_id: ARGUS-PROCUREMENT-PACKAGE-FORECASTING-001
+version: 1.0.0
+status: CANDIDATE
+owner: ARGUS
+capability: PROCUREMENT_PACKAGE_FORECASTING
+purpose: >-
+  Convert an evidenced government project, programme or requirement into a bounded set
+  of probable future procurement-package hypotheses before formal package or tender
+  publication, while preserving provenance, uncertainty, falsifiability and ATLAS
+  forecasting authority.
+
+governance:
+  package_hypothesis_authority: ARGUS
+  final_forecast_authority: ATLAS
+  approved_project_proves_package_exists: false
+  forecast_is_canonical_procurement_fact: false
+  package_hypothesis_is_intelligence: true
+  authoritative_package_evidence_creates_or_updates_canonical_procurement_object: true
+  no_hypothesis_may_be_promoted_to_fact_from_probability_alone: true
+  no_supplier_or_oem_preference_may_be_inferred_without_evidence: true
+  no_confidential_bid_information_collection: true
+
+activation:
+  permitted_when:
+    - project_or_requirement_identity_is_materially_resolved
+    - project_scope_or_need_is_evidenced_enough_to_support_decomposition
+    - package_structure_is_not_yet_authoritatively_known_or_is_materially_incomplete
+  preferred_project_states:
+    - PROCESSING_OR_APPRAISAL
+    - APPROVED
+    - ADP_RADP_INCLUDED
+    - IMPLEMENTING
+    - REVISED_OR_EXTENDED
+  not_required_when:
+    - authoritative_package_structure_is_already_complete_and_current
+    - user_only_requests_a_direct_tender_lookup
+
+workflow:
+  - ESTABLISH_PROJECT_BASELINE
+  - DECOMPOSE_DELIVERY_MODEL
+  - GENERATE_PACKAGE_HYPOTHESES
+  - ESTIMATE_SEQUENCE_AND_TIMING
+  - TEST_PROCUREMENT_ROUTE
+  - CORROBORATE_AND_FALSIFY
+  - SCORE_AND_PRIORITIZE
+  - MONITOR_SIGNPOSTS
+  - RECONCILE_OBSERVED_PACKAGE
+
+baseline_requirements:
+  minimum:
+    - canonical_project_or_requirement_reference
+    - evidence_that_the_project_or_need_is_real
+    - source_date_or_observation_date
+  preferred:
+    - approved_or_appraised_scope
+    - project_cost_or_financing_structure
+    - implementation_period
+    - implementing_agency
+    - procuring_entity_or_probable_procurement_owner
+    - physical_outputs_or_component_breakdown
+    - procurement_plan_or_procurement_strategy_if_available
+
+# These lenses are hypotheses-generation prompts, not proof that a package exists.
+decomposition_lenses:
+  project_scope_outputs:
+    question: What distinct physical, technical or service outputs must be delivered?
+  component_and_subcomponent_structure:
+    question: Does the project document divide work into components that often map to separate packages?
+  funding_and_cost_structure:
+    question: Are funds allocated by component, financier, fiscal year or expenditure category?
+  implementation_sequence:
+    question: Which enabling works, equipment, integration, training or services must happen first?
+  works_goods_services_consulting_split:
+    question: Which scopes are naturally separable under works, goods, consulting and non-consulting procurement?
+  technical_dependencies:
+    question: Which systems must be procured together for interoperability and which can be separated?
+  local_foreign_delivery_split:
+    question: Which scopes are likely local works/services versus imported OEM equipment or specialist services?
+  value_and_threshold_effects:
+    question: Could procurement thresholds or approval levels materially influence package size or method?
+  institutional_procurement_pattern:
+    question: How does this buyer or implementing agency normally package comparable acquisitions?
+  historical_analogues:
+    question: How were similar prior projects or predecessor phases packaged, tendered and awarded?
+  development_partner_rules:
+    question: Do lender or donor rules constrain methods, review requirements, package size or sequencing?
+  market_structure:
+    question: Does supplier concentration or integrator dependence make bundling or splitting more plausible?
+  installed_base_and_standardization:
+    question: Could compatibility with installed systems influence package scope or route?
+  geography_and_site_structure:
+    question: Are multiple sites, districts or facilities likely to create separate lots or packages?
+  lifecycle_services:
+    question: Are training, maintenance, spares, support, software, warranties or long-term services likely to be distinct scopes?
+
+hypothesis_generation_rules:
+  - Generate the smallest set of materially distinct package hypotheses supported by project structure.
+  - Do not mechanically create one package per project component.
+  - Preserve alternative packaging structures where evidence does not discriminate between them.
+  - Separate package realization probability from evidence confidence.
+  - Treat quantities, values, dates, methods and supplier requirements as unknown unless evidenced or explicitly estimated.
+  - Record unallocated project scope rather than forcing every scope element into a package.
+  - Link every hypothesis to the underlying project and requirement lineage.
+  - Avoid duplicate hypotheses that differ only by wording.
+
+package_classes:
+  - GOODS
+  - WORKS
+  - CONSULTING_SERVICES
+  - NON_CONSULTING_SERVICES
+  - GOODS_WITH_RELATED_SERVICES
+  - DESIGN_BUILD_EPC
+  - FRAMEWORK_OR_CALL_OFF
+  - MIXED
+  - OTHER
+
+verification_rules:
+  primary_source_preference: true
+  source_lineage_independence: required_when_material
+  contradiction_search: required
+  falsifier_required: true
+  freshness_check: required
+  historical_analogue_is_support_not_proof: true
+  vendor_marketing_is_not_buyer_intent: true
+  inferred_package_title_must_be_marked_as_inference: true
+  probabilities_do_not_override_conflicting_primary_evidence: true
+
+scoring:
+  measures:
+    realization_probability:
+      meaning: likelihood_that_a_materially_similar_package_or_scope_will_enter_procurement
+      range: 0_to_1
+      not_equal_to: evidence_confidence
+    evidence_confidence:
+      meaning: confidence_in_the_evidence_and_reasoning_supporting_the_hypothesis
+      range: 0_to_1
+      not_equal_to: realization_probability
+  factors:
+    - project_scope_directness
+    - explicit_component_or_output_support
+    - budget_or_financing_support
+    - procurement_plan_or_strategy_support
+    - historical_buyer_pattern_support
+    - technical_dependency_support
+    - market_structure_support
+    - independent_source_convergence
+    - contradiction_penalty
+    - freshness_penalty
+  rule: scoring_is_advisory_and_must_not_convert_inference_into_fact
+
+timing:
+  allowed_precision:
+    - DATE_RANGE
+    - MONTH_RANGE
+    - QUARTER_RANGE
+    - FISCAL_YEAR
+    - RELATIVE_SEQUENCE
+    - UNKNOWN
+  derive_from:
+    - project_implementation_schedule
+    - financing_effectiveness_or_disbursement_conditions
+    - design_or_consultancy_dependencies
+    - site_readiness_dependencies
+    - procurement_plan_cycles
+    - historical_buyer_lead_times
+    - known_approval_or_budget_cycles
+  rule: do_not_invent_exact_tender_dates_when_only_sequence_or_period_is_supported
+
+monitoring:
+  typical_signposts:
+    - APP_or_procurement_plan_publication
+    - DPP_RDPP_or_project_document_revision
+    - lender_procurement_plan_update
+    - budget_release_or_ADP_RADP_update
+    - prequalification_EOI_RFI_or_market_sounding
+    - design_consultant_or_PMC_appointment
+    - specifications_or_BOQ_preparation_signal
+    - delegation_or_procurement_committee_action
+    - tender_notice
+    - package_number_or_lot_reference_appearance
+    - supplier_prequalification_or_enlistment_change
+  on_trigger:
+    - reacquire_primary_source
+    - reconcile_against_existing_hypotheses
+    - update_probability_and_confidence
+    - preserve_prior_hypothesis_history
+    - escalate_material_change_to_ATLAS
+
+promotion:
+  authoritative_package_evidence_required: true
+  observed_target_object_type: PROCUREMENT_PACKAGE
+  canonical_identity_prefix: PKG
+  when_observed:
+    - reconcile_authoritative_identifier_and_scope
+    - link_observed_package_to_project_and_requirement
+    - mark_matching_hypothesis_REALIZED
+    - store_observed_package_as_canonical_procurement_object
+    - preserve_nonmatching_hypotheses_for_reassessment_or_rejection
+  forecast_id_does_not_become_package_id: true
+
+output_contract:
+  schema: schemas/procurement-package-forecast.schema.json
+  collection_package_field: procurement_package_forecasts
+  claim_types_allowed: [INFERENCE, DERIVED, ASSUMPTION]
+
+stopping_rule: >-
+  Stop decomposition when additional research is unlikely to materially change the
+  expected package structure, realization probabilities, timing windows, procurement
+  route hypotheses, supplier implications, monitoring triggers or the next ATLAS action.
