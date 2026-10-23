@@ -1,7 +1,8 @@
 -- ARGUS PostgreSQL operational projection v1.1
 -- Additive fuzzy-search hardening discovered during final-schema benchmarking.
 -- This migration adds a GiST trigram KNN index and replaces search_tenders in place
--- with mode-specific branches so fuzzy top-N queries can use nearest-neighbor ordering.
+-- with mode-specific branches so fuzzy top-N queries preserve the existing trigram
+-- similarity threshold while using nearest-neighbor ordering.
 
 BEGIN;
 
@@ -105,6 +106,7 @@ BEGIN
                t.source_url,
                (1.0 - (t.title OPERATOR(public.<->) v_query))::real AS score
         FROM argus.tender AS t
+        WHERE t.title OPERATOR(public.%) v_query
         ORDER BY t.title OPERATOR(public.<->) v_query,
                  t.canonical_tender_id
         LIMIT v_limit;
@@ -121,7 +123,7 @@ GRANT EXECUTE ON FUNCTION argus.search_tenders(text, text, integer) TO argus_rea
 INSERT INTO argus.schema_migration(migration_id, description)
 VALUES (
     '0002_argus_fuzzy_knn',
-    'Add GiST trigram nearest-neighbor fuzzy search and mode-specific search execution.'
+    'Add GiST trigram nearest-neighbor fuzzy search while preserving the trigram similarity threshold.'
 )
 ON CONFLICT (migration_id) DO NOTHING;
 
