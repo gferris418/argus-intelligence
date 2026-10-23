@@ -45,3 +45,23 @@ A confidence or score emitted by an external provider. Provider Confidence is ev
 
 ### Verification Depth
 The rigor applied to Evidence Verification, proportionate to consequence and uncertainty. Higher Verification Depth means stronger contradiction search, source-lineage testing, corroboration, primary-source reacquisition, falsification, and evidence-gap closure.
+
+## Horizon and procurement language
+
+### Horizon Intelligence
+Cross-cutting ARGUS collection of upstream policy, strategy, institutional, programme, budget, funding, market and weak-signal evidence that may indicate an emerging government need, project, procurement path or commercial opportunity. Horizon Intelligence feeds existing Demand Intelligence, Early Warning and Opportunity Engine semantics; it is not a separate lifecycle or persistent engine.
+
+### Weak Signal
+An early, incomplete or low-resolution observation that may indicate an emerging need, programme, project, funding path, procurement path or opportunity but does not by itself establish that a canonical PROJECT or PROCUREMENT object exists.
+
+### Tender Intake
+The ARGUS normalization method for published solicitation and procurement-release evidence. Tender Intake resolves buyer, authority, project, package, procurement-process and requirement lineage, extracts material dates and requirements, invokes Evidence Verification, and reconciles the release against existing opportunity and procurement context. Tender Intake is used by Rapid Tender Mode rather than replacing it.
+
+### Source Release
+A dated, attributable publication or issuance of procurement-related source content, including an original solicitation, amendment, corrigendum, addendum, clarification, notice or other materially relevant release. Later releases do not erase earlier ones; current effective state is derived from the release/event history.
+
+### Requirement Item
+A stable child object representing a normalized obligation, eligibility condition, technical requirement, commercial condition, submission requirement, evaluation condition, local-partner or OEM-authorization requirement, or disqualifier whose satisfaction or interpretation can materially affect participation, compliance, evaluation or award. A Requirement Item belongs to procurement/package requirement lineage and is not initially a top-level master-registry record type.
+
+### Requirement Lineage
+The evidence-backed chain connecting upstream need or requirement context to programme/project, probable or observed procurement package, procurement process, Requirement Items, award/contract, installed base and successor or expansion signals. Not every node must exist, but later evidence should link backward where evidence supports the relationship.
