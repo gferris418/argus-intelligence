@@ -8,15 +8,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AccessAsiaDataOwnershipTests(unittest.TestCase):
-    def test_px_promotion_stays_in_business_intelligence_until_submission_active(self) -> None:
+    def test_px_promotion_establishes_single_rev_opp_pre_award_workspace(self) -> None:
         text = (ROOT / "profiles" / "access-asia-opportunity-lifecycle.yaml").read_text(encoding="utf-8")
         tracked = text.split("tracked_opportunity:", 1)[1].split("\nsubmission:", 1)[0]
         submission = text.split("submission:", 1)[1].split("\naward:", 1)[0]
+        project = text.split("project:", 1)[1].split("\nnon_submission_outcomes:", 1)[0]
 
-        self.assertIn("destination_home: General/Business Intelligence/50_OPPORTUNITIES", tracked)
-        self.assertIn("move_entire_folder_if_present: false", tracked)
-        self.assertIn("source_home: General/Business Intelligence/50_OPPORTUNITIES", submission)
+        self.assertIn("destination_home: General/REV/OPP Opportunities", tracked)
+        self.assertIn("move_entire_folder_if_present: true", tracked)
+        self.assertIn("source_home: General/REV/OPP Opportunities", submission)
         self.assertIn("working_home: General/REV/OPP Opportunities", submission)
+        self.assertIn("move_entire_folder_if_present: false", submission)
+        self.assertIn("destination_home: General/OPS/PRJ Projects", project)
+        self.assertIn("move_entire_folder: false", project)
+        self.assertIn("preserve_source_workspace: true", project)
+        self.assertIn("create_linked_project_workspace: true", project)
 
     def test_supplier_intelligence_uses_argus_identity_and_optional_hubspot_mirror(self) -> None:
         schema = json.loads((ROOT / "schemas" / "supplier-intelligence.schema.json").read_text(encoding="utf-8"))
