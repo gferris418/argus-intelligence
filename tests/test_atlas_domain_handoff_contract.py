@@ -21,7 +21,7 @@ CURRENT_INTEGRATION_PATH = ROOT / "contracts" / "atlas" / "current-integration.y
 SYNC_RECEIPT_SCHEMA_PATH = ROOT / "schemas" / "atlas-argus-sync-receipt.schema.json"
 WORKFLOW_PATH = ROOT / ".github" / "workflows" / "contract-tests.yml"
 CROSS_REPO_WORKFLOW_PATH = ROOT / ".github" / "workflows" / "cross-repo-e2e.yml"
-ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
+ATLAS_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
 
 
 class AtlasDomainHandoffContract(unittest.TestCase):
@@ -31,15 +31,17 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("release_channel: candidate", MANIFEST)
         self.assertEqual("contracts/atlas/current-integration.yaml", manifest["authority"]["atlas_current_integration"])
         self.assertEqual("tools/atlas_v3_provider.py", manifest["authority"]["atlas_v3_provider"])
+        self.assertEqual("tools/atlas_capability.py", manifest["authority"]["atlas_remote_capability_verifier"])
         compatibility = manifest["atlas_compatibility"]
         self.assertEqual("3.0.2", compatibility["last_validated_base"])
         self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
-        self.assertEqual("chatgpt-plugin-bootstrap-v1.0.1", compatibility["last_validated_control_revision"])
+        self.assertEqual("atlas-argus-execution-v2.0.0", compatibility["last_validated_control_revision"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
         self.assertEqual("ATLAS", compatibility["next_step_authority"])
         self.assertEqual("ATLAS", compatibility["provider_return_target"])
         self.assertTrue(compatibility["explicit_user_approval_required"])
         self.assertTrue(compatibility["mission_control_first_required"])
+        self.assertEqual("signed_capability_v2_required", compatibility["remote_transport"])
         self.assertFalse(manifest["production_runtime"]["access_asia"]["atlas_change_required"])
 
     def test_legacy_signed_handoff_and_lease_contracts_remain_available(self):
