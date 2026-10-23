@@ -33,6 +33,9 @@ authority:
   operational_database_schema: schemas/argus-operational-store-v1.sql
   operational_database_runtime: tools/argus_operational_db.py
   postgres_operational_projection_migration: migrations/postgres/0001_argus_operational_projection.sql
+  postgres_operational_projection_migrations:
+    - migrations/postgres/0001_argus_operational_projection.sql
+    - migrations/postgres/0002_argus_fuzzy_knn.sql
   postgres_query_adapter: tools/postgres_search.py
   postgres_production_hardening: docs/architecture/postgresql-production-hardening.md
   postgres_benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
@@ -105,6 +108,9 @@ operational_projections:
     production_cutover_approved: false
     role: governed_operational_projection_candidate
     migration: migrations/postgres/0001_argus_operational_projection.sql
+    migrations:
+      - migrations/postgres/0001_argus_operational_projection.sql
+      - migrations/postgres/0002_argus_fuzzy_knn.sql
     query_adapter: tools/postgres_search.py
     production_hardening: docs/architecture/postgresql-production-hardening.md
     benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
@@ -328,6 +334,9 @@ repository_storage_policy:
   current_mutable_structured_store: sharepoint_sqlite
   admitted_runtime_projection: postgresql_not_production
   postgres_migration: migrations/postgres/0001_argus_operational_projection.sql
+  postgres_migrations:
+    - migrations/postgres/0001_argus_operational_projection.sql
+    - migrations/postgres/0002_argus_fuzzy_knn.sql
   postgres_query_adapter: tools/postgres_search.py
   operational_database_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
   operational_database_mutation_model: single_writer_fetch_latest_modify_verify_replace

@@ -1,0 +1,64 @@
+from __future__ import annotations
+
+import unittest
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+MIGRATION = ROOT / "migrations" / "postgres" / "0002_argus_fuzzy_knn.sql"
+BENCHMARK = ROOT / "benchmarks" / "postgres" / "tender-search-contract.yaml"
+MANIFEST = ROOT / "argus-intelligence.yaml"
+
+
+class PostgresFuzzyKnnContractTests(unittest.TestCase):
+    def test_additive_migration_uses_gist_knn_for_fuzzy_top_n(self) -> None:
+        sql = MIGRATION.read_text(encoding="utf-8")
+        required = (
+            "CREATE INDEX IF NOT EXISTS idx_tender_title_trgm_gist",
+            "USING gist",
+            "public.gist_trgm_ops",
+            "CREATE OR REPLACE FUNCTION argus.search_tenders",
+            "v_query text := btrim(p_query)",
+            "v_limit integer := argus.enforce_result_limit(p_limit)",
+            "p_mode = 'fuzzy'",
+            "WHERE t.title OPERATOR(public.%) v_query",
+            "OPERATOR(public.<->)",
+            "ORDER BY t.title OPERATOR(public.<->) v_query",
+            "LIMIT v_limit",
+        )
+        for token in required:
+            self.assertIn(token, sql)
+        self.assertNotIn("DROP TABLE", sql.upper())
+        self.assertNotIn("TRUNCATE", sql.upper())
+
+    def test_benchmark_contract_requires_gist_knn_index_for_fuzzy(self) -> None:
+        benchmark = yaml.safe_load(BENCHMARK.read_text(encoding="utf-8"))
+        fuzzy = benchmark["queries"]["fuzzy"]
+        self.assertEqual(
+            "idx_tender_title_trgm_gist",
+            fuzzy["expected_plan"]["required_index_family"],
+        )
+        self.assertEqual("GIST_TRGM_KNN", fuzzy["expected_plan"]["index_type"])
+        self.assertEqual("nearest_neighbor", fuzzy["expected_plan"]["strategy"])
+        self.assertEqual("trigram_similarity_threshold", fuzzy["expected_plan"]["relevance_filter"])
+        self.assertTrue(fuzzy["expected_plan"]["disallow_sequential_scan_at_scale"] <= 100000)
+
+    def test_manifest_declares_complete_ordered_postgres_migration_chain(self) -> None:
+        manifest = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+        authority = manifest["authority"]
+        self.assertEqual(
+            "migrations/postgres/0001_argus_operational_projection.sql",
+            authority["postgres_operational_projection_migration"],
+        )
+        self.assertEqual(
+            [
+                "migrations/postgres/0001_argus_operational_projection.sql",
+                "migrations/postgres/0002_argus_fuzzy_knn.sql",
+            ],
+            authority["postgres_operational_projection_migrations"],
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

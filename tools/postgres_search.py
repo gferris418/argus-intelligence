@@ -10,8 +10,50 @@ _TENDER_PROJECTION = (
     "status, closing_at, source_url, score"
 )
 _SEARCH_SQL = f"SELECT {_TENDER_PROJECTION} FROM argus.search_tenders(%s, %s, %s)"
-_PLAN_SQL = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {_SEARCH_SQL}"
 _SEARCH_MODES = ("exact_reference", "exact_project_code", "fts", "fuzzy")
+_EXPLAIN_PREFIX = "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) "
+
+_PLAN_SQL_BY_MODE = {
+    "exact_reference": _EXPLAIN_PREFIX
+    + (
+        "SELECT t.canonical_tender_id, t.tender_reference, t.project_code, t.title, "
+        "t.buyer_name, t.status, t.closing_at, t.source_url, 1.0::real AS score "
+        "FROM argus.tender AS t "
+        "WHERE lower(t.tender_reference) = lower(%s) "
+        "ORDER BY t.closing_at DESC NULLS LAST, t.canonical_tender_id "
+        "LIMIT %s"
+    ),
+    "exact_project_code": _EXPLAIN_PREFIX
+    + (
+        "SELECT t.canonical_tender_id, t.tender_reference, t.project_code, t.title, "
+        "t.buyer_name, t.status, t.closing_at, t.source_url, 1.0::real AS score "
+        "FROM argus.tender AS t "
+        "WHERE lower(t.project_code) = lower(%s) "
+        "ORDER BY t.closing_at DESC NULLS LAST, t.canonical_tender_id "
+        "LIMIT %s"
+    ),
+    "fts": _EXPLAIN_PREFIX
+    + (
+        "SELECT t.canonical_tender_id, t.tender_reference, t.project_code, t.title, "
+        "t.buyer_name, t.status, t.closing_at, t.source_url, "
+        "ts_rank_cd(t.search_vector, websearch_to_tsquery('simple', %s))::real AS score "
+        "FROM argus.tender AS t "
+        "WHERE t.search_vector @@ websearch_to_tsquery('simple', %s) "
+        "ORDER BY ts_rank_cd(t.search_vector, websearch_to_tsquery('simple', %s)) DESC, "
+        "t.closing_at DESC NULLS LAST, t.canonical_tender_id "
+        "LIMIT %s"
+    ),
+    "fuzzy": _EXPLAIN_PREFIX
+    + (
+        "SELECT t.canonical_tender_id, t.tender_reference, t.project_code, t.title, "
+        "t.buyer_name, t.status, t.closing_at, t.source_url, "
+        "(1.0 - (t.title OPERATOR(public.<->) %s))::real AS score "
+        "FROM argus.tender AS t "
+        "WHERE t.title OPERATOR(public.%) %s "
+        "ORDER BY t.title OPERATOR(public.<->) %s, t.canonical_tender_id "
+        "LIMIT %s"
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -30,7 +72,7 @@ class TenderSearchConfig:
 class TenderSearchStep:
     mode: str
     sql: str
-    params: tuple[str, str, int]
+    params: tuple[Any, ...]
 
 
 @dataclass(frozen=True)
@@ -80,10 +122,18 @@ def build_tender_plan_probe(mode: str, query: str, limit: int = 20) -> TenderSea
     validated_mode = _validated_mode(mode)
     normalized = _validated_query(query)
     bounded = _validated_limit(limit, 100)
+
+    if validated_mode in ("exact_reference", "exact_project_code"):
+        params: tuple[Any, ...] = (normalized, bounded)
+    elif validated_mode == "fts":
+        params = (normalized, normalized, normalized, bounded)
+    else:
+        params = (normalized, normalized, normalized, bounded)
+
     return TenderSearchStep(
         mode=validated_mode,
-        sql=_PLAN_SQL,
-        params=(validated_mode, normalized, bounded),
+        sql=_PLAN_SQL_BY_MODE[validated_mode],
+        params=params,
     )
 
 
@@ -104,9 +154,10 @@ class TenderSearchAdapter:
     result size, applies a local statement timeout, and rolls back its read-only
     transaction after every operation.
 
-    `explain_plan` is an explicit diagnostic path. It runs `EXPLAIN ANALYZE` for one
-    governed search mode and is intended for benchmark/operational telemetry rather
-    than every user search.
+    `explain_plan` is an explicit diagnostic path. It runs `EXPLAIN ANALYZE` against
+    the fixed underlying SQL for one governed search mode so index and node details
+    remain inspectable even when the runtime search function is PL/pgSQL. It is
+    intended for benchmark/operational telemetry rather than every user search.
     """
 
     def __init__(self, config: TenderSearchConfig | None = None) -> None:

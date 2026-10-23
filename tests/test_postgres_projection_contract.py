@@ -38,7 +38,7 @@ class _FakeCursor:
 
     def execute(self, sql: str, params: tuple | None = None) -> None:
         self.executed.append((sql, params))
-        if "argus.search_tenders" in sql:
+        if "argus.search_tenders" in sql or sql.startswith("EXPLAIN"):
             self._rows = self.scripted_rows.pop(0) if self.scripted_rows else []
         else:
             self._rows = []
@@ -194,13 +194,23 @@ class PostgresSearchAdapterTests(unittest.TestCase):
         self.assertEqual(0, conn.commits)
         self.assertEqual(1, conn.rollbacks)
 
-    def test_plan_probe_is_parameterized_projected_and_read_only(self) -> None:
+    def test_plan_probe_is_parameterized_direct_sql_and_read_only(self) -> None:
         probe = build_tender_plan_probe("fuzzy", "Costal Patrol Vesel", 20)
         self.assertTrue(probe.sql.startswith("EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)"))
         self.assertNotIn("SELECT *", probe.sql.upper())
-        self.assertEqual(("fuzzy", "Costal Patrol Vesel", 20), probe.params)
+        self.assertNotIn("argus.search_tenders", probe.sql)
+        self.assertIn("FROM argus.tender", probe.sql)
+        self.assertIn("OPERATOR(public.%)", probe.sql)
+        self.assertIn("OPERATOR(public.<->)", probe.sql)
+        self.assertEqual(("Costal Patrol Vesel", "Costal Patrol Vesel", "Costal Patrol Vesel", 20), probe.params)
 
-        plan_payload = [{"Plan": {"Node Type": "Bitmap Heap Scan", "Index Name": "idx_tender_title_trgm"}}]
+        for mode in ("exact_reference", "exact_project_code", "fts", "fuzzy"):
+            mode_probe = build_tender_plan_probe(mode, "CPV-2026", 20)
+            self.assertNotIn("argus.search_tenders", mode_probe.sql)
+            self.assertIn("FROM argus.tender", mode_probe.sql)
+            self.assertNotIn("SELECT *", mode_probe.sql.upper())
+
+        plan_payload = [{"Plan": {"Node Type": "Index Scan", "Index Name": "idx_tender_title_trgm_gist"}}]
         conn = _FakeConnection([[(plan_payload,)]])
         telemetry = TenderSearchAdapter(TenderSearchConfig(statement_timeout_ms=1500)).explain_plan(
             conn,
@@ -215,7 +225,7 @@ class PostgresSearchAdapterTests(unittest.TestCase):
         self.assertTrue(any("SET TRANSACTION READ ONLY" in sql for sql, _ in executed))
         explain_calls = [(sql, params) for sql, params in executed if sql.startswith("EXPLAIN")]
         self.assertEqual(1, len(explain_calls))
-        self.assertEqual(("fuzzy", "Costal Patrol Vesel", 20), explain_calls[0][1])
+        self.assertEqual(("Costal Patrol Vesel", "Costal Patrol Vesel", "Costal Patrol Vesel", 20), explain_calls[0][1])
         self.assertEqual(0, conn.commits)
         self.assertEqual(1, conn.rollbacks)
 
