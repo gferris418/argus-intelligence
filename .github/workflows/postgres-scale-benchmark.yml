@@ -1,0 +1,106 @@
+name: PostgreSQL Scale Benchmark
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/postgres-scale-benchmark.yml'
+      - 'benchmarks/postgres/scale_benchmark.py'
+      - 'benchmarks/postgres/tender-search-contract.yaml'
+      - 'migrations/postgres/**'
+      - 'tests/test_postgres_scale_benchmark_contract.py'
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-scale-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ARGUS_BENCH_ADMIN_DSN: postgresql://postgres:postgres@127.0.0.1:55432/argusbench
+      ARGUS_BENCH_DSN: postgresql://bench_reader:benchmark@127.0.0.1:55432/argusbench
+      ARGUS_BENCH_WRITER_DSN: postgresql://bench_writer:benchmark@127.0.0.1:55432/argusbench
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install benchmark dependencies
+        run: python -m pip install --disable-pip-version-check 'psycopg[binary]>=3.2,<4' 'PyYAML>=6,<7'
+
+      - name: Start isolated PostgreSQL 18
+        run: |
+          docker run -d --name argus-bench-pg18 \
+            -e POSTGRES_PASSWORD=postgres \
+            -e POSTGRES_DB=argusbench \
+            -p 55432:5432 \
+            postgres:18
+          for i in $(seq 1 60); do
+            if docker exec argus-bench-pg18 pg_isready -U postgres -d argusbench; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs argus-bench-pg18
+          exit 1
+
+      - name: Apply ordered PostgreSQL migrations
+        run: |
+          docker exec -i argus-bench-pg18 psql -v ON_ERROR_STOP=1 -U postgres -d argusbench \
+            < migrations/postgres/0001_argus_operational_projection.sql
+          docker exec -i argus-bench-pg18 psql -v ON_ERROR_STOP=1 -U postgres -d argusbench \
+            < migrations/postgres/0002_argus_fuzzy_knn.sql
+          docker exec -i argus-bench-pg18 psql -v ON_ERROR_STOP=1 -U postgres -d argusbench \
+            < migrations/postgres/0001_argus_operational_projection.sql
+          docker exec -i argus-bench-pg18 psql -v ON_ERROR_STOP=1 -U postgres -d argusbench \
+            < migrations/postgres/0002_argus_fuzzy_knn.sql
+
+      - name: Seed 10k 100k 1m and run warm benchmarks
+        run: |
+          mkdir -p benchmark-results
+          python benchmarks/postgres/scale_benchmark.py seed-warm \
+            --output benchmark-results/warm.json
+
+      - name: Run 1m reader and writer concurrency matrix
+        run: |
+          python benchmarks/postgres/scale_benchmark.py concurrency \
+            --output benchmark-results/concurrency.json
+
+      - name: Run process-restart cold probes
+        run: |
+          for mode in exact_reference exact_project_code fts fuzzy active_closing_date; do
+            docker restart argus-bench-pg18 >/dev/null
+            for i in $(seq 1 60); do
+              if docker exec argus-bench-pg18 pg_isready -U postgres -d argusbench >/dev/null 2>&1; then
+                break
+              fi
+              sleep 1
+            done
+            python benchmarks/postgres/scale_benchmark.py cold \
+              --query-mode "$mode" \
+              --output "benchmark-results/cold-${mode}.json"
+          done
+
+      - name: Record environment and relation sizes
+        run: |
+          docker exec argus-bench-pg18 psql -At -U postgres -d argusbench -c \
+            "SELECT json_build_object('postgres_version',version(),'database_bytes',pg_database_size(current_database()),'tender_rows',(SELECT count(*) FROM argus.tender),'tender_bytes',pg_total_relation_size('argus.tender'),'canonical_bytes',pg_total_relation_size('argus.canonical_object'),'source_bytes',pg_total_relation_size('argus.source_record'));" \
+            > benchmark-results/environment.json
+
+      - name: Upload postgres-scale-benchmark
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postgres-scale-benchmark
+          path: benchmark-results/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Cleanup benchmark database
+        if: always()
+        run: docker rm -f argus-bench-pg18 >/dev/null 2>&1 || true
