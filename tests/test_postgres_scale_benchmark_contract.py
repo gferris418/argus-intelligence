@@ -61,6 +61,11 @@ class PostgresScaleBenchmarkContractTests(unittest.TestCase):
         harness = HARNESS.read_text(encoding="utf-8")
         self.assertGreaterEqual(harness.count("generate_series(%s::bigint,%s::bigint)"), 3)
 
+    def test_parameterized_seed_sql_escapes_postgres_modulo_operators(self) -> None:
+        harness = HARNESS.read_text(encoding="utf-8")
+        for token in ("g %% 5", "g%%100", "g%%20", "g%%365", "g%%180", "g%%5000"):
+            self.assertIn(token, harness)
+
     def test_harness_is_disposable_and_never_targets_neon_production(self) -> None:
         harness = HARNESS.read_text(encoding="utf-8")
         self.assertNotIn("rapid-field-91311881", harness)
