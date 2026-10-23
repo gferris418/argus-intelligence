@@ -61,6 +61,29 @@ class CanonicalIdentityOperationalStore(unittest.TestCase):
         }
         self.assertTrue(expected.issubset(tables))
 
+    def test_failed_initialization_rolls_back_partial_schema(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            database = root / "broken.db"
+            schema = root / "broken.sql"
+            schema.write_text(
+                "CREATE TABLE partial_state(id INTEGER PRIMARY KEY);\n"
+                "THIS IS NOT VALID SQL;\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(sqlite3.OperationalError):
+                initialize_database(database, schema)
+
+            conn = sqlite3.connect(database)
+            try:
+                tables = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            finally:
+                conn.close()
+            self.assertEqual([], tables)
+
     def test_canonical_and_source_ids_have_uniqueness_guards(self):
         conn = sqlite3.connect(":memory:")
         conn.executescript(SCHEMA.read_text())

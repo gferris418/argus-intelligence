@@ -146,6 +146,12 @@ class PostgresProjectionContractTests(unittest.TestCase):
 
 
 class PostgresSearchAdapterTests(unittest.TestCase):
+    def test_search_config_rejects_boolean_integer_values(self) -> None:
+        with self.assertRaises(ValueError):
+            TenderSearchConfig(statement_timeout_ms=True)
+        with self.assertRaises(ValueError):
+            TenderSearchConfig(maximum_limit=True)
+
     def test_search_steps_are_parameterized_projected_and_ordered_exact_fts_fuzzy(self) -> None:
         steps = build_tender_search_steps("CPV-2026", 20)
         self.assertEqual(
@@ -192,6 +198,24 @@ class PostgresSearchAdapterTests(unittest.TestCase):
         self.assertEqual(4, len(search_calls))
         self.assertTrue(all(params is not None for _, params in search_calls))
         self.assertEqual(0, conn.commits)
+        self.assertEqual(1, conn.rollbacks)
+
+    def test_adapter_fails_closed_when_database_exceeds_requested_limit(self) -> None:
+        row = (
+            "TND-BD-000001",
+            "REF-1",
+            "PRJ-1",
+            "Coastal Patrol Vessel",
+            "Buyer",
+            "published",
+            None,
+            "https://example.test/tender/1",
+            0.87,
+        )
+        conn = _FakeConnection([[row, row]])
+
+        with self.assertRaises(RuntimeError):
+            TenderSearchAdapter().search(conn, "REF-1", limit=1)
         self.assertEqual(1, conn.rollbacks)
 
     def test_plan_probe_is_parameterized_direct_sql_and_read_only(self) -> None:

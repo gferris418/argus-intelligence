@@ -151,6 +151,20 @@ class CommercialOpportunityV3Tests(unittest.TestCase):
         self.assertEqual(100.0, result["score"])
         self.assertEqual(1.0, result["confidence"])
 
+    def test_scoring_rejects_non_finite_weights(self) -> None:
+        engine = _load_engine()
+        scores = {
+            "strategic_fit": 90,
+            "commercial_attractiveness": 80,
+        }
+        weights = {
+            "strategic_fit": float("nan"),
+            "commercial_attractiveness": 1.0,
+        }
+
+        with self.assertRaises(ValueError):
+            engine.score_opportunity(scores, weights)
+
     def test_detection_lag_is_measured_from_earliest_observable_event(self) -> None:
         engine = _load_engine()
         earliest = datetime(2026, 10, 20, 0, 0, tzinfo=timezone.utc)

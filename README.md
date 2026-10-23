@@ -2,7 +2,7 @@
 
 ARGUS is the **ATLAS-governed government commercial opportunity intelligence system** for Access Asia. It is designed to identify government needs, programmes, projects, budgets, approvals and procurements as early as legitimately observable; develop credible commercial opportunity hypotheses before a formal project or tender exists; track them through the full public-sector lifecycle; and simultaneously identify international OEMs, suppliers, solution providers and contractors capable of meeting the requirement.
 
-**Current candidate:** `3.0.0-rc.1`
+**Current candidate:** `3.0.0-rc.2`
 
 Tender intelligence is one subsystem. The target condition is that by tender publication ARGUS should already understand the underlying need, buyer, institutional path, project/funding status, likely procurement route, competitor context, supplier universe, preferred OEM candidates, Access Asia positioning strategy and unresolved intelligence requirements. If it does not, ARGUS enters Rapid Tender Mode.
 

@@ -79,6 +79,29 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             provider.execute(module.ProviderEnvelope(atlas_result=pending))
 
+    def test_provider_adapter_rejects_substring_route_spoofing(self) -> None:
+        module = importlib.import_module("tools.atlas_v3_provider")
+        provider = module.ArgusProvider(lambda context: {"evidence": [], "collection_status": "COMPLETE"})
+        atlas_result = {
+            "task_id": "ATLAS-TEST-002",
+            "state": "READY",
+            "normalized_objective": "Build a supplier landscape",
+            "domain_framing": {},
+            "pre_execution_flow": ["UNDERSTAND_AND_NORMALIZE", "MINIMAL_DOMAIN_FRAMING", "ROUTE"],
+            "route": {
+                "mechanism": "ARGUS",
+                "capability": "not_intelligence_collection",
+                "provider": "untrusted-argus-proxy",
+                "approval_required": True,
+                "approval_status": "APPROVED",
+            },
+            "next_step_authority": "ATLAS",
+            "provider_return_target": "ATLAS",
+        }
+
+        with self.assertRaises(ValueError):
+            provider.execute(module.ProviderEnvelope(atlas_result=atlas_result))
+
     def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_2(self) -> None:
         alignment = yaml.safe_load((ROOT / "alignments" / "atlas-os-triage-v2.yaml").read_text(encoding="utf-8"))
         current = alignment["compatibility"]["current_validated_atlas"]

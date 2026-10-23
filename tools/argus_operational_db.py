@@ -33,12 +33,15 @@ def initialize_database(path: str | Path, schema_path: str | Path = SCHEMA_PATH)
     schema = Path(schema_path).read_text(encoding="utf-8")
     conn = connect_database(path)
     try:
-        conn.executescript(schema)
+        conn.executescript("BEGIN IMMEDIATE;\n" + schema)
         conn.execute("PRAGMA user_version = 1")
-        conn.commit()
         result = conn.execute("PRAGMA integrity_check").fetchone()[0]
         if result != "ok":
             raise RuntimeError(f"SQLite integrity check failed: {result}")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
     return path
@@ -151,7 +154,7 @@ def upsert_canonical_object(
             "SELECT internal_id, canonical_id FROM canonical_object WHERE canonical_id = ?",
             (canonical_id,),
         ).fetchone()
-    if existing:
+    if existing and canonical_id is not None:
         conn.execute(
             "UPDATE canonical_object SET title=?, description=?, status=?, updated_at=? WHERE internal_id=?",
             (title, description, status, now, existing["internal_id"]),

@@ -62,9 +62,17 @@ class TenderSearchConfig:
     maximum_limit: int = 100
 
     def __post_init__(self) -> None:
-        if not isinstance(self.statement_timeout_ms, int) or self.statement_timeout_ms < 1:
+        if (
+            isinstance(self.statement_timeout_ms, bool)
+            or not isinstance(self.statement_timeout_ms, int)
+            or self.statement_timeout_ms < 1
+        ):
             raise ValueError("statement_timeout_ms must be a positive integer")
-        if not isinstance(self.maximum_limit, int) or not 1 <= self.maximum_limit <= 100:
+        if (
+            isinstance(self.maximum_limit, bool)
+            or not isinstance(self.maximum_limit, int)
+            or not 1 <= self.maximum_limit <= 100
+        ):
             raise ValueError("maximum_limit must be between 1 and 100")
 
 
@@ -186,6 +194,10 @@ class TenderSearchAdapter:
                     cursor.execute(step.sql, step.params)
                     query_count += 1
                     fetched = cursor.fetchall()
+                    if len(fetched) > bounded:
+                        raise RuntimeError(
+                            f"database returned {len(fetched)} rows for limit {bounded}"
+                        )
                     step_latency_ms = (perf_counter() - step_started) * 1_000
                     telemetry.append(
                         {

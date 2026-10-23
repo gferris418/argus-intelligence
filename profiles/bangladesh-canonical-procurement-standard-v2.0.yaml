@@ -350,7 +350,7 @@ field_dictionary:
     not_to_confuse_with: Competition scope or method.
     international_alignment: ARGUS jurisdiction context.
   process_category:
-    definition: Top-level object being procured: goods, works, consulting or non-consulting services.
+    definition: "Top-level object being procured: goods, works, consulting or non-consulting services."
     cardinality: zero_or_one
     when_populated: When source category/nature is known.
     not_to_confuse_with: Method or competition scope.
@@ -920,7 +920,7 @@ field_dictionary:
     not_to_confuse_with: Procurement status.
     international_alignment: ARGUS domain intelligence.
   intelligence_activation_mode:
-    definition: Commercial entry mode: early development, planned capture or live tender response.
+    definition: "Commercial entry mode: early development, planned capture or live tender response."
     cardinality: zero_or_one
     when_populated: When actionable stage is classified.
     not_to_confuse_with: Procurement method.
