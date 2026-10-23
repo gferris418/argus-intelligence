@@ -11,7 +11,7 @@ from tools.cross_repo_e2e import _prepare_atlas_import
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
+ATLAS_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
 
 
 class CrossRepositoryCommandTests(unittest.TestCase):
@@ -91,6 +91,11 @@ class CrossRepositoryCommandTests(unittest.TestCase):
                         "commit": head,
                         "version": "test-version",
                         "integration_path": "integrations/argus.yaml",
+                        "canonical_execution_contract": {
+                            "path": "contracts/atlas-argus-execution-v2.json",
+                            "version": "2.0.0",
+                            "sha256": "0" * 64,
+                        },
                     },
                     "contract": {
                         "capability": "intelligence_collection",
