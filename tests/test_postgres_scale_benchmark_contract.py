@@ -57,6 +57,10 @@ class PostgresScaleBenchmarkContractTests(unittest.TestCase):
         ):
             self.assertIn(token, harness)
 
+    def test_seed_range_casts_boundaries_to_bigint_for_generate_series(self) -> None:
+        harness = HARNESS.read_text(encoding="utf-8")
+        self.assertGreaterEqual(harness.count("generate_series(%s::bigint,%s::bigint)"), 3)
+
     def test_harness_is_disposable_and_never_targets_neon_production(self) -> None:
         harness = HARNESS.read_text(encoding="utf-8")
         self.assertNotIn("rapid-field-91311881", harness)
