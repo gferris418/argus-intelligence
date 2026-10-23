@@ -157,8 +157,11 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         )
         self.assertIn("pip install --require-hashes", workflow)
         self.assertIn("gh-action-pip-audit@", workflow)
-        self.assertIn("cache-dependency-path: requirements-test.lock", workflow)
+        self.assertIn("cache-dependency-path:", workflow)
+        self.assertIn("requirements-test.lock", workflow)
+        self.assertIn("requirements-quality.txt", workflow)
         self.assertTrue((ROOT / "requirements-test.lock").is_file())
+        self.assertTrue((ROOT / "requirements-quality.txt").is_file())
 
 
 if __name__ == "__main__":
