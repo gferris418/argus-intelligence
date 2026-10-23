@@ -15,6 +15,7 @@
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture v1.1](architecture/bangladesh-procurement-v2-registry-envelope-materialization-v1.1.md)
 * [Bangladesh Procurement v2 — Registry Envelope / Materialization Architecture](architecture/bangladesh-procurement-v2-registry-envelope-materialization.md)
 * [ARGUS Capability Integration Model](architecture/capability-integration.md)
+* [ATLAS–ARGUS transport and storage standard](architecture/atlas-argus-transport-and-storage.md)
 * [GitHub-First Canonical Storage Architecture — legacy baseline](architecture/github-first-canonical-store.md)
 * [ARGUS v3 — Government Commercial Opportunity Intelligence](architecture/government-commercial-opportunity-v3.md)
 
@@ -36,6 +37,7 @@
 * [DTIF Reconciliation and Archive-Only Disposition](validation/dtif-reconciliation-2026-10-20.md)
 * [ARGUS 2.0.0-rc.2 — Registry Schema Compatibility Validation](validation/registry-schema-compatibility-rc2.md)
 * [ARGUS 2.0.0-rc.3 runtime simplification validation](validation/runtime-simplification-rc3.md)
+* [PostgreSQL tender search v1 validation](validation/postgres-tender-search-v1.md)
 
 ## Implementation plans
 

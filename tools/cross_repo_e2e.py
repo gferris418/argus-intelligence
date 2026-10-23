@@ -130,10 +130,20 @@ def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
 
 def _collection_method(context: dict[str, Any]) -> dict[str, Any]:
     return {
+        "governance_mode": "ATLAS_GOVERNED",
         "objective": context["objective"],
-        "collection_status": "COMPLETE",
+        "collection_status": "SUFFICIENT",
+        "resolved_targets": [],
+        "findings": [],
         "evidence": [],
-        "collection_gaps": ["No external evidence collection was performed by this test."],
+        "unknowns_conflicts": [],
+        "collection_gaps": [
+            {
+                "gap": "No external evidence collection was performed by this test.",
+                "decision_impact": "The E2E validates control flow rather than evidence sufficiency.",
+            }
+        ],
+        "next_collection_questions": [],
     }
 
 

@@ -32,6 +32,7 @@ authority:
   canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
   operational_database_schema: schemas/argus-operational-store-v1.sql
   operational_database_runtime: tools/argus_operational_db.py
+  postgres_tender_search_migration: registry/migrations/postgres-1.0.0-argus-tender-search.sql
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_opportunity_architecture: docs/architecture/bangladesh-opportunity-intelligence-v3.md
