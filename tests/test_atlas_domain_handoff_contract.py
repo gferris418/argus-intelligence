@@ -21,7 +21,8 @@ CURRENT_INTEGRATION_PATH = ROOT / "contracts" / "atlas" / "current-integration.y
 SYNC_RECEIPT_SCHEMA_PATH = ROOT / "schemas" / "atlas-argus-sync-receipt.schema.json"
 WORKFLOW_PATH = ROOT / ".github" / "workflows" / "contract-tests.yml"
 CROSS_REPO_WORKFLOW_PATH = ROOT / ".github" / "workflows" / "cross-repo-e2e.yml"
-ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
+ATLAS_CANONICAL_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
+ATLAS_LAST_VALIDATED_BASE_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
 
 
 class AtlasDomainHandoffContract(unittest.TestCase):
@@ -33,7 +34,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertEqual("tools/atlas_v3_provider.py", manifest["authority"]["atlas_v3_provider"])
         compatibility = manifest["atlas_compatibility"]
         self.assertEqual("3.0.2", compatibility["last_validated_base"])
-        self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
+        self.assertEqual(ATLAS_LAST_VALIDATED_BASE_COMMIT, compatibility["last_validated_base_commit"])
         self.assertEqual("chatgpt-plugin-bootstrap-v1.0.1", compatibility["last_validated_control_revision"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
         self.assertEqual("ATLAS", compatibility["next_step_authority"])
@@ -117,7 +118,9 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         manifest = yaml.safe_load(MANIFEST_PATH.read_text(encoding="utf-8"))
         self.assertTrue(CURRENT_INTEGRATION_PATH.is_file())
         current = yaml.safe_load(CURRENT_INTEGRATION_PATH.read_text(encoding="utf-8"))
-        self.assertEqual(ATLAS_COMMIT, current["atlas"]["commit"])
+        self.assertEqual(ATLAS_CANONICAL_COMMIT, current["atlas"]["commit"])
+        self.assertEqual("derived_snapshot", current["contract_role"])
+        self.assertEqual("2.0.0", current["canonical_source"]["contract_version"])
         self.assertEqual("MISSION_CONTROL_FIRST", current["contract"]["prompt_entry"])
         self.assertEqual("ATLAS", current["contract"]["next_step_authority"])
         self.assertEqual("backward_compatibility_only", current["legacy_transport"]["status"])
@@ -133,7 +136,7 @@ class AtlasDomainHandoffContract(unittest.TestCase):
         self.assertIn("push:", workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("repository: gferris418/atlas-os", workflow)
-        self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
+        self.assertIn(f"ref: {ATLAS_CANONICAL_COMMIT}", workflow)
         self.assertNotIn("ATLAS_SSH_KEY", workflow)
         self.assertNotIn("ATLAS_READ_TOKEN", workflow)
         self.assertIn("python -m unittest discover -s tests/cross_repo -v", workflow)

@@ -7,7 +7,8 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
+ATLAS_CANONICAL_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
+ATLAS_LAST_VALIDATED_BASE_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
 
 
 class AtlasV3ProviderContractTests(unittest.TestCase):
@@ -18,7 +19,7 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertFalse(manifest["production_runtime"]["access_asia"]["atlas_change_required"])
         compatibility = manifest["atlas_compatibility"]
         self.assertEqual("3.0.2", compatibility["last_validated_base"])
-        self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
+        self.assertEqual(ATLAS_LAST_VALIDATED_BASE_COMMIT, compatibility["last_validated_base_commit"])
         self.assertEqual("chatgpt-plugin-bootstrap-v1.0.1", compatibility["last_validated_control_revision"])
         self.assertEqual("bounded_intelligence_collection_provider", compatibility["relationship"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
@@ -31,10 +32,12 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         descriptor = yaml.safe_load(
             (ROOT / "contracts" / "atlas" / "current-integration.yaml").read_text(encoding="utf-8")
         )
-        self.assertEqual("1.0.1", descriptor["version"])
+        self.assertEqual("2.0.0", descriptor["version"])
+        self.assertEqual("derived_snapshot", descriptor["contract_role"])
+        self.assertEqual("ATLAS", descriptor["canonical_source"]["authority"])
         self.assertEqual("gferris418/atlas-os", descriptor["atlas"]["repository"])
         self.assertEqual("3.0.2", descriptor["atlas"]["version"])
-        self.assertEqual(ATLAS_COMMIT, descriptor["atlas"]["commit"])
+        self.assertEqual(ATLAS_CANONICAL_COMMIT, descriptor["atlas"]["commit"])
         contract = descriptor["contract"]
         self.assertEqual("MISSION_CONTROL_FIRST", contract["prompt_entry"])
         self.assertEqual("every_user_prompt_while_atlas_active", contract["prompt_entry_scope"])
@@ -45,6 +48,7 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("ATLAS", contract["next_step_authority"])
         self.assertEqual("ATLAS", contract["provider_return_target"])
         self.assertTrue(contract["explicit_user_approval_required"])
+        self.assertEqual("local_in_process_only", contract["plain_approval_scope"])
         self.assertEqual("backward_compatibility_only", descriptor["legacy_transport"]["status"])
 
     def test_provider_adapter_accepts_only_approved_atlas_argus_routes(self) -> None:
@@ -102,16 +106,17 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             provider.execute(module.ProviderEnvelope(atlas_result=atlas_result))
 
-    def test_active_alignment_and_cross_repo_ci_target_atlas_3_0_2(self) -> None:
+    def test_active_alignment_and_cross_repo_ci_target_canonical_atlas_contract(self) -> None:
         alignment = yaml.safe_load((ROOT / "alignments" / "atlas-os-triage-v2.yaml").read_text(encoding="utf-8"))
         current = alignment["compatibility"]["current_validated_atlas"]
         self.assertEqual("3.0.2", current["version"])
-        self.assertEqual(ATLAS_COMMIT, current["commit"])
+        self.assertEqual(ATLAS_CANONICAL_COMMIT, current["commit"])
+        self.assertEqual("2.0.0", current["execution_contract_version"])
         self.assertEqual("MISSION_CONTROL_FIRST", alignment["routing"]["prompt_entry"])
         self.assertEqual("every_user_prompt_while_atlas_active", alignment["routing"]["prompt_entry_scope"])
         self.assertFalse(alignment["compatibility"]["current_change_requires_coordinated_atlas_candidate"])
         workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(encoding="utf-8")
-        self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
+        self.assertIn(f"ref: {ATLAS_CANONICAL_COMMIT}", workflow)
 
 
 if __name__ == "__main__":

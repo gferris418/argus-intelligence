@@ -7,16 +7,13 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
-PRE_EXECUTION_FLOW = (
-    "UNDERSTAND_AND_NORMALIZE",
-    "MINIMAL_DOMAIN_FRAMING",
-    "ROUTE",
-)
-_ALLOWED_MECHANISMS = frozenset({"ARGUS", "MULTI_CAPABILITY"})
-_ROUTE_CONTRACTS = {
-    "ARGUS": ("intelligence_collection", "argus"),
-    "MULTI_CAPABILITY": ("intelligence_collection+analysis", "argus+atlas"),
-}
+from .atlas_contract import ATLAS_EXECUTION_CONTRACT, ROUTE_CONTRACTS
+
+PRE_EXECUTION_FLOW = tuple(ATLAS_EXECUTION_CONTRACT["pre_execution_flow"])
+_ALLOWED_MECHANISMS = frozenset(ROUTE_CONTRACTS)
+_PRIMARY_CAPABILITY = ROUTE_CONTRACTS["ARGUS"][0]
+_RETURN_TARGET = str(ATLAS_EXECUTION_CONTRACT["provider_return_target"])
+_NEXT_STEP_AUTHORITY = str(ATLAS_EXECUTION_CONTRACT["next_step_authority"])
 _RESERVED_RESULT_FIELDS = frozenset(
     {"source_task_id", "provider", "capability", "status", "return_target", "next_step_authority"}
 )
@@ -44,8 +41,8 @@ class ProviderOutcome:
     provider: str
     capability: str
     result: dict[str, Any]
-    return_target: str = "ATLAS"
-    next_step_authority: str = "ATLAS"
+    return_target: str = _RETURN_TARGET
+    next_step_authority: str = _NEXT_STEP_AUTHORITY
 
 
 class ArgusProvider:
@@ -68,7 +65,7 @@ class ArgusProvider:
         mechanism = route.get("mechanism")
         if mechanism not in _ALLOWED_MECHANISMS:
             raise ValueError("ATLAS did not route this mission to ARGUS")
-        expected_capability, expected_provider = _ROUTE_CONTRACTS[mechanism]
+        expected_capability, expected_provider = ROUTE_CONTRACTS[mechanism]
         if (
             route.get("capability") != expected_capability
             or route.get("provider") != expected_provider
@@ -76,9 +73,9 @@ class ArgusProvider:
             raise ValueError("ATLAS route does not grant ARGUS intelligence collection")
         if route.get("approval_required") is not True or route.get("approval_status") != "APPROVED":
             raise ValueError("explicit ATLAS ARGUS activation approval is required")
-        if atlas_result.get("next_step_authority") != "ATLAS":
+        if atlas_result.get("next_step_authority") != _NEXT_STEP_AUTHORITY:
             raise ValueError("ATLAS must remain next-step authority")
-        if atlas_result.get("provider_return_target") != "ATLAS":
+        if atlas_result.get("provider_return_target") != _RETURN_TARGET:
             raise ValueError("ARGUS provider result must return to ATLAS")
         if not str(atlas_result.get("task_id", "")).strip():
             raise ValueError("ATLAS task_id is required")
@@ -103,17 +100,23 @@ class ArgusProvider:
             {
                 "source_task_id": atlas_result["task_id"],
                 "provider": "ARGUS",
-                "capability": "intelligence_collection",
+                "capability": _PRIMARY_CAPABILITY,
                 "status": "RETURNED",
-                "return_target": "ATLAS",
-                "next_step_authority": "ATLAS",
+                "return_target": _RETURN_TARGET,
+                "next_step_authority": _NEXT_STEP_AUTHORITY,
             }
         )
         return ProviderOutcome(
             provider="ARGUS",
-            capability="intelligence_collection",
+            capability=_PRIMARY_CAPABILITY,
             result=result,
         )
 
 
-__all__ = ["ArgusProvider", "ProviderEnvelope", "ProviderOutcome"]
+__all__ = [
+    "ArgusProvider",
+    "PRE_EXECUTION_FLOW",
+    "ProviderEnvelope",
+    "ProviderOutcome",
+    "ROUTE_CONTRACTS",
+]

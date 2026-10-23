@@ -6,6 +6,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[2]
 ATLAS_ROOT = ROOT.parent / "atlas-os"
@@ -27,6 +29,29 @@ class CrossRepositoryEndToEndTests(unittest.TestCase):
             capture_output=True,
             check=False,
         )
+
+    def test_argus_snapshot_matches_atlas_canonical_execution_contract(self) -> None:
+        descriptor = yaml.safe_load(
+            (ROOT / "contracts" / "atlas" / "current-integration.yaml").read_text(encoding="utf-8")
+        )
+        source = descriptor["canonical_source"]
+        canonical = json.loads((ATLAS_ROOT / source["path"]).read_text(encoding="utf-8"))
+        snapshot = descriptor["contract"]
+
+        self.assertEqual(source["contract_version"], canonical["version"])
+        self.assertEqual(canonical["prompt_entry"]["value"], snapshot["prompt_entry"])
+        self.assertEqual(canonical["prompt_entry"]["scope"], snapshot["prompt_entry_scope"])
+        self.assertEqual(canonical["pre_execution_flow"], snapshot["pre_execution_flow"])
+        self.assertEqual(canonical["route_mechanisms"], snapshot["route_mechanisms"])
+        self.assertEqual(canonical["approval"]["key"], snapshot["approval_key"])
+        self.assertEqual(
+            canonical["approval"]["explicit_user_approval_required"],
+            snapshot["explicit_user_approval_required"],
+        )
+        self.assertEqual(canonical["approval"]["plain_approval_scope"], snapshot["plain_approval_scope"])
+        self.assertEqual(canonical["activation_authority"], snapshot["activation_authority"])
+        self.assertEqual(canonical["next_step_authority"], snapshot["next_step_authority"])
+        self.assertEqual(canonical["provider_return_target"], snapshot["provider_return_target"])
 
     def test_text_flow_uses_current_runtimes_and_returns_to_atlas(self) -> None:
         completed = self._run()
