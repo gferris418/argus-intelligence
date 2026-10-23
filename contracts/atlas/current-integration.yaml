@@ -1,9 +1,16 @@
-version: 1.0.1
+version: 2.0.0
 status: CURRENT
+contract_role: derived_snapshot
+canonical_source:
+  authority: ATLAS
+  repository: gferris418/atlas-os
+  commit: 27e57c3a80c0910e7fb2fca320d8fad22f4031af
+  path: contracts/atlas-argus-execution-v2.json
+  contract_version: 2.0.0
 atlas:
   repository: gferris418/atlas-os
   version: 3.0.2
-  commit: 95e78eb4f386c7434193014811ef8d2ce5254c30
+  commit: 27e57c3a80c0910e7fb2fca320d8fad22f4031af
   integration_path: integrations/argus.yaml
   chatgpt_bootstrap_path: integrations/chatgpt-bootstrap.yaml
   runtime_entrypoint: atlas_runtime
@@ -19,6 +26,14 @@ contract:
   explicit_user_approval_required: true
   accepted_route_mechanisms: [ARGUS, MULTI_CAPABILITY]
   pre_execution_flow: [UNDERSTAND_AND_NORMALIZE, MINIMAL_DOMAIN_FRAMING, ROUTE]
+  route_mechanisms:
+    ARGUS:
+      capability: intelligence_collection
+      provider: argus
+    MULTI_CAPABILITY:
+      capability: intelligence_collection+analysis
+      provider: argus+atlas
+  plain_approval_scope: local_in_process_only
   direct_search_remains_atlas_owned: true
   argus_creates_execution_spine: false
   argus_owns_final_business_decision: false
