@@ -32,6 +32,10 @@ authority:
   canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
   operational_database_schema: schemas/argus-operational-store-v1.sql
   operational_database_runtime: tools/argus_operational_db.py
+  postgres_operational_projection_migration: migrations/postgres/0001_argus_operational_projection.sql
+  postgres_query_adapter: tools/postgres_search.py
+  postgres_production_hardening: docs/architecture/postgresql-production-hardening.md
+  postgres_benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_opportunity_architecture: docs/architecture/bangladesh-opportunity-intelligence-v3.md
@@ -87,6 +91,26 @@ production_runtime:
     standalone_argus: false
   standalone_mode:
     permitted_for: [portability, testing, recovery, non_access_asia_implementation]
+
+operational_projections:
+  sqlite_sharepoint:
+    status: ACTIVE
+    production_cutover_approved: true
+    role: current_production_mutable_structured_store
+    schema: schemas/argus-operational-store-v1.sql
+    runtime: tools/argus_operational_db.py
+    location: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
+  postgresql:
+    status: ADMITTED_NOT_PRODUCTION
+    production_cutover_approved: false
+    role: governed_operational_projection_candidate
+    migration: migrations/postgres/0001_argus_operational_projection.sql
+    query_adapter: tools/postgres_search.py
+    production_hardening: docs/architecture/postgresql-production-hardening.md
+    benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
+    canonical_identity_rule: preserve_existing_ARGUS_canonical_ids_and_source_lineage
+    source_of_schema_authority: github
+    deployment_store_is_not_schema_authority: true
 
 atlas_compatibility:
   last_validated_base: 3.0.2
@@ -302,6 +326,9 @@ repository_storage_policy:
   architecture: docs/architecture/canonical-identity-operational-database-v1.md
   schema_and_governance_source: github
   current_mutable_structured_store: sharepoint_sqlite
+  admitted_runtime_projection: postgresql_not_production
+  postgres_migration: migrations/postgres/0001_argus_operational_projection.sql
+  postgres_query_adapter: tools/postgres_search.py
   operational_database_path: General/Business Intelligence/30_OPERATIONS/ARGUS_Master_Registry.sqlite
   operational_database_mutation_model: single_writer_fetch_latest_modify_verify_replace
   github_snapshot_format: JSON_JSONL
@@ -369,4 +396,6 @@ release_gates:
   - Continuous per-search learning contract and guarded heuristic promotion registered: PASS
   - Canonical three-layer identity standard registered: PASS
   - SharePoint SQLite operational master registry activated: PASS
+  - PostgreSQL operational projection governance contract admitted without production cutover: PASS
+  - PostgreSQL production migration approval: BLOCKED_PENDING_HARDENING_EVIDENCE
   - GitHub remains schema/governance and versioned release snapshot authority: PASS
