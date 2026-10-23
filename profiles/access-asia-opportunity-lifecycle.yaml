@@ -15,6 +15,7 @@ commercial_identity:
   naming: "[Year]_[PXnnnnn]_[ShortName]"
   px_identity_requires_atlas_promotion: true
   authority: ATLAS OS
+  preserve_across_stage_moves: true
   preserve_across_bid_award_project: true
   preserve_pre_award_workspace_after_award: true
   create_new_id_on_submission: false
