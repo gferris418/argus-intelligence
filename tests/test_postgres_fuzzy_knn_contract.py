@@ -18,10 +18,12 @@ class PostgresFuzzyKnnContractTests(unittest.TestCase):
             "USING gist",
             "public.gist_trgm_ops",
             "CREATE OR REPLACE FUNCTION argus.search_tenders",
+            "v_query text := btrim(p_query)",
+            "v_limit integer := argus.enforce_result_limit(p_limit)",
             "p_mode = 'fuzzy'",
             "OPERATOR(public.<->)",
-            "ORDER BY t.title OPERATOR(public.<->) btrim(p_query)",
-            "LIMIT argus.enforce_result_limit(p_limit)",
+            "ORDER BY t.title OPERATOR(public.<->) v_query",
+            "LIMIT v_limit",
         )
         for token in required:
             self.assertIn(token, sql)
