@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
+ATLAS_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
 
 
 class AtlasV3ProviderContractTests(unittest.TestCase):
@@ -31,7 +31,9 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         descriptor = yaml.safe_load(
             (ROOT / "contracts" / "atlas" / "current-integration.yaml").read_text(encoding="utf-8")
         )
-        self.assertEqual("1.0.1", descriptor["version"])
+        self.assertEqual("2.0.0", descriptor["version"])
+        self.assertEqual("derived_snapshot", descriptor["contract_role"])
+        self.assertEqual("ATLAS", descriptor["canonical_source"]["authority"])
         self.assertEqual("gferris418/atlas-os", descriptor["atlas"]["repository"])
         self.assertEqual("3.0.2", descriptor["atlas"]["version"])
         self.assertEqual(ATLAS_COMMIT, descriptor["atlas"]["commit"])
@@ -45,6 +47,7 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("ATLAS", contract["next_step_authority"])
         self.assertEqual("ATLAS", contract["provider_return_target"])
         self.assertTrue(contract["explicit_user_approval_required"])
+        self.assertEqual("local_in_process_only", contract["plain_approval_scope"])
         self.assertEqual("backward_compatibility_only", descriptor["legacy_transport"]["status"])
 
     def test_provider_adapter_accepts_only_approved_atlas_argus_routes(self) -> None:
