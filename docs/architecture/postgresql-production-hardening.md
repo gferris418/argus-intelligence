@@ -4,13 +4,13 @@
 
 **Production cutover is NOT APPROVED.**
 
-PostgreSQL is an admitted ARGUS operational projection only. GitHub remains authoritative for the migration, query adapter, recovery procedure, tests and benchmark contract. SharePoint SQLite remains the active production structured store until every gate below passes and ATLAS authorizes cutover.
+PostgreSQL is an admitted ARGUS operational projection only. GitHub remains authoritative for the ordered migration chain, query adapter, recovery procedure, tests and benchmark contract. SharePoint SQLite remains the active production structured store until every gate below passes and ATLAS authorizes cutover.
 
 ## Production migration gate
 
 Production migration may proceed only when all of the following are evidenced:
 
-1. The exact PostgreSQL migration and recovery procedure are committed to ARGUS GitHub.
+1. The exact ordered PostgreSQL migration chain and recovery procedure are committed to ARGUS GitHub.
 2. The PostgreSQL projection is registered in `argus-intelligence.yaml` and remains marked `ADMITTED_NOT_PRODUCTION` until approval.
 3. The typed query adapter enforces parameterized projections, `LIMIT <= 100`, read-only execution, timeout and exact -> FTS -> fuzzy fallback.
 4. Neon production branch protection, a named pre-migration snapshot and separate least-privilege roles are verified.
@@ -19,6 +19,15 @@ Production migration may proceed only when all of the following are evidenced:
 7. Migration, post-migration smoke and rollback/restore rehearsal pass end-to-end on a disposable branch.
 
 A partial pass does not authorize production migration.
+
+## Ordered migration chain
+
+The authoritative PostgreSQL chain is ordered and append-only:
+
+1. `migrations/postgres/0001_argus_operational_projection.sql`
+2. `migrations/postgres/0002_argus_fuzzy_knn.sql`
+
+Apply every migration in this order. Each migration must be safe to rerun. Once a numbered migration has been applied to an authoritative environment, never silently rewrite its semantics; corrections use the next numbered migration.
 
 ## Pre-migration safeguards
 
@@ -41,21 +50,22 @@ Keep these authorities separate:
 - reader/search role: read-only, function-level search access only;
 - application credentials: separate from migration credentials and rotated independently.
 
-The repository migration creates non-login grant roles (`argus_reader`, `argus_writer`). Deployment-specific login roles may inherit them, but credentials are never committed to GitHub.
+The repository migration creates non-login grant roles (`argus_reader`, `argus_writer`). Deployment-specific login roles may inherit them, but credentials are never committed to GitHub. Any legacy or unused login inheriting `neon_superuser`, `CREATEROLE` or `CREATEDB` is a production blocker even when it currently has no password; it must be retired or replaced before cutover approval.
 
 ## Migration rehearsal
 
 Rehearse on a branch created from the current production head.
 
 1. Verify source branch identity and schema fingerprint.
-2. Apply `migrations/postgres/0001_argus_operational_projection.sql` twice; the second execution must be idempotent.
-3. Run schema-contract tests and integrity checks.
-4. Load representative synthetic data using deterministic seeds.
-5. Run **post-migration smoke** checks.
-6. Run the committed benchmark matrix.
-7. Execute the **rollback** / forward-recovery procedure below.
-8. Perform a **restore rehearsal** from the named snapshot or branch restore point.
-9. Compare restored schema/data fingerprints with the pre-migration baseline.
+2. Apply `0001_argus_operational_projection.sql`, then `0002_argus_fuzzy_knn.sql` in order.
+3. Reapply the complete chain; the second execution must be idempotent.
+4. Run schema-contract tests and integrity checks.
+5. Load representative synthetic data using deterministic seeds.
+6. Run **post-migration smoke** checks.
+7. Run the committed benchmark matrix.
+8. Execute the **rollback** / forward-recovery procedure below.
+9. Perform a **restore rehearsal** from the named snapshot or branch restore point.
+10. Compare restored schema/data fingerprints with the pre-migration baseline.
 
 Do not promote a rehearsal branch to production.
 
@@ -63,7 +73,7 @@ Do not promote a rehearsal branch to production.
 
 The authorized production run must stop and restore if any mandatory smoke check fails.
 
-- `argus.schema_migration` contains exactly one row for migration `0001_argus_operational_projection`.
+- `argus.schema_migration` contains exactly one row for `0001_argus_operational_projection` and exactly one row for `0002_argus_fuzzy_knn`.
 - `argus.canonical_object`, `argus.source_record` and `argus.tender` exist.
 - all active canonical object types from `profiles/canonical-object-identity-standard-v1.0.yaml` are admitted, including `PROCUREMENT_PACKAGE`.
 - canonical-object status and tender lifecycle status remain separate vocabularies.
@@ -77,11 +87,12 @@ The authorized production run must stop and restore if any mandatory smoke check
 - `argus_reader` can execute the approved search/list functions.
 - result limits above 100 are rejected.
 - exact reference, project code, FTS and fuzzy searches return expected fixture records.
+- fuzzy top-N uses `idx_tender_title_trgm_gist` with trigram nearest-neighbor ordering rather than a sequential scan at 100k+ rows.
 - statement timeout and read-only transaction behavior are verified.
 
 ## Rollback and forward recovery
 
-This migration is additive; the preferred recovery strategy is **restore**, not destructive down-migration.
+The migrations are additive; the preferred recovery strategy is **restore**, not destructive down-migration.
 
 ### Before production cutover
 
@@ -95,7 +106,7 @@ If DDL application or mandatory smoke checks fail:
 2. preserve migration logs and the failed branch/database state for diagnosis;
 3. restore the named pre-migration snapshot / restore point to an isolated replacement branch;
 4. verify schema and data fingerprints against the pre-migration receipt;
-5. if direct finalized restore is supported, use the platform-supported cutover path; otherwise perform an explicitly rehearsed application/endpoint rebind to the verified restored branch;
+5. if direct finalized restore is supported, use the platform-supported cutover path; otherwise perform the application/endpoint rebind procedure below;
 6. rebind application credentials only after verification;
 7. record the failed migration attempt and remediation in GitHub/operational audit records.
 
@@ -105,16 +116,30 @@ Do not attempt ad-hoc `DROP TABLE`, `TRUNCATE` or manual row deletion as rollbac
 
 As of the 2026-10-23 rehearsal, Neon rejected `finalize_restore=true` for the production snapshot because the source branch has Neon Realtime enabled. A non-finalized isolated snapshot restore succeeded and produced an empty schema diff against production.
 
-Therefore, while Realtime remains enabled, production recovery must not assume that snapshot restore can atomically finalize onto the existing production routing. Before cutover approval, the team must rehearse and document one supported recovery path end-to-end:
+Therefore, while Realtime remains enabled, production recovery must not assume that snapshot restore can atomically finalize onto the existing production routing. The supported fallback is an application-level rebind to a verified isolated restore branch.
 
-- isolated restore branch -> integrity verification -> application/endpoint rebind; or
-- another Neon-supported Realtime recovery mechanism that provides equivalent verified rollback semantics.
+#### Realtime-safe application/endpoint rebind procedure
 
-The recovery path must include the exact endpoint/credential rebind sequence and a reverse/fallback step. A successful isolated restore is necessary evidence but is not, by itself, equivalent to a rehearsed production traffic cutover.
+1. Restore the named pre-migration snapshot with `finalize: false` into a new isolated branch.
+2. Keep the existing production branch and endpoint unchanged while verification runs.
+3. Verify restored database name, schema fingerprint, canonical row counts, source-lineage FKs and application smoke queries.
+4. Resolve the restored branch's read-write compute endpoint and obtain fresh bounded application credentials for that branch; never reuse migration credentials.
+5. Update the application/backend database secret or connection setting to the restored branch endpoint in the deployment system that owns the secret. Do not commit a connection string to GitHub.
+6. Restart or redeploy the backend so connection pools drop the failed-production endpoint and reconnect to the restored branch.
+7. Verify application read/write smoke, the typed ARGUS search functions, statement timeout/read-only behavior, and any Realtime-dependent workflow against the restored branch.
+8. If Realtime must be reprovisioned or rebound for the restored branch, complete that platform step and verify token issuance/subscription behavior before accepting traffic.
+9. Record the active branch ID, endpoint ID, credential identity, application deployment/version and verification timestamp in the recovery receipt.
+10. Keep the old production branch isolated and unchanged until the restored branch has passed the complete acceptance checklist.
+
+#### Reverse/fallback step
+
+If the restored-branch application rebind fails before new authoritative writes are accepted, restore the application secret/configuration to the original production endpoint, restart/redeploy the backend, verify original production health, and record the failed recovery attempt. If authoritative writes have already occurred on the restored branch, do not switch back blindly; reconcile the write set under ATLAS governance first.
+
+A successful isolated restore is necessary evidence but is not, by itself, equivalent to a rehearsed production traffic cutover. The application-level secret/configuration owner must therefore participate in the final recovery rehearsal before production approval.
 
 ### Forward recovery
 
-Once production has intentionally written canonical state into PostgreSQL, corrections must use a new numbered migration. Never silently edit `0001_argus_operational_projection.sql` after it has been applied to an authoritative environment.
+Once production has intentionally written canonical state into PostgreSQL, corrections must use a new numbered migration. Never silently edit an already-applied numbered migration.
 
 ## RLS boundary
 
@@ -124,7 +149,8 @@ RLS is not required solely for a single-tenant, service-only database where clie
 
 Record at minimum:
 
-- ARGUS Git commit and migration checksum;
+- ARGUS Git commit and migration checksums;
+- ordered migration list applied;
 - Neon project, production branch and rehearsal branch IDs;
 - production protection state;
 - pre-migration snapshot ID;
@@ -133,5 +159,5 @@ Record at minimum:
 - row counts and integrity results;
 - smoke-check result;
 - benchmark report pointer;
-- restore rehearsal result and, where Realtime prevents finalized restore, the verified rebind procedure;
+- restore rehearsal result and, where Realtime prevents finalized restore, the verified application/endpoint rebind procedure;
 - ATLAS approval reference for production cutover.
