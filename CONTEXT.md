@@ -65,3 +65,38 @@ A stable child object representing a normalized obligation, eligibility conditio
 
 ### Requirement Lineage
 The evidence-backed chain connecting upstream need or requirement context to programme/project, probable or observed procurement package, procurement process, Requirement Items, award/contract, installed base and successor or expansion signals. Not every node must exist, but later evidence should link backward where evidence supports the relationship.
+
+## Supplier, market and network language
+
+### Supplier Intelligence
+The evidence-backed ARGUS intelligence overlay for a canonical ORGANIZATION acting or potentially acting as an OEM, supplier, contractor, solution provider or commercial partner. Research depth may increase over time without changing the underlying organization identity.
+
+### Supplier Research Depth
+The progressively deeper level of supplier research applied to the same canonical organization: DISCOVERY, FAST_QUALIFICATION, CAPABILITY_VALIDATION, FULL_DOSSIER, or DUE_DILIGENCE. Research Depth describes investigative rigor and completeness, not supplier status or identity.
+
+### Capability Fit
+Assessment of whether a supplier or offering can technically and operationally satisfy a defined requirement or opportunity scope. Capability Fit is distinct from Eligibility Fit, Partnerability and Opportunity Match.
+
+### Eligibility Fit
+Assessment of whether a supplier appears able to satisfy procurement-specific legal, procedural, qualification, authorization, certification, export, financial or other participation conditions. A hard eligibility blocker cannot be hidden by a high aggregate match score.
+
+### Partnerability
+Assessment of whether a supplier is commercially willing, available and structurally able to work with Access Asia for the relevant market or opportunity, including known channel conflicts, exclusivity, local-support expectations and legitimate relationship readiness.
+
+### Opportunity Match
+Opportunity-relative assessment of how well a particular supplier and, where relevant, a particular offering fit a specific commercial opportunity. Opportunity Match may aggregate advisory dimensions but remains separate from the supplier's canonical identity and from general Supplier Intelligence.
+
+### Market Landscape
+Evidence-backed description of the relevant market structure, including supplier classes, technologies, standards, substitutes, delivery models, price structures and other market dynamics. Presence in the Market Landscape does not by itself make an organization a competitor for a specific opportunity.
+
+### Competitive Landscape
+Opportunity-relative assessment of plausible competitors, their evidenced position, references, incumbency, channels, relevant offerings and likely advantages or disadvantages. Competitor status is contextual and evidence-backed rather than a permanent property of an organization.
+
+### Network Intelligence
+Evidence-backed representation of materially relevant relationships among institutions, organizations, projects, procurement entities, suppliers and persons where legitimately necessary for an authorized intelligence purpose. It does not infer private influence, political allegiance, corruption, hidden control or confidential relationships without competent evidence.
+
+### Relationship Access
+Legitimate organizational access or engagement readiness, such as an existing business relationship, known authorized contact, documented channel relationship or feasible professional engagement path. Relationship Access never means improper influence, privileged access to confidential procurement information or unauthorized personal leverage.
+
+### Negative Evidence
+Evidence that materially supports the conclusion that a claimed capability, qualification, relationship or condition does not exist or is unsuitable. Negative Evidence is distinct from NOT_FOUND, UNKNOWN and CONTRADICTED states; failure to locate evidence does not itself prove a negative fact.
