@@ -65,15 +65,6 @@ def _load_compatibility() -> dict[str, Any]:
 def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
     if not atlas_repo.is_dir():
         raise ValueError(f"ATLAS checkout not found: {atlas_repo}")
-    for required in (
-        "atlas-os.yaml",
-        "atlas_runtime",
-        "integrations/argus.yaml",
-        "integrations/chatgpt-bootstrap.yaml",
-        "contracts/atlas-argus-execution-v2.json",
-    ):
-        if not (atlas_repo / required).exists():
-            raise ValueError(f"invalid ATLAS checkout; missing {required}")
 
     compatibility = _load_compatibility()
     atlas_contract = compatibility["atlas"]
@@ -101,6 +92,16 @@ def _prepare_atlas_import(atlas_repo: Path) -> tuple[Any, dict[str, Any]]:
         raise ValueError("ATLAS checkout status is unreadable")
     if worktree.stdout.strip():
         raise ValueError("ATLAS checkout tracked files differ from its verified HEAD")
+
+    for required in (
+        "atlas-os.yaml",
+        "atlas_runtime",
+        "integrations/argus.yaml",
+        "integrations/chatgpt-bootstrap.yaml",
+        "contracts/atlas-argus-execution-v2.json",
+    ):
+        if not (atlas_repo / required).exists():
+            raise ValueError(f"invalid ATLAS checkout; missing {required}")
 
     manifest = _load_yaml(atlas_repo / "atlas-os.yaml")
     actual_version = manifest.get("product", {}).get("version")
