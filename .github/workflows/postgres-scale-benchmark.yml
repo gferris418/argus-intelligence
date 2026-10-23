@@ -63,6 +63,7 @@ jobs:
       - name: Seed 10k 100k 1m and run warm benchmarks
         run: |
           mkdir -p benchmark-results
+          printf '{"status":"started","stage":"seed-warm"}\n' > benchmark-results/status.json
           python benchmarks/postgres/scale_benchmark.py seed-warm \
             --output benchmark-results/warm.json
 
@@ -91,6 +92,7 @@ jobs:
           docker exec argus-bench-pg18 psql -At -U postgres -d argusbench -c \
             "SELECT json_build_object('postgres_version',version(),'database_bytes',pg_database_size(current_database()),'tender_rows',(SELECT count(*) FROM argus.tender),'tender_bytes',pg_total_relation_size('argus.tender'),'canonical_bytes',pg_total_relation_size('argus.canonical_object'),'source_bytes',pg_total_relation_size('argus.source_record'));" \
             > benchmark-results/environment.json
+          printf '{"status":"completed"}\n' > benchmark-results/status.json
 
       - name: Upload postgres-scale-benchmark
         if: always()
