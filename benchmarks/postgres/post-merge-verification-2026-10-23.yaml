@@ -1,0 +1,54 @@
+version: 1.0.0
+status: VERIFIED_IMPLEMENTATION_MERGE
+recorded_at_utc: 2026-10-23T01:25:00Z
+purpose: >-
+  Close the post-merge verification placeholder in rehearsal-2026-10-23.yaml
+  without changing the production-cutover decision. This receipt records the exact
+  merged implementation commits and their successful main-branch verification runs.
+
+supersedes_placeholder:
+  file: benchmarks/postgres/rehearsal-2026-10-23.yaml
+  field: repository_verification.final_exact_head_ci
+  prior_value: PENDING_AFTER_EVIDENCE_COMMIT
+  effective_value: PASS
+
+argus:
+  repository: gferris418/argus-intelligence
+  implementation_pr: 74
+  main_commit: 7239f447de5df6f86520f8db498cf8a1d666536b
+  verification:
+    contract_tests:
+      run_id: 39883752485
+      conclusion: success
+    cross_repository_e2e:
+      run_id: 39883752510
+      conclusion: success
+
+atlas_release_gate_hardening:
+  repository: gferris418/atlas-os
+  implementation_pr: 61
+  main_commit: 226c12b0aac4a41ec768a915a03e82761ec2f357
+  verification:
+    validate_atlas_os:
+      run_id: 39883771494
+      conclusion: success
+    chatgpt_plugin_release_gate:
+      run_id: 39883771515
+      conclusion: success
+    codeql:
+      run_id: 39883771137
+      actions: success
+      python: success
+
+production:
+  postgres_cutover_approved: false
+  production_schema_mutated_by_this_work: false
+  gate_status: BLOCKED
+  blockers:
+    - production_branch_protection_blocked_by_neon_plan_limit
+    - argus_search_and_argus_ingest_still_inherit_neon_superuser
+    - final_schema_cold_concurrent_10k_100k_1m_p50_p95_p99_benchmark_incomplete
+    - one_million_row_benchmark_requires_more_than_current_1GiB_branch_capacity
+    - realtime_snapshot_recovery_requires_rehearsed_endpoint_or_application_rebind
+
+canonical_rehearsal_record: benchmarks/postgres/rehearsal-2026-10-23.yaml
