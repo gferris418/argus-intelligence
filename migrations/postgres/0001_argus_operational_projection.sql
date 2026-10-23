@@ -1,6 +1,8 @@
 -- ARGUS PostgreSQL operational projection v1
 -- Status: admitted projection, NOT approved for production cutover.
 -- Canonical authority: GitHub. This migration is additive and idempotent.
+-- The projection preserves the active ARGUS canonical identity vocabulary and
+-- keeps canonical-object status separate from tender lifecycle status.
 
 BEGIN;
 
@@ -32,45 +34,56 @@ CREATE TABLE IF NOT EXISTS argus.object_type_registry (
 );
 
 INSERT INTO argus.object_type_registry(object_type, description) VALUES
-    ('POLICY', 'Policy or formal policy instrument'),
-    ('STRATEGY', 'Strategy or strategic plan'),
-    ('PROGRAMME', 'Programme or program'),
+    ('POLICY', 'Government policy or authoritative policy instrument'),
+    ('STRATEGY', 'Strategy, master plan or sector plan'),
+    ('PROGRAMME', 'Programme grouping related projects or initiatives'),
     ('PROJECT', 'External government or public-sector project'),
-    ('REQUIREMENT', 'Identified requirement or need'),
-    ('PROCUREMENT_PLAN', 'Procurement planning object'),
-    ('PACKAGE', 'Procurement package'),
-    ('PROCUREMENT_PROCESS', 'Procurement process'),
-    ('SOLICITATION', 'Tender, RFP, RFQ, EOI or equivalent solicitation'),
-    ('LOT', 'Solicitation lot'),
-    ('ITEM', 'Procurement item'),
+    ('REQUIREMENT', 'Underlying government or commercial requirement or need'),
+    ('PROCUREMENT_PLAN', 'APP, procurement plan or equivalent planning object'),
+    ('PROCUREMENT_PACKAGE', 'Procurement package beneath a plan or project'),
+    ('PROCUREMENT_PROCESS', 'One procurement process or cycle'),
+    ('SOLICITATION', 'Tender, RFP, RFQ, EOI or other solicitation'),
+    ('LOT', 'Separately identifiable lot within a procurement'),
+    ('ITEM', 'Separately identifiable procured item or service line'),
     ('AWARD', 'Award decision'),
-    ('CONTRACT', 'Contract'),
-    ('ORGANIZATION', 'Organization or institution'),
-    ('PERSON', 'Person'),
-    ('PRODUCT', 'Product or solution'),
-    ('PRODUCT_CATEGORY', 'Product or capability category'),
-    ('SECTOR', 'Sector'),
-    ('GEOGRAPHY', 'Geographic object'),
-    ('FINANCING', 'Financing object'),
-    ('DOCUMENT', 'Source or governed document identity'),
-    ('OPPORTUNITY', 'ARGUS commercial opportunity'),
-    ('BID', 'Access Asia bid or submission'),
-    ('ACCESS_ASIA_PROJECT', 'Access Asia post-award project')
+    ('CONTRACT', 'Contract resulting from an award'),
+    ('ORGANIZATION', 'Organization, authority, agency, supplier, OEM or other legal or organizational entity'),
+    ('PERSON', 'Person when identity is materially required and lawfully retained'),
+    ('PRODUCT', 'Product, platform, solution or service offering'),
+    ('PRODUCT_CATEGORY', 'Stable classification grouping products, platforms, solutions or services'),
+    ('SECTOR', 'Stable business or government sector classification'),
+    ('GEOGRAPHY', 'Geographic market or jurisdiction classification when first-class identity is useful'),
+    ('FINANCING', 'Financing instrument or facility'),
+    ('DOCUMENT', 'Material document requiring first-class identity'),
+    ('OPPORTUNITY', 'Commercial opportunity object; legacy ARGUS-OPP identifiers remain valid'),
+    ('BID', 'Access Asia or principal response or submission'),
+    ('ACCESS_ASIA_PROJECT', 'Access Asia execution project created after award or contract activation')
 ON CONFLICT (object_type) DO NOTHING;
 
-CREATE TABLE IF NOT EXISTS argus.status_registry (
+CREATE TABLE IF NOT EXISTS argus.object_status_registry (
     status text PRIMARY KEY,
     description text NOT NULL
 );
 
-INSERT INTO argus.status_registry(status, description) VALUES
-    ('active', 'Current and active'),
+INSERT INTO argus.object_status_registry(status, description) VALUES
+    ('CURRENT', 'Current canonical object state'),
+    ('SUPERSEDED', 'Canonical object superseded by a newer governed state'),
+    ('ARCHIVED', 'Canonical object retained for historical or audit purposes')
+ON CONFLICT (status) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS argus.tender_status_registry (
+    status text PRIMARY KEY,
+    description text NOT NULL
+);
+
+INSERT INTO argus.tender_status_registry(status, description) VALUES
+    ('active', 'Current active tender state when a source does not provide a more precise lifecycle label'),
     ('planned', 'Planned or pre-publication'),
     ('published', 'Published or open'),
     ('closed', 'Closed to new submissions'),
     ('awarded', 'Awarded'),
     ('cancelled', 'Cancelled'),
-    ('superseded', 'Superseded by a newer object or state'),
+    ('superseded', 'Superseded by a newer tender publication or state'),
     ('archived', 'Archived or historical')
 ON CONFLICT (status) DO NOTHING;
 
@@ -80,6 +93,8 @@ CREATE TABLE IF NOT EXISTS argus.currency_registry (
     CONSTRAINT currency_registry_code_format CHECK (code ~ '^[A-Z]{3}$')
 );
 
+-- Controlled ISO-4217-style vocabulary. Additional valid currencies are admitted by
+-- governed migrations rather than arbitrary runtime text values.
 INSERT INTO argus.currency_registry(code, name) VALUES
     ('AED', 'UAE Dirham'), ('AUD', 'Australian Dollar'), ('BDT', 'Bangladeshi Taka'),
     ('BRL', 'Brazilian Real'), ('CAD', 'Canadian Dollar'), ('CHF', 'Swiss Franc'),
@@ -96,31 +111,39 @@ ON CONFLICT (code) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS argus.source_record (
     source_record_id text PRIMARY KEY,
+    canonical_source_id text UNIQUE,
     source_system text NOT NULL,
-    native_id text NOT NULL,
+    source_authority text,
+    native_id text,
     record_type text NOT NULL,
     source_url text,
+    published_at timestamptz,
     observed_at timestamptz NOT NULL,
-    content_sha256 text,
+    content_hash text,
+    raw_title text,
+    access_class text,
+    immutable boolean NOT NULL DEFAULT true,
     metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
     CONSTRAINT source_record_id_nonempty CHECK (length(btrim(source_record_id)) > 0),
     CONSTRAINT source_record_system_nonempty CHECK (length(btrim(source_system)) > 0),
-    CONSTRAINT source_record_native_id_nonempty CHECK (length(btrim(native_id)) > 0),
-    CONSTRAINT source_record_unique_native UNIQUE (source_system, native_id)
+    CONSTRAINT source_record_type_nonempty CHECK (length(btrim(record_type)) > 0),
+    CONSTRAINT source_record_unique_native UNIQUE (source_system, native_id, record_type)
 );
 
 CREATE TABLE IF NOT EXISTS argus.canonical_object (
     internal_id uuid PRIMARY KEY,
     canonical_id text NOT NULL UNIQUE,
     object_type text NOT NULL REFERENCES argus.object_type_registry(object_type) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    canonical_name text NOT NULL,
-    status text NOT NULL DEFAULT 'active' REFERENCES argus.status_registry(status) ON UPDATE RESTRICT ON DELETE RESTRICT,
     jurisdiction text,
+    title text NOT NULL,
+    description text,
+    status text NOT NULL DEFAULT 'CURRENT' REFERENCES argus.object_status_registry(status) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    legacy_identity boolean NOT NULL DEFAULT false,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     attributes jsonb NOT NULL DEFAULT '{}'::jsonb,
     CONSTRAINT canonical_object_id_nonempty CHECK (length(btrim(canonical_id)) > 0),
-    CONSTRAINT canonical_object_name_nonempty CHECK (length(btrim(canonical_name)) > 0),
+    CONSTRAINT canonical_object_title_nonempty CHECK (length(btrim(title)) > 0),
     CONSTRAINT canonical_object_jurisdiction_format CHECK (jurisdiction IS NULL OR jurisdiction ~ '^[A-Z]{2}(-[A-Z0-9]{1,8})?$')
 );
 
@@ -167,7 +190,7 @@ CREATE TABLE IF NOT EXISTS argus.tender (
     district text,
     procurement_method text,
     procurement_type text,
-    status text NOT NULL DEFAULT 'active' REFERENCES argus.status_registry(status) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    status text NOT NULL DEFAULT 'published' REFERENCES argus.tender_status_registry(status) ON UPDATE RESTRICT ON DELETE RESTRICT,
     publication_date date,
     closing_at timestamptz,
     opening_at timestamptz,
@@ -204,8 +227,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_tender_reference_scope
 
 CREATE INDEX IF NOT EXISTS idx_canonical_object_type_status
     ON argus.canonical_object (object_type, status);
-CREATE INDEX IF NOT EXISTS idx_canonical_object_name_trgm
-    ON argus.canonical_object USING gin (canonical_name public.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_canonical_object_title_trgm
+    ON argus.canonical_object USING gin (title public.gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_tender_reference_lower
     ON argus.tender (lower(tender_reference));
 CREATE INDEX IF NOT EXISTS idx_tender_project_code_lower
@@ -285,7 +308,7 @@ LIMIT argus.enforce_result_limit(p_limit)
 $function$;
 
 CREATE OR REPLACE FUNCTION argus.list_tenders(
-    p_status text DEFAULT 'active',
+    p_status text DEFAULT 'published',
     p_buyer_org_id text DEFAULT NULL,
     p_limit integer DEFAULT 20
 )
@@ -333,7 +356,7 @@ GRANT EXECUTE ON FUNCTION argus.list_tenders(text, text, integer) TO argus_reade
 GRANT SELECT, INSERT, UPDATE ON argus.source_record TO argus_writer;
 GRANT SELECT, INSERT, UPDATE ON argus.canonical_object TO argus_writer;
 GRANT SELECT, INSERT, UPDATE ON argus.tender TO argus_writer;
-GRANT SELECT ON argus.object_type_registry, argus.status_registry, argus.currency_registry TO argus_writer;
+GRANT SELECT ON argus.object_type_registry, argus.object_status_registry, argus.tender_status_registry, argus.currency_registry TO argus_writer;
 GRANT SELECT, INSERT ON argus.schema_migration TO argus_writer;
 
 ALTER ROLE argus_reader SET default_transaction_read_only = on;
