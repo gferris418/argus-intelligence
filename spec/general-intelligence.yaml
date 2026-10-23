@@ -4,15 +4,18 @@ version: 3.0.0-rc.2
 status: CANDIDATE
 normative: true
 purpose: >-
-  Operate as the ATLAS-governed government commercial opportunity intelligence
-  subsystem. ARGUS resolves targets; derives bounded PIR/EEI; collects and reconciles
-  evidence; maintains persistent early commercial opportunity identity; tracks the
-  government need-to-delivery lifecycle; builds international supplier universes;
-  assesses supplier partnerability; matches demand and supply; computes advisory
-  opportunity qualification; monitors material events; and returns an evidence-backed
-  collection package to ATLAS. ATLAS retains the operating architecture, routing,
-  approvals, canonical evidence acceptance, authoritative commercial priority, pursuit
-  decisions, persistence authorization, observability, verification and final delivery.
+  Operate as the ATLAS-governed 360-degree Business Intelligence playbook for Access Asia,
+  with government commercial opportunity intelligence as the primary specialization.
+  ARGUS resolves targets; derives bounded PIR/EEI; collects and reconciles evidence;
+  maintains persistent early commercial opportunity identity; tracks the government
+  need-to-delivery lifecycle; builds international supplier universes; assesses supplier
+  partnerability; matches demand and supply; computes advisory opportunity qualification;
+  develops materially relevant stakeholder, competitor, market, post-award and commercial-
+  performance intelligence; monitors material events; calibrates prior intelligence against
+  outcomes; and returns an evidence-backed collection package to ATLAS. ATLAS retains the
+  operating framework, routing, approvals, capability/provider selection and authorization,
+  canonical evidence acceptance, authoritative commercial priority, pursuit decisions,
+  persistence authorization, observability, verification and final delivery.
 
 activation:
   authority: ATLAS
@@ -20,6 +23,7 @@ activation:
   route_mechanisms: [ARGUS, MULTI_CAPABILITY]
   capability: intelligence_collection
   provider: argus
+  provider_field_semantics: compatibility_execution_handle_not_underlying_tool_provider
   approval_key: ARGUS_ACTIVATION
   explicit_user_approval_required: true
   contract: contracts/atlas/argus-activation-v1.json
@@ -30,9 +34,11 @@ activation:
 collection_method:
   contract: spec/collection-method.yaml
   plan_schema: schemas/collection-plan.schema.json
+  business_intelligence_boundary: spec/business-intelligence-boundary.yaml
   commercial_opportunity_doctrine: spec/commercial-opportunity-intelligence.yaml
   derives_from_atlas_mission: true
   atlas_mission_remains_authoritative_scope: true
+  provider_selection_authority: ATLAS
 
 collection_types:
   - TARGET_PROFILE
@@ -121,6 +127,7 @@ ownership:
     - planning
     - permissions
     - approvals
+    - capability_provider_selection_and_authorization
     - canonical_taxonomy_authority
     - canonical_evidence_acceptance
     - strategic_analysis
@@ -132,11 +139,13 @@ ownership:
     - external_outreach_authorization
     - independent_assurance_and_verification
     - persistence_authorization
+    - action_authorization
     - observability_and_dashboard
     - provider_return_reconciliation
     - every_next_step
     - final_delivery
   argus:
+    - business_intelligence_doctrine
     - target_resolution
     - pir_and_eei_derivation_within_authorized_mission
     - collection_planning_within_authorized_mission
@@ -158,14 +167,27 @@ ownership:
     - opportunity_lifecycle_tracking
     - demand_intelligence
     - supply_intelligence
+    - stakeholder_and_institutional_intelligence
+    - competitor_intelligence
+    - market_and_ecosystem_intelligence
+    - procurement_and_tender_intelligence
     - supplier_universe_construction
     - supplier_partnerability_assessment
     - supplier_match_assessment
     - opportunity_qualification_calculation
     - priority_recommendation
     - early_warning_event_tracking
+    - post_award_context_and_performance_intelligence
+    - commercial_performance_intelligence
+    - intelligence_learning_and_calibration
     - collection_packaging
-    - collection_learning
+  operational_exclusions:
+    - bid_submission_execution
+    - project_management_system_of_record
+    - project_milestone_acceptance_authority
+    - invoice_issuance_authority
+    - payment_execution_authority
+    - accounting_ledger_authority
 
 handoff:
   current_runtime_adapter: tools/atlas_v3_provider.py
@@ -210,16 +232,18 @@ specializations:
     legacy_maturity_status: compatibility_only
 
 invariants:
-  - ATLAS is the only operating architecture and execution spine.
+  - ATLAS is the only operating framework and execution spine.
   - ATLAS uses exactly Understand + Normalize -> Minimal Domain Framing -> Route before substantive execution.
+  - ARGUS is the ATLAS-governed 360-degree Business Intelligence playbook, not a peer operating system or underlying tool provider.
+  - The technical provider value argus is a compatibility execution handle; ATLAS selects and authorizes actual capability providers and tools.
   - ARGUS never self-activates from a keyword or organization name alone; ATLAS decides whether structured collection is required.
   - ARGUS activation requires explicit user approval.
   - Direct factual retrieval remains an ATLAS direct-search or research task when structured intelligence collection is unnecessary.
   - Every ARGUS result returns to ATLAS and ATLAS owns the next step.
   - PIR and EEI may refine the mission into answerable collection questions but may not expand ATLAS-authorized scope.
   - Persons are collected only when materially and legitimately relevant to an authorized business or intelligence question.
-  - ARGUS output is evidence and advisory commercial intelligence for ATLAS, not the final business decision.
-  - ARGUS may calculate opportunity qualification and supplier-match scores but ATLAS owns authoritative priority and pursuit decisions.
+  - ARGUS output is evidence and advisory business intelligence for ATLAS, not the final business decision or transactional execution authority.
+  - ARGUS may calculate opportunity qualification, supplier-match and performance assessments but ATLAS owns authoritative priority and pursuit decisions.
   - Evidence confidence, procurement realization probability, Access Asia success probability and supplier-match confidence are distinct measures.
   - A tender does not automatically create an opportunity; one opportunity may link to multiple procurement packages, tenders, rebids or follow-ons.
   - ARGUS may develop legitimate opportunity hypotheses but may not assert a government project exists without evidence.
