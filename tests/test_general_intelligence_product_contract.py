@@ -20,10 +20,17 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertIn(f"**Current candidate:** `{product['version']}`", readme)
         self.assertEqual("candidate", product["release_channel"])
         self.assertEqual("CANDIDATE", product["status"])
-        self.assertEqual("ATLAS-governed government commercial opportunity intelligence", scope["primary"])
+        self.assertEqual("ATLAS-governed 360-degree business intelligence for Access Asia", scope["primary"])
+        self.assertEqual("government commercial opportunity intelligence", scope["primary_specialization"])
         self.assertIn("government_public_sector_opportunity_intelligence", scope["specializations"])
+        self.assertIn("post_award_commercial_intelligence", scope["specializations"])
         self.assertIn("opportunity_engine", scope)
         self.assertEqual("intelligence_collection", compatibility["activation_capability"])
+        self.assertEqual("atlas_governed_360_business_intelligence_playbook", compatibility["relationship"])
+        self.assertEqual(
+            "compatibility_execution_handle_not_underlying_tool_provider",
+            compatibility["provider_field_semantics"],
+        )
         self.assertEqual("ARGUS_ACTIVATION", compatibility["approval_key"])
         self.assertTrue(compatibility["explicit_user_approval_required"])
         self.assertEqual("ATLAS", compatibility["provider_return_target"])
@@ -32,6 +39,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         manifest = yaml.safe_load((ROOT / "argus-intelligence.yaml").read_text(encoding="utf-8"))
         authority = manifest["authority"]
         core = yaml.safe_load((ROOT / authority["core"]).read_text(encoding="utf-8"))
+        boundary = yaml.safe_load((ROOT / authority["business_intelligence_boundary"]).read_text(encoding="utf-8"))
         method = yaml.safe_load((ROOT / authority["collection_method"]).read_text(encoding="utf-8"))
         opportunity = yaml.safe_load((ROOT / authority["commercial_opportunity_intelligence"]).read_text(encoding="utf-8"))
         plan_schema = json.loads((ROOT / authority["collection_plan_schema"]).read_text(encoding="utf-8"))
@@ -39,6 +47,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         activation = json.loads((ROOT / authority["atlas_activation_contract"]).read_text(encoding="utf-8"))
         current = yaml.safe_load((ROOT / authority["atlas_current_integration"]).read_text(encoding="utf-8"))
         self.assertTrue(core["normative"])
+        self.assertEqual("ARGUS_360_BUSINESS_INTELLIGENCE_PLAYBOOK", boundary["identity"])
         self.assertTrue(method["normative"])
         self.assertTrue(opportunity["normative"])
         self.assertEqual(
@@ -65,6 +74,7 @@ class GeneralIntelligenceProductContractTests(unittest.TestCase):
         self.assertIn("essential_elements_of_information", plan_schema["required"])
         self.assertIn("competing_hypotheses", plan_schema["required"])
         self.assertEqual(["ARGUS", "MULTI_CAPABILITY"], core["activation"]["route_mechanisms"])
+        self.assertEqual("ATLAS", core["collection_method"]["provider_selection_authority"])
         self.assertEqual("ATLAS", alignment["atlas_contract"]["activation_authority"])
         self.assertEqual("intelligence_collection", activation["required_capability"])
         self.assertEqual("ARGUS_ACTIVATION", activation["required_approval_key"])
