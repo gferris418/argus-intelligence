@@ -8,12 +8,14 @@ on:
       - 'plugin.json'
       - 'skills/argus-intelligence/**'
       - '.github/workflows/chatgpt-plugin-package.yml'
+      - 'tests/test_chatgpt_plugin_package.py'
   push:
     branches: [main]
     paths:
       - 'plugin.json'
       - 'skills/argus-intelligence/**'
       - '.github/workflows/chatgpt-plugin-package.yml'
+      - 'tests/test_chatgpt_plugin_package.py'
 
 permissions:
   contents: read
@@ -25,6 +27,9 @@ jobs:
     steps:
       - name: Checkout exact revision
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
       - name: Validate plugin package
         shell: bash
         run: |
@@ -44,6 +49,8 @@ jobs:
           assert len(short) <= 30
           print(f"Validated ARGUS plugin {manifest['version']}")
           PY
+      - name: Validate synchronization workflow contract
+        run: python3 -m unittest tests.test_chatgpt_plugin_package -v
       - name: Build plugin ZIP
         shell: bash
         run: |
@@ -54,11 +61,96 @@ jobs:
           cp skills/argus-intelligence/SKILL.md dist/plugin-package/argus-intelligence/skills/argus-intelligence/SKILL.md
           cd dist/plugin-package
           zip -qr ../argus-intelligence-chatgpt-plugin.zip argus-intelligence
+      - name: Build synchronization request
+        shell: bash
+        env:
+          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(Path('plugin.json').read_text(encoding='utf-8'))
+          wrapper_paths = ['plugin.json', 'skills/argus-intelligence/SKILL.md']
+          request = {
+              'schema_version': '1.0.0',
+              'event_type': 'chatgpt_plugin_sync_required',
+              'plugin': {
+                  'name': manifest['name'],
+                  'version': manifest['version'],
+              },
+              'source': {
+                  'repository': os.environ['GITHUB_REPOSITORY'],
+                  'commit': os.environ['SOURCE_COMMIT'],
+                  'run_id': os.environ['GITHUB_RUN_ID'],
+              },
+              'artifact': {
+                  'name': 'argus-intelligence-chatgpt-plugin',
+                  'archive': 'argus-intelligence-chatgpt-plugin.zip',
+              },
+              'wrapper': {
+                  'hash_algorithm': 'sha256',
+                  'sha256': {
+                      path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                      for path in wrapper_paths
+                  },
+              },
+              'publication': {
+                  'automatic': False,
+                  'mechanism': 'plugin_creator_guarded_update',
+                  'require_current_release_id': True,
+                  'artifact_only_publication_input': True,
+                  'publication_receipt_required': True,
+              },
+          }
+          Path('dist/plugin-sync-request.json').write_text(
+              json.dumps(request, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(request, sort_keys=True))
+          PY
       - name: Upload plugin package
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: argus-intelligence-chatgpt-plugin
-          path: dist/argus-intelligence-chatgpt-plugin.zip
+          path: |
+            dist/argus-intelligence-chatgpt-plugin.zip
+            dist/plugin-sync-request.json
           if-no-files-found: error
           retention-days: 90
           compression-level: 0
+
+  plugin-sync-handoff:
+    needs: package-plugin
+    if: github.event_name == 'push' && needs.package-plugin.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Emit repository synchronization event
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > sync-dispatch.json
+          import json
+          import os
+          payload = {
+              'event_type': 'chatgpt_plugin_sync_required',
+              'client_payload': {
+                  'plugin': 'argus-intelligence',
+                  'source_commit': os.environ['SOURCE_COMMIT'],
+                  'run_id': os.environ['GITHUB_RUN_ID'],
+                  'artifact_name': 'argus-intelligence-chatgpt-plugin',
+                  'sync_request': 'plugin-sync-request.json',
+              },
+          }
+          print(json.dumps(payload))
+          PY
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/dispatches" --input sync-dispatch.json
