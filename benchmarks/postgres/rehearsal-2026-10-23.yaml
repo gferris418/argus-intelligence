@@ -1,0 +1,189 @@
+version: 1.0.0
+status: PARTIAL_PASS_PRODUCTION_BLOCKED
+recorded_at_utc: 2026-10-23T00:58:00Z
+scope: ARGUS PostgreSQL governance and migration rehearsal
+production_cutover_approved: false
+
+source_control:
+  repository: gferris418/argus-intelligence
+  branch: feat/postgres-governance-hardening
+  base_main_commit: 0454024624eafe704d740ca2fc6fd1cc3dba0bfd
+  migration: migrations/postgres/0001_argus_operational_projection.sql
+  query_adapter: tools/postgres_search.py
+  benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
+  recovery_contract: docs/architecture/postgresql-production-hardening.md
+
+neon:
+  project_id: rapid-field-91311881
+  production_branch_id: br-spring-feather-a1cjndbm
+  production_branch_name: production
+  database_name: argus
+  postgres_version: 18
+  region: aws-ap-southeast-1
+  branch_logical_size_limit_bytes: 1073741824
+  production_schema_mutated: false
+
+safeguards:
+  production_branch_protection:
+    status: BLOCKED_PLAN_LIMIT
+    observed_protected: false
+    attempted: true
+    result: >-
+      Neon HTTP 422: maximum number of protected branches reached for the current plan.
+      All branches visible in the two account projects were reported protected=false,
+      so this behaves as a plan/entitlement boundary rather than a removable protected branch.
+  pre_migration_snapshot:
+    status: PASS
+    snapshot_id: snap-solitary-resonance-a1vnqx72
+    snapshot_name: argus-pre-postgres-governance-2026-10-23
+    source_branch_id: br-spring-feather-a1cjndbm
+    created_at_utc: 2026-10-23T00:48:04Z
+  least_privilege_runtime_roles:
+    status: BLOCKED_NEON_PERMISSION
+    observed:
+      argus_runtime: [argus_writer]
+      argus_search: [neon_superuser]
+      argus_ingest: [neon_superuser]
+    active_connections_for_search_or_ingest_at_audit: 0
+    remediation_attempted: true
+    remediation_result: >-
+      Atomic revoke/grant transaction was rejected with permission denied to revoke
+      role neon_superuser. Because the transaction failed atomically, no role changes
+      were applied.
+
+migration_rehearsal:
+  branch_id: br-broad-hall-a13p3rr6
+  branch_name: argus-pg-governance-rehearsal-2026-10-23
+  parent_branch_id: br-spring-feather-a1cjndbm
+  disposable_nonproduction: true
+  migration_apply_1: PASS
+  migration_apply_2_idempotency: PASS
+  schema_migration_rows: 1
+  smoke:
+    project_code_non_unique:
+      status: PASS
+      fixture_rows_same_project_code: 2
+    reader_direct_table_select:
+      status: PASS
+      expected: false
+      observed: false
+    reader_search_function_execute:
+      status: PASS
+      observed: true
+    reader_list_function_execute:
+      status: PASS
+      observed: true
+    result_limit_above_100_rejected:
+      status: PASS
+      observed_error: result limit must be between 1 and 100
+    exact_reference_search: PASS
+    full_text_search: PASS
+    fuzzy_typo_search: PASS
+    updated_at_trigger: PASS
+    invalid_status_fk_rejected: PASS
+    invalid_currency_fk_rejected: PASS
+    duplicate_reference_same_source_jurisdiction_rejected: PASS
+    missing_source_record_fk_rejected: PASS
+
+restore_rehearsal:
+  status: PASS_WITH_PLATFORM_CONSTRAINT
+  snapshot_id: snap-solitary-resonance-a1vnqx72
+  finalized_restore_attempt:
+    status: BLOCKED_NEON_REALTIME
+    result: >-
+      Neon HTTP 412: restoring a snapshot of a Neon Realtime branch with
+      finalize_restore is not supported yet.
+  isolated_restore:
+    status: PASS
+    restored_branch_id: br-billowing-hat-a1xre77k
+    restored_branch_name: argus-restore-rehearsal-2026-10-23
+    finalize: false
+    schema_diff_vs_production: empty
+    postgres_projection_tables_absent:
+      - argus.schema_migration
+      - argus.canonical_object
+      - argus.tender
+
+scale_rehearsal:
+  dataset_rows_tender: 100002
+  distinct_project_codes: 10001
+  tender_table_size: 56 MB
+  canonical_object_table_size: 17 MB
+  source_record_table_size: 11 MB
+  tender_total_relation_size_observed_separately: 105 MB
+  major_indexes:
+    idx_tender_search_vector: 17 MB
+    idx_canonical_object_name_trgm: 9784 kB
+    idx_tender_title_trgm: 9784 kB
+    source_record_unique_native: 6856 kB
+    idx_tender_buyer_name_trgm: 6824 kB
+    uq_tender_reference_scope: 4880 kB
+  one_million_scale:
+    status: NOT_RUN_CAPACITY_LIMIT
+    rationale: >-
+      At roughly 100k rows the three primary ARGUS tables already use about 84 MB
+      before indexes, while the listed major indexes add substantial additional
+      storage. Linear extrapolation exceeds the project's 1 GiB branch logical-size
+      limit before allowing for all indexes, WAL/working space, or concurrent writes.
+      The required 1M test therefore needs a larger-capacity benchmark environment.
+
+query_plan_rehearsal_100k:
+  exact_reference:
+    index: idx_tender_reference_lower
+    plan: Index Scan
+    planning_time_ms: 0.166
+    execution_time_ms: 0.057
+    actual_rows: 1
+  exact_project_code:
+    index: idx_tender_project_code_lower
+    plan: Bitmap Index Scan -> Bitmap Heap Scan
+    planning_time_ms: 0.128
+    execution_time_ms: 0.066
+    actual_rows: 10
+  full_text_search:
+    index: idx_tender_search_vector
+    plan: Bitmap Index Scan -> Bitmap Heap Scan
+    planning_time_ms: 0.143
+    execution_time_ms: 0.497
+    actual_rows: 20
+  fuzzy_typo:
+    index: idx_tender_title_trgm
+    plan: Bitmap Index Scan -> Bitmap Heap Scan
+    planning_time_ms: 0.404
+    execution_time_ms: 0.598
+    candidate_rows: 22
+    returned_rows: 20
+    candidate_fraction: 0.00022
+  status_closing:
+    index: idx_tender_status_closing
+    plan: Index Scan -> Incremental Sort
+    planning_time_ms: 0.173
+    execution_time_ms: 0.440
+    returned_rows: 20
+    index_rows_seen: 275
+
+benchmark_matrix:
+  warm_single_query_plans_100k: PASS
+  cold_cache: NOT_RUN
+  p50_p95_p99: NOT_RUN
+  concurrent_readers: NOT_RUN
+  concurrent_ingestion: NOT_RUN
+  one_million_rows: NOT_RUN_CAPACITY_LIMIT
+
+production_gate:
+  postgres_migration_committed: PASS
+  postgres_projection_registered: PASS
+  typed_query_contract_enforced: PASS
+  production_protected_and_snapshotted: FAIL_PROTECTION_PASS_SNAPSHOT
+  least_privilege_runtime_roles: FAIL
+  schema_integrity_and_lineage: PASS_REHEARSAL
+  cold_concurrent_scale_benchmarks: FAIL_INCOMPLETE
+  migration_smoke_restore_rehearsal: PASS_WITH_REALTIME_CONSTRAINT
+  overall: BLOCKED
+
+next_required_actions:
+  - Enable Neon production branch protection through a plan/entitlement that permits it.
+  - Remove neon_superuser inheritance from runtime search/ingest login roles using an authority capable of changing Neon-managed role membership; then grant only bounded ARGUS roles.
+  - Run the full 10k/100k/1M cold/warm concurrent benchmark matrix in an environment with sufficient logical-size capacity and record p50/p95/p99.
+  - Define and verify the operational Realtime recovery/rebind procedure because finalized snapshot restore is currently unsupported for a Realtime branch.
+  - Re-run all repository and cross-repository gates after any material contract change.
