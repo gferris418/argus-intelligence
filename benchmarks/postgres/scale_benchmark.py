@@ -133,18 +133,18 @@ def seed_range(admin_dsn: str, start: int, end: int, chunk_size: int = 50_000) -
                   'REF-'||lpad(g::text,7,'0'),
                   'PRJ-'||lpad((((g-1)/10)+1)::text,7,'0'),
                   'PKG-'||lpad(g::text,7,'0'),
-                  CASE WHEN g % 5 = 0 THEN 'Coastal Patrol Vessel navigation system '||g
-                       WHEN g % 5 = 1 THEN 'Marine communications equipment '||g
-                       WHEN g % 5 = 2 THEN 'Port surveillance radar system '||g
-                       WHEN g % 5 = 3 THEN 'Naval training simulator package '||g
+                  CASE WHEN g %% 5 = 0 THEN 'Coastal Patrol Vessel navigation system '||g
+                       WHEN g %% 5 = 1 THEN 'Marine communications equipment '||g
+                       WHEN g %% 5 = 2 THEN 'Port surveillance radar system '||g
+                       WHEN g %% 5 = 3 THEN 'Naval training simulator package '||g
                        ELSE 'Shipboard power management system '||g END,
-                  'Benchmark Buyer '||(g%100), 'Benchmark Ministry '||(g%20),
+                  'Benchmark Buyer '||(g%%100), 'Benchmark Ministry '||(g%%20),
                   'BD', 'benchmark', 'BENCH-SRC-'||lpad(g::text,7,'0'),
                   'Dhaka', 'OPEN_TENDER', 'GOODS', 'published',
-                  current_date - (g%365),
-                  now() + ((g%180)||' days')::interval,
-                  now() + ((g%180)||' days')::interval + interval '1 hour',
-                  'GOB', 'USD', 100000 + g, 1000 + (g%5000),
+                  current_date - (g%%365),
+                  now() + ((g%%180)||' days')::interval,
+                  now() + ((g%%180)||' days')::interval + interval '1 hour',
+                  'GOB', 'USD', 100000 + g, 1000 + (g%%5000),
                   'https://benchmark.invalid/t/'||g,
                   jsonb_build_object('seed','argus-scale-v1','n',g)
                 FROM generate_series(%s::bigint,%s::bigint) AS g
