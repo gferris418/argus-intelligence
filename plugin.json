@@ -1,0 +1,31 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "argus-intelligence",
+  "version": "3.0.0-rc.2",
+  "description": "ATLAS-governed 360-degree business intelligence for government commercial opportunities, suppliers, stakeholders, markets, competitors, and evidence-backed opportunity development.",
+  "author": {
+    "name": "Access Asia"
+  },
+  "repository": "https://github.com/gferris418/argus-intelligence",
+  "keywords": [
+    "argus-intelligence",
+    "business-intelligence",
+    "government-opportunities",
+    "tender-intelligence",
+    "supplier-intelligence",
+    "atlas-os",
+    "access-asia"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "ARGUS Intelligence",
+        "shortDescription": "360° business intelligence",
+        "longDescription": "ATLAS-governed ARGUS intelligence collection for government commercial opportunities, suppliers, stakeholders, markets, competitors, and evidence-backed opportunity development.",
+        "developerName": "Access Asia",
+        "capabilities": [],
+        "defaultPrompt": "Run an ATLAS-authorized ARGUS intelligence mission using the current canonical repository contract."
+      }
+    }
+  }
+}
