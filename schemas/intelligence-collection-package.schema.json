@@ -18,6 +18,10 @@
     "events": {"type": "array"},
     "projects": {"type": "array"},
     "procurements": {"type": "array"},
+    "procurement_package_forecasts": {
+      "type": "array",
+      "description": "Evidence-bounded probable future package hypotheses conforming to schemas/procurement-package-forecast.schema.json. These are not canonical proof that a PROCUREMENT_PACKAGE exists; ATLAS retains final forecasting authority."
+    },
     "products": {"type": "array"},
     "organizations": {"type": "array"},
     "stakeholders": {"type": "array"},
