@@ -1,0 +1,112 @@
+version: 1.0.0
+status: PARTIAL_PASS_PRODUCTION_BLOCKED
+recorded_at_utc: 2026-10-23T04:08:00Z
+purpose: >-
+  Add final-schema cold-compute evidence and record the limits of connector-driven
+  parallel probes without overstating either as completion of the production
+  benchmark matrix.
+production_cutover_approved: false
+
+source_control:
+  repository: gferris418/argus-intelligence
+  main_commit: f6904252d79768b2c9a3be0207e8626f30ebcbcf
+  fuzzy_knn_pr: 78
+  canonical_benchmark: benchmarks/postgres/benchmark-100k-final-2026-10-23.yaml
+  benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
+
+environment:
+  provider: Neon
+  project_id: rapid-field-91311881
+  branch_id: br-frosty-haze-a1phj447
+  branch_name: argus-pg-final-v2-2026-10-23
+  endpoint_id: ep-wispy-paper-a13ompf8
+  production: false
+  dataset_rows: 100001
+  compute_cu: 0.25
+
+cold_compute_probe:
+  status: PARTIAL_PASS
+  method: >-
+    Restart the disposable branch compute, then immediately execute one read-only
+    EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) probe per governed query class.
+  scope_limit: >-
+    This clears compute-local state and proves cold shared-buffer reads, but is one
+    ordered probe rather than the contract's complete repeated cold-cache matrix.
+  zero_query_errors: true
+  queries:
+    exact_reference:
+      index: idx_tender_reference_lower
+      plan_nodes: [Limit, Sort, Index Scan]
+      planning_time_ms: 13.170
+      execution_time_ms: 0.298
+      shared_hit_blocks: 12
+      shared_read_blocks: 12
+    exact_project_code:
+      index: idx_tender_project_code_lower
+      plan_nodes: [Limit, Sort, Index Scan]
+      planning_time_ms: 0.119
+      execution_time_ms: 0.819
+      shared_hit_blocks: 3
+      shared_read_blocks: 9
+    fts:
+      index: idx_tender_search_vector
+      plan_nodes: [Limit, Sort, Bitmap Heap Scan, Bitmap Index Scan]
+      planning_time_ms: 0.302
+      execution_time_ms: 178.769
+      shared_hit_blocks: 48
+      shared_read_blocks: 23141
+    fuzzy:
+      index: idx_tender_title_trgm_gist
+      plan_nodes: [Limit, Incremental Sort, Index Scan]
+      planning_time_ms: 0.666
+      execution_time_ms: 415.661
+      shared_hit_blocks: 114
+      shared_read_blocks: 5988
+    active_closing_date:
+      index: idx_tender_status_closing
+      plan_nodes: [Limit, Incremental Sort, Index Scan]
+      planning_time_ms: 14.272
+      execution_time_ms: 48.149
+      shared_hit_blocks: 1674
+      shared_read_blocks: 9
+
+connector_parallel_probe:
+  status: NOT_ACCEPTED_AS_CONCURRENCY_EVIDENCE
+  requested_reader_sessions: 32
+  database_query_errors: 0
+  connector_batch_wall_time_ms: 86924
+  reason: >-
+    The connector scheduled the calls serially enough that simultaneous database
+    execution cannot be established. Server execution samples remain diagnostic,
+    but they do not satisfy the independent-client 1/8/32-reader contract.
+  server_execution_samples:
+    exact_reference: {samples: 7, p50_ms: 0.193, p95_ms: 0.237, p99_ms: 0.237}
+    exact_project_code: {samples: 7, p50_ms: 0.186, p95_ms: 0.225, p99_ms: 0.225}
+    fts: {samples: 6, p50_ms: 32.968, p95_ms: 53.364, p99_ms: 53.364}
+    fuzzy: {samples: 6, p50_ms: 19.364, p95_ms: 19.955, p99_ms: 19.955}
+    active_closing_date: {samples: 6, p50_ms: 0.696, p95_ms: 2.752, p99_ms: 2.752}
+
+independent_client_attempt:
+  status: BLOCKED_EXECUTION_ENV_NETWORK
+  driver: psycopg 3.2.12
+  credential_transport: stdin_not_command_line
+  network_result: outbound_tcp_5432_unavailable
+  credential_safety: >-
+    The disposable branch argus_runtime password was rotated after a local PTY
+    handling test. No production connection string or production credential was used.
+
+production_gate:
+  overall: BLOCKED
+  production_cutover_approved: false
+  open_blockers:
+    - production_branch_protection
+    - overprivileged_orphan_role_retirement
+    - independent_client_concurrency
+    - concurrent_ingestion
+    - cold_cache_full_matrix
+    - one_million_rows
+    - realtime_recovery_application_rebind
+
+conclusion: >-
+  Required indexes and threshold headroom are demonstrated for a single immediate
+  cold-compute probe at 100k rows. This receipt closes no production gate by itself.
