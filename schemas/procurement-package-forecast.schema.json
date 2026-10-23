@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gferris418/argus-intelligence/schemas/procurement-package-forecast.schema.json",
+  "title": "ARGUS Procurement Package Forecast",
+  "description": "Evidence-bounded ARGUS projection of probable future procurement packages beneath an evidenced project or requirement. This is intelligence, not canonical proof that a procurement package exists. ATLAS retains final forecasting and scenario authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "forecast_id",
+    "project_ref",
+    "requirement_refs",
+    "forecast_state",
+    "as_of",
+    "basis",
+    "package_hypotheses",
+    "coverage",
+    "monitoring",
+    "governance"
+  ],
+  "properties": {
+    "forecast_id": {"type": "string", "minLength": 1},
+    "project_ref": {"type": "string", "minLength": 1},
+    "requirement_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "forecast_state": {"enum": ["DRAFT", "ACTIVE_HYPOTHESIS", "MONITOR", "SUPERSEDED", "CLOSED"]},
+    "as_of": {"type": "string", "format": "date-time"},
+    "basis": {"$ref": "#/$defs/basis"},
+    "package_hypotheses": {"type": "array", "items": {"$ref": "#/$defs/package_hypothesis"}},
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "monitoring": {"$ref": "#/$defs/monitoring"},
+    "governance": {"$ref": "#/$defs/governance"}
+  },
+  "$defs": {
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_state", "project_evidence_refs", "approved_project_proves_package_exists"],
+      "properties": {
+        "project_state": {"type": "string", "minLength": 1},
+        "project_evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "approved_project_proves_package_exists": {"const": false},
+        "project_scope_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "funding_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "historical_analogue_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      }
+    },
+    "date_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["precision"],
+      "properties": {
+        "earliest": {"type": ["string", "null"]},
+        "latest": {"type": ["string", "null"]},
+        "precision": {"enum": ["DATE_RANGE", "MONTH_RANGE", "QUARTER_RANGE", "FISCAL_YEAR", "RELATIVE_SEQUENCE", "UNKNOWN"]}
+      }
+    },
+    "route_hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route", "probability", "basis_refs"],
+      "properties": {
+        "route": {"type": "string", "minLength": 1},
+        "probability": {"type": "number", "minimum": 0, "maximum": 1},
+        "basis_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "notes": {"type": ["string", "null"]}
+      }
+    },
+    "supplier_implications": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["international_oem_likely", "local_partner_likely"],
+      "properties": {
+        "international_oem_likely": {"type": "boolean"},
+        "local_partner_likely": {"type": "boolean"},
+        "likely_capability_classes": {"type": "array", "items": {"type": "string"}},
+        "supplier_universe_question": {"type": ["string", "null"]}
+      }
+    },
+    "package_hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hypothesis_id",
+        "title",
+        "package_class",
+        "scope_summary",
+        "claim_type",
+        "status",
+        "realization_probability",
+        "evidence_confidence",
+        "timing_window",
+        "procurement_route_hypotheses",
+        "supporting_evidence_refs",
+        "contradicting_evidence_refs",
+        "assumptions",
+        "falsifiers",
+        "signposts",
+        "supplier_implications"
+      ],
+      "properties": {
+        "hypothesis_id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "package_class": {"enum": ["GOODS", "WORKS", "CONSULTING_SERVICES", "NON_CONSULTING_SERVICES", "GOODS_WITH_RELATED_SERVICES", "DESIGN_BUILD_EPC", "FRAMEWORK_OR_CALL_OFF", "MIXED", "OTHER"]},
+        "scope_summary": {"type": "string", "minLength": 1},
+        "claim_type": {"enum": ["INFERENCE", "DERIVED", "ASSUMPTION"]},
+        "status": {"enum": ["HYPOTHESIZED", "CORROBORATED", "WEAKENED", "REJECTED", "SUPERSEDED", "REALIZED"]},
+        "realization_probability": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "timing_window": {"$ref": "#/$defs/date_window"},
+        "sequence_rank": {"type": ["integer", "null"], "minimum": 1},
+        "estimated_value": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "properties": {
+            "minimum": {"type": ["number", "null"], "minimum": 0},
+            "maximum": {"type": ["number", "null"], "minimum": 0},
+            "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+            "basis": {"type": ["string", "null"]}
+          }
+        },
+        "procurement_route_hypotheses": {"type": "array", "items": {"$ref": "#/$defs/route_hypothesis"}},
+        "supporting_evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "contradicting_evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "assumptions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "falsifiers": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "signposts": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "supplier_implications": {"$ref": "#/$defs/supplier_implications"},
+        "observed_package_ref": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "REALIZED"}}, "required": ["status"]},
+          "then": {"required": ["observed_package_ref"], "properties": {"observed_package_ref": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "count_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {"type": "integer", "minimum": 0},
+        "maximum": {"type": "integer", "minimum": 0}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_package_count_range", "unallocated_scope"],
+      "properties": {
+        "expected_package_count_range": {"$ref": "#/$defs/count_range"},
+        "unallocated_scope": {"type": "array", "items": {"type": "string"}},
+        "coverage_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["next_questions", "next_triggers"],
+      "properties": {
+        "next_questions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "next_triggers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "review_after": {"type": ["string", "null"]}
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["final_forecast_authority", "canonical_procurement_fact"],
+      "properties": {
+        "final_forecast_authority": {"const": "ATLAS"},
+        "canonical_procurement_fact": {"const": false},
+        "provider_role": {"type": "string", "default": "ARGUS_EVIDENCE_BOUNDED_HYPOTHESIS"}
+      }
+    }
+  }
+}
