@@ -22,6 +22,7 @@ class PostgresFuzzyKnnContractTests(unittest.TestCase):
             "v_query text := btrim(p_query)",
             "v_limit integer := argus.enforce_result_limit(p_limit)",
             "p_mode = 'fuzzy'",
+            "WHERE t.title OPERATOR(public.%) v_query",
             "OPERATOR(public.<->)",
             "ORDER BY t.title OPERATOR(public.<->) v_query",
             "LIMIT v_limit",
@@ -40,6 +41,7 @@ class PostgresFuzzyKnnContractTests(unittest.TestCase):
         )
         self.assertEqual("GIST_TRGM_KNN", fuzzy["expected_plan"]["index_type"])
         self.assertEqual("nearest_neighbor", fuzzy["expected_plan"]["strategy"])
+        self.assertEqual("trigram_similarity_threshold", fuzzy["expected_plan"]["relevance_filter"])
         self.assertTrue(fuzzy["expected_plan"]["disallow_sequential_scan_at_scale"] <= 100000)
 
     def test_manifest_declares_complete_ordered_postgres_migration_chain(self) -> None:
