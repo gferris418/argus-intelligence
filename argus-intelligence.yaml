@@ -40,6 +40,7 @@ authority:
   postgres_benchmark_runner: tools/postgres_benchmark.py
   postgres_production_hardening: docs/architecture/postgresql-production-hardening.md
   postgres_benchmark_contract: benchmarks/postgres/tender-search-contract.yaml
+  postgres_role_hardening_receipt: benchmarks/postgres/role-hardening-2026-10-23.yaml
   country_profiles:
     bangladesh: profiles/bangladesh.md
   bangladesh_opportunity_architecture: docs/architecture/bangladesh-opportunity-intelligence-v3.md
