@@ -10,6 +10,8 @@ _TENDER_PROJECTION = (
     "status, closing_at, source_url, score"
 )
 _SEARCH_SQL = f"SELECT {_TENDER_PROJECTION} FROM argus.search_tenders(%s, %s, %s)"
+_PLAN_SQL = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {_SEARCH_SQL}"
+_SEARCH_MODES = ("exact_reference", "exact_project_code", "fts", "fuzzy")
 
 
 @dataclass(frozen=True)
@@ -40,6 +42,13 @@ class TenderSearchResult:
     telemetry: tuple[Mapping[str, Any], ...]
 
 
+@dataclass(frozen=True)
+class TenderPlanTelemetry:
+    mode: str
+    plan: Any
+    latency_ms: float
+
+
 def _validated_query(query: str) -> str:
     if not isinstance(query, str) or not query.strip():
         raise ValueError("query must be a non-empty string")
@@ -52,12 +61,29 @@ def _validated_limit(limit: int, maximum: int = 100) -> int:
     return limit
 
 
+def _validated_mode(mode: str) -> str:
+    if mode not in _SEARCH_MODES:
+        raise ValueError(f"mode must be one of {', '.join(_SEARCH_MODES)}")
+    return mode
+
+
 def build_tender_search_steps(query: str, limit: int = 20) -> tuple[TenderSearchStep, ...]:
     normalized = _validated_query(query)
     bounded = _validated_limit(limit, 100)
     return tuple(
         TenderSearchStep(mode=mode, sql=_SEARCH_SQL, params=(mode, normalized, bounded))
-        for mode in ("exact_reference", "exact_project_code", "fts", "fuzzy")
+        for mode in _SEARCH_MODES
+    )
+
+
+def build_tender_plan_probe(mode: str, query: str, limit: int = 20) -> TenderSearchStep:
+    validated_mode = _validated_mode(mode)
+    normalized = _validated_query(query)
+    bounded = _validated_limit(limit, 100)
+    return TenderSearchStep(
+        mode=validated_mode,
+        sql=_PLAN_SQL,
+        params=(validated_mode, normalized, bounded),
     )
 
 
@@ -73,14 +99,22 @@ def _row_mapping(description: Sequence[Any] | None, row: Any) -> Mapping[str, An
 class TenderSearchAdapter:
     """Read-only PostgreSQL tender search with deterministic fallback and telemetry.
 
-    The adapter never accepts caller-provided SQL. It executes only the fixed,
-    explicitly projected function call above, uses bound parameters for user data,
-    hard-bounds result size, applies a local statement timeout, and rolls back the
-    read-only transaction after every search.
+    The adapter never accepts caller-provided SQL. It executes only fixed,
+    explicitly projected queries, uses bound parameters for user data, hard-bounds
+    result size, applies a local statement timeout, and rolls back its read-only
+    transaction after every operation.
+
+    `explain_plan` is an explicit diagnostic path. It runs `EXPLAIN ANALYZE` for one
+    governed search mode and is intended for benchmark/operational telemetry rather
+    than every user search.
     """
 
     def __init__(self, config: TenderSearchConfig | None = None) -> None:
         self.config = config or TenderSearchConfig()
+
+    def _begin_read_only(self, cursor: Any) -> None:
+        cursor.execute("SET TRANSACTION READ ONLY")
+        cursor.execute(f"SET LOCAL statement_timeout = '{self.config.statement_timeout_ms}ms'")
 
     def search(self, connection: Any, query: str, *, limit: int = 20) -> TenderSearchResult:
         normalized = _validated_query(query)
@@ -94,8 +128,7 @@ class TenderSearchAdapter:
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute("SET TRANSACTION READ ONLY")
-                cursor.execute(f"SET LOCAL statement_timeout = '{self.config.statement_timeout_ms}ms'")
+                self._begin_read_only(cursor)
 
                 for step in steps:
                     step_started = perf_counter()
@@ -115,8 +148,6 @@ class TenderSearchAdapter:
                         rows = tuple(_row_mapping(cursor.description, row) for row in fetched)
                         break
         finally:
-            # A rollback closes the read-only transaction and guarantees this adapter
-            # cannot accidentally persist session work performed by its own queries.
             connection.rollback()
 
         return TenderSearchResult(
@@ -127,11 +158,48 @@ class TenderSearchAdapter:
             telemetry=tuple(telemetry),
         )
 
+    def explain_plan(
+        self,
+        connection: Any,
+        *,
+        mode: str,
+        query: str,
+        limit: int = 20,
+    ) -> TenderPlanTelemetry:
+        bounded = _validated_limit(limit, self.config.maximum_limit)
+        probe = build_tender_plan_probe(mode, query, bounded)
+        started = perf_counter()
+        plan: Any = None
+
+        try:
+            with connection.cursor() as cursor:
+                self._begin_read_only(cursor)
+                cursor.execute(probe.sql, probe.params)
+                fetched = cursor.fetchall()
+                if fetched:
+                    first = fetched[0]
+                    if isinstance(first, Mapping):
+                        plan = first.get("QUERY PLAN", first)
+                    elif isinstance(first, Sequence) and not isinstance(first, (str, bytes, bytearray)):
+                        plan = first[0] if first else None
+                    else:
+                        plan = first
+        finally:
+            connection.rollback()
+
+        return TenderPlanTelemetry(
+            mode=probe.mode,
+            plan=plan,
+            latency_ms=(perf_counter() - started) * 1_000,
+        )
+
 
 __all__ = [
+    "TenderPlanTelemetry",
     "TenderSearchAdapter",
     "TenderSearchConfig",
     "TenderSearchResult",
     "TenderSearchStep",
+    "build_tender_plan_probe",
     "build_tender_search_steps",
 ]
