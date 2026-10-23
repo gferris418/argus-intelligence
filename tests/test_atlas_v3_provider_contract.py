@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
+ATLAS_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
 
 
 class AtlasV3ProviderContractTests(unittest.TestCase):
@@ -19,22 +19,27 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         compatibility = manifest["atlas_compatibility"]
         self.assertEqual("3.0.2", compatibility["last_validated_base"])
         self.assertEqual(ATLAS_COMMIT, compatibility["last_validated_base_commit"])
-        self.assertEqual("chatgpt-plugin-bootstrap-v1.0.1", compatibility["last_validated_control_revision"])
+        self.assertEqual("atlas-argus-execution-v2.0.0", compatibility["last_validated_control_revision"])
         self.assertEqual("bounded_intelligence_collection_provider", compatibility["relationship"])
         self.assertEqual("ATLAS", compatibility["activation_authority"])
         self.assertEqual("ATLAS", compatibility["next_step_authority"])
         self.assertTrue(compatibility["explicit_user_approval_required"])
         self.assertTrue(compatibility["mission_control_first_required"])
         self.assertEqual("contracts/atlas/current-integration.yaml", manifest["authority"]["atlas_current_integration"])
+        self.assertEqual("tools/atlas_capability.py", manifest["authority"]["atlas_remote_capability_verifier"])
 
     def test_current_integration_descriptor_pins_immutable_atlas_release(self) -> None:
         descriptor = yaml.safe_load(
             (ROOT / "contracts" / "atlas" / "current-integration.yaml").read_text(encoding="utf-8")
         )
-        self.assertEqual("1.0.1", descriptor["version"])
+        self.assertEqual("2.0.0", descriptor["version"])
+        self.assertEqual("ATLAS_ARGUS_EXECUTION", descriptor["projection_of"])
         self.assertEqual("gferris418/atlas-os", descriptor["atlas"]["repository"])
         self.assertEqual("3.0.2", descriptor["atlas"]["version"])
         self.assertEqual(ATLAS_COMMIT, descriptor["atlas"]["commit"])
+        canonical = descriptor["atlas"]["canonical_execution_contract"]
+        self.assertEqual("contracts/atlas-argus-execution-v2.json", canonical["path"])
+        self.assertEqual("2.0.0", canonical["version"])
         contract = descriptor["contract"]
         self.assertEqual("MISSION_CONTROL_FIRST", contract["prompt_entry"])
         self.assertEqual("every_user_prompt_while_atlas_active", contract["prompt_entry_scope"])
@@ -45,6 +50,10 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual("ATLAS", contract["next_step_authority"])
         self.assertEqual("ATLAS", contract["provider_return_target"])
         self.assertTrue(contract["explicit_user_approval_required"])
+        remote = contract["remote_capability"]
+        self.assertEqual(2, remote["version"])
+        self.assertEqual("HMAC-SHA256", remote["algorithm"])
+        self.assertTrue(remote["one_time"])
         self.assertEqual("backward_compatibility_only", descriptor["legacy_transport"]["status"])
 
     def test_provider_adapter_accepts_only_approved_atlas_argus_routes(self) -> None:
@@ -109,6 +118,7 @@ class AtlasV3ProviderContractTests(unittest.TestCase):
         self.assertEqual(ATLAS_COMMIT, current["commit"])
         self.assertEqual("MISSION_CONTROL_FIRST", alignment["routing"]["prompt_entry"])
         self.assertEqual("every_user_prompt_while_atlas_active", alignment["routing"]["prompt_entry_scope"])
+        self.assertEqual("signed_capability_v2_required", alignment["handoff"]["remote_transport"])
         self.assertFalse(alignment["compatibility"]["current_change_requires_coordinated_atlas_candidate"])
         workflow = (ROOT / ".github" / "workflows" / "cross-repo-e2e.yml").read_text(encoding="utf-8")
         self.assertIn(f"ref: {ATLAS_COMMIT}", workflow)
