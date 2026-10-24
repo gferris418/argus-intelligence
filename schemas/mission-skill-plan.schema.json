@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://access-asia.example/schemas/mission-skill-plan.schema.json",
+  "title": "ARGUS Mission Skill Plan",
+  "type": "object",
+  "required": ["mission_skill_plan"],
+  "additionalProperties": false,
+  "properties": {
+    "mission_skill_plan": {
+      "type": "object",
+      "required": ["mission_state", "procurement_mode", "specialists"],
+      "additionalProperties": false,
+      "properties": {
+        "mission_state": {
+          "type": "string",
+          "enum": [
+            "SEED",
+            "NEED_OBSERVED",
+            "PROJECT_IDENTIFIED",
+            "PROCUREMENT_EXPECTED",
+            "PROCUREMENT_LIVE",
+            "PROCUREMENT_CLOSED",
+            "AWARD_OBSERVED",
+            "POST_AWARD"
+          ]
+        },
+        "stale_revalidation_required": {"type": "boolean", "default": false},
+        "procurement_mode": {
+          "type": "string",
+          "enum": ["DISCOVERY", "LIVE_PROCUREMENT", "POST_DEADLINE_REVALIDATION"]
+        },
+        "canonical_object_ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "evidence_gaps": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "specialists": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["skill", "activation", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "skill": {
+                "type": "string",
+                "enum": [
+                  "argus-opportunity-intelligence",
+                  "argus-ecosystem-intelligence",
+                  "argus-procurement-market-intelligence",
+                  "argus-monitoring-revalidation"
+                ]
+              },
+              "activation": {
+                "type": "string",
+                "enum": ["REQUIRED", "CONDITIONAL", "SKIP"]
+              },
+              "reason": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    }
+  }
+}
