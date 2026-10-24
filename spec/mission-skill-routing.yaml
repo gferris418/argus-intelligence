@@ -1,0 +1,48 @@
+version: 1.0.0
+status: candidate
+authority:
+  next_step_authority: ATLAS
+  specialists_are_not_control_planes: true
+  preserve_canonical_ids_across_specialists: true
+  specialist_may_create_competing_canonical_identity: false
+mission_states:
+  - SEED
+  - NEED_OBSERVED
+  - PROJECT_IDENTIFIED
+  - PROCUREMENT_EXPECTED
+  - PROCUREMENT_LIVE
+  - PROCUREMENT_CLOSED
+  - AWARD_OBSERVED
+  - POST_AWARD
+revalidation_overlay:
+  stale_revalidation_required: true
+  orthogonal_to_mission_state: true
+  secondary_source_cannot_promote_canonical_lifecycle: true
+procurement_modes:
+  - DISCOVERY
+  - LIVE_PROCUREMENT
+  - POST_DEADLINE_REVALIDATION
+specialists:
+  - argus-opportunity-intelligence
+  - argus-ecosystem-intelligence
+  - argus-procurement-market-intelligence
+  - argus-monitoring-revalidation
+rules:
+  live_procurement_requires_authoritative_evidence: true
+  activate_only_when_decision_relevant: true
+  specialist_output_returns_to_argus_router: true
+  argus_router_returns_to_atlas: true
+pilot_profiles:
+  COASTAL_PATROL_VESSEL_BCG:
+    mission_state: PROCUREMENT_LIVE
+    procurement_mode: LIVE_PROCUREMENT
+    stale_revalidation_required: true
+  COASTAL_SURVEILLANCE_RADAR_BN:
+    mission_state: SEED
+    procurement_mode: DISCOVERY
+    live_procurement_requires_authoritative_evidence: true
+  SEED_CLEANER_CUM_GRADER_BADC:
+    mission_state: SEED
+    procurement_mode: DISCOVERY
+    stale_revalidation_required: true
+    secondary_source_cannot_promote_canonical_lifecycle: true
