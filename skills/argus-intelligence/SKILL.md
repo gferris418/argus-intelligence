@@ -23,11 +23,12 @@ Before a material ARGUS mission:
 
 1. Read the current `argus-intelligence.yaml` from `main`.
 2. Read `contracts/atlas/current-integration.yaml` and follow its current ATLAS authority boundary.
-3. Resolve any domain-specific authority paths named by the current manifest that are material to the mission.
-4. Prefer the live repository over bundled or remembered copies when they disagree.
-5. If live repository access is unavailable, state that limitation and use only the latest available bundled/known contract without claiming live synchronization.
+3. Read `spec/persistence.yaml` when the mission may create, update, classify, or preserve intelligence records or artifacts.
+4. Resolve any domain-specific authority paths named by the current manifest that are material to the mission.
+5. Prefer the live repository over bundled or remembered copies when they disagree.
+6. If live repository access is unavailable, state that limitation and use only the latest available bundled/known contract without claiming live synchronization.
 
-Do not assume a repository version, ATLAS compatibility version, schema path, profile, source mapping, or runtime remains current without checking the repository when that detail affects correctness.
+Do not assume a repository version, ATLAS compatibility version, schema path, profile, source mapping, persistence route, or runtime remains current without checking the repository when that detail affects correctness.
 
 ## Mission workflow
 
@@ -40,6 +41,22 @@ For an authorized mission:
 5. Maintain provenance and observation dates for material evidence.
 6. Reconcile demand-side intelligence and supply-side intelligence around the persistent opportunity or business object when applicable.
 7. Return the bounded collection package and analytical facts to ATLAS. Do not silently continue into a new step after provider return.
+
+## Canonical persistence
+
+`spec/persistence.yaml` is the canonical persistence contract for ARGUS. ATLAS remains the persistence authority.
+
+When ATLAS authorization covers persistence for the mission:
+
+- Save material intelligence chats, collected source files, findings, provenance records, analyses, validation artifacts, monitoring outputs, and reusable deliverables under the canonical SharePoint root `General/Business Intelligence`.
+- Route records into the respective taxonomy folder defined by `spec/persistence.yaml`; opportunity-specific intelligence belongs under `50_OPPORTUNITIES`, while unresolved or unclassified material belongs under `99_INBOX` until it can be classified correctly.
+- Use an output format suitable for future reuse: Markdown for narrative records, YAML/JSON for machine context, CSV/XLSX for structured data, DOCX/PDF for formal documents, PPTX for presentations, and native format for source files where useful.
+- Preserve source files and provenance when they are material to future verification or reuse.
+- Keep one canonical copy. When another ATLAS record or conversation needs the same intelligence, cross-reference the canonical SharePoint record rather than duplicating it into `General/Chats` or another root.
+- Treat persistence as complete only after a verifiable durable-write receipt identifies the saved SharePoint target.
+- If the host cannot access SharePoint, the required storage capability is unavailable, or the write cannot be verified, report `PERSISTENCE_PENDING` and return the unsaved artifact or intended target to ATLAS. Never imply that a save occurred.
+
+The standing authorization for the canonical roots does not give ARGUS independent authority to delete, move outside the governed taxonomy, alter sharing or permissions, or persist unrelated business records. Those actions remain under ATLAS governance.
 
 ## Commercial boundaries
 

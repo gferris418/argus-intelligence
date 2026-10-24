@@ -1,0 +1,54 @@
+version: 1.0.0
+id: argus.sharepoint-persistence
+status: active
+normative: true
+
+authority:
+  provider: argus-intelligence
+  governor: atlas-os
+  persistence_requires_atlas_authorization: true
+
+sharepoint:
+  hostname: accessasiaccl.sharepoint.com
+  site_path: /sites/accessasia
+  library: Shared Documents
+
+root:
+  name: Business Intelligence
+  path: General/Business Intelligence
+  web_url: https://accessasiaccl.sharepoint.com/sites/accessasia/Shared%20Documents/General/Business%20Intelligence
+  share_link: https://accessasiaccl.sharepoint.com/:f:/r/sites/accessasia/Shared%20Documents/General/Business%20Intelligence?d=w506bdcf840874f8c8897d0dc0635c868&csf=1&web=1&e=OKqiwo
+
+routing:
+  source_map: 10_SOURCE_MAP
+  architecture: 20_ARCHITECTURE
+  operations: 30_OPERATIONS
+  validation: 40_VALIDATION
+  opportunity_intelligence: 50_OPPORTUNITIES
+  archive: 90_ARCHIVE
+  unresolved_or_unclassified: 99_INBOX
+
+formats:
+  narrative:
+    - md
+  machine_context:
+    - yaml
+    - json
+  structured_data:
+    - csv
+    - xlsx
+  formal_documents:
+    - docx
+    - pdf
+  presentations:
+    - pptx
+  source_files: native
+
+rules:
+  preserve_source_files: true
+  single_canonical_copy: true
+  cross_reference_instead_of_duplicate: true
+  durable_write_receipt_required: true
+  persist_material_chats_files_findings_and_outputs: true
+  use_respective_taxonomy_folder: true
+  fail_closed_status: PERSISTENCE_PENDING
