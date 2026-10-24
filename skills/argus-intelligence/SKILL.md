@@ -57,7 +57,7 @@ Every specialist returns a bounded result to this ARGUS mission context containi
 
 ## Persistence
 
-`spec/persistence.yaml` remains canonical. ATLAS remains the persistence authority. When persistence is authorized, route intelligence to `General/Business Intelligence`, preserve one canonical copy, keep material provenance, and require a verifiable durable-write receipt. If the host cannot perform or verify the write, return `PERSISTENCE_PENDING`; never imply success.
+`spec/persistence.yaml` remains canonical. ATLAS remains the persistence authority. When persistence is authorized, route intelligence to `General/Business Intelligence`; route opportunity-specific intelligence under `General/Business Intelligence/50_OPPORTUNITIES`, and route unresolved or unclassified material to `General/Business Intelligence/99_INBOX` until it can be classified correctly. Preserve one canonical copy, keep material provenance, and require a verifiable durable-write receipt. If the host cannot perform or verify the write, return `PERSISTENCE_PENDING`; never imply success.
 
 ## Host rule
 
