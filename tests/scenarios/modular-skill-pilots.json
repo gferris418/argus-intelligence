@@ -1,0 +1,47 @@
+{
+  "COASTAL_PATROL_VESSEL_BCG": {
+    "mission_state": "PROCUREMENT_LIVE",
+    "procurement_mode": "LIVE_PROCUREMENT",
+    "stale_revalidation_required": true,
+    "specialists": {
+      "argus-opportunity-intelligence": "REQUIRED",
+      "argus-procurement-market-intelligence": "REQUIRED",
+      "argus-ecosystem-intelligence": "REQUIRED",
+      "argus-monitoring-revalidation": "REQUIRED"
+    },
+    "must": [
+      "reuse_existing_lineage",
+      "latest_authoritative_event_controls_current_dates"
+    ]
+  },
+  "COASTAL_SURVEILLANCE_RADAR_BN": {
+    "mission_state": "SEED",
+    "procurement_mode": "DISCOVERY",
+    "stale_revalidation_required": false,
+    "specialists": {
+      "argus-opportunity-intelligence": "REQUIRED",
+      "argus-ecosystem-intelligence": "REQUIRED",
+      "argus-procurement-market-intelligence": "CONDITIONAL",
+      "argus-monitoring-revalidation": "CONDITIONAL"
+    },
+    "must": [
+      "live_procurement_requires_authoritative_evidence",
+      "supplier_coverage_cannot_promote_opportunity"
+    ]
+  },
+  "SEED_CLEANER_CUM_GRADER_BADC": {
+    "mission_state": "SEED",
+    "procurement_mode": "DISCOVERY",
+    "stale_revalidation_required": true,
+    "specialists": {
+      "argus-opportunity-intelligence": "REQUIRED",
+      "argus-procurement-market-intelligence": "REQUIRED",
+      "argus-ecosystem-intelligence": "REQUIRED",
+      "argus-monitoring-revalidation": "REQUIRED"
+    },
+    "must": [
+      "historical_need_not_current_lifecycle",
+      "secondary_source_cannot_promote_canonical_lifecycle"
+    ]
+  }
+}
