@@ -20,6 +20,18 @@ class ChatGPTPluginPackageWorkflowTests(unittest.TestCase):
         self.assertIn("name: Emit repository synchronization event", text)
         self.assertIn("github.event_name == 'push'", text)
 
+    def test_bundles_persistence_contract_required_by_skill(self) -> None:
+        text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("'spec/persistence.yaml'", text)
+        self.assertIn(
+            "mkdir -p dist/plugin-package/argus-intelligence/spec",
+            text,
+        )
+        self.assertIn(
+            "cp spec/persistence.yaml dist/plugin-package/argus-intelligence/spec/persistence.yaml",
+            text,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
