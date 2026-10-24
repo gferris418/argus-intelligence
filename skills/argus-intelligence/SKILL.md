@@ -3,7 +3,7 @@ name: argus-intelligence
 description: Route an ATLAS-authorized ARGUS intelligence mission by maturity, evidence gaps, and decision value; use for bounded 360-degree business intelligence before selecting specialist ARGUS skills.
 metadata:
   accessasia-core-version: "3.0.0-rc.2"
-  accessasia-plugin-version: "3.0.2"
+  accessasia-plugin-version: "3.0.3"
 ---
 
 # ARGUS Intelligence
