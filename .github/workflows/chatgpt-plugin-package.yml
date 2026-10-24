@@ -7,17 +7,33 @@ on:
     paths:
       - 'plugin.json'
       - 'skills/argus-intelligence/**'
+      - 'skills/argus-opportunity-intelligence/**'
+      - 'skills/argus-ecosystem-intelligence/**'
+      - 'skills/argus-procurement-market-intelligence/**'
+      - 'skills/argus-monitoring-revalidation/**'
       - 'spec/persistence.yaml'
+      - 'spec/mission-skill-routing.yaml'
+      - 'schemas/mission-skill-plan.schema.json'
       - '.github/workflows/chatgpt-plugin-package.yml'
       - 'tests/test_chatgpt_plugin_package.py'
+      - 'tests/test_modular_skill_pilots.py'
+      - 'tests/scenarios/modular-skill-pilots.json'
   push:
     branches: [main]
     paths:
       - 'plugin.json'
       - 'skills/argus-intelligence/**'
+      - 'skills/argus-opportunity-intelligence/**'
+      - 'skills/argus-ecosystem-intelligence/**'
+      - 'skills/argus-procurement-market-intelligence/**'
+      - 'skills/argus-monitoring-revalidation/**'
       - 'spec/persistence.yaml'
+      - 'spec/mission-skill-routing.yaml'
+      - 'schemas/mission-skill-plan.schema.json'
       - '.github/workflows/chatgpt-plugin-package.yml'
       - 'tests/test_chatgpt_plugin_package.py'
+      - 'tests/test_modular_skill_pilots.py'
+      - 'tests/scenarios/modular-skill-pilots.json'
 
 permissions:
   contents: read
@@ -49,6 +65,10 @@ jobs:
           assert skill.startswith('---\nname: argus-intelligence\n')
           persistence = Path('spec/persistence.yaml').read_text(encoding='utf-8')
           assert 'id: argus.sharepoint-persistence' in persistence
+          routing = Path('spec/mission-skill-routing.yaml').read_text(encoding='utf-8')
+          assert 'next_step_authority: ATLAS' in routing
+          schema = json.loads(Path('schemas/mission-skill-plan.schema.json').read_text(encoding='utf-8'))
+          assert schema['title'] == 'ARGUS Mission Skill Plan'
           short = manifest['extensions']['com.openai']['interface']['shortDescription']
           assert len(short) <= 30
           print(f"Validated ARGUS plugin {manifest['version']}")
@@ -60,11 +80,18 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf dist/plugin-package
-          mkdir -p dist/plugin-package/argus-intelligence/skills/argus-intelligence
+          mkdir -p dist/plugin-package/argus-intelligence/skills
           mkdir -p dist/plugin-package/argus-intelligence/spec
+          mkdir -p dist/plugin-package/argus-intelligence/schemas
           cp plugin.json dist/plugin-package/argus-intelligence/plugin.json
-          cp skills/argus-intelligence/SKILL.md dist/plugin-package/argus-intelligence/skills/argus-intelligence/SKILL.md
+          cp -R skills/argus-intelligence dist/plugin-package/argus-intelligence/skills/argus-intelligence
+          cp -R skills/argus-opportunity-intelligence dist/plugin-package/argus-intelligence/skills/argus-opportunity-intelligence
+          cp -R skills/argus-ecosystem-intelligence dist/plugin-package/argus-intelligence/skills/argus-ecosystem-intelligence
+          cp -R skills/argus-procurement-market-intelligence dist/plugin-package/argus-intelligence/skills/argus-procurement-market-intelligence
+          cp -R skills/argus-monitoring-revalidation dist/plugin-package/argus-intelligence/skills/argus-monitoring-revalidation
           cp spec/persistence.yaml dist/plugin-package/argus-intelligence/spec/persistence.yaml
+          cp spec/mission-skill-routing.yaml dist/plugin-package/argus-intelligence/spec/mission-skill-routing.yaml
+          cp schemas/mission-skill-plan.schema.json dist/plugin-package/argus-intelligence/schemas/mission-skill-plan.schema.json
           cd dist/plugin-package
           zip -qr ../argus-intelligence-chatgpt-plugin.zip argus-intelligence
       - name: Build synchronization request
@@ -83,7 +110,15 @@ jobs:
           wrapper_paths = [
               'plugin.json',
               'skills/argus-intelligence/SKILL.md',
+              'skills/argus-intelligence/references/mission-routing.md',
+              'skills/argus-intelligence/references/untrusted-source-boundary.md',
+              'skills/argus-opportunity-intelligence/SKILL.md',
+              'skills/argus-ecosystem-intelligence/SKILL.md',
+              'skills/argus-procurement-market-intelligence/SKILL.md',
+              'skills/argus-monitoring-revalidation/SKILL.md',
               'spec/persistence.yaml',
+              'spec/mission-skill-routing.yaml',
+              'schemas/mission-skill-plan.schema.json',
           ]
           request = {
               'schema_version': '1.0.0',

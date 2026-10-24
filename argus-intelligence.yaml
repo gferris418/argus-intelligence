@@ -59,6 +59,8 @@ authority:
   collection_mission_schema: schemas/collection-mission.schema.json
   collection_package_schema: schemas/intelligence-collection-package.schema.json
   domain_result_schema: schemas/domain-result.schema.json
+  mission_skill_routing: spec/mission-skill-routing.yaml
+  mission_skill_plan_schema: schemas/mission-skill-plan.schema.json
   atlas_domain_context_contract: contracts/atlas/domain-context-handoff-v1.schema.json
   atlas_execution_lease_contract: contracts/atlas/execution-lease-v1.schema.json
   atlas_signing_key_registry_contract: contracts/atlas/signing-key-registry-v1.schema.json

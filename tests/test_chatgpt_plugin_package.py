@@ -20,17 +20,43 @@ class ChatGPTPluginPackageWorkflowTests(unittest.TestCase):
         self.assertIn("name: Emit repository synchronization event", text)
         self.assertIn("github.event_name == 'push'", text)
 
-    def test_bundles_persistence_contract_required_by_skill(self) -> None:
+    def test_bundles_all_modular_skills_and_required_contracts(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("'spec/persistence.yaml'", text)
-        self.assertIn(
-            "mkdir -p dist/plugin-package/argus-intelligence/spec",
-            text,
-        )
-        self.assertIn(
-            "cp spec/persistence.yaml dist/plugin-package/argus-intelligence/spec/persistence.yaml",
-            text,
-        )
+        required_paths = [
+            "skills/argus-intelligence/SKILL.md",
+            "skills/argus-intelligence/references/mission-routing.md",
+            "skills/argus-intelligence/references/untrusted-source-boundary.md",
+            "skills/argus-opportunity-intelligence/SKILL.md",
+            "skills/argus-ecosystem-intelligence/SKILL.md",
+            "skills/argus-procurement-market-intelligence/SKILL.md",
+            "skills/argus-monitoring-revalidation/SKILL.md",
+            "spec/persistence.yaml",
+            "spec/mission-skill-routing.yaml",
+            "schemas/mission-skill-plan.schema.json",
+        ]
+        for path in required_paths:
+            self.assertIn(path, text, path)
+
+        self.assertIn("mkdir -p dist/plugin-package/argus-intelligence/schemas", text)
+        self.assertIn("cp -R skills/argus-intelligence", text)
+        self.assertIn("cp -R skills/argus-opportunity-intelligence", text)
+        self.assertIn("cp -R skills/argus-ecosystem-intelligence", text)
+        self.assertIn("cp -R skills/argus-procurement-market-intelligence", text)
+        self.assertIn("cp -R skills/argus-monitoring-revalidation", text)
+
+    def test_modular_contracts_are_release_driving(self) -> None:
+        text = WORKFLOW.read_text(encoding="utf-8")
+        for trigger in (
+            "skills/argus-opportunity-intelligence/**",
+            "skills/argus-ecosystem-intelligence/**",
+            "skills/argus-procurement-market-intelligence/**",
+            "skills/argus-monitoring-revalidation/**",
+            "spec/mission-skill-routing.yaml",
+            "schemas/mission-skill-plan.schema.json",
+            "tests/test_modular_skill_pilots.py",
+            "tests/scenarios/modular-skill-pilots.json",
+        ):
+            self.assertIn(trigger, text, trigger)
 
 
 if __name__ == "__main__":
