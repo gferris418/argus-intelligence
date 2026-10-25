@@ -1,0 +1,115 @@
+document_id: ACCESS-ASIA-SECURITY-BOUNDARY-001
+version: 1.0.0
+status: ACTIVE
+owner: Access Asia Limited
+governance_owner: ATLAS_OS
+domain_owner: ARGUS
+scope: Access Asia ATLAS-ARGUS-SharePoint intelligence and commercial-graph deployment
+
+principles:
+  - model_output_is_not_authority
+  - retrieved_content_is_untrusted_data
+  - authorization_is_enforced_outside_prompts_and_skills
+  - consequential_actions_require_authoritative_approval
+  - external_provider_security_claims_require_provider_evidence
+  - missing_security_evidence_fails_closed
+
+execution:
+  code_execution_present: true
+  security_sandbox_claim: false
+  current_boundary: host_owned_execution_plus_repository_branch_protection_and_ci
+  isolation_evidence_status: external_host_evidence_required
+  rule: a directory subprocess or ordinary host process must not be represented as a security sandbox
+  approval_before_consequential_execution: required
+
+oauth:
+  used_by_connected_services: true
+  enforcement_owner: host_or_connected_service_provider
+  enforcement_status: external_provider_evidence_required
+  required_evidence:
+    - authorization_server_and_issuer_validation
+    - audience_or_resource_validation
+    - expiry_validation
+    - required_permission_or_scope_validation
+    - exact_redirect_uri_or_standard_exception
+    - pkce_for_public_clients_where_applicable
+    - refresh_token_protection_where_applicable
+    - callback_state_validation
+  rule: repository configuration must not claim these controls passed without authoritative provider evidence
+
+mcp_and_connected_providers:
+  in_scope: true
+  authorization_owner: host_or_provider_boundary
+  annotations_are_authorization: false
+  caller_authorization_required_per_protected_operation: true
+  capability_handles_are_not_authentication: true
+  external_enforcement_evidence_status: provider_evidence_required
+
+network:
+  external_connectivity: true
+  ssrf_enforcement_owner: host_or_provider_boundary
+  ssrf_enforcement_status: external_provider_evidence_required
+  required_ssrf_properties:
+    - block_loopback_unless_explicitly_required
+    - block_link_local_unless_explicitly_required
+    - block_cloud_metadata_endpoints
+    - block_private_ranges_unless_explicitly_required
+    - validate_redirects_and_destination_changes
+    - constrain_egress_to_required_services_where_supported
+  rule: user model or retrieved URLs do not bypass provider network policy
+
+secrets:
+  preferred_delivery: dedicated_host_identity_or_secrets_infrastructure
+  forbidden_in:
+    - prompts
+    - skills
+    - source_control
+    - urls
+    - ordinary_logs
+    - public_artifacts
+    - public_issue_or_pull_request_text
+  secret_types:
+    - passwords
+    - bearer_tokens
+    - access_tokens
+    - refresh_tokens
+    - api_keys
+    - private_keys
+    - authentication_cookies
+  scope_rule: credentials must be least-privilege and scoped to the required provider or resource
+  rotation_rule: credentials must be rotated or revoked when compromised expired or no longer required
+
+logging:
+  purpose: minimum evidence needed for audit verification troubleshooting and incident response
+  never_log_raw:
+    - passwords
+    - access_tokens
+    - refresh_tokens
+    - api_keys
+    - private_keys
+    - authentication_cookies
+    - unnecessary_sensitive_prompt_or_document_content
+    - protected_personal_financial_health_information
+  allowed_identifiers:
+    - stable_internal_object_ids_when_not_secret
+    - run_or_task_ids
+    - approval_receipt_ids
+    - repository_commit_ids
+    - provider_operation_status
+  minimization_rule: log only what is required for the declared audit purpose
+
+public_repository_boundary:
+  repositories_public: true
+  prohibited_content:
+    - credentials_or_tokens
+    - sharepoint_native_drive_or_item_ids
+    - hubspot_native_ids
+    - personal_contact_data
+    - confidential_crm_exports
+    - restricted_source_payloads
+    - raw_tender_or_source_documents
+  rule: public GitHub contains schemas governance tests and non-secret logical references only
+
+verification:
+  internal_policy_controls_tested_by: tests/test_uaes_e1_security_contracts.py
+  external_provider_controls: remain_pending_until_provider_evidence_is_collected
