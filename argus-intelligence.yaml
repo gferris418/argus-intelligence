@@ -31,6 +31,10 @@ authority:
   access_asia_system_registry: profiles/access-asia-system-registry.yaml
   access_asia_commercial_data_standard: profiles/access-asia-commercial-data-standard-v1.0.yaml
   access_asia_canonical_reconciliation: profiles/access-asia-canonical-reconciliation-v1.0.yaml
+  access_asia_operational_state_machines: profiles/access-asia-operational-state-machines-v1.0.yaml
+  access_asia_security_boundary: profiles/access-asia-security-boundary-v1.0.yaml
+  access_asia_threat_register: profiles/access-asia-threat-register-v1.0.yaml
+  access_asia_containment_plan: profiles/access-asia-containment-plan-v1.0.yaml
   canonical_identity_standard: profiles/canonical-object-identity-standard-v1.0.yaml
   operational_database_schema: schemas/argus-operational-store-v1.sql
   operational_database_runtime: tools/argus_operational_db.py
