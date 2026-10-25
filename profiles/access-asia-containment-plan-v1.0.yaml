@@ -1,0 +1,79 @@
+document_id: ACCESS-ASIA-CONTAINMENT-001
+version: 1.0.0
+status: ACTIVE
+owner: Access Asia Limited
+governance_owner: ATLAS_OS
+scope: Access Asia ATLAS-ARGUS-SharePoint intelligence and commercial-graph deployment
+
+principles:
+  - containment_actions_fail_closed
+  - authority_to_restore_is_separate_from_detection
+  - every consequential containment_action_requires_a_receipt
+  - provider_success_does_not_equal_atlas_completion
+  - containment_scope_should_be_surgical_when_possible
+
+actions:
+  disable_argus_activation:
+    authority: ATLAS_OS
+    trigger: suspected provider compromise repeated boundary violation or unsafe autonomous behavior
+    mechanism: deny ARGUS_ACTIVATION and route future work through alternate or no-provider mechanisms
+    verification: attempt to activate ARGUS is rejected and recorded
+    receipt_required: true
+    restore_rule: restore only after root-cause review verification and explicit ATLAS authorization
+
+  revoke_connector_authorization:
+    authority: connected_service_owner_or_authorized_admin
+    trigger: suspected credential compromise authorization drift or provider misuse
+    mechanism: revoke or disconnect delegated authorization at the connected service or host boundary
+    verification: protected provider operation fails with authorization denied and no reusable secret remains active
+    receipt_required: true
+    restore_rule: reconnect only with least-privilege authorization after incident closure
+
+  suspend_canonical_persistence:
+    authority: ATLAS_OS
+    trigger: suspected data poisoning schema drift unauthorized mutation or integrity failure
+    mechanism: set persistence decision to BLOCKED and preserve current durable state without new canonical writes
+    verification: attempted canonical persistence is blocked and a durable incident receipt is produced
+    receipt_required: true
+    restore_rule: require integrity verification evidence review and explicit persistence reauthorization
+
+  block_external_actions:
+    authority: ATLAS_OS
+    trigger: suspected excessive agency approval spoofing prompt injection or exfiltration path
+    mechanism: deny EXTERNAL_ACTION and consequential write execution while allowing bounded read-only investigation when safe
+    verification: attempted external action is rejected before side effect and the denial is recorded
+    receipt_required: true
+    restore_rule: restore only after approval and policy path are revalidated
+
+  freeze_repository_writes:
+    authority: repository_owner_or_authorized_admin
+    trigger: suspected supply-chain compromise malicious commit dependency compromise or unauthorized code change
+    mechanism: block merges and write paths through branch protection repository controls or emergency administrative freeze
+    verification: unauthorized or unreviewed merge path is unavailable and current trusted commit is recorded
+    receipt_required: true
+    restore_rule: restore only after repository integrity dependency and signer review
+
+incident_flow:
+  - detect
+  - triage
+  - contain
+  - revoke_or_disable
+  - preserve_evidence
+  - recover
+  - verify
+  - restore
+  - postmortem
+  - add_regression_test_or_policy
+
+minimum_incident_record:
+  - incident_id
+  - detected_at
+  - reporter_or_detector
+  - affected_scope
+  - suspected_threat
+  - containment_actions
+  - evidence_refs
+  - authority
+  - restore_decision
+  - verification_result
+  - follow_up_test_or_policy
