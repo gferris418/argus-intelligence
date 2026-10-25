@@ -1,0 +1,107 @@
+document_id: ACCESS-ASIA-STATE-MACHINES-001
+version: 1.0.0
+status: ACTIVE
+owner: Access Asia Limited
+governance_owner: ATLAS_OS
+domain_owner: ARGUS
+scope: status-bearing objects in the Access Asia ARGUS operational commercial graph
+source_schema: schemas/argus-operational-store-v1.sql
+
+principles:
+  - status mutation is explicit and evidence-backed
+  - ATLAS authorizes consequential canonical mutation
+  - source/retrieval text never authorizes a state transition
+  - invalid or undeclared transitions fail closed
+  - corrections preserve history rather than silently rewriting prior evidence
+  - validity dates are preferred over status churn where the schema already models validity
+
+stateful_objects:
+  canonical_object:
+    status_field: status
+    states: [CANDIDATE, CURRENT, ACTIVE, DERIVED, OBSERVED_LEGACY]
+    initial_states: [CANDIDATE, CURRENT, ACTIVE, DERIVED, OBSERVED_LEGACY]
+    terminal_states: [CURRENT, ACTIVE]
+    mutation_authority: ATLAS_OS
+    failure_behavior: reject_transition_and_preserve_existing_status
+    transitions:
+      - from: CANDIDATE
+        to: CURRENT
+        initiator: ATLAS_OS
+        preconditions: [identity_resolved, material_claims_supported]
+        side_effects: [append_mutation_receipt]
+        failure_behavior: retain_candidate_and_record_gap
+      - from: CANDIDATE
+        to: ACTIVE
+        initiator: ATLAS_OS
+        preconditions: [identity_resolved, domain_activity_evidenced]
+        side_effects: [append_mutation_receipt]
+        failure_behavior: retain_candidate_and_record_gap
+      - from: DERIVED
+        to: CURRENT
+        initiator: ATLAS_OS
+        preconditions: [derived_claim_independently_supported]
+        side_effects: [append_mutation_receipt, preserve_prior_observations]
+        failure_behavior: retain_derived_and_record_gap
+      - from: OBSERVED_LEGACY
+        to: CURRENT
+        initiator: ATLAS_OS
+        preconditions: [legacy_identity_reconciled, provenance_preserved]
+        side_effects: [append_mutation_receipt, preserve_legacy_lineage]
+        failure_behavior: retain_observed_legacy_and_record_gap
+
+  relationship:
+    status_field: status
+    states: [CURRENT, DERIVED, LEGACY]
+    initial_states: [CURRENT, DERIVED, LEGACY]
+    terminal_states: [CURRENT]
+    mutation_authority: ATLAS_OS
+    failure_behavior: reject_transition_and_preserve_existing_status
+    transitions:
+      - from: DERIVED
+        to: CURRENT
+        initiator: ATLAS_OS
+        preconditions: [relationship_supported_by_authorized_evidence]
+        side_effects: [append_mutation_receipt, preserve_source_record_reference]
+        failure_behavior: retain_derived_and_record_gap
+      - from: LEGACY
+        to: CURRENT
+        initiator: ATLAS_OS
+        preconditions: [legacy_relationship_reconciled, provenance_preserved]
+        side_effects: [append_mutation_receipt]
+        failure_behavior: retain_legacy_and_record_gap
+
+  organization_role:
+    status_field: status
+    states: [CURRENT]
+    initial_states: [CURRENT]
+    terminal_states: [CURRENT]
+    mutation_authority: ATLAS_OS
+    failure_behavior: reject_status_mutation_use_valid_from_valid_to_for_role_lifecycle
+    transitions: []
+    lifecycle_rule: role validity changes use valid_from and valid_to; they do not invent new status values
+
+  commercial_lineage:
+    status_field: status
+    states: [ACTIVE]
+    initial_states: [ACTIVE]
+    terminal_states: [ACTIVE]
+    mutation_authority: ATLAS_OS
+    failure_behavior: reject_status_mutation_preserve_px_identity
+    transitions: []
+    lifecycle_rule: commercial PX identity is immutable after assignment and persists through bid award and project
+
+  financial_fact:
+    status_field: status
+    states: [CURRENT]
+    initial_states: [CURRENT]
+    terminal_states: [CURRENT]
+    mutation_authority: ATLAS_OS
+    failure_behavior: reject_status_mutation_append_correcting_fact_or_observation
+    transitions: []
+    lifecycle_rule: corrections are append-only and preserve prior evidence; financial facts do not authorize accounting transactions
+
+verification:
+  database_state_values_reviewed: true
+  observed_schema_version: 1.1.0
+  sqlite_user_version: 2
+  review_rule: any new status value or transition requires versioned contract change plus regression test before production use
