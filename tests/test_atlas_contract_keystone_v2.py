@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_CANONICAL_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
+ATLAS_CANONICAL_COMMIT = "2972f272026d2cf41e5dd847eb939d3579d8520a"
 ATLAS_CANONICAL_PATH = "contracts/atlas-argus-execution-v2.json"
 
 
