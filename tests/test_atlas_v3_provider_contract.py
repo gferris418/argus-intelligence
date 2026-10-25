@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_CANONICAL_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
+ATLAS_CANONICAL_COMMIT = "2972f272026d2cf41e5dd847eb939d3579d8520a"
 ATLAS_LAST_VALIDATED_BASE_COMMIT = "95e78eb4f386c7434193014811ef8d2ce5254c30"
 
 

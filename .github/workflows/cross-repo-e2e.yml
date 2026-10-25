@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: gferris418/atlas-os
-          ref: 27e57c3a80c0910e7fb2fca320d8fad22f4031af
+          ref: 2972f272026d2cf41e5dd847eb939d3579d8520a
           path: atlas-os
           persist-credentials: false
       - name: Set up Python
