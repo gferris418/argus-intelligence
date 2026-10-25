@@ -11,7 +11,7 @@ from tools.cross_repo_e2e import _prepare_atlas_import
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ATLAS_COMMIT = "27e57c3a80c0910e7fb2fca320d8fad22f4031af"
+ATLAS_COMMIT = "2972f272026d2cf41e5dd847eb939d3579d8520a"
 
 
 class CrossRepositoryCommandTests(unittest.TestCase):
