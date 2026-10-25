@@ -1,0 +1,331 @@
+document_id: ACCESS-ASIA-THREAT-REGISTER-001
+version: 1.0.0
+status: ACTIVE
+owner: Access Asia Limited
+governance_owner: ATLAS_OS
+scope: Access Asia ATLAS-ARGUS-SharePoint intelligence and commercial-graph deployment
+review_cadence: on_material_architecture_change_and_before_stronger_uaes_claim
+
+threats:
+  - id: THR-001
+    type: direct_prompt_injection
+    asset: ATLAS mission intent and authorization boundary
+    trust_boundary: user_input_to_model
+    actor: malicious_or_mistaken_user
+    entry_point: direct_user_prompt
+    abuse_case: instructions attempt to bypass ATLAS approval routing or persistence policy
+    affected_contracts: [atlas.control-plane, atlas.approvals, atlas.execution]
+    likelihood: medium
+    impact: high
+    preventive_controls: [mission_control_first, approval_outside_model, bounded_handoff]
+    detective_controls: [verification_before_completion, audit_receipts]
+    containment: [disable_argus_activation, block_external_actions]
+    owner: ATLAS_OS
+    verification_method: adversarial prompt tests and approval-boundary regression tests
+    residual_risk: medium
+
+  - id: THR-002
+    type: indirect_prompt_injection
+    asset: evidence integrity and execution authority
+    trust_boundary: retrieved_content_to_model
+    actor: malicious_source_publisher
+    entry_point: web documents tender files connected sources
+    abuse_case: retrieved text instructs the model to exfiltrate data or invoke unauthorized actions
+    affected_contracts: [atlas.evidence, atlas.control-plane, argus.untrusted-source-boundary]
+    likelihood: high
+    impact: high
+    preventive_controls: [retrieved_content_is_data_not_authority, provider_return_to_atlas]
+    detective_controls: [material_claim_verification, source_provenance_review]
+    containment: [block_external_actions, suspend_canonical_persistence]
+    owner: ATLAS_OS
+    verification_method: indirect-injection adversarial evaluation
+    residual_risk: medium
+
+  - id: THR-003
+    type: goal_hijacking
+    asset: declared mission objective
+    trust_boundary: model_planning_to_control_plane
+    actor: malicious_input_or_compromised_model
+    entry_point: prompt retrieved content provider result
+    abuse_case: system drifts from the authorized business-intelligence objective
+    affected_contracts: [atlas.routing, atlas.control-plane]
+    likelihood: medium
+    impact: high
+    preventive_controls: [bounded_work_unit, atlas_owns_next_step]
+    detective_controls: [provider_result_reconciliation, requested_outcome_verification]
+    containment: [disable_argus_activation]
+    owner: ATLAS_OS
+    verification_method: goal-drift scenario tests
+    residual_risk: low
+
+  - id: THR-004
+    type: tool_misuse
+    asset: connected systems and canonical data
+    trust_boundary: model_to_provider_tool
+    actor: compromised_model_or_user
+    entry_point: connected-source or external-action request
+    abuse_case: allowed tool is invoked with unauthorized arguments or scope
+    affected_contracts: [atlas.routing, atlas.execution, atlas.approvals]
+    likelihood: medium
+    impact: high
+    preventive_controls: [provider_selection_policy, task_dependent_approval, server_side_authorization]
+    detective_controls: [operation_receipts, provider_result_reconciliation]
+    containment: [revoke_connector_authorization, block_external_actions]
+    owner: ATLAS_OS
+    verification_method: authorization-boundary and argument-tampering tests
+    residual_risk: medium
+
+  - id: THR-005
+    type: excessive_agency
+    asset: user authority and business systems
+    trust_boundary: model_to_autonomous_execution
+    actor: model_or_misconfigured_policy
+    entry_point: autonomous mission continuation
+    abuse_case: agent performs actions beyond the approved autonomy envelope
+    affected_contracts: [atlas.control-plane, atlas.execution, atlas.approvals]
+    likelihood: medium
+    impact: high
+    preventive_controls: [atlas_owns_next_step, one_bounded_step, consequential_action_approval]
+    detective_controls: [execution_reconciliation, approval_receipts]
+    containment: [disable_argus_activation, block_external_actions]
+    owner: ATLAS_OS
+    verification_method: autonomy-boundary evaluation
+    residual_risk: low
+
+  - id: THR-006
+    type: identity_privilege_abuse
+    asset: connector identities and canonical mutation rights
+    trust_boundary: authenticated_principal_to_provider
+    actor: stolen_or_overprivileged_identity
+    entry_point: OAuth token API credential or delegated session
+    abuse_case: principal accesses or mutates resources beyond intended authority
+    affected_contracts: [atlas.approvals, provider_authorization_boundary]
+    likelihood: medium
+    impact: high
+    preventive_controls: [least_privilege, provider_managed_authentication, scoped_authorization]
+    detective_controls: [audit_receipts, provider_security_logs_where_available]
+    containment: [revoke_connector_authorization]
+    owner: ATLAS_OS
+    verification_method: external provider auth evidence plus permission review
+    residual_risk: medium
+
+  - id: THR-007
+    type: memory_context_poisoning
+    asset: decision context and canonical state
+    trust_boundary: historical_context_to_model
+    actor: malicious_or_stale_context_source
+    entry_point: conversation context cached artifacts or operational data
+    abuse_case: stale or malicious context is treated as current authority
+    affected_contracts: [atlas.evidence, argus.canonical-data-standard]
+    likelihood: medium
+    impact: medium
+    preventive_controls: [live_revalidation, canonical_system_of_record, memory_does_not_confer_authority]
+    detective_controls: [freshness_checks, conflict_visibility]
+    containment: [suspend_canonical_persistence]
+    owner: ATLAS_OS
+    verification_method: stale-context and conflict-resolution tests
+    residual_risk: low
+
+  - id: THR-008
+    type: rag_vector_poisoning_or_leakage
+    asset: retrieved intelligence and confidential data
+    trust_boundary: retrieval_index_to_model
+    actor: malicious_source_or_index_operator
+    entry_point: search retrieval connected corpus
+    abuse_case: poisoned or unauthorized content reaches generation context
+    affected_contracts: [atlas.evidence, argus.collection-method]
+    likelihood: medium
+    impact: high
+    preventive_controls: [source_provenance, retrieval_authorization_before_use, tenant_scope]
+    detective_controls: [source_validation, contradictory-evidence review]
+    containment: [revoke_connector_authorization, suspend_canonical_persistence]
+    owner: ATLAS_OS
+    verification_method: retrieval authorization and poisoned-source evaluation
+    residual_risk: medium
+
+  - id: THR-009
+    type: sensitive_information_disclosure
+    asset: confidential business personal financial and credential data
+    trust_boundary: internal_data_to_model_or_output
+    actor: user model provider or malicious source
+    entry_point: prompt retrieval logs artifacts external outputs
+    abuse_case: protected information is exposed to an unauthorized destination
+    affected_contracts: [access-asia-security-boundary, atlas.persistence]
+    likelihood: medium
+    impact: high
+    preventive_controls: [data_minimization, secret_prohibitions, pointer_not_copy_rule]
+    detective_controls: [output_review, log_policy_review]
+    containment: [revoke_connector_authorization, block_external_actions]
+    owner: Access Asia Limited
+    verification_method: sensitive-data handling review and exfiltration tests
+    residual_risk: medium
+
+  - id: THR-010
+    type: unsafe_output_handling
+    asset: downstream systems and users
+    trust_boundary: model_output_to_executor_or_document
+    actor: model_or_malicious_source
+    entry_point: generated command URL structured payload or report
+    abuse_case: unvalidated output is executed or persisted as trusted data
+    affected_contracts: [atlas.execution, atlas.verification, atlas.persistence]
+    likelihood: medium
+    impact: high
+    preventive_controls: [output_validation, authoritative_approval, schema_validation]
+    detective_controls: [post_execution_verification, contract_tests]
+    containment: [suspend_canonical_persistence, block_external_actions]
+    owner: ATLAS_OS
+    verification_method: malformed-output and unsafe-action tests
+    residual_risk: low
+
+  - id: THR-011
+    type: agent_impersonation_or_untrusted_peer
+    asset: provider identity and returned evidence
+    trust_boundary: provider_return_to_atlas
+    actor: malicious_or_spoofed_provider
+    entry_point: provider result or connector response
+    abuse_case: untrusted party is accepted as an authorized ARGUS or connected provider
+    affected_contracts: [atlas.execution, atlas.provider-registry]
+    likelihood: low
+    impact: high
+    preventive_controls: [admitted_provider_registry, bounded_provider_contract]
+    detective_controls: [provider_identity_verification, result_reconciliation]
+    containment: [disable_argus_activation, revoke_connector_authorization]
+    owner: ATLAS_OS
+    verification_method: provider spoofing regression tests
+    residual_risk: low
+
+  - id: THR-012
+    type: delegated_authority_escalation
+    asset: ATLAS control-plane authority
+    trust_boundary: atlas_to_provider_handoff
+    actor: provider_or_compromised_model
+    entry_point: bounded handoff
+    abuse_case: provider expands mission scope or makes the final ATLAS decision
+    affected_contracts: [atlas.control-plane, atlas.execution]
+    likelihood: low
+    impact: high
+    preventive_controls: [provider_cannot_self_route, provider_return_to_atlas]
+    detective_controls: [handoff_scope_validation, provider_return_reconciliation]
+    containment: [disable_argus_activation]
+    owner: ATLAS_OS
+    verification_method: provider authority-escalation tests
+    residual_risk: low
+
+  - id: THR-013
+    type: malicious_plugin_skill_or_mcp_server
+    asset: execution environment and connected data
+    trust_boundary: admitted_capability_provider
+    actor: compromised_or_malicious_plugin_skill_server
+    entry_point: plugin skill MCP or connected-source integration
+    abuse_case: provider misrepresents tool behavior steals data or performs hidden side effects
+    affected_contracts: [atlas.provider-registry, access-asia-security-boundary]
+    likelihood: medium
+    impact: high
+    preventive_controls: [provider_admission, minimum_sufficient_mechanism, server_side_authorization]
+    detective_controls: [contract_tests, provider_result_reconciliation]
+    containment: [revoke_connector_authorization, disable_argus_activation]
+    owner: ATLAS_OS
+    verification_method: provider contract and supply-chain review
+    residual_risk: medium
+
+  - id: THR-014
+    type: supply_chain_compromise
+    asset: repositories dependencies build workflows and release artifacts
+    trust_boundary: external_dependency_to_runtime
+    actor: compromised_dependency_or_repository_actor
+    entry_point: package dependency GitHub Action commit or release
+    abuse_case: malicious code enters the build or execution path
+    affected_contracts: [argus.contract-tests, repository_branch_protection]
+    likelihood: medium
+    impact: high
+    preventive_controls: [pinned_actions, dependency_audit, protected_main_branch]
+    detective_controls: [ci_audit, deterministic_package_build, review]
+    containment: [freeze_repository_writes]
+    owner: ARGUS_GITHUB
+    verification_method: dependency audit and release provenance review
+    residual_risk: medium
+
+  - id: THR-015
+    type: model_provider_compromise_or_failure
+    asset: model outputs and task continuity
+    trust_boundary: host_model_provider
+    actor: compromised_or_unavailable_provider
+    entry_point: model inference service
+    abuse_case: provider returns malicious incorrect or unavailable output
+    affected_contracts: [atlas.verification, atlas.control-plane]
+    likelihood: low
+    impact: high
+    preventive_controls: [model_not_authority, verification_before_completion]
+    detective_controls: [result_validation, unresolved_gap_visibility]
+    containment: [disable_argus_activation, block_external_actions]
+    owner: ATLAS_OS
+    verification_method: provider-failure and malformed-result scenarios
+    residual_risk: medium
+
+  - id: THR-016
+    type: resource_exhaustion_or_agent_loops
+    asset: availability cost and task completion
+    trust_boundary: model_runtime_to_tools
+    actor: malformed_task malicious_input or model_loop
+    entry_point: repeated routing retry or provider invocation
+    abuse_case: unbounded loops consume tokens calls time or external resources
+    affected_contracts: [atlas.execution, atlas.routing]
+    likelihood: medium
+    impact: medium
+    preventive_controls: [bounded_work_unit, retry_scope_preservation]
+    detective_controls: [run_observability, repeated_action_detection]
+    containment: [disable_argus_activation, block_external_actions]
+    owner: ATLAS_OS
+    verification_method: loop and retry-budget evaluation
+    residual_risk: medium
+
+  - id: THR-017
+    type: data_exfiltration_through_tools_or_network
+    asset: confidential commercial and personal information
+    trust_boundary: model_to_external_network
+    actor: malicious_prompt source provider or compromised_model
+    entry_point: URL fetch external action connector upload
+    abuse_case: data is sent to an unauthorized network destination
+    affected_contracts: [access-asia-security-boundary, atlas.execution]
+    likelihood: medium
+    impact: high
+    preventive_controls: [external_action_approval, network_policy, data_minimization]
+    detective_controls: [action_receipts, provider_network_logs_where_available]
+    containment: [block_external_actions, revoke_connector_authorization]
+    owner: ATLAS_OS
+    verification_method: exfiltration and egress-policy tests plus provider evidence
+    residual_risk: medium
+
+  - id: THR-018
+    type: approval_spoofing_or_replay
+    asset: consequential-action authorization
+    trust_boundary: approval_record_to_executor
+    actor: malicious_user model or replayed_artifact
+    entry_point: approval receipt or action request
+    abuse_case: old mismatched or fabricated approval is reused for a different action
+    affected_contracts: [atlas.approvals, atlas.execution]
+    likelihood: medium
+    impact: high
+    preventive_controls: [approval_bound_to_action, expiry_or_scope_checks, no_textual_approval]
+    detective_controls: [receipt_validation, mismatch_rejection]
+    containment: [block_external_actions]
+    owner: ATLAS_OS
+    verification_method: approval replay and mismatch regression tests
+    residual_risk: low
+
+  - id: THR-019
+    type: task_artifact_idor_bola
+    asset: task results artifacts and canonical records
+    trust_boundary: identifier_to_object_access
+    actor: unauthorized_authenticated_principal
+    entry_point: task artifact object or handle identifier
+    abuse_case: guessed or stolen identifier grants access to another object or operation
+    affected_contracts: [provider_authorization_boundary, atlas.persistence]
+    likelihood: low
+    impact: high
+    preventive_controls: [object_level_authorization, handle_not_authentication]
+    detective_controls: [authorization_denial_logs, access_review]
+    containment: [revoke_connector_authorization]
+    owner: ATLAS_OS
+    verification_method: object-level authorization tests and provider evidence
+    residual_risk: medium
